@@ -24,3 +24,4 @@
 
 
 swagger_server/controllers/default_controller.py
+swagger_server/__main__.py
