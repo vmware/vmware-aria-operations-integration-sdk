@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+python-flask-adapter/env/
+python-flask-adapter/build/
+python-flask-adapter/develop-eggs/
+python-flask-adapter/dist/
+python-flask-adapter/downloads/
+python-flask-adapter/eggs/
+python-flask-adapter/.eggs/
+python-flask-adapter/lib/
+python-flask-adapter/lib64/
+python-flask-adapter/parts/
+python-flask-adapter/sdist/
+python-flask-adapter/var/
+python-flask-adapter/.installed.cfg
+*.egg-info/
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+python-flask-adapter/pip-log.txt
+python-flask-adapter/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+python-flask-adapter/htmlcov/
+python-flask-adapter/.tox/
+python-flask-adapter/.coverage
+python-flask-adapter/.coverage.*
+python-flask-adapter/.cache
+python-flask-adapter/nosetests.xml
+python-flask-adapter/coverage.xml
+*,cover
+python-flask-adapter/.hypothesis/
+python-flask-adapter/venv/
+python-flask-adapter/.python-version
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+python-flask-adapter/docs/_build/
+
+# PyBuilder
+python-flask-adapter/target/
+
+#Ipython Notebook
+python-flask-adapter/.ipynb_checkpoints
+
+#IntelliJ project
+.idea
