@@ -25,7 +25,7 @@ def collect(body=None):  # noqa: E501
         return "No body in request", 400
 
     command = getcommand("collect")
-    environment = getenv(body)
+    environment = create_env(body)
     invocation = command + [str(body.adapter_key)]
 
     return runcommand(invocation, environment)
@@ -48,7 +48,7 @@ def test(body=None):  # noqa: E501
         return "No body in request", 400
 
     command = getcommand("test")
-    environment = getenv(body)
+    environment = create_env(body)
     invocation = command + [str(body.adapter_key)]
 
     return runcommand(invocation, environment)
@@ -78,13 +78,17 @@ def getcommand(commandtype):
     return command.split(" ")
 
 
-def getenv(body):
+def create_env(body: AdapterConfig):
     env = {
         "ADAPTER_KIND": body.adapter_key.adapter_kind,
         "ADAPTER_INSTANCE_OBJECT_KIND": body.adapter_key.object_kind,
         "SUITE_API_USER": body.internal_rest_credential.user_name,
         "SUITE_API_PASSWORD": body.internal_rest_credential.password
     }
+
+    for identifier in body.adapter_key.identifiers:
+        env[identifier.key.upper()] = identifier.value
+
     for credential_field in body.credential.credential_fields:
         env[f"CREDENTIAL_{credential_field.key.upper()}"] = credential_field.value
 
