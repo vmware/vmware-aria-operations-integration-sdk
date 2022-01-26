@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM vrops-base-container:0.1.0
 
 # Install and update dependencies
 RUN apt-get -q update
