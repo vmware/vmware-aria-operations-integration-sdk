@@ -47,3 +47,7 @@ docker build -t swagger_server .
 # starting up a container
 docker run -p 8080:8080 swagger_server
 ```
+
+## Licensing
+
+As required by OSM's [container build specifications](https://onevmw.sharepoint.com/:w:/s/container-build-specification/EVljkfvbAllMvOQEdp1t2h8B2oTWMx2ZyPWWplKEESKaBw?e=U1njsq), this container uses a version of python that is based on Debian as its base OS.
