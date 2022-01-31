@@ -1,6 +1,8 @@
 FROM python:3.10.1-slim-bullseye
 
+#NOTE: We should create a user account
 RUN mkdir -p /usr/src/app
+
 WORKDIR /usr/src/app
 
 COPY ./requirements.txt /usr/src/app/
