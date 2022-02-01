@@ -1,15 +1,13 @@
 FROM python:3.10.1-slim-bullseye
 
-#NOTE: We should create a user account
-RUN mkdir -p /usr/src/app
+# Create LPU and create/set work directory
+RUN useradd --create-home --shell /bin/bash vrops-adapter-user
+USER vrops-adapter-user
+WORKDIR /home/vrops-adapter-user/src/app
 
-WORKDIR /usr/src/app
-
-COPY ./requirements.txt /usr/src/app/
-
+# Copy project into container and install requirements
+COPY . .
 RUN pip3 install --no-cache-dir -r requirements.txt
-
-COPY . /usr/src/app
 
 EXPOSE 8080
 
