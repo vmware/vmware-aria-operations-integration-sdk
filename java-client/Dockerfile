@@ -1,2 +1,3 @@
-FROM vrops-base-container:0.1.0
-FROM azul/zulu-openjdk-debian:17-jre-headless
+FROM vrops-adapter-open-sdk-server:0.2.0
+
+COPY --from=azul/zulu-openjdk-debian:17-jre-headless
