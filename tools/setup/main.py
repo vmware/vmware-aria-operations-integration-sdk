@@ -29,7 +29,7 @@ def not_blank(p: str):
 def main():
     init()
 
-    path = input_with_retry("Path to base: ", is_directory_or_not_existing)
+    path = input_with_retry("Path to base (where the code/script for collection decides): ", is_directory_or_not_existing)
     mkdir(path)
 
     paths = []
@@ -119,12 +119,21 @@ def main():
 
     print("")
 
-    supported_languages = ["python"]
+    supported_languages = ["python","java","powershell"]
     print(f"Supported languages are: {supported_languages}")
     language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()
 
+    # TODO: move this to separate function
     if language == "python":
-        app_dir = mkdir(path, "app")
+        mkdir(path, "app")
+    if language == "java":
+        mkdir(path, "src")
+    if language == "powershell":
+        mkdir(path, "scripts")
+
+    # Create Dockerfile
+    create_dockerfile(language, path)
+    # TODO: Create commands
 
 
 def input_with_retry(message: str, validation_function):
@@ -139,6 +148,14 @@ def mkdir(basepath, *paths):
     if not os.path.exists(path):
         os.mkdir(path, 0o755)
     return path
+
+def create_dockerfile(language: str, root_directory: os.path):
+    with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
+        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest")
+
+def create_commands_file():
+    pritn("creating file")
+
 
 
 if __name__ == '__main__':
