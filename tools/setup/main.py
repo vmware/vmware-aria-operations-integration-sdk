@@ -160,7 +160,7 @@ def mkdir(basepath, *paths):
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
-        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
+        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n") #NOTE: We should always build with the latest image
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
