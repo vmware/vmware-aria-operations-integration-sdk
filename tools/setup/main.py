@@ -142,7 +142,7 @@ def main():
 
     # TODO: Create sample commands
     # TODO: Compile and run image
-    os.system('docker build --no-cache .')
+    os.system(f"docker build --no-cache {path}/.")
 
 
 def input_with_retry(message: str, validation_function):
