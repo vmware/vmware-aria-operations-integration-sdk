@@ -29,7 +29,7 @@ def not_blank(p: str):
 def main():
     init()
 
-    path = input_with_retry("Path to base (where the code/script for collection decides): ", is_directory_or_not_existing)
+    path = input_with_retry("Project directory (where code for collection, metadata, and content reside): ", is_directory_or_not_existing)
     mkdir(path)
 
     paths = []
@@ -121,22 +121,13 @@ def main():
 
     supported_languages = ["python","java","powershell"]
     print(f"Supported languages are: {supported_languages}")
-    language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()
+    language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()#TODO: error handling
 
-    # TODO: move this to separate function
-    project_dirextory = ''
-
-    if language == "python":
-        project_directory = "app"
-    if language == "java":
-        project_directory = "src"
-    if language == "powershell":
-        project_directory = "scripts"
-
-    mkdir(path, project_directory)
+    # create project structure
+    executables_directory_path = build_project_structure(language);
 
     # Create Dockerfile
-    create_dockerfile(language, path, project_directory)
+    create_dockerfile(language, path, executable_directory_path)
     # Create Commandsfile
     create_commands_file(path)
 
@@ -160,14 +151,16 @@ def mkdir(basepath, *paths):
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
-        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n") #NOTE: We should always build with the latest image
+        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
-def create_commands_file(path):
+def create_commands_file(language: str, path: str):
     with open(os.path.join(path,"commands.cfg"),'w') as commands:
        #TODO: connect commands actual executables eg. java
        #TODO: ask for version or check for one
+       #TODO: ask for executable name or define a standard name. If we ask for an executable we should make sure is a valid executable.
+
 
        commands.write("[Commands]\n")
        commands.write("test=echo `test`\n")
@@ -176,6 +169,17 @@ def create_commands_file(path):
        commands.write("major:0\n")
        commands.write("minor:1\n")
 
+def build_project_structure(language: str):
+    project_dirextory = ''
+
+    if language == "python":
+        project_directory = "app"
+    if language == "java":
+        project_directory = "src"
+    if language == "powershell":
+        project_directory = "scripts"
+
+    mkdir(path, project_directory)
 
 
 if __name__ == '__main__':
