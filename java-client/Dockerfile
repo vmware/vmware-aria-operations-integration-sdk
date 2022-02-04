@@ -1,6 +1,7 @@
 FROM vrops-adapter-open-sdk-server:python-latest
 
-#Manual java install to prevent overwritting previous dependecies
+# manual java install to prevent overwritting previous dependecies
+# switch to root in oder to do all installs
 USER root
 
 # install the necessary dependencies
@@ -23,6 +24,7 @@ RUN  apt-get install ./zulu-repo_1.0.0-3_all.deb
 RUN  apt-get update
 
 # install Azul Zulu JDK 17
-RUN apt-get install -y zulu17-ca-jdk-headless #NOTE:maybe we could get away with jucs having the JRE since the user should provide executables
+RUN apt-get install -y zulu17-ca-jdk-headless #NOTE:maybe we could get away with just having the JRE since the user should provide executables
 
+#switch back to the LPU
 USER vrops-adapter-user
