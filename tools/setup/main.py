@@ -133,6 +133,8 @@ def main():
 
     # TODO: Create sample commands
     # TODO: Compile and run image
+
+    # build the generated docker image
     os.system(f"docker build --no-cache {path}/.")
 
 
@@ -161,10 +163,9 @@ def create_commands_file(language: str, path: str):
        #TODO: ask for version or check for one
        #TODO: ask for executable name or define a standard name. If we ask for an executable we should make sure is a valid executable.
 
-
        commands.write("[Commands]\n")
-       commands.write("test=echo `test`\n")
-       commands.write("collect=echo `collect`\n")
+       commands.write("test={executable} `test`\n")
+       commands.write("collect={executable} `collect`\n")
        commands.write("[Version]\n")
        commands.write("major:0\n")
        commands.write("minor:1\n")
