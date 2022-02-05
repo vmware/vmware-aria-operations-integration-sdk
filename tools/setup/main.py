@@ -65,7 +65,7 @@ def main():
     print("")
     if (input("Do you have a EULA (y/N)? ") or "N").lower() != "y":
         print(
-            "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula file to the root adapter directory.")
+                "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula file to the root adapter directory.")
         eula_file = ""
     else:
         eula_file = input_with_retry("What is the path to the EULA file? ", is_file)
@@ -75,7 +75,7 @@ def main():
     print("")
     if (input("Do you have an icon for the management pack (y/N)? ") or "N").lower() != "y":
         print(
-            "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon file to the root adapter directory.'")
+                "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon file to the root adapter directory.'")
         icon_file = ""
     else:
         icon_file = input_with_retry("What is the path to the icon file? ", is_file)
@@ -83,37 +83,37 @@ def main():
 
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
-        "display_name": "DISPLAY_NAME",
-        "name": "".join(name.split(" ")),
-        "description": "DESCRIPTION",
-        "version": "1.0.0",
-        "vcops_minimum_version": "8.1.1",
-        "disk_space_required": 500,
-        "run_scripts_on_all_nodes": "true",
-        "eula_file": eula_file,
-        "platform": [
-            "Linux Non-VA",
-            "Linux VA"
-        ],
-        "vendor": "VENDOR",
-        "pak_icon": icon_file,
-        "pak_validation_script": {
-            "script": ""
-        },
-        "adapter_pre_script": {
-            "script": ""
-        },
-        "adapter_post_script": {
-            "script": ""
-        },
-        "adapters": [
-            "adapter.zip"
-        ],
-        "adapter_kinds": [
-            "".join(name.split(" "))
-        ],
-        "license_type": ""
-    }
+            "display_name": "DISPLAY_NAME",
+            "name": "".join(name.split(" ")),
+            "description": "DESCRIPTION",
+            "version": "1.0.0",
+            "vcops_minimum_version": "8.1.1",
+            "disk_space_required": 500,
+            "run_scripts_on_all_nodes": "true",
+            "eula_file": eula_file,
+            "platform": [
+                "Linux Non-VA",
+                "Linux VA"
+                ],
+            "vendor": "VENDOR",
+            "pak_icon": icon_file,
+            "pak_validation_script": {
+                "script": ""
+                },
+            "adapter_pre_script": {
+                "script": ""
+                },
+            "adapter_post_script": {
+                "script": ""
+                },
+            "adapters": [
+                "adapter.zip"
+                ],
+            "adapter_kinds": [
+                "".join(name.split(" "))
+                ],
+            "license_type": ""
+            }
     with open(manifest_file, "w") as manifest_fd:
         json.dump(manifest, manifest_fd, indent=4)
 
@@ -124,18 +124,16 @@ def main():
     language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()#TODO: error handling
 
     # create project structure
-    executables_directory_path = build_project_structure(language);
+    executable_directory_path = build_project_structure(path, language);
 
     # Create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
     # Create Commandsfile
-    create_commands_file(path)
-
-    # TODO: Create sample commands
-    # TODO: Compile and run image
+    create_commands_file(language ,path)
 
     # build the generated docker image
-    os.system(f"docker build --no-cache {path}/.")
+    os.system(f"docker build --no-cache {path}/. --tag generated-image")#TODO:remove this line
+    os.system(f"docker run -p 8080:8080 generated-image")
 
 
 def input_with_retry(message: str, validation_function):
@@ -159,19 +157,27 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
 def create_commands_file(language: str, path: str):
     with open(os.path.join(path,"commands.cfg"),'w') as commands:
-       #TODO: connect commands actual executables eg. java
-       #TODO: ask for version or check for one
-       #TODO: ask for executable name or define a standard name. If we ask for an executable we should make sure is a valid executable.
+
+       command_and_executable = ""
+       if("java" == language ):
+           command_and_executable = "java -jar  collector.jar"
+       elif("python" == language):
+           command_and_executable = "python3 collector.py"
+       elif("powershell" == language):
+           command_and_executable = "pwsh collector.ps"
+       else:
+           print(f"ERROR: language {language} is not supported") #TODO: error handling
+           exit(-1)
 
        commands.write("[Commands]\n")
-       commands.write("test={executable} `test`\n")
-       commands.write("collect={executable} `collect`\n")
+       commands.write(f"test= {command_and_executable} test\n")#TODO:generate command as oppose t hard coding it
+       commands.write(f"collect= {command_and_executable} collect\n")
        commands.write("[Version]\n")
-       commands.write("major:0\n")
+       commands.write("major:0\n")#TODO: where should the version come from  ?
        commands.write("minor:1\n")
 
-def build_project_structure(language: str):
-    project_dirextory = ''
+def build_project_structure(path: str, language: str):
+    project_directory = ''
 
     if language == "python":
         project_directory = "app"
@@ -181,6 +187,8 @@ def build_project_structure(language: str):
         project_directory = "scripts"
 
     mkdir(path, project_directory)
+
+    return project_directory
 
 
 if __name__ == '__main__':
