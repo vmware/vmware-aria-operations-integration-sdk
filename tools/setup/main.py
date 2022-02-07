@@ -126,10 +126,10 @@ def main():
     # create project structure
     executable_directory_path = build_project_structure(path, language);
 
-    # Create Dockerfile
+    # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
 
-    # Create Commandsfile
+    # create Commandsfile
     create_commands_file(language ,path, executable_directory_path)
 
 
@@ -157,7 +157,7 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
 
        command_and_executable = ""
        if("java" == language ):
-           command_and_executable = f"/usr/bin/java -jar  {executable_directory_path}/collector.jar"
+           command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
        elif("python" == language):
            command_and_executable = f"/usr/local/bin/python {executable_directory_path}/collector.py"
        elif("powershell" == language):
@@ -180,10 +180,16 @@ def build_project_structure(path: str, language: str):
         project_directory = "app"
         mkdir(path, project_directory)
         build_python_template(path, project_directory)
+
     if language == "java":
-        project_directory = "src"
+
+        mkdir(path, "src")
+        build_java_template(path, "src")
+
+        project_directory =  "out"
         mkdir(path, project_directory)
-        build_java_template(path, project_directory)
+        compile_java_template(os.path.join(path,"src"), os.path.join(path,project_directory))
+
     if language == "powershell":
         project_directory = "scripts"
         mkdir(path, project_directory)
@@ -193,25 +199,30 @@ def build_project_structure(path: str, language: str):
     return project_directory
 
 def build_java_template(path, root_directory):
-    with open(os.path.join(path, root_directory, "collector.java"),'w') as collector:
+    with open(os.path.join(path, root_directory, "Collector.java"),'w') as collector:
         collector.write(
 """
-class Collector {
+public class Collector {
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("No Arguments");
-        } else if (args[0] == "collect") {
+        } else if (args[0].equals("collect")) {
             System.out.println("Java collect");
-        } else if (args[0] == "test") {
+        } else if (args[0].equals("test")) {
             System.out.println("Java test");
         } else {
-            System.out.println("Command"+ args[0] + " not found");
+            System.out.println("Command "+ args[0] + " not found");
         }
     }
 }
 
 """
         )
+
+def compile_java_template(source_directory: str, output_directory: str):
+    # compile class
+    os.system(f"javac -d {output_directory} {source_directory}/Collector.java")
+
 
 def build_powershell_template(path, root_directory):
 
