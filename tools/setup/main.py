@@ -146,7 +146,7 @@ def mkdir(basepath, *paths):
         os.mkdir(path, 0o755)
     return path
 
-def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
+def create_dockerfile(language: str, root_directory: os.path: str, executable_directory_path: str):
     with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
         dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
@@ -198,7 +198,7 @@ def build_project_structure(path: str, language: str):
 
     return project_directory
 
-def build_java_template(path, root_directory):
+def build_java_template(path: str, root_directory: str):
     with open(os.path.join(path, root_directory, "Collector.java"),'w') as collector:
         collector.write(
 """
@@ -224,7 +224,7 @@ def compile_java_template(source_directory: str, output_directory: str):
     os.system(f"javac -d {output_directory} {source_directory}/Collector.java")
 
 
-def build_powershell_template(path, root_directory):
+def build_powershell_template(path: str, root_directory: str):
 
     with open(os.path.join(path, root_directory, "collector.ps1"),'w') as collector:
         collector.write(
@@ -243,7 +243,7 @@ if ($args.count -eq 0){
         )
 
 
-def build_python_template(path, root_directory):
+def build_python_template(path: str, root_directory: str):
 
     with open(os.path.join(path, root_directory, "collector.py"),'w') as collector:
         collector.write(
