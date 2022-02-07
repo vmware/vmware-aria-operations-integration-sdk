@@ -65,7 +65,7 @@ def main():
     print("")
     if (input("Do you have a EULA (y/N)? ") or "N").lower() != "y":
         print(
-                "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula file to the root adapter directory.")
+            "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula file to the root adapter directory.")
         eula_file = ""
     else:
         eula_file = input_with_retry("What is the path to the EULA file? ", is_file)
@@ -75,7 +75,7 @@ def main():
     print("")
     if (input("Do you have an icon for the management pack (y/N)? ") or "N").lower() != "y":
         print(
-                "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon file to the root adapter directory.'")
+            "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon file to the root adapter directory.'")
         icon_file = ""
     else:
         icon_file = input_with_retry("What is the path to the icon file? ", is_file)
@@ -83,37 +83,37 @@ def main():
 
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
-            "display_name": "DISPLAY_NAME",
-            "name": "".join(name.split(" ")),
-            "description": "DESCRIPTION",
-            "version": "1.0.0",
-            "vcops_minimum_version": "8.1.1",
-            "disk_space_required": 500,
-            "run_scripts_on_all_nodes": "true",
-            "eula_file": eula_file,
-            "platform": [
-                "Linux Non-VA",
-                "Linux VA"
-                ],
-            "vendor": "VENDOR",
-            "pak_icon": icon_file,
-            "pak_validation_script": {
-                "script": ""
-                },
-            "adapter_pre_script": {
-                "script": ""
-                },
-            "adapter_post_script": {
-                "script": ""
-                },
-            "adapters": [
-                "adapter.zip"
-                ],
-            "adapter_kinds": [
-                "".join(name.split(" "))
-                ],
-            "license_type": ""
-            }
+        "display_name": "DISPLAY_NAME",
+        "name": "".join(name.split(" ")),
+        "description": "DESCRIPTION",
+        "version": "1.0.0",
+        "vcops_minimum_version": "8.1.1",
+        "disk_space_required": 500,
+        "run_scripts_on_all_nodes": "true",
+        "eula_file": eula_file,
+        "platform": [
+            "Linux Non-VA",
+            "Linux VA"
+        ],
+        "vendor": "VENDOR",
+        "pak_icon": icon_file,
+        "pak_validation_script": {
+            "script": ""
+        },
+        "adapter_pre_script": {
+            "script": ""
+        },
+        "adapter_post_script": {
+            "script": ""
+        },
+        "adapters": [
+            "adapter.zip"
+        ],
+        "adapter_kinds": [
+            "".join(name.split(" "))
+        ],
+        "license_type": ""
+    }
     with open(manifest_file, "w") as manifest_fd:
         json.dump(manifest, manifest_fd, indent=4)
 
