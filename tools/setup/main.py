@@ -157,11 +157,11 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
 
        command_and_executable = ""
        if("java" == language ):
-           command_and_executable = f"ava -jar  {executable_directory_path}/collector.jar"
+           command_and_executable = f"/usr/bin/java -jar  {executable_directory_path}/collector.jar"
        elif("python" == language):
-           command_and_executable = f"python {executable_directory_path}/collector.py"
+           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/collector.py"
        elif("powershell" == language):
-           command_and_executable = f"pwsh {executable_directory_path}/collector.ps1"
+           command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
        else:
            print(f"ERROR: language {language} is not supported")
            exit(-1)
@@ -242,10 +242,10 @@ import sys
 def main(argv):
     if len(argv) == 0:
         print("No arguments")
-    elif argv[0] in 'test':
+    elif argv[0] in 'collect':
         print("Python test")
     elif argv[0] in 'test':
-        ptint("Python collect")
+        ptint("Python test")
     else:
         print(f"Command {argv[0]} not found")
 
