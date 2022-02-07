@@ -215,7 +215,7 @@ class Collector {
 
 def build_powershell_template(path, root_directory):
 
-    with open(path, os.path.join(root_directory, "collector.ps1"),'w') as collector:
+    with open(os.path.join(path, root_directory, "collector.ps1"),'w') as collector:
         collector.write(
 """
 if ($args.count -eq 0){
@@ -243,7 +243,7 @@ def main(argv):
     if len(argv) == 0:
         print("No arguments")
     elif argv[0] in 'collect':
-        print("Python test")
+        print("Python collect")
     elif argv[0] in 'test':
         ptint("Python test")
     else:
