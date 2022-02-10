@@ -1,8 +1,12 @@
 import json
 import os
+
 from shutil import copyfile
 from colorama import init, Fore, Style
 
+import adapter.python as python
+import adapter.java as java
+import adapter.powershell as powershell
 
 def is_directory_or_not_existing(p: str):
     if not os.path.exists(p):
@@ -170,8 +174,8 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
        commands.write(f"test={command_and_executable} test\n")
        commands.write(f"collect={command_and_executable} collect\n")
        commands.write("[Version]\n")
-       commands.write("major:0\n")#TODO: where should the version come from  ?
-       commands.write("minor:1\n")
+       commands.write("major:1\n")
+       commands.write("minor:0\n")
 
 def build_project_structure(path: str, language: str):
     project_directory = ''
@@ -179,93 +183,24 @@ def build_project_structure(path: str, language: str):
     if language == "python":
         project_directory = "app"
         mkdir(path, project_directory)
-        build_python_template(path, project_directory)
+        python.build_python_template(path, project_directory)
 
     if language == "java":
 
         mkdir(path, "src")
-        build_java_template(path, "src")
+        java.build_java_template(path, "src")
 
         project_directory =  "out"
         mkdir(path, project_directory)
-        compile_java_template(os.path.join(path,"src"), os.path.join(path,project_directory))
+        java.compile_java_template(os.path.join(path,"src"), os.path.join(path,project_directory))
 
     if language == "powershell":
         project_directory = "scripts"
         mkdir(path, project_directory)
-        build_powershell_template(path, project_directory)
+        powershell.build_template(path, project_directory)
 
 
     return project_directory
-
-def build_java_template(path: str, root_directory: str):
-    with open(os.path.join(path, root_directory, "Collector.java"),'w') as collector:
-        collector.write(
-"""
-public class Collector {
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            System.out.println("No Arguments");
-        } else if (args[0].equals("collect")) {
-            System.out.println("Java collect");
-        } else if (args[0].equals("test")) {
-            System.out.println("Java test");
-        } else {
-            System.out.println("Command "+ args[0] + " not found");
-        }
-    }
-}
-
-"""
-        )
-
-def compile_java_template(source_directory: str, output_directory: str):
-    # compile class
-    os.system(f"javac -d {output_directory} {source_directory}/Collector.java")
-
-
-def build_powershell_template(path: str, root_directory: str):
-
-    with open(os.path.join(path, root_directory, "collector.ps1"),'w') as collector:
-        collector.write(
-"""
-if ($args.count -eq 0){
-	Write-host "No arguments"
-}elseif ($args[0] -eq "collect"){
-	Write-host "Powershell collect"
-}elseif ($args[0] -eq "test"){
-	Write-host "Powershell test"
-}else{
-	Write-host "Command not found"
-}
-
-"""
-        )
-
-
-def build_python_template(path: str, root_directory: str):
-
-    with open(os.path.join(path, root_directory, "collector.py"),'w') as collector:
-        collector.write(
-"""
-import sys
-
-def main(argv):
-    if len(argv) == 0:
-        print("No arguments")
-    elif argv[0] in 'collect':
-        print("Python collect")
-    elif argv[0] in 'test':
-        ptint("Python test")
-    else:
-        print(f"Command {argv[0]} not found")
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
-
-"""
-        )
 
 if __name__ == '__main__':
     main()
