@@ -23,8 +23,47 @@ class Collector:
     def collect(self):
         #container statistics
         print("collecting")
+        print()
+
+        #object cpu
+        print("CPU")
+        #property
+        print("----Properties----")
+        cpu_count = psutil.cpu_count()
+        print(f"cpu count: {cpu_count}")
+        #metrics
+        print("----Metrics----")
         cpu_percent = psutil.cpu_percent(1)
-        print(f"cpu percent used: {cpu_percent}")
+        print(f"cpu percent: {cpu_percent}")
+        #metric: cpu times
+        user, nice, system, idle, *_ = psutil.cpu_times()
+        print(f"user time: {user}")
+        print(f"nice time: {nice}")
+        print(f"system time: {system}")
+        print(f"idle time: {idle}")
+        print()
+
+        #object disk
+        print("Disk")
+        print("----Properties----")
+        #property
+        partition, *_ = psutil.disk_partitions().pop()
+        print(f"name: {partition}")
+        #metrics
+        print("----Metrics----")
+        #metric
+        total, used, free, percent = psutil.disk_usage(partition)
+        print(f"total space: {total}")
+        print(f"used space: {used}")
+        print(f"free space: {free}")
+        print(f"percent used: {percent}")
+        print()
+
+        #object system
+        #property
+        #metric
+        #metric
+
 
 
 #class Metric:
