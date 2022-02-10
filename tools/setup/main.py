@@ -29,7 +29,7 @@ def not_blank(p: str):
 def main():
     init()
 
-    path = input_with_retry("Path to base: ", is_directory_or_not_existing)
+    path = input_with_retry("Project directory (where code for collection, metadata, and content reside): ", is_directory_or_not_existing)
     mkdir(path)
 
     paths = []
@@ -119,12 +119,18 @@ def main():
 
     print("")
 
-    supported_languages = ["python"]
+    supported_languages = ["python","java","powershell"]
     print(f"Supported languages are: {supported_languages}")
     language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()
 
-    if language == "python":
-        app_dir = mkdir(path, "app")
+    # create project structure
+    executable_directory_path = build_project_structure(path, language);
+
+    # create Dockerfile
+    create_dockerfile(language, path, executable_directory_path)
+
+    # create Commandsfile
+    create_commands_file(language ,path, executable_directory_path)
 
 
 def input_with_retry(message: str, validation_function):
@@ -140,6 +146,126 @@ def mkdir(basepath, *paths):
         os.mkdir(path, 0o755)
     return path
 
+def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
+    with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
+        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
+        dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
+        dockerfile.write(f"COPY commands.cfg .\n")
+
+def create_commands_file(language: str, path: str, executable_directory_path: str):
+    with open(os.path.join(path,"commands.cfg"),'w') as commands:
+
+       command_and_executable = ""
+       if("java" == language ):
+           command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
+       elif("python" == language):
+           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/collector.py"
+       elif("powershell" == language):
+           command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
+       else:
+           print(f"ERROR: language {language} is not supported")
+           exit(-1)
+
+       commands.write("[Commands]\n")
+       commands.write(f"test={command_and_executable} test\n")
+       commands.write(f"collect={command_and_executable} collect\n")
+       commands.write("[Version]\n")
+       commands.write("major:0\n")#TODO: where should the version come from  ?
+       commands.write("minor:1\n")
+
+def build_project_structure(path: str, language: str):
+    project_directory = ''
+
+    if language == "python":
+        project_directory = "app"
+        mkdir(path, project_directory)
+        build_python_template(path, project_directory)
+
+    if language == "java":
+
+        mkdir(path, "src")
+        build_java_template(path, "src")
+
+        project_directory =  "out"
+        mkdir(path, project_directory)
+        compile_java_template(os.path.join(path,"src"), os.path.join(path,project_directory))
+
+    if language == "powershell":
+        project_directory = "scripts"
+        mkdir(path, project_directory)
+        build_powershell_template(path, project_directory)
+
+
+    return project_directory
+
+def build_java_template(path: str, root_directory: str):
+    with open(os.path.join(path, root_directory, "Collector.java"),'w') as collector:
+        collector.write(
+"""
+public class Collector {
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("No Arguments");
+        } else if (args[0].equals("collect")) {
+            System.out.println("Java collect");
+        } else if (args[0].equals("test")) {
+            System.out.println("Java test");
+        } else {
+            System.out.println("Command "+ args[0] + " not found");
+        }
+    }
+}
+
+"""
+        )
+
+def compile_java_template(source_directory: str, output_directory: str):
+    # compile class
+    os.system(f"javac -d {output_directory} {source_directory}/Collector.java")
+
+
+def build_powershell_template(path: str, root_directory: str):
+
+    with open(os.path.join(path, root_directory, "collector.ps1"),'w') as collector:
+        collector.write(
+"""
+if ($args.count -eq 0){
+	Write-host "No arguments"
+}elseif ($args[0] -eq "collect"){
+	Write-host "Powershell collect"
+}elseif ($args[0] -eq "test"){
+	Write-host "Powershell test"
+}else{
+	Write-host "Command not found"
+}
+
+"""
+        )
+
+
+def build_python_template(path: str, root_directory: str):
+
+    with open(os.path.join(path, root_directory, "collector.py"),'w') as collector:
+        collector.write(
+"""
+import sys
+
+def main(argv):
+    if len(argv) == 0:
+        print("No arguments")
+    elif argv[0] in 'collect':
+        print("Python collect")
+    elif argv[0] in 'test':
+        ptint("Python test")
+    else:
+        print(f"Command {argv[0]} not found")
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
+
+"""
+        )
 
 if __name__ == '__main__':
     main()
