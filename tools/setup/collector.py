@@ -73,19 +73,21 @@ class Collector:
         #TODO: create system object to show user relationships
         #TODO: create Result
 
+        print(cpu)
+
 class Metric:
     def __init__(self, key: str, value: int):
         self.key = key
         self.value = value
         self.timestamp = -1
 
-    def to_string(self):
-        return {
-                "key": self.key,
-                "numberValue": self.value,
-                "timestamp": self.timestamp
-                }
-
+    def __str__(self):
+                return f"""
+                {{
+                key: {self.key},
+                numberValue: {self.value},
+                timestamp: {self.timestamp}
+                }}"""
 
 
 class Property:
@@ -95,21 +97,23 @@ class Property:
           self.value = value,
           self.timestamp = -1
 
-    def to_string(self):
-        return {
-                "key": self.key,
-                "stringValue": self.value,
-                "numberValue": self.value,
-                "timestamp": self.timestamp
-                }
+    def __str__(self):
+        #TODO: parse the value to determine whether it should be a string or a number value
+
+        return f"""
+                {{
+                key: {self.key},
+                {'numberValue' if type(self.value) == int or float else 'stringValue'}: {self.value},
+                timestamp: {self.timestamp}
+                }}"""
 
 class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     metrics = []
     properties = []
-    def __init__(self, name: str, adapterKind: str, objectKind: str):
+    def __init__(self, name: str, adapterkind: str, objectkind: str):
         self.name = name
-        self.adapterKind = adapterKind
-        self.objectKind = objectKind
+        self.adapterkind = adapterkind
+        self.objectkind = objectkind
 
     def add_metric(self, metric: Metric):
         #TODO: error handling maybe ?
@@ -117,6 +121,17 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
 
     def add_property(self, property_: Property):
         self.properties.append(property_)
+
+    def __str__(self):
+        return f"""
+            {{
+            name: {self.name},
+            adapterKind: {self.adapterkind},
+            objectKind: {self.objectkind},
+            properties: [{','.join(map(str,self.properties))}],
+            metrics: [{','.join(map(str,self.metrics))}]
+            }}"""
+
 
 #
 #class Event:
@@ -150,7 +165,7 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
 #        #TODO constructor
 #
 #class Result:
-#    def __init__(self, name: str, adapterKind: str, bojectKind: str, identifiers:[], ):
+#    def __init__(self):
 #
 #        def object():
 #            {
