@@ -2,7 +2,8 @@ import json
 import os
 
 from shutil import copyfile
-from colorama import init, Fore, Style
+
+from colorama import init, Fore
 
 import adapter.python as python
 import adapter.java as java
@@ -39,12 +40,13 @@ def main():
     paths = []
     if os.path.isfile("projects"):
         with open("projects", "r") as projects:
-            paths = projects.readlines()
+            paths = [project.strip() for project in projects.readlines()]
     if path not in paths:
         with open("projects", "a") as projects:
             projects.write(f"{path}\n")
 
     content_dir = mkdir(path, "content")
+    conf_dir = mkdir(path, "conf")
     dashboard_dir = mkdir(content_dir, "dashboards")
     files_dir = mkdir(content_dir, "files")
     reports_dir = mkdir(content_dir, "reports")
@@ -74,6 +76,7 @@ def main():
     else:
         eula_file = input_with_retry("What is the path to the EULA file? ", is_file)
         copyfile(eula_file, path)
+        eula_file = os.path.basename(eula_file)
 
     # TODO: refactor similar steps
     print("")
@@ -84,6 +87,7 @@ def main():
     else:
         icon_file = input_with_retry("What is the path to the icon file? ", is_file)
         copyfile(icon_file, path)
+        icon_file = os.path.basename(icon_file)
 
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
@@ -120,6 +124,22 @@ def main():
     }
     with open(manifest_file, "w") as manifest_fd:
         json.dump(manifest, manifest_fd, indent=4)
+
+    # TODO: This should be a template file, or dynamically generated
+    describe_file = os.path.join(path, "conf", "describe.xml")
+    with open(describe_file, "w") as describe_fd:
+        describe_fd.write(
+            f"""<?xml version = '1.0' encoding = 'UTF-8'?>
+            <!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
+            <AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
+                <CredentialKinds>
+                </CredentialKinds>
+                <ResourceKinds>
+                    <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
+                        <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
+                    </ResourceKind>
+                </ResourceKinds>
+            </AdapterKind>""")
 
     print("")
 
