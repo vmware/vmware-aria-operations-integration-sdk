@@ -4,6 +4,8 @@ import json
 import psutil
 
 
+#TODO catch possible errors and add them to error response
+
 
 class Collector:
     def __init__(self):
@@ -21,6 +23,7 @@ class Collector:
 
 
     def collect(self):
+        #TODO: should return Result Object
         #container statistics
         print("collecting")
         print()
@@ -66,36 +69,52 @@ class Collector:
 
 
 
-#class Metric:
-#    def __init__(self, key: str, value, int):
-#        self.key = key
-#        self.value = value
-#        self.timestamp = timestamp
-#
-#    def to_string(self):
-#        return {
-#                "key": self.key,
-#                "numberValue": self.value,
-#                "timestamp": self.timestamp
-#                }
-#
-#
-#
-#class Property:
-#    def __init__ (self, key: str, value ):
-#        #TODO: parse value and check whether is a string or a number
-#          self.key = key
-#          self.value = value,
-#          self.timestamp = -1
-#
-#    def to_string(self):
-#        return {
-#                "key": self.key,
-#                "stringValue": self.value,
-#                "numberValue": self.value,
-#                "timestamp": self.timestamp
-#                }
-#
+
+class Metric:
+    def __init__(self, key: str, value, int):
+        self.key = key
+        self.value = value
+        self.timestamp = -1
+
+    def to_string(self):
+        return {
+                "key": self.key,
+                "numberValue": self.value,
+                "timestamp": self.timestamp
+                }
+
+
+
+class Property:
+    def __init__ (self, key: str, value ):
+        #TODO: parse value and check whether is a string or a number
+          self.key = key
+          self.value = value,
+          self.timestamp = -1
+
+    def to_string(self):
+        return {
+                "key": self.key,
+                "stringValue": self.value,
+                "numberValue": self.value,
+                "timestamp": self.timestamp
+                }
+
+class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
+    metrics = []
+    properties = []
+    def __init__(self, name: str, adapterKind: str, objectKind: str):
+        self.name = name
+        self.adapterKind = adapterKind
+        self.objectKind = objectKind
+
+    def add_metric(self, metric: Metric):
+        #TODO: error handling maybe ?
+        self.metrics.append(metric)
+
+    def add_property(self, property_: Property):
+        self.properties.append(property_)
+
 #
 #class Event:
 #    def __init__(self, criticality: str, message: str, faultKey, autocancel = False,  startDate, updateDate, cancelDate, watchWaitCyccle, cancelWaitCycle):
@@ -127,7 +146,7 @@ class Collector:
 #    def __init__(self, key: str, value: str, isPartOfUniqueness: bool):
 #        #TODO constructor
 #
-#class Object:
+#class Result:
 #    def __init__(self, name: str, adapterKind: str, bojectKind: str, identifiers:[], ):
 #
 #        def object():
@@ -148,6 +167,13 @@ class Collector:
 #                                ]
 #                            }
 #                        ],
+#                    "metrics": [
+#                               {
+#                                 "key": "string",
+#                                 "numberValue": 0,
+#                                 "timestamp": -1
+#                               }
+#                             ],
 #                    "relationships": [
 #                        {
 #                            "parent": {
