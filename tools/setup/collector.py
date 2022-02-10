@@ -23,55 +23,58 @@ class Collector:
 
 
     def collect(self):
-        #TODO: should return Result Object
-        #container statistics
-        print("collecting")
-        print()
 
-        #object cpu
-        print("CPU")
-        #property
-        print("----Properties----")
-        cpu_count = psutil.cpu_count()
-        print(f"cpu count: {cpu_count}")
-        #metrics
-        print("----Metrics----")
-        cpu_percent = psutil.cpu_percent(1)
-        print(f"cpu percent: {cpu_percent}")
-        #metric: cpu times
+        # CPU
+        cpu = Object("CPU", "Containerized Adapter","CPU")
+
+        # properties
+        cpu_count = Property("cpu_count",psutil.cpu_count())
+        cpu.add_property(cpu_count)
+
+        # metrics
+        cpu_percent = Metric("cpu_percent",psutil.cpu_percent(1))
         user, nice, system, idle, *_ = psutil.cpu_times()
-        print(f"user time: {user}")
-        print(f"nice time: {nice}")
-        print(f"system time: {system}")
-        print(f"idle time: {idle}")
-        print()
 
-        #object disk
-        print("Disk")
-        print("----Properties----")
-        #property
+        user_time = Metric("user_time",user)
+        nice_time = Metric("nice_time", nice)
+        system_time = Metric("system_time",system)
+        idle_time = Metric("idle_time",idle)
+
+        # adding metrics to CPU
+        cpu.add_metric(cpu_count)
+        cpu.add_metric(user_time)
+        cpu.add_metric(nice_time)
+        cpu.add_metric(system_time)
+        cpu.add_metric(idle_time)
+
+        # Disk
+        disk = Object("Disk", "Containerized Adapter", "Disk")
+        # gathering properties
         partition, *_ = psutil.disk_partitions().pop()
-        print(f"name: {partition}")
-        #metrics
-        print("----Metrics----")
-        #metric
+        partition_property = Property("partition", partition)
+
+        # adding properties
+        disk.add_property(partition_property)
+
+        # gathering metrics
         total, used, free, percent = psutil.disk_usage(partition)
-        print(f"total space: {total}")
-        print(f"used space: {used}")
-        print(f"free space: {free}")
-        print(f"percent used: {percent}")
-        print()
 
-        #object system
-        #property
-        #metric
-        #metric
+        total_space = Metric("total_space", total)
+        used_space = Metric("used_space", used)
+        free_space = Metric("free_space", free)
+        percent_used_space = Metric("percent_used_space", percent)
 
+        # adding metrics to Disk
+        disk.add_metric(total_space)
+        disk.add_metric(used_space)
+        disk.add_metric(free_space)
+        disk.add_metric(percent_used_space)
 
-
+        #TODO: create system object to show user relationships
+        #TODO: create Result
 
 class Metric:
-    def __init__(self, key: str, value, int):
+    def __init__(self, key: str, value: int):
         self.key = key
         self.value = value
         self.timestamp = -1
