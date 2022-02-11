@@ -49,14 +49,14 @@ class Collector:
         # Disk
         disk = Object("Disk", "Containerized Adapter", "Disk")
         # gathering properties
-        partition, *_ = psutil.disk_partitions().pop()
+        partition, mount_point, *_ = psutil.disk_partitions().pop()
         partition_property = Property("partition", partition)
 
         # adding properties
         disk.add_property(partition_property)
 
         # gathering metrics
-        total, used, free, percent = psutil.disk_usage(partition)
+        total, used, free, percent = psutil.disk_usage(mount_point)
 
         total_space = Metric("total_space", total)
         used_space = Metric("used_space", used)
