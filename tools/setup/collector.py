@@ -28,8 +28,8 @@ class Collector:
         cpu = Object("CPU", "Containerized Adapter","CPU")
 
         # properties
-        cpu_count = Property("cpu_count",psutil.cpu_count())
-        cpu.add_property(cpu_count)
+        cpu_count_property  = Property("cpu_count",psutil.cpu_count())
+        cpu.add_property(cpu_count_property)
 
         # metrics
         cpu_percent = Metric("cpu_percent",psutil.cpu_percent(1))
@@ -41,7 +41,6 @@ class Collector:
         idle_time = Metric("idle_time",idle)
 
         # adding metrics to CPU
-        cpu.add_metric(cpu_count)
         cpu.add_metric(user_time)
         cpu.add_metric(nice_time)
         cpu.add_metric(system_time)
@@ -71,8 +70,12 @@ class Collector:
         disk.add_metric(percent_used_space)
 
         #TODO: create system object to show user relationships
+        system = Object("System", "Containerized Adapter", "System")
 
-        result = Result([cpu,disk])
+        system.add_child(disk)
+        system.add_child(cpu)
+
+        result = Result([cpu,disk,system])
 
         print(result)
 
@@ -94,25 +97,28 @@ class Metric:
 
 
 class Property:
-    def __init__ (self, key: str, value ):
+    def __init__ (self, key: str, value):
         #TODO: parse value and check whether is a string or a number
           self.key = key
-          self.value = value,
+          self.value = value
           self.timestamp = -1
 
     def __str__(self):
-        #TODO: parse the value to determine whether it should be a string or a number value
+        label = 'numberValue' if type(self.value) == int or type(self.value) == float else 'stringValue'
 
         return f"""
         {{
           key: {self.key},
-          {'numberValue' if type(self.value) == int or float else 'stringValue'}: {self.value},
+          {label}: {self.value},
           timestamp: {self.timestamp}
         }}"""
 
 class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     metrics = []
     properties = []
+    parents = []
+    children = []
+
     def __init__(self, name: str, adapterkind: str, objectkind: str):
         self.name = name
         self.adapterkind = adapterkind
@@ -125,9 +131,15 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     def add_property(self, property_: Property):
         self.properties.append(property_)
 
-    #TODO: add children
-    #TODO: add parent
+    def add_parent(self, parent):
+        self.parents.append(parent)
+
+    def add_child(self, child):
+        self.children.append(child)
+
+
     #TODO: add events
+    #TODO: add identifiers
 
     def __str__(self):
         return f"""
@@ -152,7 +164,8 @@ class Result:
     def __str__(self):
         return f"""
 {{
-  "result": [{','.join(map(str,self.objects))}]
+  "result": [{','.join(map(str,self.objects))}],
+
 }}"""
 
 #                    "result": [Object1, Object2, Object3 ... ObjectN],
