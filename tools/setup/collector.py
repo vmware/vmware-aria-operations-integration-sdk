@@ -71,9 +71,12 @@ class Collector:
         disk.add_metric(percent_used_space)
 
         #TODO: create system object to show user relationships
-        #TODO: create Result
 
-        print(cpu)
+        result = Result([cpu,disk])
+
+        print(result)
+
+
 
 class Metric:
     def __init__(self, key: str, value: int):
@@ -83,11 +86,11 @@ class Metric:
 
     def __str__(self):
                 return f"""
-                {{
-                key: {self.key},
-                numberValue: {self.value},
-                timestamp: {self.timestamp}
-                }}"""
+        {{
+            key: {self.key},
+            numberValue: {self.value},
+            timestamp: {self.timestamp}
+        }}"""
 
 
 class Property:
@@ -101,11 +104,11 @@ class Property:
         #TODO: parse the value to determine whether it should be a string or a number value
 
         return f"""
-                {{
-                key: {self.key},
-                {'numberValue' if type(self.value) == int or float else 'stringValue'}: {self.value},
-                timestamp: {self.timestamp}
-                }}"""
+        {{
+          key: {self.key},
+          {'numberValue' if type(self.value) == int or float else 'stringValue'}: {self.value},
+          timestamp: {self.timestamp}
+        }}"""
 
 class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     metrics = []
@@ -122,18 +125,58 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     def add_property(self, property_: Property):
         self.properties.append(property_)
 
+    #TODO: add children
+    #TODO: add parent
+    #TODO: add events
+
     def __str__(self):
         return f"""
-            {{
-            name: {self.name},
-            adapterKind: {self.adapterkind},
-            objectKind: {self.objectkind},
-            properties: [{','.join(map(str,self.properties))}],
-            metrics: [{','.join(map(str,self.metrics))}]
-            }}"""
+    {{
+      name: {self.name},
+      adapterKind: {self.adapterkind},
+      objectKind: {self.objectkind},
+      properties: [{','.join(map(str,self.properties))}],
+      metrics: [{','.join(map(str,self.metrics))}]
+    }}"""
 
+class Result:
+    relationships = []
 
+    def __init__(self, objects = []):
+        self.objects = objects
+
+    #TODO: create relationships by parsing objects
+    def add_object(self, object_: Object):
+        objects.append(object)
+
+    def __str__(self):
+        return f"""
+{{
+  "result": [{','.join(map(str,self.objects))}]
+}}"""
+
+#                    "result": [Object1, Object2, Object3 ... ObjectN],
 #
+#                    "relationships": [
+#                        {
+#                            "parent": {
+#                                #Object
+#                                },
+#                            "children": [
+#                                {
+#                                    #Object
+#                                    }
+#                                ]
+#                            }
+#                        ],
+#                    "notExistingObjects": [
+#                        {
+#                            #Object
+#                            }
+#                        ],
+#                    "errorMessage": "string"
+#                    }
+
 #class Event:
 #    def __init__(self, criticality: str, message: str, faultKey, autocancel = False,  startDate, updateDate, cancelDate, watchWaitCyccle, cancelWaitCycle):
 #        self.criticality = criticality
@@ -164,53 +207,6 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
 #    def __init__(self, key: str, value: str, isPartOfUniqueness: bool):
 #        #TODO constructor
 #
-#class Result:
-#    def __init__(self):
-#
-#        def object():
-#            {
-#                    "result": [
-#                        {
-#                            "key": {
-#                                #Object
-#                                },
-#                            "metrics": [
-#                                #Metric
-#                                ],
-#                            "properties": [
-#                                #Property
-#                                ],
-#                            "events": [
-#                                #Event
-#                                ]
-#                            }
-#                        ],
-#                    "metrics": [
-#                               {
-#                                 "key": "string",
-#                                 "numberValue": 0,
-#                                 "timestamp": -1
-#                               }
-#                             ],
-#                    "relationships": [
-#                        {
-#                            "parent": {
-#                                #Object
-#                                },
-#                            "children": [
-#                                {
-#                                    #Object
-#                                    }
-#                                ]
-#                            }
-#                        ],
-#                    "notExistingObjects": [
-#                        {
-#                            #Object
-#                            }
-#                        ],
-#                    "errorMessage": "string"
-#                    }
 
 
 def main(argv):
