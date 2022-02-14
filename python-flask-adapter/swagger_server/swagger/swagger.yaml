@@ -67,6 +67,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/CollectResult'
       x-openapi-router-controller: swagger_server.controllers.default_controller
+  /endpointURLs:
+    post:
+      tags: []
+      summary: Retrieve endpoint URLs
+      description: This should return a list of properly formed endpoint URL(s) (https://ip
+        address) this adapter instance is expected to communicate with. List of URLs
+        will be used for taking advantage of the vRealize Operations Manager certificate
+        trust system. If the list is empty this means adapter will handle certificates
+        manully.
+      operationId: get_endpoint_urls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdapterConfig'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
 components:
   schemas:
     ObjectKey:
@@ -170,6 +196,10 @@ components:
           description: Collection of properties.
           items:
             $ref: '#/components/schemas/PropertyData'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
       description: Stores object configuration information. Collection of metrics/properties
         for the object and the object key for current object.
       example:
@@ -200,6 +230,25 @@ components:
           numberValue: 1.4658129805029452
           key: key
           timestamp: 5
+        events:
+        - cancelWaitCycle: 2
+          updateDate: 7
+          cancelDate: 9
+          watchWaitCycle: 3
+          criticality: 2
+          message: message
+          autoCancel: false
+          faultKey: faultKey
+          startDate: 2
+        - cancelWaitCycle: 2
+          updateDate: 7
+          cancelDate: 9
+          watchWaitCycle: 3
+          criticality: 2
+          message: message
+          autoCancel: false
+          faultKey: faultKey
+          startDate: 2
     MetricData:
       title: MetricData
       required:
@@ -323,6 +372,25 @@ components:
             numberValue: 1.4658129805029452
             key: key
             timestamp: 5
+          events:
+          - cancelWaitCycle: 2
+            updateDate: 7
+            cancelDate: 9
+            watchWaitCycle: 3
+            criticality: 2
+            message: message
+            autoCancel: false
+            faultKey: faultKey
+            startDate: 2
+          - cancelWaitCycle: 2
+            updateDate: 7
+            cancelDate: 9
+            watchWaitCycle: 3
+            criticality: 2
+            message: message
+            autoCancel: false
+            faultKey: faultKey
+            startDate: 2
         - metrics:
           - numberValue: 0.8008281904610115
             key: key
@@ -350,6 +418,25 @@ components:
             numberValue: 1.4658129805029452
             key: key
             timestamp: 5
+          events:
+          - cancelWaitCycle: 2
+            updateDate: 7
+            cancelDate: 9
+            watchWaitCycle: 3
+            criticality: 2
+            message: message
+            autoCancel: false
+            faultKey: faultKey
+            startDate: 2
+          - cancelWaitCycle: 2
+            updateDate: 7
+            cancelDate: 9
+            watchWaitCycle: 3
+            criticality: 2
+            message: message
+            autoCancel: false
+            faultKey: faultKey
+            startDate: 2
         relationships:
         - parent: null
           children:
@@ -402,15 +489,17 @@ components:
       properties:
         adapterKey:
           $ref: '#/components/schemas/ObjectKey'
-        credential:
-          $ref: '#/components/schemas/CredentialKind'
+        credentialConfig:
+          $ref: '#/components/schemas/CredentialConfig'
         internalRestCredential:
-          $ref: '#/components/schemas/InternalRestCredentials'
+          $ref: '#/components/schemas/InternalRestCredential'
+        certificateConfig:
+          $ref: '#/components/schemas/CertificateConfig'
       description: "Is designed for transferring adapter instance configuration from\
         \ the Collector to\nAdapter, containing all necessary information about connection\
         \ parameters, credentials."
-    CredentialKind:
-      title: CredentialKind
+    CredentialConfig:
+      title: CredentialConfig
       required:
       - credentialFields
       - credentialKey
@@ -454,8 +543,8 @@ components:
       description: |-
         Represents adapter's credential configuration field.
         This class contains all information about the credential's field entered when the adapter instance is created.
-    InternalRestCredentials:
-      title: InternalRestCredentials
+    InternalRestCredential:
+      title: InternalRestCredential
       required:
       - userName
       type: object
@@ -469,6 +558,85 @@ components:
           description: Represents the password in the credential.
       description: Represents the credential object to be used by adapter to communicate
         with vR Ops.
+    Certificate:
+      title: Certificate
+      required:
+      - certPemString
+      type: object
+      properties:
+        certPemString:
+          type: string
+        isInvalidHostnameAccepted:
+          type: boolean
+          description: "In case if the hostname verification fails and isInvalidHostnameAccepted\
+            \ is true \nAdapter should do the verification by comparing the certificates\
+            \ from the endpoints with the certificates received from the Collector.\
+            \ \nFor example the comparison can be done by thumbprint."
+          default: false
+        isExpiredCertificateAccepted:
+          type: boolean
+          description: In case if the connection fails because of certificate expiration
+            and isExpiredCertificateAccepted is true then the Adapter should ignore
+            that failure and continue the connection.
+          default: false
+      description: Represents the adapter's trusted certificate object. This class
+        contains all information about the certificates trusted by user from UI when
+        the adapter instance is created.
+    CertificateConfig:
+      title: CertificateConfig
+      type: object
+      properties:
+        certificates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+      description: Represents the adapter's trusted certificates.
+    Event:
+      title: Event
+      required:
+      - message
+      type: object
+      properties:
+        criticality:
+          maximum: 5
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+        message:
+          type: string
+        faultKey:
+          type: string
+        autoCancel:
+          type: boolean
+          default: false
+        startDate:
+          type: integer
+          format: int64
+        updateDate:
+          type: integer
+          format: int64
+        cancelDate:
+          type: integer
+          format: int64
+        watchWaitCycle:
+          type: integer
+          format: int32
+          default: 1
+        cancelWaitCycle:
+          type: integer
+          format: int32
+          default: 3
+      example:
+        cancelWaitCycle: 2
+        updateDate: 7
+        cancelDate: 9
+        watchWaitCycle: 3
+        criticality: 2
+        message: message
+        autoCancel: false
+        faultKey: faultKey
+        startDate: 2
   securitySchemes: {}
   links: {}
   callbacks: {}

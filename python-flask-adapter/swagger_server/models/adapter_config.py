@@ -6,8 +6,9 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
-from swagger_server.models.credential_kind import CredentialKind  # noqa: F401,E501
-from swagger_server.models.internal_rest_credentials import InternalRestCredentials  # noqa: F401,E501
+from swagger_server.models.certificate_config import CertificateConfig  # noqa: F401,E501
+from swagger_server.models.credential_config import CredentialConfig  # noqa: F401,E501
+from swagger_server.models.internal_rest_credential import InternalRestCredential  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
 from swagger_server import util
 
@@ -17,30 +18,35 @@ class AdapterConfig(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, adapter_key: ObjectKey=None, credential: CredentialKind=None, internal_rest_credential: InternalRestCredentials=None):  # noqa: E501
+    def __init__(self, adapter_key: ObjectKey=None, credential_config: CredentialConfig=None, internal_rest_credential: InternalRestCredential=None, certificate_config: CertificateConfig=None):  # noqa: E501
         """AdapterConfig - a model defined in Swagger
 
         :param adapter_key: The adapter_key of this AdapterConfig.  # noqa: E501
         :type adapter_key: ObjectKey
-        :param credential: The credential of this AdapterConfig.  # noqa: E501
-        :type credential: CredentialKind
+        :param credential_config: The credential_config of this AdapterConfig.  # noqa: E501
+        :type credential_config: CredentialConfig
         :param internal_rest_credential: The internal_rest_credential of this AdapterConfig.  # noqa: E501
-        :type internal_rest_credential: InternalRestCredentials
+        :type internal_rest_credential: InternalRestCredential
+        :param certificate_config: The certificate_config of this AdapterConfig.  # noqa: E501
+        :type certificate_config: CertificateConfig
         """
         self.swagger_types = {
             'adapter_key': ObjectKey,
-            'credential': CredentialKind,
-            'internal_rest_credential': InternalRestCredentials
+            'credential_config': CredentialConfig,
+            'internal_rest_credential': InternalRestCredential,
+            'certificate_config': CertificateConfig
         }
 
         self.attribute_map = {
             'adapter_key': 'adapterKey',
-            'credential': 'credential',
-            'internal_rest_credential': 'internalRestCredential'
+            'credential_config': 'credentialConfig',
+            'internal_rest_credential': 'internalRestCredential',
+            'certificate_config': 'certificateConfig'
         }
         self._adapter_key = adapter_key
-        self._credential = credential
+        self._credential_config = credential_config
         self._internal_rest_credential = internal_rest_credential
+        self._certificate_config = certificate_config
 
     @classmethod
     def from_dict(cls, dikt) -> 'AdapterConfig':
@@ -77,43 +83,64 @@ class AdapterConfig(Model):
         self._adapter_key = adapter_key
 
     @property
-    def credential(self) -> CredentialKind:
-        """Gets the credential of this AdapterConfig.
+    def credential_config(self) -> CredentialConfig:
+        """Gets the credential_config of this AdapterConfig.
 
 
-        :return: The credential of this AdapterConfig.
-        :rtype: CredentialKind
+        :return: The credential_config of this AdapterConfig.
+        :rtype: CredentialConfig
         """
-        return self._credential
+        return self._credential_config
 
-    @credential.setter
-    def credential(self, credential: CredentialKind):
-        """Sets the credential of this AdapterConfig.
+    @credential_config.setter
+    def credential_config(self, credential_config: CredentialConfig):
+        """Sets the credential_config of this AdapterConfig.
 
 
-        :param credential: The credential of this AdapterConfig.
-        :type credential: CredentialKind
+        :param credential_config: The credential_config of this AdapterConfig.
+        :type credential_config: CredentialConfig
         """
 
-        self._credential = credential
+        self._credential_config = credential_config
 
     @property
-    def internal_rest_credential(self) -> InternalRestCredentials:
+    def internal_rest_credential(self) -> InternalRestCredential:
         """Gets the internal_rest_credential of this AdapterConfig.
 
 
         :return: The internal_rest_credential of this AdapterConfig.
-        :rtype: InternalRestCredentials
+        :rtype: InternalRestCredential
         """
         return self._internal_rest_credential
 
     @internal_rest_credential.setter
-    def internal_rest_credential(self, internal_rest_credential: InternalRestCredentials):
+    def internal_rest_credential(self, internal_rest_credential: InternalRestCredential):
         """Sets the internal_rest_credential of this AdapterConfig.
 
 
         :param internal_rest_credential: The internal_rest_credential of this AdapterConfig.
-        :type internal_rest_credential: InternalRestCredentials
+        :type internal_rest_credential: InternalRestCredential
         """
 
         self._internal_rest_credential = internal_rest_credential
+
+    @property
+    def certificate_config(self) -> CertificateConfig:
+        """Gets the certificate_config of this AdapterConfig.
+
+
+        :return: The certificate_config of this AdapterConfig.
+        :rtype: CertificateConfig
+        """
+        return self._certificate_config
+
+    @certificate_config.setter
+    def certificate_config(self, certificate_config: CertificateConfig):
+        """Sets the certificate_config of this AdapterConfig.
+
+
+        :param certificate_config: The certificate_config of this AdapterConfig.
+        :type certificate_config: CertificateConfig
+        """
+
+        self._certificate_config = certificate_config
