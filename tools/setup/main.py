@@ -156,52 +156,7 @@ def main():
     # create Commandsfile
     create_commands_file(language ,path, executable_directory_path)
     print("")
-    print("project generation complete")
-    print("run the following command to build and run container:")
-    print("")
-    print("$ docker build --no-cache python --tag generated-image && docker run  -p 8080:8080 generated-image")
-
-    print("")
-    print("In a separate shell  run the following curl command test connection")
-    curl = """
-    curl --request POST \
-  --url http://localhost:8080/test \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "adapterKey": {
-    "objectKind": "objectKind",
-    "adapterKind": "adapterKind",
-    "identifiers": [
-      {
-        "isPartOfUniqueness": false,
-        "value": "value",
-        "key": "key"
-      },
-      {
-        "isPartOfUniqueness": false,
-        "value": "value",
-        "key": "key"
-      }
-    ],
-    "name": "name"
-  },
-  "credential": {
-    "credentialKey": "string",
-    "credentialFields": [
-      {
-        "key": "string",
-        "value": "string",
-        "isPassword": true
-      }
-    ]
-  },
-  "internalRestCredential": {
-    "userName": "string",
-    "password": "string"
-  }
-}'
-    """
-    print(curl)
+    print("project generation completed")
 
 def input_with_retry(message: str, validation_function):
     while True:
