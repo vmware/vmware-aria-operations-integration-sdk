@@ -155,7 +155,53 @@ def main():
 
     # create Commandsfile
     create_commands_file(language ,path, executable_directory_path)
+    print("")
+    print("project generation complete")
+    print("run the following command to build and run container:")
+    print("")
+    print("$ docker build --no-cache python --tag generated-image && docker run  -p 8080:8080 generated-image")
 
+    print("")
+    print("In a separate shell  run the following curl command test connection")
+    curl = """
+    curl --request POST \
+  --url http://localhost:8080/test \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "adapterKey": {
+    "objectKind": "objectKind",
+    "adapterKind": "adapterKind",
+    "identifiers": [
+      {
+        "isPartOfUniqueness": false,
+        "value": "value",
+        "key": "key"
+      },
+      {
+        "isPartOfUniqueness": false,
+        "value": "value",
+        "key": "key"
+      }
+    ],
+    "name": "name"
+  },
+  "credential": {
+    "credentialKey": "string",
+    "credentialFields": [
+      {
+        "key": "string",
+        "value": "string",
+        "isPassword": true
+      }
+    ]
+  },
+  "internalRestCredential": {
+    "userName": "string",
+    "password": "string"
+  }
+}'
+    """
+    print(curl)
 
 def input_with_retry(message: str, validation_function):
     while True:
@@ -171,19 +217,25 @@ def mkdir(basepath, *paths):
     return path
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
+    print("generating Dockerfile")
     with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
         dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
+        if 'python' in language:
+            dockerfile.write(f"COPY adapter_requirements.txt .\n")
+            dockerfile.write("RUN pip3 install -r adapter_requirements.txt")
+
 def create_commands_file(language: str, path: str, executable_directory_path: str):
+    print("generating commands file")
     with open(os.path.join(path,"commands.cfg"),'w') as commands:
 
        command_and_executable = ""
        if("java" == language ):
            command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
        elif("python" == language):
-           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/collector.py"
+           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/adapter.py"
        elif("powershell" == language):
            command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
        else:
@@ -198,11 +250,17 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
        commands.write("minor:0\n")
 
 def build_project_structure(path: str, language: str):
+    print("generating project structure")
     project_directory = '' #this is where all the source code will reside
 
     if language == "python":
         project_directory = "app"
         mkdir(path, project_directory)
+
+        # create template requirements.txt
+        requirements_file = os.path.join(path,"adapter_requirements.txt")
+        with open(requirements_file, "w") as requirements:
+            requirements.write("psutil==5.9.0")
 
         #get the path to adapter.py
         src = os.path.join(os.path.realpath(__file__).split('main.py')[0],'adapter/adapter.py')
