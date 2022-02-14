@@ -1,11 +1,11 @@
 import json
 import os
+import shutil
 
 from shutil import copyfile
 
 from colorama import init, Fore
 
-import adapter.python as python
 import adapter.java as java
 import adapter.powershell as powershell
 
@@ -198,23 +198,32 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
        commands.write("minor:0\n")
 
 def build_project_structure(path: str, language: str):
-    project_directory = ''
+    project_directory = '' #this is where all the source code will reside
 
     if language == "python":
         project_directory = "app"
         mkdir(path, project_directory)
-        python.build_template(path, project_directory)
+
+        #get the path to adapter.py
+        src = os.path.join(os.path.realpath(__file__).split('main.py')[0],'adapter/adapter.py')
+        dest = os.path.join(path,project_directory,'adapter.py')
+
+        #copy adapter.py into app directory
+        shutil.copyfile(src,dest)
 
     if language == "java":
+        #TODO: copy a java class instead of generate it
 
         mkdir(path, "src")
         java.build_template(path, "src")
 
         project_directory =  "out"
         mkdir(path, project_directory)
-        java.compile(os.path.join(path,"src"), os.path.join(path,project_directory))
+        java.compile(os.path.join(path,"src"), os.path.join(path,project_directory,))
 
     if language == "powershell":
+        #TODO: copy a powershell script  instead of generate it
+
         project_directory = "scripts"
         mkdir(path, project_directory)
         powershell.build_template(path, project_directory)
