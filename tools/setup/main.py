@@ -1,11 +1,11 @@
 import json
 import os
+import shutil
 
 from shutil import copyfile
 
 from colorama import init, Fore
 
-import adapter.python as python
 import adapter.java as java
 import adapter.powershell as powershell
 
@@ -155,7 +155,8 @@ def main():
 
     # create Commandsfile
     create_commands_file(language ,path, executable_directory_path)
-
+    print("")
+    print("project generation completed")
 
 def input_with_retry(message: str, validation_function):
     while True:
@@ -171,19 +172,25 @@ def mkdir(basepath, *paths):
     return path
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
+    print("generating Dockerfile")
     with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
         dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
+        if 'python' in language:
+            dockerfile.write(f"COPY adapter_requirements.txt .\n")
+            dockerfile.write("RUN pip3 install -r adapter_requirements.txt")
+
 def create_commands_file(language: str, path: str, executable_directory_path: str):
+    print("generating commands file")
     with open(os.path.join(path,"commands.cfg"),'w') as commands:
 
        command_and_executable = ""
        if("java" == language ):
            command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
        elif("python" == language):
-           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/collector.py"
+           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/adapter.py"
        elif("powershell" == language):
            command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
        else:
@@ -198,23 +205,38 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
        commands.write("minor:0\n")
 
 def build_project_structure(path: str, language: str):
-    project_directory = ''
+    print("generating project structure")
+    project_directory = '' #this is where all the source code will reside
 
     if language == "python":
         project_directory = "app"
         mkdir(path, project_directory)
-        python.build_template(path, project_directory)
+
+        # create template requirements.txt
+        requirements_file = os.path.join(path,"adapter_requirements.txt")
+        with open(requirements_file, "w") as requirements:
+            requirements.write("psutil==5.9.0")
+
+        #get the path to adapter.py
+        src = os.path.join(os.path.realpath(__file__).split('main.py')[0],'adapter/adapter.py')
+        dest = os.path.join(path,project_directory,'adapter.py')
+
+        #copy adapter.py into app directory
+        shutil.copyfile(src,dest)
 
     if language == "java":
+        #TODO: copy a java class instead of generate it
 
         mkdir(path, "src")
         java.build_template(path, "src")
 
         project_directory =  "out"
         mkdir(path, project_directory)
-        java.compile(os.path.join(path,"src"), os.path.join(path,project_directory))
+        java.compile(os.path.join(path,"src"), os.path.join(path,project_directory,))
 
     if language == "powershell":
+        #TODO: copy a powershell script  instead of generate it
+
         project_directory = "scripts"
         mkdir(path, project_directory)
         powershell.build_template(path, project_directory)
