@@ -6,6 +6,7 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.event import Event  # noqa: F401,E501
 from swagger_server.models.metric_data import MetricData  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
 from swagger_server.models.property_data import PropertyData  # noqa: F401,E501
@@ -17,7 +18,7 @@ class ObjectData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: ObjectKey=None, metrics: List[MetricData]=None, properties: List[PropertyData]=None):  # noqa: E501
+    def __init__(self, key: ObjectKey=None, metrics: List[MetricData]=None, properties: List[PropertyData]=None, events: List[Event]=None):  # noqa: E501
         """ObjectData - a model defined in Swagger
 
         :param key: The key of this ObjectData.  # noqa: E501
@@ -26,21 +27,26 @@ class ObjectData(Model):
         :type metrics: List[MetricData]
         :param properties: The properties of this ObjectData.  # noqa: E501
         :type properties: List[PropertyData]
+        :param events: The events of this ObjectData.  # noqa: E501
+        :type events: List[Event]
         """
         self.swagger_types = {
             'key': ObjectKey,
             'metrics': List[MetricData],
-            'properties': List[PropertyData]
+            'properties': List[PropertyData],
+            'events': List[Event]
         }
 
         self.attribute_map = {
             'key': 'key',
             'metrics': 'metrics',
-            'properties': 'properties'
+            'properties': 'properties',
+            'events': 'events'
         }
         self._key = key
         self._metrics = metrics
         self._properties = properties
+        self._events = events
 
     @classmethod
     def from_dict(cls, dikt) -> 'ObjectData':
@@ -121,3 +127,24 @@ class ObjectData(Model):
         """
 
         self._properties = properties
+
+    @property
+    def events(self) -> List[Event]:
+        """Gets the events of this ObjectData.
+
+
+        :return: The events of this ObjectData.
+        :rtype: List[Event]
+        """
+        return self._events
+
+    @events.setter
+    def events(self, events: List[Event]):
+        """Sets the events of this ObjectData.
+
+
+        :param events: The events of this ObjectData.
+        :type events: List[Event]
+        """
+
+        self._events = events
