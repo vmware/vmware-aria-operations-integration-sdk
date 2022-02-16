@@ -39,7 +39,7 @@ Tags differentiate characteristics of the built image. The following sections de
 The main component in the project is the HTTP Server defined by the vROps collector API. Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
 
 ##### Stable Tags
-Stable tag can be described as tag that is always going to be used by an image to convey a specific characteristic.
+A stable tag is used by an image to convey a specific characteristic.
 In the words of a more articulate person, "Stable tags mean a developer, or a build system, can continue to pull a
 specific tag, which continues to get updates. Stable doesn’t mean the contents are frozen. Rather, stable implies
 the image should be stable for the intent of that version. To stay “stable”, it might be serviced to apply security
