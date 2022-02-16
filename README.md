@@ -33,8 +33,7 @@ docker build --no-cache python-flask-adapter  --tag vrops-adapter-open-sdk-serve
 ```
 
 #### [Docker Tag](https://docs.docker.com/engine/reference/commandline/tag/)
-We use tags to differentiate characteristics of the built image. When tagging images there are three thing to keep
-in mind:  stable tags, language, and server version, all which are covered in the following segments.
+Tags differentiate characteristics of the built image. The following sections describe the tags used in the base images.
 
 ##### Server Version
 The main moving component in the project is the swagger_server therefore our overall version is based on the changes done to it. The version of the
