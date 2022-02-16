@@ -12,7 +12,7 @@ There are three different images in this project:
 	- Uses vrops-adapter-open-sdk-server:python as its base image
 	- Contains debian version of powershell
 
-It's important to note that the base OS is of our images is Debian, since we are not allowed to use alpine for both security an
+The base OS is Debian for security and
 licensing reasons. For more information go [here](https://confluence.eng.vmware.com/display/OS/Container+Base+OS).
 
 #### Building Images
