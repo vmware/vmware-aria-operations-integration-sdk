@@ -53,7 +53,7 @@ patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/az
 The image below is a visual representation  of stable tags with a similar semantic, but is not an actual representation of our semantic.
 ![docker tags](https://stevelaskerblog.files.wordpress.com/2018/03/stabletagging.gif)
 
-##### language
+##### Language
 The main language supported by the generated container. We currently support `python`,`java`, and `powershell`;
 However, users are encourage to use the base image and install their own desired language. Our base image is
 vrops-adapter-open-sdk-server:python, because the base image requires python to run the `swagger_server`, and all
