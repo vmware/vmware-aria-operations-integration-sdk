@@ -1,7 +1,7 @@
 # Development
 * * *
 ### Docker
-We currently have three different images in this project:
+There are three different images in this project:
 - vrops-adapter-open-sdk-server:python (base image)
 	- Uses python:3.10.2-slim-bullseye as its base image
 	- Contains the swagger_server used by vROps to communicate with the adapter
