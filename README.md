@@ -16,8 +16,8 @@ The base OS is Debian for security and
 licensing reasons. For more information go [here](https://confluence.eng.vmware.com/display/OS/Container+Base+OS).
 
 #### Building Images
-All commands are ran from the root folder of the project and assume that the image built is the current latest version,
-the next section will cover tags and their conventions.
+All commands are run from the root folder of the project and assume that the image built is the current latest version.
+The next section will cover tags and their conventions.
 
 1. Build base image
 ```
