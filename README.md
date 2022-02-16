@@ -47,7 +47,7 @@ patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/az
 
 - [LANGUAGE]: points to the latest stable tag, no matter what the current major version is
 - [LANGUAGE]-[MAJOR_VERSION]: points to the latest stable image of the specific major version
-- [LANGUAGE]-[SERVER_VERSION]:the main language supported by the image other than python, followed by server version.
+- [LANGUAGE]-[SERVER_VERSION]: the main language supported by the image other than python, followed by server version.
 
 The image below is a visual representation  of stable tags with a similar semantic, but is not an actual representation of our semantic.
 ![docker tags](https://stevelaskerblog.files.wordpress.com/2018/03/stabletagging.gif)
