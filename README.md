@@ -36,8 +36,7 @@ docker build --no-cache python-flask-adapter  --tag vrops-adapter-open-sdk-serve
 Tags differentiate characteristics of the built image. The following sections describe the tags used in the base images.
 
 ##### Server Version
-The main moving component in the project is the swagger_server therefore our overall version is based on the changes done to it. The version of the
-swagger_server follows [semantic versioning](https://semver.org/)
+The main component in the project is the HTTP Server defined by the vROps collector API. Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
 
 ##### Stable Tags
 Stable tag can be described as tag that is always going to be used by an image to convey a specific characteristic.
