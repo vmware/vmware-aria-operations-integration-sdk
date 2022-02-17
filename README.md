@@ -1,7 +1,7 @@
 # Development
 * * *
 ### Docker
-We currently have three different images in this project:
+There are three different images in this project:
 - vrops-adapter-open-sdk-server:python (base image)
 	- Uses python:3.10.2-slim-bullseye as its base image
 	- Contains the swagger_server used by vROps to communicate with the adapter
@@ -12,12 +12,11 @@ We currently have three different images in this project:
 	- Uses vrops-adapter-open-sdk-server:python as its base image
 	- Contains debian version of powershell
 
-It's important to note that the base OS is of our images is Debian, since we are not allowed to use alpine for both security an
-licensing reasons. For more information go [here](https://confluence.eng.vmware.com/display/OS/Container+Base+OS).
+The base OS is Debian for security and licensing reasons. For more information go [here](https://confluence.eng.vmware.com/display/OS/Container+Base+OS).
 
 #### Building Images
-All commands are ran from the root folder of the project and assume that the version of the http server is `0.1.0`,
-the next section will cover tags and their conventions.
+All commands are run from the root folder of the project and assume that the version of the http server is `0.1.0`.
+The next section will cover tags and their conventions.
 
 1. Build base image
 ```
@@ -33,7 +32,7 @@ docker build --no-cache python-flask-adapter  --tag vrops-adapter-open-sdk-serve
 ```
 
 #### Tagging Convention
-We use tags to differentiate characteristics of the built image. Every image has a unique tag; however, an
+Tags differentiate characteristics of the built image. Every image has a unique tag; however, an
 image can have more than one tags. Additional tags are known as stable tags:
 
    Stable tags mean a developer, or a build system, can continue to pull a specific tag, which
@@ -44,16 +43,16 @@ image can have more than one tags. Additional tags are known as stable tags:
 When tagging images there are three thing to keep
 in mind:  language, server version, and stable tags, all which are covered in the following segments.
 
-##### language
+##### Language
 The  language component of a tag specifies the main language supported by the generated container.
 Language are on of `python`,`java`, or `powershell`; If an unsupported language is desired, base
 image `vrops-adapter-open-sdk-server:python` can be used as a starting point to install an additional
 language or runtime environment. The base image contains the HTTP server, which is required to serve
 calls from vROps and the user's adapter. It is also possible to start from a different base image,
 but in this case an HTTP server that conforms to the collector API must be manually added.
+
 ##### Server Version
-The main moving component in the project is the swagger_server therefore our overall version is based
-on the changes done to it. The version of the HTTP server follows [semantic versioning](https://semver.org/)
+The main component in the project is the HTTP Server defined by the vROps collector API. Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
 
 ##### Unique Tag
 Each image should have a unique tag with the following format:
