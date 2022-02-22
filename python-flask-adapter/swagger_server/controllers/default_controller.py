@@ -68,6 +68,26 @@ def version():  # noqa: E501
     return config["Version"]["major"] + "." + config["Version"]["minor"]
 
 
+def get_endpoint_urls(body=None):  # noqa: E501
+    """Retrieve endpoint URLs
+
+    This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the vRealize Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manully. # noqa: E501
+
+    :param body:
+    :type body: dict | bytes
+
+    :rtype: List[str]
+    """
+    if connexion.request.is_json:
+        body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
+
+    command = getcommand("endpoint_urls")
+    environment = create_env(body)
+    invocation = command + [str(body.adapter_key)]
+
+    return runcommand(invocation, environment)
+
+
 def getcommand(commandtype):
     config = configparser.ConfigParser()
     config.read("commands.cfg")
@@ -89,7 +109,7 @@ def create_env(body: AdapterConfig):
     for identifier in body.adapter_key.identifiers:
         env[identifier.key.upper()] = identifier.value
 
-    for credential_field in body.credential.credential_fields:
+    for credential_field in body.credential_config.credential_fields:
         env[f"CREDENTIAL_{credential_field.key.upper()}"] = credential_field.value
 
     return env
