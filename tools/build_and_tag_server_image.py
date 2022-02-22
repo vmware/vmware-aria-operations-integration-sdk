@@ -25,6 +25,8 @@ def main():
     for tag in tags:
         print(f"pushing tag {tag}")
         python.tag(tag)
+        # TODO: This works for Harbor but is probably not generic enough for other registries.
+        #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
         registry_tag = f"{registry_url}/{repo}/{tag}"
         python.tag(registry_tag)
         client.images.push(registry_tag)
