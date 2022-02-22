@@ -10,6 +10,7 @@ def main():
 
     # TODO: Prompt user to increment
     version = get_config_value("version")
+    repo = get_config_value("docker_repo", "tvs")
 
     # TODO: Prompt user to select which images to build? e.g., python, java, powershell
     build_path = get_absolute_project_directory("python-flask-adapter")
@@ -24,9 +25,9 @@ def main():
     for tag in tags:
         print(f"pushing tag {tag}")
         python.tag(tag)
-        harbor_tag = f"{registry_url}/tvs/{tag}"
-        python.tag(harbor_tag)
-        client.images.push(harbor_tag)
+        registry_tag = f"{registry_url}/{repo}/{tag}"
+        python.tag(registry_tag)
+        client.images.push(registry_tag)
 
     print("Successfully pushed tags:")
     for tag in tags:
