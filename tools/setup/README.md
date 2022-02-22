@@ -1,15 +1,12 @@
 # Setup Tool
-
 The setup tool generates a boilerplate project that contains all the requirements to develop a containerized adapter for vRealize Operations Manager. The containerized adapter has to be distributed in the for of a Management Pack. To build a Management Pack use the [build tool](TODO: link to build tool documentation).
 
 ## Requirements
-
 - [python 3.3 or higher] (https://www.python.org/downloads/)
 - [Docker CLI 20.10.xx or higher] (https://docs.docker.com/get-docker/)
 - [Base Container Image](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories/vrops-adapter-open-sdk-server)
 
 ### Optional Requirements
-
 - [Java Image](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories/vrops-adapter-open-sdk-server/artifacts/sha256:1520f9a97fa32b34ccce6d9ad03cf4853edb8ec8b54d388a97f75197488e5b8f)
 - [Powershell Image](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories/vrops-adapter-open-sdk-server/artifacts/sha256:7290c2d23242620641cb162378e641f23d096b0d3339b466980f64217237b9b5)
 
@@ -33,72 +30,9 @@ The setup tool generates a boilerplate project that contains all the requirement
 	- Powershell
 
 ## Boilerplate Project Structure
-TODO add a separate README for java project structure
-TODO add a separate README for python project structure
-TODO add a separate README for powershell project structure
-
-The project structure below uses python as its main language:
-```
-.
-├── Dockerfile
-├── adapter_requirements.txt
-├── app
-│   └── adapter.py
-├── commands.cfg
-├── conf
-│   └── describe.xml
-├── content
-│   ├── dashboards
-│   ├── files
-│   └── reports
-├── manifest.txt
-└── resources
-    └── resources.properties
-```
-### Dockerfile (file)
-Contains all necessary instructions to build a container with an HTTP server, the user's executable Adapter
-code, and any additional dependencies specified by the user.
-
-### Requirements (file for python projects only)
-   - adapter_requirements.txt: Contains all python dependencies needed by the adapter. This file will be used by docker during the construction of the container
-
-### Source Code (directory)
-The setup tool will create a different directory name according to the language the user picks. All source code for the adapter should reside in this folder.
-Below are all possible directory names along with their language:
-   - app(python)
-   - src(java)
-   - scripts(powershell)
-
-### commands.cfg (file)
-HTTP Server configuration. The configuration specifies the server version along with commands that are related to the HTTP
-calls sent by vROps to communicate with the Adapter
-
-### conf Folder (directory)
-   - describe.xml: An XML configuration file that defines the object model for an adapter, along with semantic definitions for use in data analysis and management.
-
-### content Folder(directory)
-TODO: define the contents of this directory
-This folder contains all the components included in a management pack such as: alerts, groups, dashboards, policie , recommendations, reports, resources, supermetrics, symptoms and definitions, and traversal specs.
-#### dashboards (directory)
-TODO: Provide sample dashboard
-
-#### files (directory)
-TODO: what should be inside this directory ?
-
-#### reports (directory)
-TODO: what are reports ?
-
-### manifest.txt (file)
-The manifest file contains top-level information that you need to install and maintain a management pack.
-TODO: create table for manifest file properties
-| Manifest Property  | Value         |
-| :----------------: | :------------ |
-| Content Cell       | Content Cell  |
-| Content Cell       | Content Cell  |
-
-### resources (directory)
-#### resources.properties (file)
-TODO: what is this file used for ?
+- [Python Project](python_project.md)
+- [Powershell Project](powershell_project.md) TODO Complete powershell_project.md documentation
+- [Java Project](java_project.md) TODO Complete java_project.md documentation
 
 ## Troubleshooting
 
