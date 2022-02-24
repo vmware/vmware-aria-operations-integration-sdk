@@ -42,14 +42,14 @@ Contains all the source adapter source code. This directory is copied into the c
 TODO link the swagger API, so the use can see all requests
 
 ### commands.cfg (file)
-This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the command. By default, all commands are ran by executing the adapter.py file along a parameter that defines a command. For example; when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test` and runs the process defined by the key value.
+This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the command. By default, all commands are run by executing the adapter.py file along with a parameter that defines a command. For example; when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test` and runs the process defined by the key value.
 
 ### conf Folder (directory)
    - describe.xml: An XML configuration file that defines the object model for an adapter, along with semantic definitions for use in data analysis and management.
 
 ### content Folder(directory)
 TODO: define the contents of this directory
-This folder contains all the components included in a management pack such as: alerts, groups, dashboards, policie , recommendations, reports, resources, supermetrics, symptoms and definitions, and traversal specs.
+This folder contains all the components included in a management pack such as: alerts, groups, dashboards, policies, recommendations, reports, resources, supermetrics, symptoms, and traversal specs.
 #### dashboards (directory)
 TODO: Provide sample dashboard
 
