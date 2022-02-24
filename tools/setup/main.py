@@ -2,39 +2,128 @@ import json
 import os
 import shutil
 
-from shutil import copyfile
-
-from colorama import init, Fore
+from shutil import copy
+from PyInquirer import style_from_dict, Token, prompt
+from PIL import Image, UnidentifiedImageError
 
 import adapter.java as java
 import adapter.powershell as powershell
+
 
 def is_directory_or_not_existing(p: str):
     if not os.path.exists(p):
         return True
     if os.path.isfile(p):
-        print(Fore.RED + "ERROR: Path must be a directory.")
-        return False
+        return 'Path must be a directory.'
+
     return True
 
 
-def is_file(p: str):
-    if os.path.isfile(p):
-        return True
-    else:
-        print(Fore.RED + "ERROR: Specified path is not a file.")
-        return False
-
-
-def not_blank(p: str):
-    # Empty strings are falsy
-    return p.strip()
+def is_valid_image(p: str):
+    try:
+        image = Image.open(p, formats=["PNG"])
+        return True if image.size == (256, 256) else "Image must be 256X256 pixels"
+    except FileNotFoundError:
+        return "Could not find image"
+    except TypeError:
+        return "Image must be in PNG format"
+    except UnidentifiedImageError as e:
+        return f"{e}"
 
 
 def main():
-    init()
+    style = style_from_dict({
+        Token.QuestionMark: "#E91E63 bold",
+        Token.Selected: "#673AB7 bold",
+        Token.Instruction: "",
+        Token.Answer: "#2196f3 bold",
+        Token.Question: "",
+    })  # this is the same style used by the build tool
 
-    path = input_with_retry("Project directory (where code for collection, metadata, and content reside): ", is_directory_or_not_existing)
+    questions = [
+        {
+            "type": "input",
+            "name": "project_directory",
+            "message": "Project directory name (where code for collection, metadata, and content reside):",
+            "validate": is_directory_or_not_existing
+        },
+        {
+            'type': 'input',
+            'name': 'name',
+            'message': 'Display name',
+        },
+        {
+            'type': 'input',
+            'name': 'description',
+            'message': 'Description',
+        },
+        {
+            'type': 'input',
+            'name': 'vendor',
+            'message': 'Your company',
+        },
+        {
+            "type": "confirm",
+            "name": "eula",
+            "message": "Do you have a EULA?"
+        },
+        {
+            'type': 'input',
+            'name': 'eula_file',
+            'message': 'What is the path to the EULA file?',
+            'when': lambda a: a['eula'],
+            'validate': lambda file: True if os.path.isfile(file) else 'Path must be a directory.'
+        },
+        {
+            "type": "expand",
+            "name": "eula",
+            'when': lambda a: not a['eula'],
+            "message": "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula "
+                       "file to the root project directory.",
+            'default': 'k',
+            'choices': [
+                {'key': 'k', 'name': 'Ok', 'value': 'Ok'}
+            ]
+        },
+        {
+            "type": "confirm",
+            "name": "icon",
+            "message": "Do you have an icon for the management pack?"
+        },
+        {
+            'type': 'input',
+            'name': 'icon_file',
+            'message': 'What is the path to the icon file?',
+            'when': lambda a: a['icon'],
+            'validate': is_valid_image
+        },
+        {
+            "type": "expand",
+            "name": "eula",
+            'when': lambda a: not a['icon'],
+            "message": "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon "
+                       "file to the root project directory.",
+            'default': 'k',
+            'choices': [
+                {'key': 'k', 'name': 'Ok', 'value': 'Ok'}
+            ]
+        },
+        {
+            'type': 'list',
+            'name': 'language',
+            'message': 'What language would you like to use?',
+            'choices': ['Python', 'Java', 'Powershell'],
+            'filter': lambda l: l.lower()
+        }
+        # TODO tell user what that the language is going to be used to create a template Adapter
+    ]
+
+    answers = prompt(questions, style=style)
+
+    path = answers["project_directory"]
+    name = answers['name']
+
+    # create project_directory
     mkdir(path)
 
     paths = []
@@ -53,9 +142,6 @@ def main():
 
     resources_dir = mkdir(path, "resources")
     resources_file = os.path.join(resources_dir, "resources.properties")
-    name = input("Display name: ")
-    description = input("Description: ")
-    vendor = input("Your company: ")
     with open(resources_file, "w") as resources_fd:
         resources_fd.write("#This is the default localization file.\n")
         resources_fd.write("\n")
@@ -63,30 +149,23 @@ def main():
         resources_fd.write(f"DISPLAY_NAME={name}\n")
         resources_fd.write("\n")
         resources_fd.write("#The solution's localized description\n")
-        resources_fd.write(f"DESCRIPTION={description}\n")
+        resources_fd.write(f"DESCRIPTION={answers['description']}\n")
         resources_fd.write("\n")
         resources_fd.write("#The vendor's localized name\n")
-        resources_fd.write(f"VENDOR={vendor}\n")
+        resources_fd.write(f"VENDOR={answers['vendor']}\n")
 
-    print("")
-    if (input("Do you have a EULA (y/N)? ") or "N").lower() != "y":
-        print(
-            "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula file to the root adapter directory.")
+    if 'eula_file' not in answers:
         eula_file = ""
     else:
-        eula_file = input_with_retry("What is the path to the EULA file? ", is_file)
-        copyfile(eula_file, path)
+        eula_file = answers['eula_file']
+        copy(eula_file, path)
         eula_file = os.path.basename(eula_file)
 
-    # TODO: refactor similar steps
-    print("")
-    if (input("Do you have an icon for the management pack (y/N)? ") or "N").lower() != "y":
-        print(
-            "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon file to the root adapter directory.'")
+    if 'icon_file' not in answers:
         icon_file = ""
     else:
-        icon_file = input_with_retry("What is the path to the icon file? ", is_file)
-        copyfile(icon_file, path)
+        icon_file = answers['icon_file']
+        copy(icon_file, path)
         icon_file = os.path.basename(icon_file)
 
     manifest_file = os.path.join(path, "manifest.txt")
@@ -143,10 +222,7 @@ def main():
 
     print("")
 
-    supported_languages = ["python","java","powershell"]
-    print(f"Supported languages are: {supported_languages}")
-    language = input_with_retry("What language would you like to use? ", lambda x: x.lower() in supported_languages).lower()
-
+    language = answers['language']
     # create project structure
     executable_directory_path = build_project_structure(path, language);
 
@@ -154,9 +230,10 @@ def main():
     create_dockerfile(language, path, executable_directory_path)
 
     # create Commandsfile
-    create_commands_file(language ,path, executable_directory_path)
+    create_commands_file(language, path, executable_directory_path)
     print("")
     print("project generation completed")
+
 
 def input_with_retry(message: str, validation_function):
     while True:
@@ -171,9 +248,10 @@ def mkdir(basepath, *paths):
         os.mkdir(path, 0o755)
     return path
 
+
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
-    with open(os.path.join(root_directory,"Dockerfile"),'w') as dockerfile:
+    with open(os.path.join(root_directory, "Dockerfile"), 'w') as dockerfile:
         dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
@@ -182,67 +260,69 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
             dockerfile.write("RUN pip3 install -r adapter_requirements.txt")
 
+
 def create_commands_file(language: str, path: str, executable_directory_path: str):
     print("generating commands file")
-    with open(os.path.join(path,"commands.cfg"),'w') as commands:
+    with open(os.path.join(path, "commands.cfg"), 'w') as commands:
 
-       command_and_executable = ""
-       if("java" == language ):
-           command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
-       elif("python" == language):
-           command_and_executable = f"/usr/local/bin/python {executable_directory_path}/adapter.py"
-       elif("powershell" == language):
-           command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
-       else:
-           print(f"ERROR: language {language} is not supported")
-           exit(-1)
+        command_and_executable = ""
+        if "java" == language:
+            command_and_executable = f"/usr/bin/java -cp {executable_directory_path} Collector"
+        elif "python" == language:
+            command_and_executable = f"/usr/local/bin/python {executable_directory_path}/adapter.py"
+        elif "powershell" == language:
+            command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
+        else:
+            print(f"ERROR: language {language} is not supported")
+            exit(-1)
 
-       commands.write("[Commands]\n")
-       commands.write(f"test={command_and_executable} test\n")
-       commands.write(f"collect={command_and_executable} collect\n")
-       commands.write("[Version]\n")
-       commands.write("major:1\n")
-       commands.write("minor:0\n")
+        commands.write("[Commands]\n")
+        commands.write(f"test={command_and_executable} test\n")
+        commands.write(f"collect={command_and_executable} collect\n")
+        commands.write("[Version]\n")
+        commands.write("major:1\n")
+        commands.write("minor:0\n")
+
 
 def build_project_structure(path: str, language: str):
     print("generating project structure")
-    project_directory = '' #this is where all the source code will reside
+    project_directory = ''  # this is where all the source code will reside
 
     if language == "python":
         project_directory = "app"
         mkdir(path, project_directory)
 
         # create template requirements.txt
-        requirements_file = os.path.join(path,"adapter_requirements.txt")
+        requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
             requirements.write("psutil==5.9.0")
 
-        #get the path to adapter.py
-        src = os.path.join(os.path.realpath(__file__).split('main.py')[0],'adapter/adapter.py')
-        dest = os.path.join(path,project_directory,'adapter.py')
+        # get the path to adapter.py
+        src = os.path.join(os.path.realpath(__file__).split('main.py')[0], 'adapter/adapter.py')
+        dest = os.path.join(path, project_directory)
 
-        #copy adapter.py into app directory
-        shutil.copyfile(src,dest)
+        # copy adapter.py into app directory
+        copy(src, dest)
 
     if language == "java":
-        #TODO: copy a java class instead of generate it
+        # TODO: copy a java class instead of generate it
 
         mkdir(path, "src")
         java.build_template(path, "src")
 
-        project_directory =  "out"
+        project_directory = "out"
         mkdir(path, project_directory)
-        java.compile(os.path.join(path,"src"), os.path.join(path,project_directory,))
+        java.compile(os.path.join(path, "src"), os.path.join(path, project_directory, ))
 
     if language == "powershell":
-        #TODO: copy a powershell script  instead of generate it
+        # TODO: copy a powershell script  instead of generate it
 
         project_directory = "scripts"
         mkdir(path, project_directory)
         powershell.build_template(path, project_directory)
 
-
     return project_directory
+
 
 if __name__ == '__main__':
     main()
