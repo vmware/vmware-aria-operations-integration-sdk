@@ -8,6 +8,8 @@ import zipfile
 from shutil import copyfile
 from PyInquirer import style_from_dict, Token, prompt
 
+from common.filesystem import zip_dir, mkdir
+
 
 def main():
     paths = []
@@ -53,9 +55,10 @@ def main():
         manifest = json.load(manifest_file)
 
     # TODO: The repo and project need to be configurable.
-    docker_image_tag = "harbor-repo.vmware.com/tvs_vrops_python_sdk_dev/" + manifest["name"] + ":" + manifest["version"] + "_" + str(time.time())
+    docker_image_tag = "harbor-repo.vmware.com/tvs_vrops_python_sdk_dev/" + manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
 
     os.system(f"docker build --no-cache . --tag {docker_image_tag}")
+    os.system(f"docker push {docker_image_tag}")
 
     name = "PAKFILE_NAME"
     adapter_dir = manifest["name"] + "_adapter3"
@@ -102,34 +105,6 @@ def main():
         pak.write("adapter.zip", compress_type=zipfile.ZIP_DEFLATED)
 
     os.remove("adapter.zip")
-
-
-# TODO: Extract common functions to shared file
-def mkdir(basepath, *paths):
-    path = os.path.join(basepath, *paths)
-    if not os.path.exists(path):
-        os.mkdir(path, 0o755)
-    return path
-
-
-def zip_dir(zip_file, directory):
-    for file in files_in_directory(directory):
-        zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
-
-
-def files_in_directory(directory):
-    result = []
-    for root, directories, files in os.walk(directory):
-        print(f"Root: {root}")
-        print(f"Directories: {directories}")
-        print(f"Files: {files}")
-
-        for filename in files:
-            result.append(os.path.join(root, filename))
-        for subdirectory in directories:
-            for filename in files_in_directory(subdirectory):
-                result.append(os.path.join(root, filename))
-    return result
 
 
 if __name__ == "__main__":
