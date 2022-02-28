@@ -15,6 +15,27 @@ def get_config_value(key: [str], default: str = None):
     return get_config_values(key, defaults=defaults)[key]
 
 
+# Given a config key  and a value, set the given value to the given key in the config file
+# If the given key doesn't exist, this function returns a KeyError exception. If no config file exist, this function
+# returns an AttributeError exception
+def set_config_value(key: str, value: str):
+    config_file = get_absolute_project_directory("config.json")
+
+    if not os.path.isfile(config_file):
+        return AttributeError
+
+    with open(config_file, "r") as config:
+        config_json = json.load(config)
+
+        if key not in config_json:
+            return KeyError
+
+    config_json[key] = value
+
+    with open(config_file, "w") as config:
+        json.dump(config_json, config)
+
+
 # Given a list of config keys, return a dictionary of keys and the values associated with them
 # If no value exists for a given key, return the default value if provided. If no value exists
 # and a default is not provided, this function prompts the user for a value. If a value
