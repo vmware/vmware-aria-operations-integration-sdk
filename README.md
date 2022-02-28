@@ -20,15 +20,15 @@ The next section will cover tags and their conventions.
 
 1. Build base image
 ```
-docker build --no-cache python-flask-adapter  --tag vrops-adapter-open-sdk-server:python-0.3.0
+docker build --no-cache http-server --tag vrops-adapter-open-sdk-server:python-0.3.0
 ```
 2. Build powershell image
 ```
-docker build --no-cache powershell-client  --tag vrops-adapter-open-sdk-server:powershell-0.3.0
+docker build --no-cache powershell-client --tag vrops-adapter-open-sdk-server:powershell-0.3.0
 ```
 3. Build java image
 ```
-docker build --no-cache java-client  --tag vrops-adapter-open-sdk-server:java-0.3.0
+docker build --no-cache java-client --tag vrops-adapter-open-sdk-server:java-0.3.0
 ```
 
 #### Tagging Convention

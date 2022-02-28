@@ -8,19 +8,19 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-python-flask-adapter/env/
-python-flask-adapter/build/
-python-flask-adapter/develop-eggs/
-python-flask-adapter/dist/
-python-flask-adapter/downloads/
-python-flask-adapter/eggs/
-python-flask-adapter/.eggs/
-python-flask-adapter/lib/
-python-flask-adapter/lib64/
-python-flask-adapter/parts/
-python-flask-adapter/sdist/
-python-flask-adapter/var/
-python-flask-adapter/.installed.cfg
+http-server/env/
+http-server/build/
+http-server/develop-eggs/
+http-server/dist/
+http-server/downloads/
+http-server/eggs/
+http-server/.eggs/
+http-server/lib/
+http-server/lib64/
+http-server/parts/
+http-server/sdist/
+http-server/var/
+http-server/.installed.cfg
 *.egg-info/
 *.egg
 
@@ -31,21 +31,21 @@ python-flask-adapter/.installed.cfg
 *.spec
 
 # Installer logs
-python-flask-adapter/pip-log.txt
-python-flask-adapter/pip-delete-this-directory.txt
+http-server/pip-log.txt
+http-server/pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-python-flask-adapter/htmlcov/
-python-flask-adapter/.tox/
-python-flask-adapter/.coverage
-python-flask-adapter/.coverage.*
-python-flask-adapter/.cache
-python-flask-adapter/nosetests.xml
-python-flask-adapter/coverage.xml
+http-server/htmlcov/
+http-server/.tox/
+http-server/.coverage
+http-server/.coverage.*
+http-server/.cache
+http-server/nosetests.xml
+http-server/coverage.xml
 *,cover
-python-flask-adapter/.hypothesis/
-python-flask-adapter/venv/
-python-flask-adapter/.python-version
+http-server/.hypothesis/
+http-server/venv/
+http-server/.python-version
 
 # Translations
 *.mo
@@ -55,13 +55,13 @@ python-flask-adapter/.python-version
 *.log
 
 # Sphinx documentation
-python-flask-adapter/docs/_build/
+http-server/docs/_build/
 
 # PyBuilder
-python-flask-adapter/target/
+http-server/target/
 
 #Ipython Notebook
-python-flask-adapter/.ipynb_checkpoints
+http-server/.ipynb_checkpoints
 
 #IntelliJ project
 .idea
