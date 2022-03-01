@@ -185,6 +185,7 @@ def get_connection(project):
             "message": identifier.get("key") + postfix,
             "name": identifier.get("key"),
             "validate": lambda v: True if (not required) else (True if v else False),
+            "filter": lambda v: {"value": v, "required": required, "part_of_uniqueness": identifier.get("identType") == "1"}
         })
 
     identifiers = prompt(questions, style=vrops_sdk_prompt_style)
@@ -219,6 +220,7 @@ def get_connection(project):
                 "name": credential_field.get("key"),
                 "validate": lambda v: True if (not required) else (
                     True if v else "This field is required and cannot be blank."),
+                "filter": lambda v: {"value": v, "required": required, "password": password}
             })
 
         credentials = prompt(questions, style=vrops_sdk_prompt_style)
@@ -237,8 +239,8 @@ def get_connection(project):
         }
     ]
     name = prompt(questions, style=vrops_sdk_prompt_style)["name"]
-    new_connection = Connection(name, identifiers, credentials)
-    project["connections"].append(new_connection.__dict__)
+    new_connection = Connection(name, identifiers, credentials).__dict__
+    project["connections"].append(new_connection)
     record_project(project)
     return new_connection
 
@@ -274,9 +276,8 @@ def get_request_body(project, connection):
         for key in connection["identifiers"]:
             identifiers.append({
                 "key": key,
-                "value": connection["identifiers"][key],
-                # TODO: Set isPartOfUniqueness correctly
-                "isPartOfUniqueness": True
+                "value": connection["identifiers"][key]["value"],
+                "isPartOfUniqueness": connection["identifiers"][key]["part_of_uniqueness"]
             })
 
     credential_config = {}
@@ -287,9 +288,8 @@ def get_request_body(project, connection):
             if key != "credential_kind_key":
                 fields.append({
                     "key": key,
-                    "value": connection["credential"][key],
-                    # TODO: Set isPassword correctly
-                    "isPassword": False
+                    "value": connection["credential"][key]["value"],
+                    "isPassword": connection["credential"][key]["password"]
                 })
         credential_config = {
             "credentialKey": connection["credential"]["credential_kind_key"],
