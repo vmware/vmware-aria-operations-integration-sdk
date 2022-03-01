@@ -14,6 +14,13 @@ style = style_from_dict({
 
 
 def main():
+    client = docker.from_env()
+
+    # TODO get current versions
+    local_images = client.images.list(name='vrops-adapter-open-sdk-server')  # Get all the images in the repo
+    current_python_version, current_java_version, current_powershell_version = get_latest_vrops_container_versions(
+        local_images)
+
     question = [
         {
             'type': 'checkbox',
@@ -21,8 +28,9 @@ def main():
             'name': 'images',
             'choices': [
                 {
-                    'name': 'Python',
-                    'value': 'python:http-server',# value = [language]:[path]
+                    'name': 'Python', # This image should always be built with every new version of the http server
+                    'value': 'python:http-server',  # value = [language]:[path]
+                    'checked': True
                 },
                 {
                     'name': 'Java',
@@ -35,15 +43,47 @@ def main():
             ],
             'validate': lambda a: 'You must choose at least one image.'
             if len(a) == 0 else True  # Validation doesn't work: https://github.com/CITGuru/PyInquirer/issues/161
+        },
+        {
+            'type': 'confirm',
+            'message': "is this a new image (should the image version be updated)?",
+            'name': 'update_version',
+        },
+        {
+            'type': 'input',
+            'message': f'What is the new base image version (current {current_python_version})',
+            'name': 'http_server_version',
+            'when': lambda a: a['update_version'] and len(a['images']) > 0 and 'python:http-server' in a['images'],
+            'validate': lambda
+                a: "Version should be bigger than the current version" if a <= current_python_version else True
+        },
+        {
+            'type': 'input',
+            'message': 'What is the Java image version',
+            'name': 'java_version',
+            'when': lambda a: a['update_version'] and len(a['images']) > 0 and 'java:java-client' in a['images'],
+            'validate': lambda
+                a: "New version should be bigger than the current version" if a <= current_java_version else True
+        },
+        {
+            'type': 'input',
+            'message': 'What is the new PowerShell version',
+            'name': 'powershell_version',
+            'when': lambda
+                a: a['update_version'] and len(a['images']) > 0 and 'powershell:powershell-client' in a['images'],
+            'validate': lambda
+                a: "New version should be bigger than the current version" if a <= current_powershell_version else True
         }
     ]
+
     answer = prompt(question, style=style)
 
-    client = docker.from_env()
+    new_images = []
 
+    # TODO: get new versions
     for image in answer['images']:
         # TODO: Prompt user to increment
-        build_image(client, image)  # TODO build local image
+        new_images.append(build_image(client, image))
 
     # #TODO ask if the user wants to push the images
     # print("TODO: ask to tag and push images")
@@ -60,46 +100,69 @@ def main():
     # print(f"TODO: registry: {registry_url}")
 
 
+def get_latest_vrops_container_versions(local_images):
+    # TODO: parse the images and return each major version
+    python_version = '0.3.0'
+    java_version = '0.3.0'
+    powershell_version = '0.3.0'
+
+    return python_version, java_version, powershell_version
+
+
 def build_image(client: docker.client, image: str):
     # TODO: Ask to bump version and give a dev option
     language = image.split(':')[0]
-    #TODO determine base image version
-    #TODO only ask major version for the base image
+    # TODO determine base image version
+    # TODO only ask major version for the base image
     version = get_config_value(f"{language}_image_version")
     build_path = get_absolute_project_directory(image.split(':')[1])
 
-    #TODO If image is not base image pass major version as a build parameter
-    print(f"building image...")
+    # TODO If image is not base image pass major version as a build parameter
+    print(f"building {language} image...")
     image, image_logs = client.images.build(path=build_path, nocache=True, rm=True,
                                             buildargs={"http_server_version": version},
                                             tag=f"vrops-adapter-open-sdk-server:{language}-{version}")
 
-    print(f"Built image with tag {image.tags[0]}")
+    # TODO ask user if they want to add stable tags
+    add_stable_tags(image, language, version)
+    image.reload()  # Update all image attributes
+
+    return image
 
 
-def tag_image(image, version):
+def add_stable_tags(image, language: str, version: str):  # Add type to image
+    print(f"image came with this tags{image.tags}")
     tags = [
-        f"vrops-adapter-open-sdk-server:python-{version}",
-        f"vrops-adapter-open-sdk-server:python-{version.split('.')[0]}",
-        f"vrops-adapter-open-sdk-server:python-latest"
+        f"vrops-adapter-open-sdk-server:{language}-{version.split('.')[0]}",
+        f"vrops-adapter-open-sdk-server:{language}-latest"
     ]
 
     for tag in tags:
-        print(f"pushing tag {tag}")
+        print(f"tagging image with tag {tag}")
         image.tag(tag)
-        # TODO: This works for Harbor but is probably not generic enough for other registries.
-        #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
-        registry_tag = f"{registry_url}/{repo}/{tag}"
-        image.tag(registry_tag)
 
 
-def push_tags(client, registry_tag):
-    client.images.push(registry_tag)
+def add_registry_tags(tags: [str], registry_url: str, repo: str):
+    pass
+    # TODO finish pushing tags logic
+    # for tag in tags:
+    #     print(f"pushing tag {tag}")
+    #     image.tag(tag)
+    #     # TODO: This works for Harbor but is probably not generic enough for other registries.
+    #     #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
+    #     registry_tag = f"{registry_url}/{repo}/{tag}"
+    #     image.tag(registry_tag)
 
-    print("Successfully pushed tags:")
-    for tag in tags:
-        print(f"    {tag}")
-    print(f"To registry {registry_url}")
+
+def push_images_to_registry(images):
+    pass
+    # TODO finish method
+    # client.images.push(registry_tag)
+    #
+    # print("Successfully pushed tags:")
+    # for tag in tags:
+    #     print(f"    {tag}")
+    # print(f"To registry {registry_url}")
 
 
 def login(docker_client):
