@@ -27,6 +27,7 @@ def run(arguments):
     # User input
     project = get_project(arguments)
     connection = get_connection(project, arguments)
+    method = get_method(arguments)
 
     docker_client = docker.client.from_env()
     print("Building adapter image")
@@ -59,7 +60,7 @@ def run(arguments):
         wait = args.setdefault("wait", 10)
         while times > 0:
             # Run connection test or collection test
-            arguments.func(project, connection)
+            method(project, connection)
             times = times - 1
             if times > 0:
                 print(f"{times} requests remaining. Waiting {wait} seconds until next request.")
@@ -68,6 +69,19 @@ def run(arguments):
         print(e)
     finally:
         stop_container(container)
+
+
+def get_method(arguments):
+    method_question = [
+        {
+            "type": "list",
+            "name": "method",
+            "message": "Choose a method to test:",
+            "choices": ["Test Connection", "Collect"],
+            "filter": lambda m: post_test if m == "Test Connection" else post_collect
+        }
+    ]
+    return vars(arguments).setdefault("func", prompt(method_question, style=vrops_sdk_prompt_style)["method"])
 
 
 # REST calls ***************
