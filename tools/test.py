@@ -6,7 +6,6 @@ import json
 import os
 import time
 import xml.etree.ElementTree as ET
-from pprint import pprint
 
 import docker
 import requests
@@ -27,7 +26,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def run(arguments):
     # User input
     project = get_project(arguments)
-    connection = get_connection(project)
+    connection = get_connection(project, arguments)
 
     docker_client = docker.client.from_env()
     print("Building adapter image")
@@ -143,18 +142,22 @@ def ns(kind):
     return "{http://schemas.vmware.com/vcops/schema}" + kind
 
 
-def get_connection(project):
+def get_connection(project, arguments):
+    connection_names = [connection["name"] for connection in project["connections"]]
     describe = get_describe(project["path"])
     project.setdefault("connections", [])
     questions = [
         {
             "type": "list",
             "name": "connection",
-            "message": "Which connection?",
-            "choices": [connection["name"] for connection in project["connections"]] + ["New Connection"],
+            "message": "Choose a connection:",
+            "choices": connection_names + ["New Connection"],
         }
     ]
-    answers = prompt(questions, style=vrops_sdk_prompt_style)
+    if arguments.connection not in connection_names:
+        answers = prompt(questions, style=vrops_sdk_prompt_style)
+    else:
+        answers = {"connection": arguments.connection}
 
     if answers["connection"] != "New Connection":
         for connection in project["connections"]:
@@ -185,7 +188,11 @@ def get_connection(project):
             "message": identifier.get("key") + postfix,
             "name": identifier.get("key"),
             "validate": lambda v: True if (not required) else (True if v else False),
-            "filter": lambda v: {"value": v, "required": required, "part_of_uniqueness": identifier.get("identType") == "1"}
+            "filter": lambda v: {
+                "value": v,
+                "required": required,
+                "part_of_uniqueness": identifier.get("identType") == "1"
+            }
         })
 
     identifiers = prompt(questions, style=vrops_sdk_prompt_style)
@@ -234,8 +241,8 @@ def get_connection(project):
             "type": "input",
             "name": "name",
             "message": "Enter a name for this connection:",
-            "validate": lambda
-                connection_name: connection_name not in connection_names or "A connection with that name already exists."
+            "validate": lambda connection_name: connection_name not in connection_names or "A connection with that "
+                                                                                           "name already exists. "
         }
     ]
     name = prompt(questions, style=vrops_sdk_prompt_style)["name"]
@@ -318,14 +325,18 @@ def get_request_body(project, connection):
 
 
 def main():
-    description = "Tool for running vROps test and collect methods outside of a collector container."
+    description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("-p", "--path",
-                        help="Path to root directory of project. " +
-                             "Defaults to the current directory, or prompts if current directory is not a project.")
+    methods = parser.add_subparsers(required=False)
+
+    # General options
+    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
+                                             "or prompts if current directory is not a project.")
+
+    parser.add_argument("-c", "--connection", help="Name of a connection in this project.")
+
     # TODO: Hook this up to logging, once we have adapter logging. May want to set the level rather than verbose.
     # parser.add_argument("-v", "--verbose", help="Include extra logging.", action="store_true")
-    methods = parser.add_subparsers(required=True)
 
     # Test method
     test_method = methods.add_parser("connect",
@@ -335,7 +346,6 @@ def main():
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
-
     collect_method.add_argument("-n", "--times", help="Run the given method 'n' times.", type=int, default=1)
     collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
                                 type=int, default=10)
