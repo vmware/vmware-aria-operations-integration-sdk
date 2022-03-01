@@ -1,9 +1,8 @@
 import docker
-import PyInquirer
 
 from common.config import get_config_values, get_config_value
 from common.filesystem import get_absolute_project_directory
-from PyInquirer import prompt, Separator, Token, style_from_dict
+from PyInquirer import prompt, Token, style_from_dict
 
 style = style_from_dict({
     Token.QuestionMark: "#E91E63 bold",
@@ -64,12 +63,18 @@ def main():
 def build_image(client: docker.client, image: str):
     # TODO: Ask to bump version and give a dev option
     language = image.split(':')[0]
+    #TODO determine base image version
+    #TODO only ask major version for the base image
     version = get_config_value(f"{language}_image_version")
     build_path = get_absolute_project_directory(image.split(':')[1])
-    print(f"build path: {build_path}")
+
+    #TODO If image is not base image pass major version as a build parameter
+    print(f"building image...")
     image, image_logs = client.images.build(path=build_path, nocache=True, rm=True,
+                                            buildargs={"http_server_version": version},
                                             tag=f"vrops-adapter-open-sdk-server:{language}-{version}")
-    print(f"logs for {image}:{image_logs}")
+
+    print(f"Built image with tag {image.tags[0]}")
 
 
 def tag_image(image, version):

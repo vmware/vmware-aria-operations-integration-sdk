@@ -1,4 +1,5 @@
-FROM vrops-adapter-open-sdk-server:python-latest
+ARG http_server_version
+FROM vrops-adapter-open-sdk-server:python-$http_server_version
 
 # manual java install to prevent overwritting previous dependecies
 # switch to root in oder to do all installs
