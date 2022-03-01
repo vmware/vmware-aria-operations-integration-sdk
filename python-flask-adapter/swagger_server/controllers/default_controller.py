@@ -109,8 +109,9 @@ def create_env(body: AdapterConfig):
     for identifier in body.adapter_key.identifiers:
         env[identifier.key.upper()] = identifier.value
 
-    for credential_field in body.credential_config.credential_fields:
-        env[f"CREDENTIAL_{credential_field.key.upper()}"] = credential_field.value
+    if body.credential_config:
+        for credential_field in body.credential_config.credential_fields:
+            env[f"CREDENTIAL_{credential_field.key.upper()}"] = credential_field.value
 
     return env
 
