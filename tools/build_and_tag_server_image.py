@@ -132,6 +132,7 @@ def main():
                 },
             ]
         },
+        # TODO ask the user if they want to push the images (if they are new)
     ]
 
     answers = prompt(question, style=style)
@@ -161,10 +162,10 @@ def main():
 
 
 def get_latest_vrops_container_versions(local_images):
-    # TODO: parse the images and return each major version
-    python_version = '0.3.0'
-    java_version = '0.3.0'
-    powershell_version = '0.3.0'
+    # TODO: ask the user to pull the latest version if its not present in the client
+    python_version = get_config_value("python_image_version")
+    java_version = get_config_value("java_image_version")
+    powershell_version = get_config_value("powershell_image_version")
 
     return python_version, java_version, powershell_version
 
