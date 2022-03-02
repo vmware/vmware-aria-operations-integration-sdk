@@ -34,7 +34,6 @@ def update_version(update_type: str, current_version: str):
 def main():
     client = docker.from_env()
 
-    # TODO get current versions
     local_images = client.images.list(name='vrops-adapter-open-sdk-server')  # Get all the images in the repo
     current_python_version, current_java_version, current_powershell_version = get_latest_vrops_container_versions(
         local_images)
@@ -104,8 +103,8 @@ def main():
             'when': lambda
                 a: len(a['images']) >= 0 and
                    'java:java-client' in a['images'] and
-                   'http_server_version' not in a or
-                   ('http_server_version' in a and 'major' not in a['http_server_version'])
+                   ('http_server_version' not in a or
+                   ('http_server_version' in a and 'major' not in a['http_server_version']))
         },
         {
             'type': 'expand',
@@ -133,8 +132,8 @@ def main():
             'when': lambda
                 a: len(a['images']) >= 0 and
                    'powershell:powershell-client' in a['images'] and
-                   'http_server_version' not in a or
-                   ('http_server_version' in a and 'major' not in a['http_server_version'])
+                   ('http_server_version' not in a or
+                   ('http_server_version' in a and 'major' not in a['http_server_version']))
         },
         {
             'type': 'expand',
@@ -155,10 +154,31 @@ def main():
             ],
             'filter': lambda val: update_version(val, current_powershell_version)
         },
-        # TODO ask the user if they want to push the images (if they are new)
+        {
+            'type': 'confirm',
+            'message': f"Would you like to update stable tags",
+            'name': 'update_stable_tags',
+            'when': lambda
+                a: len(a['images']) >= 0 and
+                   ('update_powershell_image_version' in a or
+                    'update_java_image_version' in a or
+                    'update_http_server_version' in a)
+
+        },
+        {
+            'type': 'confirm',
+            'message': f"Would you like to push new images?",
+            'name': 'push_to_registry',
+            'when': lambda a: 'update_stable_tags' in a and a['update_stable_tags']
+        },
     ]
 
     answers = prompt(question, style=style)
+    print(f'ANSWERS: {answers}')
+
+    # If the user wants to push images we might need to ask question, so it's better to ask them right away
+    registry_url = login(client) if 'push_to_registry' in answers and answers['push_to_registry'] else False
+    repo = get_config_value("docker_repo", "tvs") if 'push_to_registry'in answers and answers['push_to_registry'] else False
 
     # If the http server changed, then all image versions should be updated regardless of them being built
     if 'http_server_version' in answers and 'major' in answers['http_server_version']:
@@ -169,32 +189,19 @@ def main():
         set_config_value('powershell_image_version', new_version)
     else:
         if 'http_server_version' in answers:
-            set_config_value('python_image_version',answers['http_server_version'].split(':')[1])
+            set_config_value('python_image_version', answers['http_server_version'].split(':')[1])
         if 'java_version' in answers:
             set_config_value('java_image_version', answers['java_version'])
         if 'powershell_version' in answers:
             set_config_value('powershell_image_version', answers['powershell_version'])
 
-    print(answers)
+    new_images = []  # track new images to in order to push them
 
-    new_images = []# track new images to in order to push them
-
+    should_update_stable_tags = 'update_stable_tags' in answers and answers['update_stable_tags']
     for image in answers['images']:
-        new_images.append(build_image(client, image))
+        new_images.append(build_image(client, image, should_update_stable_tags))
 
-    # #TODO ask if the user wants to push the images
-    # print("TODO: ask to tag and push images")
-    # repo = get_config_value("docker_repo", "tvs")
-
-    # registry_url = login(client)
-    #
-    # #TODO tag images
-    # print("TODO: tag images")
-    # print(f"TODO: repo: {repo}")
-    #
-    # #TODO push images
-    # print("TODO: push")
-    # print(f"TODO: registry: {registry_url}")
+    push_images_to_registry(client, new_images, registry_url, repo)
 
 
 def get_latest_vrops_container_versions(local_images):
@@ -206,62 +213,55 @@ def get_latest_vrops_container_versions(local_images):
     return python_version, java_version, powershell_version
 
 
-def build_image(client: docker.client, image: str):
+def build_image(client: docker.client, image: str, stable_tags: bool):
     language = image.split(':')[0]
     version = get_config_value(f"{language}_image_version")
     build_path = get_absolute_project_directory(image.split(':')[1])
 
     print(f"building {language} image...")
+    # TODO use Low level API to show user build progress
     image, image_logs = client.images.build(path=build_path, nocache=True, rm=True,
                                             buildargs={"http_server_version": version},
                                             tag=f"vrops-adapter-open-sdk-server:{language}-{version}")
 
-    # TODO ask user if they want to add stable tags
-    add_stable_tags(image, language, version)
-    image.reload()  # Update all image attributes
+    if stable_tags:
+        add_stable_tags(image, language, version)
+        image.reload()  # Update all image attributes
 
     return image
 
 
 def add_stable_tags(image, language: str, version: str):  # Add type to image
-    print(f"image came with this tags{image.tags}")
     tags = [
         f"vrops-adapter-open-sdk-server:{language}-{version.split('.')[0]}",
         f"vrops-adapter-open-sdk-server:{language}-latest"
     ]
 
     for tag in tags:
-        print(f"tagging image with tag {tag}")
+        print(f"tagging image with tag: {tag}")
         image.tag(tag)
 
 
-def add_registry_tags(tags: [str], registry_url: str, repo: str):
-    pass
-    # TODO finish pushing tags logic
-    # for tag in tags:
-    #     print(f"pushing tag {tag}")
-    #     image.tag(tag)
-    #     # TODO: This works for Harbor but is probably not generic enough for other registries.
-    #     #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
-    #     registry_tag = f"{registry_url}/{repo}/{tag}"
-    #     image.tag(registry_tag)
+def push_images_to_registry(client, images, registry_url: str, repo):
+    registry_tag = f"{registry_url}/{repo}"
+    print(f"pushing image{'s' if len(images) > 1 else ''} to {registry_tag}")
+    for image in images:
+        for tag in image.tags:
+            # TODO: This works for Harbor but is probably not generic enough for other registries.
+            #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
+            reference_tag = f"{registry_tag}/{tag}"
+            image.tag(reference_tag)
+            for line in client.images.push(reference_tag, stream= True, decode= True):
+                print(line)
 
-
-def push_images_to_registry(images):
-    pass
-    # TODO finish method
-    # client.images.push(registry_tag)
-    #
-    # print("Successfully pushed tags:")
-    # for tag in tags:
-    #     print(f"    {tag}")
-    # print(f"To registry {registry_url}")
+            print(f"removing {reference_tag} from local client")
+            client.images.remove(reference_tag)
 
 
 def login(docker_client):
     docker_login_config = get_config_values("username", "password", "registry_url",
                                             defaults={
-                                                "registry_url": "harbor-repo.vmware.com"})  # TODO passwords shouldn't be stored in this json since we are tracking it in git
+                                                "registry_url": "harbor-repo.vmware.com"})
 
     docker_client.login(
         username=docker_login_config["username"],
