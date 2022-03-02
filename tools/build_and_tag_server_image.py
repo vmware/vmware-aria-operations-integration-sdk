@@ -1,6 +1,6 @@
 import docker
 
-from common.config import get_config_values, get_config_value
+from common.config import get_config_values, get_config_value, set_config_value
 from common.filesystem import get_absolute_project_directory
 from PyInquirer import prompt, Token, style_from_dict
 
@@ -75,7 +75,7 @@ def main():
         {
             'type': 'expand',
             'message': "What type of version update is this? (press h for help)",
-            'name': 'update_http_server_version_key',
+            'name': 'http_server_version',
             'when': lambda a: 'update_http_server_version' in a and a['update_http_server_version'],
             'choices': [
                 {
@@ -104,14 +104,14 @@ def main():
             'when': lambda
                 a: len(a['images']) >= 0 and
                    'java:java-client' in a['images'] and
-                   'update_http_server_version_key' not in a or
-                   ('update_http_server_version_key' in a and 'major' not in a['update_http_server_version_key'])
+                   'http_server_version' not in a or
+                   ('http_server_version' in a and 'major' not in a['http_server_version'])
         },
         {
             'type': 'expand',
             'message': "What type of version update is this? (press h for help)",
             'when': lambda a: 'update_java_image_version' in a and a['update_java_image_version'],
-            'name': 'update_java_image_version_key',
+            'name': 'java_version',
             'choices': [  # All images major version are based of the HTTP servers major version
                 {
                     'key': 'i',
@@ -133,14 +133,14 @@ def main():
             'when': lambda
                 a: len(a['images']) >= 0 and
                    'powershell:powershell-client' in a['images'] and
-                   'update_http_server_version_key' not in a or
-                   ('update_http_server_version_key' in a and 'major' not in a['update_http_server_version_key'])
+                   'http_server_version' not in a or
+                   ('http_server_version' in a and 'major' not in a['http_server_version'])
         },
         {
             'type': 'expand',
             'message': "What type of version update is this? (press h for help)",
             'when': lambda a: 'update_powershell_image_version' in a and a['update_powershell_image_version'],
-            'name': 'update_powershell_image_version_key',
+            'name': 'powershell_version',
             'choices': [
                 {
                     'key': 'i',
@@ -160,14 +160,27 @@ def main():
 
     answers = prompt(question, style=style)
 
+    # If the http server changed, then all image versions should be updated regardless of them being built
+    if 'http_server_version' in answers and 'major' in answers['http_server_version']:
+        # TODO update versions in config file
+        new_version = answers['http_server_version'].strip('major:')
+        set_config_value('python_image_version', new_version)
+        set_config_value('java_image_version', new_version)
+        set_config_value('powershell_image_version', new_version)
+    else:
+        if 'http_server_version' in answers:
+            set_config_value('python_image_version',answers['http_server_version'].split(':')[1])
+        if 'java_version' in answers:
+            set_config_value('java_image_version', answers['java_version'])
+        if 'powershell_version' in answers:
+            set_config_value('powershell_image_version', answers['powershell_version'])
+
     print(answers)
 
-    # new_images = []
-    #
-    # # TODO: get new versions
-    # for image in answer['images']:
-    #     # TODO: Prompt user to increment
-    #     new_images.append(build_image(client, image))
+    new_images = []# track new images to in order to push them
+
+    for image in answers['images']:
+        new_images.append(build_image(client, image))
 
     # #TODO ask if the user wants to push the images
     # print("TODO: ask to tag and push images")
@@ -194,14 +207,10 @@ def get_latest_vrops_container_versions(local_images):
 
 
 def build_image(client: docker.client, image: str):
-    # TODO: Ask to bump version and give a dev option
     language = image.split(':')[0]
-    # TODO determine base image version
-    # TODO only ask major version for the base image
     version = get_config_value(f"{language}_image_version")
     build_path = get_absolute_project_directory(image.split(':')[1])
 
-    # TODO If image is not base image pass major version as a build parameter
     print(f"building {language} image...")
     image, image_logs = client.images.build(path=build_path, nocache=True, rm=True,
                                             buildargs={"http_server_version": version},
