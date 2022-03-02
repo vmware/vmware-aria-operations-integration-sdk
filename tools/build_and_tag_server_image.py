@@ -3,6 +3,7 @@ import docker
 from common.config import get_config_values, get_config_value
 from common.filesystem import get_absolute_project_directory
 from PyInquirer import prompt, Token, style_from_dict
+
 style = style_from_dict({
     Token.QuestionMark: "#E91E63 bold",
     Token.Selected: "#673AB7 bold",
@@ -10,6 +11,24 @@ style = style_from_dict({
     Token.Answer: "#2196f3 bold",
     Token.Question: "",
 })  # TODO add style to common lib
+
+
+def update_version(update_type: str, current_version: str):
+    semantic_components = list(map(int, current_version.split('.')))
+
+    if update_type in 'major':
+        semantic_components[0] = semantic_components[0] + 1
+        semantic_components[1] = semantic_components[1] = 0
+        semantic_components[2] = semantic_components[2] = 0
+    elif update_type in 'minor':
+        semantic_components[1] = semantic_components[1] + 1
+        semantic_components[2] = semantic_components[2] = 0
+    elif update_type in 'patch':
+        semantic_components[2] = semantic_components[2] + 1
+    else:
+        raise ValueError("Value not identified")
+
+    return ".".join(map(str, semantic_components))
 
 
 def main():
@@ -49,7 +68,7 @@ def main():
         },
         {
             'type': 'confirm',
-            'message': "Is there a new version of the HTTP Server?",
+            'message': f"Is there a new version of the HTTP Server? (current version: {current_python_version})",
             'name': 'update_http_server_version',
             'when': lambda a: len(a['images']) > 0 and 'python:http-server' in a['images']
         },
@@ -74,11 +93,13 @@ def main():
                     'name': 'patch',
                     'value': 'patch'
                 },
-            ]
+            ],
+            'filter': lambda val: f"{val}:{update_version(val, current_python_version)}"
+            # Update the python version and keep the type of update for validation"
         },
         {
             'type': 'confirm',
-            'message': "Update Java Image version?",
+            'message': f"Update Java Image version? (current version: {current_java_version})",
             'name': 'update_java_image_version',
             'when': lambda
                 a: len(a['images']) >= 0 and
@@ -102,11 +123,12 @@ def main():
                     'name': 'patch',
                     'value': 'patch'
                 },
-            ]
+            ],
+            'filter': lambda val: update_version(val, current_java_version)
         },
         {
             'type': 'confirm',
-            'message': "Update PowerShell Image version?",
+            'message': f"Update PowerShell Image version? (current version: {current_powershell_version})",
             'name': 'update_powershell_image_version',
             'when': lambda
                 a: len(a['images']) >= 0 and
@@ -130,14 +152,15 @@ def main():
                     'name': 'patch',
                     'value': 'patch'
                 },
-            ]
+            ],
+            'filter': lambda val: update_version(val, current_powershell_version)
         },
         # TODO ask the user if they want to push the images (if they are new)
     ]
 
     answers = prompt(question, style=style)
 
-    print(f"answers: {answers}")
+    print(answers)
 
     # new_images = []
     #
