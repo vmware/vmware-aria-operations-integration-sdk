@@ -65,6 +65,3 @@ http-server/.ipynb_checkpoints
 
 #IntelliJ project
 .idea
-
-# local config file
-config.json

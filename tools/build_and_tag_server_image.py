@@ -168,7 +168,6 @@ def main():
     ]
 
     answers = prompt(question, style=style)
-    print(f'ANSWERS: {answers}')
 
     # If the user wants to push images we might need to ask question, so it's better to ask them right away
     registry_url = login(client) if 'push_to_registry' in answers and answers['push_to_registry'] else False
