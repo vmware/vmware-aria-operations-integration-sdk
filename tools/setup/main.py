@@ -1,30 +1,30 @@
 import json
 import os
-import shutil
-
 from shutil import copy
-from PyInquirer import style_from_dict, Token, prompt
+
 from PIL import Image, UnidentifiedImageError
+from PyInquirer import prompt
 
 import adapter.java as java
 import adapter.powershell as powershell
+from common.project import Project, record_project
+from common.style import vrops_sdk_prompt_style
 
 
 def is_directory_or_not_existing(p: str):
     if not os.path.exists(p):
         return True
     if os.path.isfile(p):
-        return 'Path must be a directory.'
-
+        return "Path must be a directory."
     return True
 
 
 def is_valid_image(p: str):
     try:
         image = Image.open(p, formats=["PNG"])
-        return True if image.size == (256, 256) else "Image must be 256X256 pixels"
+        return True if image.size == (256, 256) else "Image must be 256x256 pixels"
     except FileNotFoundError:
-        return "Could not find image"
+        return "Could not find image file"
     except TypeError:
         return "Image must be in PNG format"
     except UnidentifiedImageError as e:
@@ -32,107 +32,74 @@ def is_valid_image(p: str):
 
 
 def main():
-    style = style_from_dict({
-        Token.QuestionMark: "#E91E63 bold",
-        Token.Selected: "#673AB7 bold",
-        Token.Instruction: "",
-        Token.Answer: "#2196f3 bold",
-        Token.Question: "",
-    })  # this is the same style used by the build tool
-
     questions = [
         {
             "type": "input",
             "name": "project_directory",
-            "message": "Project directory name (where code for collection, metadata, and content reside):",
+            "message": "Enter a path for the project (where code for collection, metadata, and content reside): ",
             "validate": is_directory_or_not_existing
         },
         {
-            'type': 'input',
-            'name': 'name',
-            'message': 'Display name',
+            "type": "input",
+            "name": "name",
+            "message": "Management Pack display name: ",
         },
         {
-            'type': 'input',
-            'name': 'description',
-            'message': 'Description',
+            "type": "input",
+            "name": "description",
+            "message": "Management Pack description: ",
         },
         {
-            'type': 'input',
-            'name': 'vendor',
-            'message': 'Your company',
+            "type": "input",
+            "name": "vendor",
+            "message": "Management Pack Vendor: ",
         },
         {
-            "type": "confirm",
-            "name": "eula",
-            "message": "Do you have a EULA?"
+            "type": "input",
+            "name": "eula_file",
+            "message": "Enter a path to a EULA text file, or leave blank for no EULA: ",
+            "validate": lambda file: True if file == "" or os.path.isfile(file) else "Path must be a text file."
         },
         {
-            'type': 'input',
-            'name': 'eula_file',
-            'message': 'What is the path to the EULA file?',
-            'when': lambda a: a['eula'],
-            'validate': lambda file: True if os.path.isfile(file) else 'Path must be a directory.'
+            "type": "list",
+            "name": "eula_message",
+            "when": lambda a: not a["eula_file"],
+            "message": "A EULA can be added later by editing the default 'eula.txt' file.",
+            "choices": ["Ok"]
         },
         {
-            "type": "expand",
-            "name": "eula",
-            'when': lambda a: not a['eula'],
-            "message": "EULA can be added later by setting the 'eula_file' key in 'manifest.txt' and adding the eula "
-                       "file to the root project directory.",
-            'default': 'k',
-            'choices': [
-                {'key': 'k', 'name': 'Ok', 'value': 'Ok'}
-            ]
+            "type": "input",
+            "name": "icon_file",
+            "message": "Enter a path to the Management Pack icon file, or leave blank for no icon: ",
+            "validate": lambda image_file: image_file == "" or is_valid_image(image_file)
         },
         {
-            "type": "confirm",
-            "name": "icon",
-            "message": "Do you have an icon for the management pack?"
+            "type": "list",
+            "name": "icon_message",
+            "when": lambda a: not a["icon_file"],
+            "message": "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
+                       "name and adding the icon file to the root project directory.",
+            "choices": ["Ok"]
         },
         {
-            'type': 'input',
-            'name': 'icon_file',
-            'message': 'What is the path to the icon file?',
-            'when': lambda a: a['icon'],
-            'validate': is_valid_image
-        },
-        {
-            "type": "expand",
-            "name": "eula",
-            'when': lambda a: not a['icon'],
-            "message": "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt and adding the icon "
-                       "file to the root project directory.",
-            'default': 'k',
-            'choices': [
-                {'key': 'k', 'name': 'Ok', 'value': 'Ok'}
-            ]
-        },
-        {
-            'type': 'list',
-            'name': 'language',
-            'message': 'What language would you like to use?',
-            'choices': ['Python', 'Java', 'Powershell'],
-            'filter': lambda l: l.lower()
+            "type": "list",
+            "name": "language",
+            "message": "Select a language for the adapter. Supported languages are: ",
+            "choices": ["Python", "Java", "Powershell"],
+            "filter": lambda l: l.lower()
         }
-        # TODO tell user what that the language is going to be used to create a template Adapter
     ]
 
-    answers = prompt(questions, style=style)
+    answers = prompt(questions, style=vrops_sdk_prompt_style)
 
     path = answers["project_directory"]
-    name = answers['name']
+    name = answers["name"]
 
     # create project_directory
     mkdir(path)
 
-    paths = []
-    if os.path.isfile("projects"):
-        with open("projects", "r") as projects:
-            paths = [project.strip() for project in projects.readlines()]
-    if path not in paths:
-        with open("projects", "a") as projects:
-            projects.write(f"{path}\n")
+    project = Project(path)
+    record_project(path)
 
     content_dir = mkdir(path, "content")
     conf_dir = mkdir(path, "conf")
@@ -154,17 +121,19 @@ def main():
         resources_fd.write("#The vendor's localized name\n")
         resources_fd.write(f"VENDOR={answers['vendor']}\n")
 
-    if 'eula_file' not in answers:
-        eula_file = ""
+    if "eula_file" not in answers or not answers["eula_file"].strip():
+        eula_file = "eula.txt"
+        with open(eula_file, "w") as eula_fd:
+            eula_fd.write("")
     else:
-        eula_file = answers['eula_file']
+        eula_file = answers["eula_file"]
         copy(eula_file, path)
         eula_file = os.path.basename(eula_file)
 
-    if 'icon_file' not in answers:
+    if "icon_file" not in answers:
         icon_file = ""
     else:
-        icon_file = answers['icon_file']
+        icon_file = answers["icon_file"]
         copy(icon_file, path)
         icon_file = os.path.basename(icon_file)
 
@@ -222,7 +191,7 @@ def main():
 
     print("")
 
-    language = answers['language']
+    language = answers["language"]
     # create project structure
     executable_directory_path = build_project_structure(path, language);
 
@@ -251,19 +220,19 @@ def mkdir(basepath, *paths):
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
-    with open(os.path.join(root_directory, "Dockerfile"), 'w') as dockerfile:
+    with open(os.path.join(root_directory, "Dockerfile"), "w") as dockerfile:
         dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
-        if 'python' in language:
+        if "python" in language:
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
             dockerfile.write("RUN pip3 install -r adapter_requirements.txt")
 
 
 def create_commands_file(language: str, path: str, executable_directory_path: str):
     print("generating commands file")
-    with open(os.path.join(path, "commands.cfg"), 'w') as commands:
+    with open(os.path.join(path, "commands.cfg"), "w") as commands:
 
         command_and_executable = ""
         if "java" == language:
@@ -298,7 +267,7 @@ def build_project_structure(path: str, language: str):
             requirements.write("psutil==5.9.0")
 
         # get the path to adapter.py
-        src = os.path.join(os.path.realpath(__file__).split('main.py')[0], 'adapter/adapter.py')
+        src = os.path.join(os.path.realpath(__file__).split("main.py")[0], "adapter/adapter.py")
         dest = os.path.join(path, project_directory)
 
         # copy adapter.py into app directory
