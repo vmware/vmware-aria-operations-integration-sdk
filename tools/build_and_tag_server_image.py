@@ -34,14 +34,8 @@ def update_version(update_type: str, current_version: str):
 def main():
     client = docker.from_env()
 
-    local_images = client.images.list(name='vrops-adapter-open-sdk-server')  # Get all the images in the repo
-    current_python_version, current_java_version, current_powershell_version = get_latest_vrops_container_versions(
-        local_images)
+    current_python_version, current_java_version, current_powershell_version = get_latest_vrops_container_versions()
 
-    # New HTTP Server Major version: Every image should be updated with the new http server major version
-    # New HTTP Server minor or patch version: Only the HTTP image version should be updated
-    # New Java or PowerShell version: Their minor or patch version should be updated, and the major should be a
-    # copy of base an image with the major version tag
     question = [
         {
             'type': 'checkbox',
@@ -182,7 +176,6 @@ def main():
 
     # If the http server changed, then all image versions should be updated regardless of them being built
     if 'http_server_version' in answers and 'major' in answers['http_server_version']:
-        # TODO update versions in config file
         new_version = answers['http_server_version'].strip('major:')
         set_config_value('python_image_version', new_version)
         set_config_value('java_image_version', new_version)
@@ -204,8 +197,7 @@ def main():
     push_images_to_registry(client, new_images, registry_url, repo)
 
 
-def get_latest_vrops_container_versions(local_images):
-    # TODO: ask the user to pull the latest version if its not present in the client
+def get_latest_vrops_container_versions():
     python_version = get_config_value("python_image_version")
     java_version = get_config_value("java_image_version")
     powershell_version = get_config_value("powershell_image_version")
@@ -251,7 +243,7 @@ def push_images_to_registry(client, images, registry_url: str, repo):
             #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
             reference_tag = f"{registry_tag}/{tag}"
             image.tag(reference_tag)
-            for line in client.images.push(reference_tag, stream= True, decode= True):
+            for line in client.images.push(reference_tag, stream=True, decode=True):
                 print(line)
 
             print(f"removing {reference_tag} from local client")
