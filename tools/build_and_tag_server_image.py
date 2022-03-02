@@ -3,7 +3,6 @@ import docker
 from common.config import get_config_values, get_config_value
 from common.filesystem import get_absolute_project_directory
 from PyInquirer import prompt, Token, style_from_dict
-
 style = style_from_dict({
     Token.QuestionMark: "#E91E63 bold",
     Token.Selected: "#673AB7 bold",
@@ -21,6 +20,10 @@ def main():
     current_python_version, current_java_version, current_powershell_version = get_latest_vrops_container_versions(
         local_images)
 
+    # New HTTP Server Major version: Every image should be updated with the new http server major version
+    # New HTTP Server minor or patch version: Only the HTTP image version should be updated
+    # New Java or PowerShell version: Their minor or patch version should be updated, and the major should be a
+    # copy of base an image with the major version tag
     question = [
         {
             'type': 'checkbox',
@@ -28,7 +31,7 @@ def main():
             'name': 'images',
             'choices': [
                 {
-                    'name': 'Python', # This image should always be built with every new version of the http server
+                    'name': 'Python',  # This image should always be built with every new version of the http server
                     'value': 'python:http-server',  # value = [language]:[path]
                     'checked': True
                 },
@@ -46,44 +49,101 @@ def main():
         },
         {
             'type': 'confirm',
-            'message': "is this a new image (should the image version be updated)?",
-            'name': 'update_version',
+            'message': "Is there a new version of the HTTP Server?",
+            'name': 'update_http_server_version',
+            'when': lambda a: len(a['images']) > 0 and 'python:http-server' in a['images']
         },
         {
-            'type': 'input',
-            'message': f'What is the new base image version (current {current_python_version})',
-            'name': 'http_server_version',
-            'when': lambda a: a['update_version'] and len(a['images']) > 0 and 'python:http-server' in a['images'],
-            'validate': lambda
-                a: "Version should be bigger than the current version" if a <= current_python_version else True
+            'type': 'expand',
+            'message': "What type of version update is this? (press h for help)",
+            'name': 'update_http_server_version_key',
+            'when': lambda a: 'update_http_server_version' in a and a['update_http_server_version'],
+            'choices': [
+                {
+                    'key': 'm',
+                    'name': 'major',
+                    'value': 'major'
+                },
+                {
+                    'key': 'i',
+                    'name': 'minor',
+                    'value': 'minor'
+                },
+                {
+                    'key': 'p',
+                    'name': 'patch',
+                    'value': 'patch'
+                },
+            ]
         },
         {
-            'type': 'input',
-            'message': 'What is the Java image version',
-            'name': 'java_version',
-            'when': lambda a: a['update_version'] and len(a['images']) > 0 and 'java:java-client' in a['images'],
-            'validate': lambda
-                a: "New version should be bigger than the current version" if a <= current_java_version else True
-        },
-        {
-            'type': 'input',
-            'message': 'What is the new PowerShell version',
-            'name': 'powershell_version',
+            'type': 'confirm',
+            'message': "Update Java Image version?",
+            'name': 'update_java_image_version',
             'when': lambda
-                a: a['update_version'] and len(a['images']) > 0 and 'powershell:powershell-client' in a['images'],
-            'validate': lambda
-                a: "New version should be bigger than the current version" if a <= current_powershell_version else True
-        }
+                a: len(a['images']) >= 0 and
+                   'java:java-client' in a['images'] and
+                   'update_http_server_version_key' not in a or
+                   ('update_http_server_version_key' in a and 'major' not in a['update_http_server_version_key'])
+        },
+        {
+            'type': 'expand',
+            'message': "What type of version update is this? (press h for help)",
+            'when': lambda a: 'update_java_image_version' in a and a['update_java_image_version'],
+            'name': 'update_java_image_version_key',
+            'choices': [  # All images major version are based of the HTTP servers major version
+                {
+                    'key': 'i',
+                    'name': 'minor',
+                    'value': 'minor'
+                },
+                {
+                    'key': 'p',
+                    'name': 'patch',
+                    'value': 'patch'
+                },
+            ]
+        },
+        {
+            'type': 'confirm',
+            'message': "Update PowerShell Image version?",
+            'name': 'update_powershell_image_version',
+            'when': lambda
+                a: len(a['images']) >= 0 and
+                   'powershell:powershell-client' in a['images'] and
+                   'update_http_server_version_key' not in a or
+                   ('update_http_server_version_key' in a and 'major' not in a['update_http_server_version_key'])
+        },
+        {
+            'type': 'expand',
+            'message': "What type of version update is this? (press h for help)",
+            'when': lambda a: 'update_powershell_image_version' in a and a['update_powershell_image_version'],
+            'name': 'update_powershell_image_version_key',
+            'choices': [
+                {
+                    'key': 'i',
+                    'name': 'minor',
+                    'value': 'minor'
+                },
+                {
+                    'key': 'p',
+                    'name': 'patch',
+                    'value': 'patch'
+                },
+            ]
+        },
     ]
 
-    answer = prompt(question, style=style)
+    answers = prompt(question, style=style)
 
-    new_images = []
+    print(f"answers: {answers}")
 
-    # TODO: get new versions
-    for image in answer['images']:
-        # TODO: Prompt user to increment
-        new_images.append(build_image(client, image))
+    # new_images = []
+    #
+    # # TODO: get new versions
+    # for image in answer['images']:
+    #     # TODO: Prompt user to increment
+    #     new_images.append(build_image(client, image))
 
     # #TODO ask if the user wants to push the images
     # print("TODO: ask to tag and push images")
