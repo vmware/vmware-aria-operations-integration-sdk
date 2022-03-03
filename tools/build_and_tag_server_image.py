@@ -27,7 +27,7 @@ def update_version(update_type: str, current_version: str):
     elif update_type in "patch":
         semantic_components[2] = semantic_components[2] + 1
     else:
-        raise ValueError("Value not identified")
+        raise ValueError(f"Value not identified: {update_type}")
 
     return ".".join(map(str, semantic_components))
 
@@ -88,8 +88,8 @@ def main():
                     "value": "patch"
                 },
             ],
-            "filter": lambda val: f"{val}:{update_version(val, current_python_version)}"
-            # Update the python version and keep the type of update for validation"
+            "filter": lambda val: (val, update_version(val, current_python_version))
+            # Update the python version and keep the type of update for validation
         },
         {
             "type": "confirm",
@@ -99,7 +99,7 @@ def main():
                 a: len(a["images"]) >= 0 and
                    "java:java-client" in a["images"] and
                    ("http_server_version" not in a or
-                   ("http_server_version" in a and "major" not in a["http_server_version"]))
+                    ("http_server_version" in a and "major" != a["http_server_version"][0]))
         },
         {
             "type": "expand",
@@ -128,7 +128,7 @@ def main():
                 a: len(a["images"]) >= 0 and
                    "powershell:powershell-client" in a["images"] and
                    ("http_server_version" not in a or
-                   ("http_server_version" in a and "major" not in a["http_server_version"]))
+                    ("http_server_version" in a and "major" != a["http_server_version"][0]))
         },
         {
             "type": "expand",
@@ -172,7 +172,8 @@ def main():
 
     # If the user wants to push images we might need to ask question, so it"s better to ask them right away
     registry_url = login(client) if "push_to_registry" in answers and answers["push_to_registry"] else False
-    repo = get_config_value("docker_repo", "tvs") if "push_to_registry"in answers and answers["push_to_registry"] else False
+    repo = get_config_value("docker_repo", "tvs") if "push_to_registry" in answers and answers[
+        "push_to_registry"] else False
 
     # If the http server changed, then all image versions should be updated regardless of them being built
     if "http_server_version" in answers and "major" in answers["http_server_version"]:
@@ -198,16 +199,16 @@ def main():
 
 
 def get_latest_vrops_container_versions():
-    python_version = get_config_value("python_image_version", config_file= constant.VERSION_FILE)
-    java_version = get_config_value("java_image_version")
-    powershell_version = get_config_value("powershell_image_version")
+    python_version = get_config_value("python_image_version", config_file=constant.VERSION_FILE)
+    java_version = get_config_value("java_image_version", config_file=constant.VERSION_FILE)
+    powershell_version = get_config_value("powershell_image_version", config_file=constant.VERSION_FILE)
 
     return python_version, java_version, powershell_version
 
 
 def build_image(client: docker.client, image: str, stable_tags: bool):
     language = image.split(":")[0]
-    version = get_config_value(f"{language}_image_version")
+    version = get_config_value(f"{language}_image_version", config_file=constant.VERSION_FILE)
     build_path = get_absolute_project_directory(image.split(":")[1])
 
     print(f"building {language} image...")
