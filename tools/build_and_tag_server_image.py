@@ -45,32 +45,26 @@ def main():
             "choices": [
                 {
                     "name": "Python",  # This image should always be built with every new version of the http server
-                    "value": "python:http-server",  # value = [language]:[path]
+                    "value": ("python", "http-server"),  # Tuple = (language, path)
                     "checked": True
                 },
                 {
                     "name": "Java",
-                    "value": "java:java-client"
+                    "value": ("java", "java-client")
                 },
                 {
                     "name": "PowerShell",
-                    "value": "powershell:powershell-client"
+                    "value": ("powershell", "powershell-client")
                 }
             ],
             "validate": lambda a: "You must choose at least one image."
             if len(a) == 0 else True  # Validation doesn"t work: https://github.com/CITGuru/PyInquirer/issues/161
         },
         {
-            "type": "confirm",
-            "message": f"Is there a new version of the HTTP Server? (current version: {current_python_version})",
-            "name": "update_http_server_version",
-            "when": lambda a: len(a["images"]) > 0 and "python:http-server" in a["images"]
-        },
-        {
             "type": "expand",
-            "message": "What type of version update is this? (press h for help)",
+            "message": "Would you like to update the version of the Python image? (current version:"
+                       f" {current_python_version}) (press h for help)",
             "name": "http_server_version",
-            "when": lambda a: "update_http_server_version" in a and a["update_http_server_version"],
             "choices": [
                 {
                     "key": "m",
@@ -87,24 +81,23 @@ def main():
                     "name": "patch",
                     "value": "patch"
                 },
+                {
+                    "key": "n",
+                    "name": "no update",
+                    "value": "no_update"
+                },
             ],
-            "filter": lambda val: (val, update_version(val, current_python_version))
+            "filter": lambda val: (val, current_python_version if val == "no_update" else
+            update_version(val, current_python_version))
             # Update the python version and keep the type of update for validation
         },
         {
-            "type": "confirm",
-            "message": f"Update Java Image version? (current version: {current_java_version})",
-            "name": "update_java_image_version",
-            "when": lambda
-                a: len(a["images"]) >= 0 and
-                   "java:java-client" in a["images"] and
-                   ("http_server_version" not in a or
-                    ("http_server_version" in a and "major" != a["http_server_version"][0]))
-        },
-        {
             "type": "expand",
-            "message": "What type of version update is this? (press h for help)",
-            "when": lambda a: "update_java_image_version" in a and a["update_java_image_version"],
+            "message": "Would you like to update the version of the Java image? (current version:"
+                       f" {current_java_version}) (press h for help)",
+            "when": lambda a: len(a["images"]) > 0 and ("java", "java-client") in a['images'] and
+                              ("http_server_version" not in a or
+                               (a["http_server_version"][0] != "major")),
             "name": "java_version",
             "choices": [  # All images major version are based of the HTTP servers major version
                 {
@@ -117,23 +110,22 @@ def main():
                     "name": "patch",
                     "value": "patch"
                 },
+                {
+                    "key": "n",
+                    "name": "no update",
+                    "value": "no_update"
+                },
             ],
-            "filter": lambda val: update_version(val, current_java_version)
-        },
-        {
-            "type": "confirm",
-            "message": f"Update PowerShell Image version? (current version: {current_powershell_version})",
-            "name": "update_powershell_image_version",
-            "when": lambda
-                a: len(a["images"]) >= 0 and
-                   "powershell:powershell-client" in a["images"] and
-                   ("http_server_version" not in a or
-                    ("http_server_version" in a and "major" != a["http_server_version"][0]))
+            "filter": lambda val: current_java_version if val == "no_update" else
+            update_version(val, current_java_version)
         },
         {
             "type": "expand",
-            "message": "What type of version update is this? (press h for help)",
-            "when": lambda a: "update_powershell_image_version" in a and a["update_powershell_image_version"],
+            "message": "Would you like to update the version of the PowerShell image? (current version:"
+                       f" {current_powershell_version}) (press h for help)",
+            "when": lambda a: len(a["images"]) > 0 and ("powershell", "powershell-client") in a['images'] and
+                              ("http_server_version" not in a or
+                               (a["http_server_version"][0] != "major")),
             "name": "powershell_version",
             "choices": [
                 {
@@ -146,25 +138,23 @@ def main():
                     "name": "patch",
                     "value": "patch"
                 },
+                {
+                    "key": "n",
+                    "name": "no update",
+                    "value": "no_update"
+                },
             ],
-            "filter": lambda val: update_version(val, current_powershell_version)
-        },
-        {
-            "type": "confirm",
-            "message": f"Would you like to update stable tags",
-            "name": "update_stable_tags",
-            "when": lambda
-                a: len(a["images"]) >= 0 and
-                   ("update_powershell_image_version" in a or
-                    "update_java_image_version" in a or
-                    "update_http_server_version" in a)
-
+            "filter": lambda val: current_powershell_version if val == "no_update" else
+            update_version(val, current_powershell_version)
         },
         {
             "type": "confirm",
             "message": f"Would you like to push new images?",
             "name": "push_to_registry",
-            "when": lambda a: "update_stable_tags" in a and a["update_stable_tags"]
+            "when": lambda
+                a: ("http_server_version" in a and a["http_server_version"][0] != "no_update") or
+                   ("java_version" in a and a["java_version"] != current_java_version) or
+                   ("powershell_version" in a and a["powershell_version"] != current_powershell_version)
         },
     ]
 
@@ -176,22 +166,23 @@ def main():
         "push_to_registry"] else False
 
     # If the http server changed, then all image versions should be updated regardless of them being built
-    if "http_server_version" in answers and "major" in answers["http_server_version"]:
-        new_version = answers["http_server_version"].strip("major:")
-        set_config_value("python_image_version", new_version)
-        set_config_value("java_image_version", new_version)
-        set_config_value("powershell_image_version", new_version)
+    if "http_server_version" in answers and answers["http_server_version"][0] == "major":
+        new_version = answers["http_server_version"][1]
+        print(f"new version: {new_version}")
+        set_config_value("python_image_version", new_version, constant.VERSION_FILE)
+        set_config_value("java_image_version", new_version, constant.VERSION_FILE)
+        set_config_value("powershell_image_version", new_version, constant.VERSION_FILE)
     else:
         if "http_server_version" in answers:
-            set_config_value("python_image_version", answers["http_server_version"].split(":")[1])
+            set_config_value("python_image_version", answers["http_server_version"][1], constant.VERSION_FILE)
         if "java_version" in answers:
-            set_config_value("java_image_version", answers["java_version"])
+            set_config_value("java_image_version", answers["java_version"], constant.VERSION_FILE)
         if "powershell_version" in answers:
-            set_config_value("powershell_image_version", answers["powershell_version"])
+            set_config_value("powershell_image_version", answers["powershell_version"], constant.VERSION_FILE)
 
     new_images = []  # track new images to in order to push them
 
-    should_update_stable_tags = "update_stable_tags" in answers and answers["update_stable_tags"]
+    should_update_stable_tags = "push_to_registry" in answers and answers["push_to_registry"]
     for image in answers["images"]:
         new_images.append(build_image(client, image, should_update_stable_tags))
 
@@ -207,9 +198,9 @@ def get_latest_vrops_container_versions():
 
 
 def build_image(client: docker.client, image: str, stable_tags: bool):
-    language = image.split(":")[0]
+    language = image[0]
     version = get_config_value(f"{language}_image_version", config_file=constant.VERSION_FILE)
-    build_path = get_absolute_project_directory(image.split(":")[1])
+    build_path = get_absolute_project_directory(image[1])
 
     print(f"building {language} image...")
     # TODO use Low level API to show user build progress

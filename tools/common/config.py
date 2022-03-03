@@ -21,7 +21,7 @@ def get_config_value(key: [str], default: any = None, config_file: str = "config
 # changed, the new value is stored back into the config file.
 # TODO: Improve handling of user input
 # TODO: Password values should be encrypted in the file and obscured when asking for input
-def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file: str):
+def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file: str = "config.json"):
     if defaults is None:
         defaults = {}
     config_file_path = get_absolute_project_directory(config_file)
@@ -54,7 +54,7 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file
 # Given a key and a value, write the given value to key 'key'. If the key does not exist it will
 # be created. If the key does exist, the value will be overwritten with the contents of 'value'
 def set_config_value(key: str, value: any, config_file: str = "config.json"):
-    config_file_path = get_absolute_project_directory("config.json")
+    config_file_path = get_absolute_project_directory(config_file)
 
     if not os.path.isfile(config_file_path):
         with open(config_file_path, "w") as config:
