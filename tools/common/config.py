@@ -8,7 +8,7 @@ from common.filesystem import get_absolute_project_directory
 # return the default value if provided. If no value exists and a default is not provided,
 # this function prompts the user for a value. If the value changed, the new value is
 # stored back into the config file.
-def get_config_value(key: [str], default: str = None):
+def get_config_value(key: [str], default: any = None):
     defaults = {key: default}
     if default is None:
         defaults = None
@@ -42,14 +42,14 @@ def set_config_value(key: str, value: str):
 # changed, the new value is stored back into the config file.
 # TODO: Improve handling of user input
 # TODO: Password values should be encrypted in the file and obscured when asking for input
-def get_config_values(*keys: [str], defaults: dict[str, str] = None):
+def get_config_values(*keys: [str], defaults: dict[str, any] = None):
     if defaults is None:
         defaults = {}
     config_file = get_absolute_project_directory("config.json")
 
     if not os.path.isfile(config_file):
         with open(config_file, "w") as config:
-            json.dump({}, config)
+            json.dump({}, config, indent=4, sort_keys=True)
 
     with open(config_file, "r") as config:
         config_json = json.load(config)
@@ -67,6 +67,24 @@ def get_config_values(*keys: [str], defaults: dict[str, str] = None):
                 config_json[key] = values[key]
 
     with open(config_file, "w") as config:
-        json.dump(config_json, config)
+        json.dump(config_json, config, indent=4, sort_keys=True)
 
     return values
+
+
+# Given a key and a value, write the given value to key 'key'. If the key does not exist it will
+# be created. If the key does exist, the value will be overwritten with the contents of 'value'
+def set_config_value(key: str, value: any):
+    config_file = get_absolute_project_directory("config.json")
+
+    if not os.path.isfile(config_file):
+        with open(config_file, "w") as config:
+            json.dump({}, config, indent=4, sort_keys=True)
+
+    with open(config_file, "r") as config:
+        config_json = json.load(config)
+
+        config_json[key] = value
+
+    with open(config_file, "w") as config:
+        json.dump(config_json, config, indent=4, sort_keys=True)
