@@ -44,22 +44,22 @@ def get_project(arguments):
         {
             "type": "list",
             "name": "project",
-            "message": "Which project?",
+            "message": "Select a project to test: ",
             "choices": [project["path"] for project in projects] + ["Other"]
         },
         {
             "type": "input",
             "name": "path",
-            "message": "what is the path to the project?",
+            "message": "Enter the path to the project: ",
             "validate": lambda path: is_project_dir(path) or "Path must be a valid Management Pack project directory",
-            "when": lambda answers: answers["project"] == "other"
+            "when": lambda answers: answers["project"] == "Other"
         },
     ]
 
     answers = prompt(questions, style=vrops_sdk_prompt_style)
 
     path = answers["project"]
-    if path == "other":
+    if path == "Other":
         path = answers["path"]
 
     return find_project_by_path(path)
@@ -84,7 +84,7 @@ def find_project_by_path(path):
     for existing_project in projects:
         if existing_project["path"] == os.path.abspath(path):
             return existing_project
-    project = Project(path)
-    projects.append(project.__dict__)
+    project = Project(path).__dict__
+    projects.append(project)
     set_config_value("projects", projects)
     return project
