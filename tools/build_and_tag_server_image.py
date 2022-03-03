@@ -18,11 +18,11 @@ def update_version(update_type: str, current_version: str):
 
     if update_type in 'major':
         semantic_components[0] = semantic_components[0] + 1
-        semantic_components[1] = semantic_components[1] = 0
-        semantic_components[2] = semantic_components[2] = 0
+        semantic_components[1] = 0
+        semantic_components[2] = 0
     elif update_type in 'minor':
         semantic_components[1] = semantic_components[1] + 1
-        semantic_components[2] = semantic_components[2] = 0
+        semantic_components[2] = 0
     elif update_type in 'patch':
         semantic_components[2] = semantic_components[2] + 1
     else:
@@ -39,7 +39,7 @@ def main():
     question = [
         {
             'type': 'checkbox',
-            'message': 'Which images would you like to build?',
+            'message': 'Select one or more docker images to build: ',
             'name': 'images',
             'choices': [
                 {
