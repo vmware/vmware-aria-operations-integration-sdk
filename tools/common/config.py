@@ -8,32 +8,11 @@ from common.filesystem import get_absolute_project_directory
 # return the default value if provided. If no value exists and a default is not provided,
 # this function prompts the user for a value. If the value changed, the new value is
 # stored back into the config file.
-def get_config_value(key: [str], default: any = None):
+def get_config_value(key: [str], default: any = None, config_file: str = "config.json") -> object:
     defaults = {key: default}
     if default is None:
         defaults = None
-    return get_config_values(key, defaults=defaults)[key]
-
-
-# Given a config key  and a value, set the given value to the given key in the config file
-# If the given key doesn't exist, this function returns a KeyError exception. If no config file exist, this function
-# returns an AttributeError exception
-def set_config_value(key: str, value: str):
-    config_file = get_absolute_project_directory("config.json")
-
-    if not os.path.isfile(config_file):
-        return AttributeError
-
-    with open(config_file, "r") as config:
-        config_json = json.load(config)
-
-        if key not in config_json:
-            return KeyError
-
-    config_json[key] = value
-
-    with open(config_file, "w") as config:
-        json.dump(config_json, config)
+    return get_config_values(key, defaults=defaults, config_file=config_file)[key]
 
 
 # Given a list of config keys, return a dictionary of keys and the values associated with them
@@ -42,16 +21,16 @@ def set_config_value(key: str, value: str):
 # changed, the new value is stored back into the config file.
 # TODO: Improve handling of user input
 # TODO: Password values should be encrypted in the file and obscured when asking for input
-def get_config_values(*keys: [str], defaults: dict[str, any] = None):
+def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file: str):
     if defaults is None:
         defaults = {}
-    config_file = get_absolute_project_directory("config.json")
+    config_file_path = get_absolute_project_directory(config_file)
 
-    if not os.path.isfile(config_file):
-        with open(config_file, "w") as config:
+    if not os.path.isfile(config_file_path):
+        with open(config_file_path, "w") as config:
             json.dump({}, config, indent=4, sort_keys=True)
 
-    with open(config_file, "r") as config:
+    with open(config_file_path, "r") as config:
         config_json = json.load(config)
 
         values = {}
@@ -66,7 +45,7 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None):
                 values[key] = input(f"{key}: ")
                 config_json[key] = values[key]
 
-    with open(config_file, "w") as config:
+    with open(config_file_path, "w") as config:
         json.dump(config_json, config, indent=4, sort_keys=True)
 
     return values
@@ -74,17 +53,17 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None):
 
 # Given a key and a value, write the given value to key 'key'. If the key does not exist it will
 # be created. If the key does exist, the value will be overwritten with the contents of 'value'
-def set_config_value(key: str, value: any):
-    config_file = get_absolute_project_directory("config.json")
+def set_config_value(key: str, value: any, config_file: str = "config.json"):
+    config_file_path = get_absolute_project_directory("config.json")
 
-    if not os.path.isfile(config_file):
-        with open(config_file, "w") as config:
+    if not os.path.isfile(config_file_path):
+        with open(config_file_path, "w") as config:
             json.dump({}, config, indent=4, sort_keys=True)
 
-    with open(config_file, "r") as config:
+    with open(config_file_path, "r") as config:
         config_json = json.load(config)
 
         config_json[key] = value
 
-    with open(config_file, "w") as config:
+    with open(config_file_path, "w") as config:
         json.dump(config_json, config, indent=4, sort_keys=True)
