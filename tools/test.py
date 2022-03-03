@@ -194,14 +194,15 @@ def get_connection(project, arguments):
     questions = []
     for identifier in sorted(identifiers, key=lambda i: int(i.get("dispOrder") or "100")):
         required = (identifier.get("required") or "true").lower() == "true"
-        postfix = ": "
+        postfix = "': "
         if not required:
-            postfix = " (Optional): "
+            postfix = "' (Optional): "
         questions.append({
             "type": "input",
-            "message": identifier.get("key") + postfix,
+            "message": "Enter connection parameter '" + identifier.get("key") + postfix,
             "name": identifier.get("key"),
-            "validate": lambda v: True if (not required) else (True if v else False),
+            "validate": lambda v: True if (not required) else (
+                True if v else "Parameter is required and cannot be blank."),
             "filter": lambda v: {
                 "value": v,
                 "required": required,
