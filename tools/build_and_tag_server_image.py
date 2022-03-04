@@ -165,15 +165,19 @@ def build_image(client: docker.client, image: str, stable_tags: bool):
     version = get_config_value(f"{language}_image_version", config_file=constant.VERSION_FILE)
     build_path = get_absolute_project_directory(image[1])
 
-    print(f"building {language} image...")
     # TODO use Low level API to show user build progress
     try:
-        image, image_logs = client.images.build(path=build_path, nocache=True, rm=True,
-                                                buildargs={"http_server_version": version},
+        image, _ = client.images.build(path=build_path, nocache=True, rm=True,
+                                                buildargs={"http_server_version": version.split(".")[0]},
                                                 tag=f"vrops-adapter-open-sdk-server:{language}-{version}")
+
     except errors.BuildError as e:
-        # TODO check for base image with major tag version
-        #raise e
+        base_image_tag = f"vrops-adapter-open-sdk-server:python-{version.split('.')[0]}"
+        if len(client.images.list(base_image_tag)) == 0:
+            print(f"Pull {base_image_tag} before building images for {language}")
+            exit(1)
+        else:  # TODO Improve error handling
+            raise e
 
     if stable_tags:
         add_stable_tags(image, language, version)
