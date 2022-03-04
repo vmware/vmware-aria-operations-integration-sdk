@@ -5,8 +5,9 @@ from shutil import copy
 from PIL import Image, UnidentifiedImageError
 from PyInquirer import prompt
 
-import adapter.java as java
-import adapter.powershell as powershell
+import templates.java as java
+import templates.powershell as powershell
+from common.filesystem import get_absolute_project_directory
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
 
@@ -99,7 +100,7 @@ def main():
     mkdir(path)
 
     project = Project(path)
-    record_project(path)
+    record_project(project.__dict__)
 
     content_dir = mkdir(path, "content")
     conf_dir = mkdir(path, "conf")
@@ -121,16 +122,17 @@ def main():
         resources_fd.write("#The vendor's localized name\n")
         resources_fd.write(f"VENDOR={answers['vendor']}\n")
 
-    if "eula_file" not in answers or not answers["eula_file"].strip():
+    if not answers["eula_file"].strip():
         eula_file = "eula.txt"
-        with open(eula_file, "w") as eula_fd:
-            eula_fd.write("")
+        with open(os.path.join(path, eula_file), "w") as eula_fd:
+            # Note: vROps requires a EULA file, and it must not be blank.
+            eula_fd.write("There is no EULA associated with this Management Pack.")
     else:
         eula_file = answers["eula_file"]
         copy(eula_file, path)
         eula_file = os.path.basename(eula_file)
 
-    if "icon_file" not in answers:
+    if not answers["icon_file"].strip():
         icon_file = ""
     else:
         icon_file = answers["icon_file"]
@@ -266,8 +268,8 @@ def build_project_structure(path: str, language: str):
         with open(requirements_file, "w") as requirements:
             requirements.write("psutil==5.9.0")
 
-        # get the path to adapter.py
-        src = os.path.join(os.path.realpath(__file__).split("main.py")[0], "adapter/adapter.py")
+        # get the path to templates.py
+        src = get_absolute_project_directory("tools", "templates", "adapter.py")
         dest = os.path.join(path, project_directory)
 
         # copy adapter.py into app directory
