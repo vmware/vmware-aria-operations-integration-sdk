@@ -122,7 +122,7 @@ def main():
         resources_fd.write("#The vendor's localized name\n")
         resources_fd.write(f"VENDOR={answers['vendor']}\n")
 
-    if not answers["eula_file"].strip():
+    if not answers["eula_file"]:
         eula_file = "eula.txt"
         with open(os.path.join(path, eula_file), "w") as eula_fd:
             # Note: vROps requires a EULA file, and it must not be blank.
@@ -132,7 +132,7 @@ def main():
         copy(eula_file, path)
         eula_file = os.path.basename(eula_file)
 
-    if not answers["icon_file"].strip():
+    if not answers["icon_file"]:
         icon_file = ""
     else:
         icon_file = answers["icon_file"]
