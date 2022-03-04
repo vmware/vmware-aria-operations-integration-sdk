@@ -44,7 +44,7 @@ def get_project(arguments):
         {
             "type": "list",
             "name": "project",
-            "message": "Select a project to test: ",
+            "message": "Select a project: ",
             "choices": [project["path"] for project in projects] + ["Other"]
         },
         {
@@ -66,16 +66,10 @@ def get_project(arguments):
 
 
 def record_project(project):
-    if project is Project:
-        project = project.__dict__
     existing_projects = get_config_value("projects", [])
-    updated_projects = []
-    for existing_project in existing_projects:
-        if existing_project["path"] != project["path"]:
-            updated_projects.append(existing_project)
-        else:
-            updated_projects.append(project)
-    set_config_value("projects", updated_projects)
+    projects_by_path = {existing_project["path"]: existing_project for existing_project in existing_projects}
+    projects_by_path[project["path"]] = project
+    set_config_value("projects", list(projects_by_path.values()))
     return project
 
 
