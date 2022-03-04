@@ -28,7 +28,7 @@ def update_version(update_type: str, current_version: str) -> str:
 def should_update_version(language: str, current_version: str, name: str) -> dict:
     question = {
         "type": "expand",
-        "message": f"Would you like to update the version of the {language} image? (current version:"
+        "message": f"Update the version of the {language} image (current version:"
                    f" {current_version}) (press h for help)",
         "name": name,
         "choices": [
@@ -44,7 +44,7 @@ def should_update_version(language: str, current_version: str, name: str) -> dic
             },
             {
                 "key": "n",
-                "name": "no update",
+                "name": "no",
                 "value": "no_update"
             },
         ],
@@ -109,7 +109,7 @@ def main():
             ("powershell_version" in answers and answers["powershell_version"][0] != "no_update"):
         answers.update(prompt({
             "type": "confirm",
-            "message": f"Would you like to push new images?",
+            "message": f"Push new images?",
             "name": "push_to_registry"
         }, style=constant.PY_INQUIRER_STYLE))
     else:
