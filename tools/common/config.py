@@ -8,7 +8,7 @@ from common.filesystem import get_absolute_project_directory
 # return the default value if provided. If no value exists and a default is not provided,
 # this function prompts the user for a value. If the value changed, the new value is
 # stored back into the config file.
-def get_config_value(key: [str], default: any = None):
+def get_config_value(key: str, default: any = None):
     defaults = {key: default}
     if default is None:
         defaults = None
