@@ -6,15 +6,6 @@ from common.filesystem import get_absolute_project_directory
 from PyInquirer import prompt, Token, style_from_dict
 from docker import errors
 
-style = style_from_dict({
-    Token.QuestionMark: "#E91E63 bold",
-    Token.Selected: "#673AB7 bold",
-    Token.Instruction: "",
-    Token.Answer: "#2196f3 bold",
-    Token.Question: "",
-})  # TODO add style to common lib
-
-
 def update_version(update_type: str, current_version: str):
     semantic_components = list(map(int, current_version.split(".")))
 
@@ -120,7 +111,7 @@ def main():
         },
     ]
 
-    answers = prompt(questions, style=style)
+    answers = prompt(questions, constant.PY_INQUIRER_STYLE)
 
     # If the user wants to push images we might need to ask question, so it"s better to ask them right away
     registry_url = login(client) if "push_to_registry" in answers and answers["push_to_registry"] else False
