@@ -23,12 +23,7 @@ def zip_dir(_zip, directory):
 
 
 def files_in_directory(directory):
-    result = []
     for root, directories, files in os.walk(directory):
-        print(f"Root: {root}")
-        print(f"Directories: {directories}")
-        print(f"Files: {files}")
-
+        yield root
         for filename in files:
-            result.append(os.path.join(root, filename))
-    return result
+            yield os.path.join(root, filename)
