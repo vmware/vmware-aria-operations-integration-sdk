@@ -13,9 +13,13 @@ def mkdir(basepath, *paths):
     return path
 
 
-def zip_dir(zip_file, directory):
+def zip_file(_zip, file):
+    _zip.write(file, compress_type=zipfile.ZIP_DEFLATED)
+
+
+def zip_dir(_zip, directory):
     for file in files_in_directory(directory):
-        zip_file.write(file, compress_type=zipfile.ZIP_DEFLATED)
+        _zip.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
 
 def files_in_directory(directory):
@@ -27,7 +31,4 @@ def files_in_directory(directory):
 
         for filename in files:
             result.append(os.path.join(root, filename))
-        for subdirectory in directories:
-            for filename in files_in_directory(subdirectory):
-                result.append(os.path.join(root, filename))
     return result
