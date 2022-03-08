@@ -1,6 +1,6 @@
-FROM vrops-adapter-open-sdk-server:python-latest
+FROM vrops-adapter-open-sdk-server:python-0.3.0
 
-# manual java install to prevent overwritting previous dependecies
+# manual java install to prevent overwriting previous dependencies
 # switch to root in oder to do all installs
 USER root
 

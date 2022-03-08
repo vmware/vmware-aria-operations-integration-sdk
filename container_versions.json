@@ -1,0 +1,19 @@
+{
+    "base_image": {
+        "language": "Python",
+        "path": "http-server",
+        "version": "0.3.0"
+    },
+    "secondary_images": [
+        {
+            "language": "Java",
+            "path": "java-client",
+            "version": "0.3.0"
+        },
+        {
+            "language": "Powershell",
+            "path": "powershell-client",
+            "version": "0.3.0"
+        }
+    ]
+}
