@@ -30,7 +30,7 @@ def should_update_version(language: str, current_version: str) -> str:
     return prompt({
         "type": "list",
         "message": f"Update the version of the {language} image (current version:"
-                   f" {current_version}) (press h for help)",
+                   f" {current_version})",
         "name": "update",
         "choices": [
             {
@@ -113,7 +113,7 @@ def main():
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
-        new_image = build_image(client=client, language=image["language"], version=image["version"], path=image["path"])
+        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"], path=image["path"])
 
         if push_to_registry:
             push_image_to_registry(client, new_image, registry_url, repo)
