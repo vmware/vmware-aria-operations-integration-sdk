@@ -103,14 +103,14 @@ def get_method(arguments):
 
 def post_collect(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-        json=get_request_body(project, connection),
-        headers={"Accept": "application/json"})
+         json=get_request_body(project, connection),
+         headers={"Accept": "application/json"})
 
 
 def post_test(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/test",
-        json=get_request_body(project, connection),
-        headers={"Accept": "application/json"})
+         json=get_request_body(project, connection),
+         headers={"Accept": "application/json"})
 
 
 def post_endpoint_urls(project, connection):
@@ -425,7 +425,8 @@ def main():
     # wait
     url_method = methods.add_parser("wait",
                                     help="Simulate the adapter running on a vROps collector and wait for user input "
-                                         "to stop. Useful for calling REST methods via an external tool.")
+                                         "to stop. Useful for calling REST methods via an external tool, such as "
+                                         "Insomnia or Postman.")
     url_method.set_defaults(func=wait)
 
     run(parser.parse_args())
