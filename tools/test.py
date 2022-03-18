@@ -6,16 +6,23 @@ import json
 import os
 import time
 import xml.etree.ElementTree as ET
+from json import JSONDecodeError
+from pprint import pprint
 
 import docker
+import openapi_core
 import requests
 import urllib3
 from PyInquirer import prompt
+from docker import DockerClient
+from docker.models.containers import Container
+from docker.models.images import Image
 from flask import json
-from jsonschema.exceptions import ValidationError
-from openapi_schema_validator import validate
+from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
+from openapi_core.validation.response.validators import ResponseValidator
 from requests import RequestException
 
+from common.constant import DEFAULT_PORT
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.style import vrops_sdk_prompt_style
@@ -33,7 +40,7 @@ def run(arguments):
     print("Building adapter image")
     image = create_container_image(docker_client, project["path"])
     print("Starting adapter HTTP server")
-    container = run_image(docker_client, image)
+    container = run_image(docker_client, image, project["path"])
 
     try:
         # Need time for the server to start
@@ -43,7 +50,7 @@ def run(arguments):
         while not started:
             try:
                 version = requests.get(
-                    "http://localhost:8080/version",
+                    f"http://localhost:{DEFAULT_PORT}/version",
                     headers={"Accept": "application/json"})
                 started = True
                 print(f"HTTP Server started with adapter version {version.text.strip()}.")
@@ -72,77 +79,115 @@ def run(arguments):
 
 
 def get_method(arguments):
-    method_question = [
+    if "func" in vars(arguments):
+        return vars(arguments)["func"]
+
+    ans = prompt([
         {
             "type": "list",
             "name": "method",
             "message": "Choose a method to test:",
-            "choices": ["Test Connection", "Collect"],
-            "filter": lambda m: post_test if m == "Test Connection" else post_collect
-        }
-    ]
-    return vars(arguments).setdefault("func", prompt(method_question, style=vrops_sdk_prompt_style)["method"])
+            "choices": ["Test Connection", "Collect", "Endpoint URLs", "Version"],
+        }], style=vrops_sdk_prompt_style)
+    if ans["method"] == "Test Connection":
+        return post_test
+    elif ans["method"] == "Collect":
+        return post_collect
+    elif ans["method"] == "Endpoint URLs":
+        return post_endpoint_urls
+    else:
+        return get_version
 
 
 # REST calls ***************
 
 def post_collect(project, connection):
-    response = requests.post(
-        "http://localhost:8080/collect",
+    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
         json=get_request_body(project, connection),
         headers={"Accept": "application/json"})
-    handle_response(response)
 
 
 def post_test(project, connection):
-    response = requests.post(
-        "http://localhost:8080/test",
+    post(url=f"http://localhost:{DEFAULT_PORT}/test",
         json=get_request_body(project, connection),
         headers={"Accept": "application/json"})
-    handle_response(response)
+
+
+def post_endpoint_urls(project, connection):
+    post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
+         json=get_request_body(project, connection),
+         headers={"Accept": "application/json"})
 
 
 def get_version(project, connection):
     response = requests.get(
-        "http://localhost:8080/version",
+        f"http://localhost:{DEFAULT_PORT}/version",
         headers={"Accept": "application/json"})
     print(f"Adapter version: {response.text}")
 
 
-def handle_response(response):
-    json_response = json.loads(response.text)
+def wait(project, connection):
+    input("Press enter to finish")
+
+
+def post(url, json, headers):
+    request = requests.models.Request(method="POST", url=url,
+                                      json=json,
+                                      headers=headers)
+    response = requests.post(url=url, json=json, headers=headers)
+    handle_response(request, response)
+
+
+def handle_response(request, response):
     schema_file = get_absolute_project_directory("api", "vrops-collector-fwk2-openapi.json")
     with open(schema_file, "r") as schema:
-        json_schema = json.load(schema)
         try:
-            validate(json_response, json_schema)
-            # TODO: Make this prettier (for people)?
-            print(json_response)
-        except ValidationError as v:
-            print("Returned result does not conform to the schema:")
-            print(v)
+            json_response = json.loads(response.text)
+            print(json.dumps(json_response, sort_keys=True, indent=3))
+
+            json_schema = json.load(schema)
+            spec = openapi_core.create_spec(json_schema, validate_spec=True)
+            validator = ResponseValidator(spec)
+            openapi_request = RequestsOpenAPIRequest(request)
+            openapi_response = RequestsOpenAPIResponse(response)
+            validation = validator.validate(openapi_request, openapi_response)
+            if validation.errors is not None and len(validation.errors) > 0:
+                print("Validation failed: ")
+                for error in validation.errors:
+                    if "schema_errors" in vars(error):
+                        pprint(vars(error)["schema_errors"])
+                    else:
+                        pprint(error)
+        except JSONDecodeError as d:
+            print("Returned result is not valid json:")
+            print("Response:")
+            print(repr(response.text))
+            print(f"Error: {d}")
 
 
 # Docker helpers ***************
 
-def create_container_image(client, build_path):
+
+def create_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
 
     # TODO: Only build image if sources have changed or a previous image does not exist,
     #       or mount the code directory and have it dynamically update.
     #       Either way, we should avoid building the image ever time this script is called
-    # TODO: We need to mount a volume to the docker image to capture logs in the same manner that vROps does
     docker_image_tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
     client.images.build(path=build_path, nocache=True, rm=True, tag=docker_image_tag)
     return docker_image_tag
 
 
-def run_image(client, image):
-    return client.containers.run(image, detach=True, ports={"8080/tcp": 8080})
+def run_image(client: DockerClient, image: Image, path: str) -> Container:
+    return client.containers.run(image,
+                                 detach=True,
+                                 ports={"8080/tcp": DEFAULT_PORT},
+                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
-def stop_container(container):
+def stop_container(container: Container):
     container.kill()
 
 
@@ -342,7 +387,6 @@ def get_request_body(project, connection):
 def main():
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
-    methods = parser.add_subparsers(required=False)
 
     # General options
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
@@ -352,6 +396,8 @@ def main():
 
     # TODO: Hook this up to logging, once we have adapter logging. May want to set the level rather than verbose.
     # parser.add_argument("-v", "--verbose", help="Include extra logging.", action="store_true")
+
+    methods = parser.add_subparsers(required=False)
 
     # Test method
     test_method = methods.add_parser("connect",
@@ -365,6 +411,22 @@ def main():
     collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
                                 type=int, default=10)
     collect_method.set_defaults(func=post_collect)
+
+    # URL Endpoints method
+    url_method = methods.add_parser("endpoint_urls",
+                                    help="Simulate the 'endpoint_urls' method being called by the vROps collector.")
+    url_method.set_defaults(func=post_endpoint_urls)
+
+    # Version method
+    url_method = methods.add_parser("version",
+                                    help="Simulate the 'version' method being called by the vROps collector.")
+    url_method.set_defaults(func=get_version)
+
+    # wait
+    url_method = methods.add_parser("wait",
+                                    help="Simulate the adapter running on a vROps collector and wait for user input "
+                                         "to stop. Useful for calling REST methods via an external tool.")
+    url_method.set_defaults(func=wait)
 
     run(parser.parse_args())
 
