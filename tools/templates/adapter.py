@@ -240,15 +240,28 @@ def main(argv):
     logger = logging.getLogger("adapter")
     if len(argv) != 2:
         logger.debug("Arguments must be <method> <ouputfile>")
-    elif argv[0] in 'collect':
-        #collect()
-        print(collect())
-    elif argv[0] in 'test':
-        #test()
-        print(test())
+    elif argv[0] == "collect":
+        to_server(argv[1], collect())
+    elif argv[0] == "test":
+        to_server(argv[1], test())
+    elif argv[0] == "endpoint_urls":
+        to_server(argv[1], [])
     else:
         logger.debug(f"Command {argv[0]} not found")
 
+
+def to_server(fifo, result):
+    logger = logging.getLogger("adapter")
+    logger.debug(repr(result))
+    logger.debug(f"FIFO = {fifo}")
+    try:
+        with open(fifo, "w") as output_file:
+            logger.debug(f"Opened {fifo}")
+            json.dump(result, output_file)
+            logger.debug(f"Closing {fifo}")
+    except Exception as e:
+        logger.debug(e)
+    logger.debug("Finished writing results to FIFO")
 
 
 if __name__ == "__main__":
