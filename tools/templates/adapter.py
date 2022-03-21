@@ -1,16 +1,14 @@
-import sys
-import os
 import json
+import logging
+import os
+import sys
+
 import psutil
 
 
 #TODO catch possible errors and add them to error response
 
 
-class Collector:
-    def __init__(self):
-        #get connection parameters
-        pass
 
     def connect(self):
         #connect to service/other
@@ -222,6 +220,16 @@ class Result:
 
 
 def main(argv):
+    try:
+        logging.basicConfig(filename="/var/log/adapter.log",
+                            filemode="a",
+                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                            datefmt="%H:%M:%S",
+                            level=logging.DEBUG)
+    except Exception as e:
+        logging.basicConfig(level=logging.CRITICAL+1)
+
+    logger = logging.getLogger("adapter")
     collector = Collector()
     if len(argv) == 0:
         print("No arguments")
@@ -232,7 +240,9 @@ def main(argv):
         #test()
         collector.test()
     else:
-        print(f"Command {argv[0]} not found")
+        logger.debug(f"Command {argv[0]} not found")
 
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     main(sys.argv[1:])
