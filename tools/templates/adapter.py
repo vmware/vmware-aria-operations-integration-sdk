@@ -81,14 +81,19 @@ def collect():
     print(result)
 
 
-
-
-
 class Metric:
-    def __init__(self, key: str, value: int):
+    def __init__(self, key: str, value: float):
         self.key = key
         self.value = value
-        self.timestamp = -1
+        self.timestamp = int(time.time() * 1000)
+
+
+
+class Property:
+    def __init__(self, key: str, value):
+        self.key = key
+        self.value = value
+        self.timestamp = int(time.time() * 1000)
 
     def __str__(self):
                 return f"""
@@ -99,24 +104,8 @@ class Metric:
         }}"""
 
 
-class Property:
-    def __init__ (self, key: str, value):
-        #TODO: parse value and check whether is a string or a number
-          self.key = key
-          self.value = value
-          self.timestamp = -1
 
-    def __str__(self):
-        label = 'numberValue' if type(self.value) == int or type(self.value) == float else 'stringValue'
-
-        return f"""
-        {{
-          key: {self.key},
-          {label}: {self.value},
-          timestamp: {self.timestamp}
-        }}"""
-
-class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
+class Object:  # NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     metrics = []
     properties = []
     parents = []
@@ -128,7 +117,7 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
         self.objectkind = objectkind
 
     def add_metric(self, metric: Metric):
-        #TODO: error handling maybe ?
+        # TODO: error handling
         self.metrics.append(metric)
 
     def add_property(self, property_: Property):
@@ -193,7 +182,7 @@ class Result:
 #                    "errorMessage": "string"
 #                    }
 
-#class Event:
+# class Event:
 #    def __init__(self, criticality: str, message: str, faultKey, autocancel = False,  startDate, updateDate, cancelDate, watchWaitCyccle, cancelWaitCycle):
 #        self.criticality = criticality
 #        self.message = message
@@ -219,7 +208,7 @@ class Result:
 #                "cancelWaitCycle": self.cancelWaitCycle
 #                }
 #
-#class Identifier:
+# class Identifier:
 #    def __init__(self, key: str, value: str, isPartOfUniqueness: bool):
 #        #TODO constructor
 #
