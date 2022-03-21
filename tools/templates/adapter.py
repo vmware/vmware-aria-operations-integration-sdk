@@ -2,79 +2,85 @@ import json
 import logging
 import os
 import sys
+import time
 
 import psutil
 
 
-#TODO catch possible errors and add them to error response
+
+def connect(self):
+    # connect to service/other
+    pass
 
 
+def test():
+    # Read the 'ID' identifier in the adapter instance and use it for a connection test
+    if "ID" not in os.environ:
+        return {"errorMessage": "No ID Found"}
+    elif os.getenv("ID").lower() == "bad":
+        return {"errorMessage": "The ID is bad"}
+    else:
+        # Empty dictionary means the test has passed
+        return {}
 
-    def connect(self):
-        #connect to service/other
-        pass
 
-    def test(self):
-        #ensure that there is communication  somehow
-        print("Python test")
+def collect():
+    # CPU
+    cpu = Object("CPU", "Containerized Adapter", "CPU")
+
+    # properties
+    cpu_count_property = Property("cpu_count", psutil.cpu_count())
+    cpu.add_property(cpu_count_property)
+
+    # metrics
+    cpu_percent = Metric("cpu_percent", psutil.cpu_percent(1))
+    user, nice, system, idle, *_ = psutil.cpu_times()
+
+    user_time = Metric("user_time", user)
+    nice_time = Metric("nice_time", nice)
+    system_time = Metric("system_time", system)
+    idle_time = Metric("idle_time", idle)
+
+    # adding metrics to CPU
+    cpu.add_metric(user_time)
+    cpu.add_metric(nice_time)
+    cpu.add_metric(system_time)
+    cpu.add_metric(idle_time)
+
+    # Disk
+    disk = Object("Disk", "Containerized Adapter", "Disk")
+    # gathering properties
+    partition, mount_point, *_ = psutil.disk_partitions().pop()
+    partition_property = Property("partition", partition)
+
+    # adding properties
+    disk.add_property(partition_property)
+
+    # gathering metrics
+    total, used, free, percent = psutil.disk_usage(mount_point)
+
+    total_space = Metric("total_space", total)
+    used_space = Metric("used_space", used)
+    free_space = Metric("free_space", free)
+    percent_used_space = Metric("percent_used_space", percent)
+
+    # adding metrics to Disk
+    disk.add_metric(total_space)
+    disk.add_metric(used_space)
+    disk.add_metric(free_space)
+    disk.add_metric(percent_used_space)
+
+    # TODO: create system object to show user relationships
+    system = Object("System", "Containerized Adapter", "System")
+
+    system.add_child(disk)
+    system.add_child(cpu)
+
+    result = Result([cpu, disk, system])
+
+    print(result)
 
 
-    def collect(self):
-
-        # CPU
-        cpu = Object("CPU", "Containerized Adapter","CPU")
-
-        # properties
-        cpu_count_property  = Property("cpu_count",psutil.cpu_count())
-        cpu.add_property(cpu_count_property)
-
-        # metrics
-        cpu_percent = Metric("cpu_percent",psutil.cpu_percent(1))
-        user, nice, system, idle, *_ = psutil.cpu_times()
-
-        user_time = Metric("user_time",user)
-        nice_time = Metric("nice_time", nice)
-        system_time = Metric("system_time",system)
-        idle_time = Metric("idle_time",idle)
-
-        # adding metrics to CPU
-        cpu.add_metric(user_time)
-        cpu.add_metric(nice_time)
-        cpu.add_metric(system_time)
-        cpu.add_metric(idle_time)
-
-        # Disk
-        disk = Object("Disk", "Containerized Adapter", "Disk")
-        # gathering properties
-        partition, mount_point, *_ = psutil.disk_partitions().pop()
-        partition_property = Property("partition", partition)
-
-        # adding properties
-        disk.add_property(partition_property)
-
-        # gathering metrics
-        total, used, free, percent = psutil.disk_usage(mount_point)
-
-        total_space = Metric("total_space", total)
-        used_space = Metric("used_space", used)
-        free_space = Metric("free_space", free)
-        percent_used_space = Metric("percent_used_space", percent)
-
-        # adding metrics to Disk
-        disk.add_metric(total_space)
-        disk.add_metric(used_space)
-        disk.add_metric(free_space)
-        disk.add_metric(percent_used_space)
-
-        #TODO: create system object to show user relationships
-        system = Object("System", "Containerized Adapter", "System")
-
-        system.add_child(disk)
-        system.add_child(cpu)
-
-        result = Result([cpu,disk,system])
-
-        print(result)
 
 
 
@@ -230,15 +236,14 @@ def main(argv):
         logging.basicConfig(level=logging.CRITICAL+1)
 
     logger = logging.getLogger("adapter")
-    collector = Collector()
-    if len(argv) == 0:
-        print("No arguments")
+    if len(argv) != 2:
+        logger.debug("Arguments must be <method> <ouputfile>")
     elif argv[0] in 'collect':
         #collect()
-        collector.collect()
+        collect()
     elif argv[0] in 'test':
         #test()
-        collector.test()
+        test()
     else:
         logger.debug(f"Command {argv[0]} not found")
 
