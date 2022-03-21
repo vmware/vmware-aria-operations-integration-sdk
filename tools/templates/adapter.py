@@ -6,6 +6,7 @@ import time
 
 import psutil
 
+from constants import ADAPTER_KIND
 
 
 def connect(self):
@@ -26,7 +27,7 @@ def test():
 
 def collect():
     # CPU
-    cpu = Object("CPU", "Containerized Adapter", "CPU")
+    cpu = Object("CPU", ADAPTER_KIND, "CPU")
 
     # properties
     cpu_count_property = Property("cpu_count", psutil.cpu_count())
@@ -48,7 +49,7 @@ def collect():
     cpu.add_metric(idle_time)
 
     # Disk
-    disk = Object("Disk", "Containerized Adapter", "Disk")
+    disk = Object("Disk", ADAPTER_KIND, "Disk")
     # gathering properties
     partition, mount_point, *_ = psutil.disk_partitions().pop()
     partition_property = Property("partition", partition)
@@ -71,7 +72,7 @@ def collect():
     disk.add_metric(percent_used_space)
 
     # TODO: create system object to show user relationships
-    system = Object("System", "Containerized Adapter", "System")
+    system = Object("System", ADAPTER_KIND, "System")
 
     system.add_child(disk)
     system.add_child(cpu)
