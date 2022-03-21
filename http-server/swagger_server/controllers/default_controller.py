@@ -1,4 +1,5 @@
 import configparser
+import logging
 import subprocess
 
 import connexion
@@ -18,10 +19,14 @@ def collect(body=None):  # noqa: E501
 
     :rtype: CollectResult
     """
+    logger = logging.getLogger('controller')
+    logger.info("Request: collect")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
 
     if body is None:
+        logger.debug("No body in request")
         return "No body in request", 400
 
     command = getcommand("collect")
@@ -41,6 +46,9 @@ def test(body=None):  # noqa: E501
 
     :rtype: TestResult
     """
+    logger = logging.getLogger('controller')
+    logger.info("Request: test")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
 
@@ -62,6 +70,8 @@ def version():  # noqa: E501
 
     :rtype: str
     """
+    logger = logging.getLogger('controller')
+    logger.info("Request: version")
 
     config = configparser.ConfigParser()
     config.read("commands.cfg")
@@ -78,8 +88,15 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
     :rtype: List[str]
     """
+    logger = logging.getLogger('controller')
+    logger.info("Request: get_endpoint_urls")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
+
+    if body is None:
+        logger.debug("No body in request")
+        return "No body in request", 400
 
     command = getcommand("endpoint_urls")
     environment = create_env(body)
@@ -89,16 +106,17 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
 
 def getcommand(commandtype):
+    logger = logging.getLogger('controller')
     config = configparser.ConfigParser()
     config.read("commands.cfg")
-    print(f"config={config.sections()}")
     command = str(config["Commands"][commandtype])
-    print(config["Commands"])
-    print(config["Commands"][commandtype])
+    logger.debug(f"Command: {command}")
     return command.split(" ")
 
 
 def create_env(body: AdapterConfig):
+    logger = logging.getLogger('controller')
+    logger.debug("Creating environment")
     env = {
         "ADAPTER_KIND": body.adapter_key.adapter_kind,
         "ADAPTER_INSTANCE_OBJECT_KIND": body.adapter_key.object_kind,
@@ -117,7 +135,8 @@ def create_env(body: AdapterConfig):
 
 
 def runcommand(command, environment=None):
-    print(f"Running command {repr(command)}")
+    logger = logging.getLogger('controller')
+    logger.debug(f"Running command {repr(command)}")
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
                                env=environment)
     stdout, stderr = process.communicate()
