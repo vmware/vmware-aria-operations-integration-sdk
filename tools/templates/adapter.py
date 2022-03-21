@@ -78,7 +78,7 @@ def collect():
 
     result = Result([cpu, disk, system])
 
-    print(result)
+    return result.get_json()
 
 
 class Metric:
@@ -87,6 +87,12 @@ class Metric:
         self.value = value
         self.timestamp = int(time.time() * 1000)
 
+    def get_json(self):
+        return {
+            "key": self.key,
+            "numberValue": float(self.value),
+            "timestamp": self.timestamp
+        }
 
 
 class Property:
@@ -95,14 +101,18 @@ class Property:
         self.value = value
         self.timestamp = int(time.time() * 1000)
 
-    def __str__(self):
-                return f"""
-        {{
-            key: {self.key},
-            numberValue: {self.value},
-            timestamp: {self.timestamp}
-        }}"""
+    def get_json(self):
+        if isinstance(self.value, str):
+            label = "stringValue"
+        else:
+            label = "numberValue"
+            self.value = float(self.value)
 
+        return {
+            "key": self.key,
+            label: self.value,
+            "timestamp": self.timestamp
+        }
 
 
 class Object:  # NOTE: maybe extend JSONEncoder or maybe do that in Result Object
@@ -129,36 +139,39 @@ class Object:  # NOTE: maybe extend JSONEncoder or maybe do that in Result Objec
     def add_child(self, child):
         self.children.append(child)
 
+    def get_json(self):
+        return {
+            "key": {
+                "name": f"{self.name}",
+                "adapterKind": f"{self.adapterkind}",
+                "objectKind": f"{self.objectkind}",
+                # TODO: add identifiers
+                "identifiers": []
+            },
+            "metrics": [metric.get_json() for metric in self.metrics],
+            "properties": [prop.get_json() for prop in self.properties],
+            # TODO: add events
+            "events": []
+        }
 
-    #TODO: add events
-    #TODO: add identifiers
-
-    def __str__(self):
-        return f"""
-    {{
-      name: {self.name},
-      adapterKind: {self.adapterkind},
-      objectKind: {self.objectkind},
-      properties: [{','.join(map(str,self.properties))}],
-      metrics: [{','.join(map(str,self.metrics))}]
-    }}"""
 
 class Result:
     relationships = []
 
-    def __init__(self, objects = []):
+    def __init__(self, objects=None):
+        if objects is None:
+            objects = []
         self.objects = objects
 
-    #TODO: create relationships by parsing objects
+    # TODO: create relationships by parsing objects
     def add_object(self, object_: Object):
-        objects.append(object)
+        self.objects.append(object_)
 
-    def __str__(self):
-        return f"""
-{{
-  "result": [{','.join(map(str,self.objects))}],
+    def get_json(self):
+        return {
+            "result": [obj.get_json() for obj in self.objects],
+        }
 
-}}"""
 
 #                    "result": [Object1, Object2, Object3 ... ObjectN],
 #
@@ -229,10 +242,10 @@ def main(argv):
         logger.debug("Arguments must be <method> <ouputfile>")
     elif argv[0] in 'collect':
         #collect()
-        collect()
+        print(collect())
     elif argv[0] in 'test':
         #test()
-        test()
+        print(test())
     else:
         logger.debug(f"Command {argv[0]} not found")
 
