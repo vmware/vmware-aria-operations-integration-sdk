@@ -195,7 +195,7 @@ def main():
 </AdapterKind>""")
 
     # copy describe.xsd into conf directory
-    src = get_absolute_project_directory("tools", "templates", "describe.xsd")
+    src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
     dest = os.path.join(path, "conf")
     copy(src, dest)
 
