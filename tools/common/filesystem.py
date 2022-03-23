@@ -33,7 +33,15 @@ def files_in_directory(directory):
             yield os.path.join(root, filename)
 
 
-def get_root_directory():
+def ask_for_repo_path():
+    while not os.path.exists(repo_path := input(f"Enter path to {constant.REPO_NAME} repo(type q to quit): ")):
+        # TODO add quit logic
+        print(f"{repo_path} is not a valid path")
+
+    return repo_path
+
+
+def get_root_directory(default_path=ask_for_repo_path):
     config_file_path = os.path.join(os.environ.get("HOME"), ".vrops-sdk")
 
     # Check for config directory
@@ -46,7 +54,7 @@ def get_root_directory():
 
     if not os.path.isfile(config_file_path):
         with open(config_file_path, "r") as config:
-            root_directory = ask_for_repo_path()
+            root_directory = default_path()
             config_json = {"repository_location": root_directory}
             json.dump(config_json, config, indent=4, sort_keys=True)
     else:
@@ -58,15 +66,8 @@ def get_root_directory():
             if "repository_location" in config_json and os.path.exists(config_json["repository_location"]):
                 root_directory = config_json["repository_location"]
             else:
-                root_directory = ask_for_repo_path()
+                root_directory = default_path()
             config_json["repository_location"] = root_directory
             json.dump(config_json, config, indent=4, sort_keys=True)
 
     return root_directory
-
-
-def ask_for_repo_path():
-    while not os.path.exists(repo_path := input(f"Enter path to {constant.REPO_NAME} repo(type q to quit): ")):
-        print(f"{repo_path} is not a valid path")
-
-    return repo_path

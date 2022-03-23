@@ -7,7 +7,7 @@ from PyInquirer import prompt
 
 import templates.java as java
 import templates.powershell as powershell
-from common.filesystem import get_absolute_project_directory
+from common.filesystem import get_absolute_project_directory, get_root_directory
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
 
@@ -33,6 +33,8 @@ def is_valid_image(p: str):
 
 
 def main():
+    # TODO explain
+    get_root_directory()
     questions = [
         {
             "type": "input",
