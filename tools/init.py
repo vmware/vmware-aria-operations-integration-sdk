@@ -7,6 +7,7 @@ from PyInquirer import prompt
 
 import templates.java as java
 import templates.powershell as powershell
+import common.constant as constant
 from common.filesystem import get_absolute_project_directory, get_root_directory
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
@@ -33,8 +34,10 @@ def is_valid_image(p: str):
 
 
 def main():
-    # TODO explain
-    get_root_directory()
+    if get_root_directory() == "No repo name given":
+        print(f"Go to ~/.vrops-sdk/{constant.CONFIG_FILE} and add the path to the {constant.REPO_NAME} repo")
+        exit(1)
+
     questions = [
         {
             "type": "input",

@@ -34,9 +34,15 @@ def files_in_directory(directory):
 
 
 def ask_for_repo_path():
-    while not os.path.exists(repo_path := input(f"Enter path to {constant.REPO_NAME} repo(type q to quit): ")):
-        # TODO add quit logic
-        print(f"{repo_path} is not a valid path")
+    try:
+        while not os.path.exists(repo_path := input(f"Enter path to {constant.REPO_NAME} repo(type q to quit): ")) \
+                and repo_path != "q":
+            print(f"{repo_path} is not a valid path")
+
+        if repo_path == "q":
+            return "No repo name given"
+    except KeyboardInterrupt:
+        return "No repo name given"
 
     return repo_path
 
@@ -53,20 +59,21 @@ def get_root_directory(default_path=ask_for_repo_path):
     root_directory = ""
 
     if not os.path.isfile(config_file_path):
+        root_directory = default_path()
         with open(config_file_path, "r") as config:
-            root_directory = default_path()
             config_json = {"repository_location": root_directory}
             json.dump(config_json, config, indent=4, sort_keys=True)
     else:
         with open(config_file_path, "r") as config:
             config_json = json.load(config)
 
+        if "repository_location" in config_json and os.path.exists(config_json["repository_location"]):
+            root_directory = config_json["repository_location"]
+        else:
+            root_directory = default_path()
+
         with open(config_file_path, "w") as config:
             # Even if the value exist we have to make sure is still valid
-            if "repository_location" in config_json and os.path.exists(config_json["repository_location"]):
-                root_directory = config_json["repository_location"]
-            else:
-                root_directory = default_path()
             config_json["repository_location"] = root_directory
             json.dump(config_json, config, indent=4, sort_keys=True)
 
