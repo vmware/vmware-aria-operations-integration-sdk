@@ -5,7 +5,7 @@ from setuptools import setup
 
 import tools.common.filesystem as filesystem
 
-filesystem.get_root_directory(default_path=lambda: os.path.pardir(__file__))
+filesystem.get_root_directory(default_path=lambda: __file__)
 
 setup(
     name="vrops-adapter-tools",
