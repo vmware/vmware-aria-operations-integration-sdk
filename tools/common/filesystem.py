@@ -2,7 +2,16 @@ import json
 import os
 import zipfile
 
-from common import constant
+import importlib.util
+
+# passing the file name and path as argument
+path_to_constants = os.path.abspath("tools/common/constant.py")
+spec = importlib.util.spec_from_file_location(
+    "constant", path_to_constants)
+
+# importing the module as foo
+constant = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(constant)
 
 
 def get_absolute_project_directory(*path: [str]):

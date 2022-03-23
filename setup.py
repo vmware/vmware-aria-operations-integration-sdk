@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 import os.path
-import sys
 
 from setuptools import setup
 
-sys.path.insert(1, "./tools/common")
+import tools.common.filesystem  as filesystem
 
-from filesystem import get_root_directory
 
-get_root_directory(default_path=lambda: os.path.pardir(__file__))
+filesystem.get_root_directory(default_path=lambda: os.path.pardir(__file__))
 
 setup(
     name="vrops-adapter-tools",
