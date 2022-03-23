@@ -3,8 +3,7 @@ import os.path
 
 from setuptools import setup
 
-import tools.common.filesystem  as filesystem
-
+import tools.common.filesystem as filesystem
 
 filesystem.get_root_directory(default_path=lambda: os.path.pardir(__file__))
 
