@@ -42,6 +42,7 @@ def ask_for_repo_path():
         if repo_path == "q":
             return "No repo name given"
     except KeyboardInterrupt:
+        print()
         return "No repo name given"
 
     return repo_path
