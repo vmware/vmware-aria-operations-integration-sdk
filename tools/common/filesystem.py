@@ -35,7 +35,7 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        while not os.path.exists(repo_path := input(f"Enter path to {constant.REPO_NAME} repo(type q to quit): ")) \
+        while not os.path.exists(repo_path := input(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")) \
                 and repo_path != "q":
             print(f"{repo_path} is not a valid path")
 
