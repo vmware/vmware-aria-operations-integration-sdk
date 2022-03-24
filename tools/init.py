@@ -198,7 +198,7 @@ def main():
 
     language = answers["language"]
     # create project structure
-    executable_directory_path = build_project_structure(path, language);
+    executable_directory_path = build_project_structure(path, language)
 
     # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
