@@ -34,9 +34,7 @@ def is_valid_image(p: str):
 
 
 def main():
-    if get_root_directory() == "No repo name given":
-        print(f"Go to ~/.vrops-sdk/{constant.CONFIG_FILE} and add the path to the {constant.REPO_NAME} repo")
-        exit(1)
+    get_root_directory()
 
     questions = [
         {

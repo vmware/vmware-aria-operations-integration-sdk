@@ -40,29 +40,32 @@ def ask_for_repo_path():
             print(f"{repo_path} is not a valid path")
 
         if repo_path == "q":
-            return "No repo name given"
+            exit_and_prompt()
     except KeyboardInterrupt:
         print()
-        return "No repo name given"
+        exit_and_prompt()
 
     return repo_path
 
+def exit_and_prompt():
+    print(f"Go to {constant.CONFIG_FILE} and add the path to the {constant.REPO_NAME} repo")
+    exit(1)
 
 def get_root_directory(default_path=ask_for_repo_path):
-    config_file_path = os.path.join(os.environ.get("HOME"), ".vrops-sdk")
+    config_file_path = constant.CONFIG_DIRECTORY
 
     # Check for config directory
     if not os.path.isdir(config_file_path):
         mkdir(config_file_path)
 
     # Add the file to the path
-    config_file_path = os.path.join(config_file_path, constant.CONFIG_FILE)
+    config_file_path = constant.CONFIG_FILE
     root_directory = ""
 
     if not os.path.isfile(config_file_path):
         root_directory = default_path()
-        with open(config_file_path, "r") as config:
-            config_json = {"repository_location": root_directory}
+        with open(config_file_path, "w") as config:
+            config_json = {constant.REPOSITORY_LOCATION: constant.CONFIG_FILE}
             json.dump(config_json, config, indent=4, sort_keys=True)
     else:
         with open(config_file_path, "r") as config:

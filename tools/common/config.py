@@ -27,7 +27,7 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file
     if defaults is None:
         defaults = {}
 
-    config_file_path = os.path.join(os.environ.get("HOME"), ".vrops-sdk", constant.CONFIG_FILE)\
+    config_file_path = constant.CONFIG_FILE\
         if config_file is constant.CONFIG_FILE \
         else get_absolute_project_directory(config_file)
 
