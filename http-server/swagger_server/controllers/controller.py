@@ -19,7 +19,7 @@ def collect(body=None):  # noqa: E501
 
     Do data collection # noqa: E501
 
-    :param body: 
+    :param body:
     :type body: dict | bytes
 
     :rtype: CollectResult
@@ -44,7 +44,7 @@ def test(body=None):  # noqa: E501
 
     Trigger a connection test # noqa: E501
 
-    :param body: 
+    :param body:
     :type body: dict | bytes
 
     :rtype: TestResult
@@ -113,12 +113,17 @@ def getcommand(commandtype):
 
 def create_env(body: AdapterConfig):
     logger.debug("Creating environment")
-    env = {
-        "ADAPTER_KIND": body.adapter_key.adapter_kind,
-        "ADAPTER_INSTANCE_OBJECT_KIND": body.adapter_key.object_kind,
-        "SUITE_API_USER": body.internal_rest_credential.user_name,
-        "SUITE_API_PASSWORD": body.internal_rest_credential.password
-    }
+
+    env = dict()
+    env["ADAPTER_KIND"] = body.adapter_key.adapter_kind
+    env["ADAPTER_INSTANCE_OBJECT_KIND"] = body.adapter_key.object_kind
+
+    if body.internal_rest_credential is not None:
+        env["SUITE_API_USER"] = body.internal_rest_credential.user_name
+        env["SUITE_API_PASSWORD"] = body.internal_rest_credential.password
+    else:
+        env["SUITE_API_USER"] = ""
+        env["SUITE_API_PASSWORD"] = ""
 
     for identifier in body.adapter_key.identifiers:
         env[identifier.key.upper()] = identifier.value
