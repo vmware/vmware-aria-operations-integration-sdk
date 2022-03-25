@@ -11,6 +11,8 @@ from swagger_server.models.adapter_config import AdapterConfig  # noqa: E501
 from swagger_server.models.collect_result import CollectResult  # noqa: E501
 from swagger_server.models.test_result import TestResult  # noqa: E501
 
+logger = logging.getLogger(__name__)
+
 
 def collect(body=None):  # noqa: E501
     """Data Collection
@@ -22,7 +24,6 @@ def collect(body=None):  # noqa: E501
 
     :rtype: CollectResult
     """
-    logger = logging.getLogger('controller')
     logger.info("Request: collect")
 
     if connexion.request.is_json:
@@ -48,7 +49,6 @@ def test(body=None):  # noqa: E501
 
     :rtype: TestResult
     """
-    logger = logging.getLogger('controller')
     logger.info("Request: test")
 
     if connexion.request.is_json:
@@ -71,7 +71,6 @@ def version():  # noqa: E501
 
     :rtype: str
     """
-    logger = logging.getLogger('controller')
     logger.info("Request: version")
 
     config = configparser.ConfigParser()
@@ -89,7 +88,6 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
     :rtype: List[str]
     """
-    logger = logging.getLogger('controller')
     logger.info("Request: get_endpoint_urls")
 
     if connexion.request.is_json:
@@ -106,7 +104,6 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
 
 def getcommand(commandtype):
-    logger = logging.getLogger('controller')
     config = configparser.ConfigParser()
     config.read("commands.cfg")
     command = str(config["Commands"][commandtype])
@@ -115,7 +112,6 @@ def getcommand(commandtype):
 
 
 def create_env(body: AdapterConfig):
-    logger = logging.getLogger('controller')
     logger.debug("Creating environment")
     env = {
         "ADAPTER_KIND": body.adapter_key.adapter_kind,
@@ -135,7 +131,6 @@ def create_env(body: AdapterConfig):
 
 
 def runcommand(command, environment=None, good_response_code=200):
-    logger = logging.getLogger('controller')
     logger.debug(f"Running command {repr(command)}")
     dir = tempfile.mkdtemp()
     pipe = os.path.join(dir, "output_pipe")
@@ -150,7 +145,7 @@ def runcommand(command, environment=None, good_response_code=200):
     else:
         logger.debug(f"Process created using pipe {pipe}")
         try:
-            with open(pipe, 'r') as fifo:
+            with open(pipe, "r") as fifo:
                 return json.load(fifo), good_response_code
         except Exception as e:
             logger.warning(f"Unknown server error: {e}")

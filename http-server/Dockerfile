@@ -1,5 +1,8 @@
 FROM python:3.10.2-slim-bullseye
 
+# Ensure that the /var/log directory is writable by the server/adapter
+RUN chmod 777 /var/log
+
 # Create LPU and create/set work directory
 RUN useradd --create-home --shell /bin/bash vrops-adapter-user
 USER vrops-adapter-user

@@ -8,6 +8,7 @@ import psutil
 
 from constants import ADAPTER_KIND
 
+logger = logging.getLogger(__name__)
 
 def connect(self):
     # connect to service/other
@@ -143,9 +144,9 @@ class Object:  # NOTE: maybe extend JSONEncoder or maybe do that in Result Objec
     def get_json(self):
         return {
             "key": {
-                "name": f"{self.name}",
-                "adapterKind": f"{self.adapterkind}",
-                "objectKind": f"{self.objectkind}",
+                "name": self.name,
+                "adapterKind": self.adapterkind,
+                "objectKind": self.objectkind,
                 # TODO: add identifiers
                 "identifiers": []
             },
@@ -238,7 +239,6 @@ def main(argv):
     except Exception as e:
         logging.basicConfig(level=logging.CRITICAL+1)
 
-    logger = logging.getLogger("adapter")
     if len(argv) != 2:
         logger.debug("Arguments must be <method> <ouputfile>")
     elif argv[0] == "collect":
@@ -252,7 +252,6 @@ def main(argv):
 
 
 def to_server(fifo, result):
-    logger = logging.getLogger("adapter")
     logger.debug(repr(result))
     logger.debug(f"FIFO = {fifo}")
     try:
