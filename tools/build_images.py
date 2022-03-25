@@ -120,8 +120,9 @@ def main():
 
 
 def get_latest_vrops_container_versions() -> (dict, [dict]):
-    base_image: dict = get_config_value("base_image", config_file=constant.VERSION_FILE)
-    secondary_images: [dict] = get_config_value("secondary_images", config_file=constant.VERSION_FILE)
+    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
+    base_image: dict = get_config_value("base_image", config_file=version_file_path)
+    secondary_images: [dict] = get_config_value("secondary_images", config_file=version_file_path)
 
     # TODO: validate each key, if the key doesn't exist, or doesn't have a value, ask user
 
