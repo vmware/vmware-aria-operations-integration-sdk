@@ -27,15 +27,13 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file
     if defaults is None:
         defaults = {}
 
-    config_file_path = constant.CONFIG_FILE\
-        if config_file is constant.CONFIG_FILE \
-        else get_absolute_project_directory(config_file)
-
-    if not os.path.isfile(config_file_path):
-        with open(config_file_path, "w") as config:
+    if os.path.isfile(config_file):
+        pass
+    else:
+        with open(config_file, "w") as config:
             json.dump({}, config, indent=4, sort_keys=True)
 
-    with open(config_file_path, "r") as config:
+    with open(config_file, "r") as config:
         config_json = json.load(config)
 
         values = {}
