@@ -1,8 +1,7 @@
 # coding: utf-8
 
-import sys
 from setuptools import setup, find_packages
-from tools.common.config import get_config_values, get_config_value
+from tools.common.config import get_config_value
 
 NAME = "swagger_server"
 

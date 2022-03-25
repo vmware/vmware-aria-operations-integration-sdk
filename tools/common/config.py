@@ -10,7 +10,7 @@ from common.filesystem import get_absolute_project_directory
 # return the default value if provided. If no value exists and a default is not provided,
 # this function prompts the user for a value. If the value changed, the new value is
 # stored back into the config file.
-def get_config_value(key: str, default: any = None, config_file: str = "config.json") -> object:
+def get_config_value(key: str, default: any = None, config_file: str = constant.CONFIG_FILE) -> object:
     defaults = {key: default}
     if default is None:
         defaults = None
@@ -26,13 +26,14 @@ def get_config_value(key: str, default: any = None, config_file: str = "config.j
 def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file: str = constant.CONFIG_FILE):
     if defaults is None:
         defaults = {}
-    config_file_path = get_absolute_project_directory(config_file)
 
-    if not os.path.isfile(config_file_path):
-        with open(config_file_path, "w") as config:
+    if os.path.isfile(config_file):
+        pass
+    else:
+        with open(config_file, "w") as config:
             json.dump({}, config, indent=4, sort_keys=True)
 
-    with open(config_file_path, "r") as config:
+    with open(config_file, "r") as config:
         config_json = json.load(config)
 
         values = {}
