@@ -1,118 +1,123 @@
-import sys
-import os
 import json
+import logging
+import os
+import sys
+import time
+
 import psutil
 
+from constants import ADAPTER_KIND
 
-#TODO catch possible errors and add them to error response
+logger = logging.getLogger(__name__)
 
-
-class Collector:
-    def __init__(self):
-        #get connection parameters
-        pass
-
-    def connect(self):
-        #connect to service/other
-        pass
-
-    def test(self):
-        #ensure that there is communication  somehow
-        print("Python test")
+def connect(self):
+    # connect to service/other
+    pass
 
 
-    def collect(self):
+def test():
+    # Read the 'ID' identifier in the adapter instance and use it for a connection test
+    if "ID" not in os.environ:
+        return {"errorMessage": "No ID Found"}
+    elif os.getenv("ID").lower() == "bad":
+        return {"errorMessage": "The ID is bad"}
+    else:
+        # Empty dictionary means the test has passed
+        return {}
 
-        # CPU
-        cpu = Object("CPU", "Containerized Adapter","CPU")
 
-        # properties
-        cpu_count_property  = Property("cpu_count",psutil.cpu_count())
-        cpu.add_property(cpu_count_property)
+def collect():
+    # CPU
+    cpu = Object("CPU", ADAPTER_KIND, "CPU")
 
-        # metrics
-        cpu_percent = Metric("cpu_percent",psutil.cpu_percent(1))
-        user, nice, system, idle, *_ = psutil.cpu_times()
+    # properties
+    cpu_count_property = Property("cpu_count", psutil.cpu_count())
+    cpu.add_property(cpu_count_property)
 
-        user_time = Metric("user_time",user)
-        nice_time = Metric("nice_time", nice)
-        system_time = Metric("system_time",system)
-        idle_time = Metric("idle_time",idle)
+    # metrics
+    cpu_percent = Metric("cpu_percent", psutil.cpu_percent(1))
+    user, nice, system, idle, *_ = psutil.cpu_times()
 
-        # adding metrics to CPU
-        cpu.add_metric(user_time)
-        cpu.add_metric(nice_time)
-        cpu.add_metric(system_time)
-        cpu.add_metric(idle_time)
+    user_time = Metric("user_time", user)
+    nice_time = Metric("nice_time", nice)
+    system_time = Metric("system_time", system)
+    idle_time = Metric("idle_time", idle)
 
-        # Disk
-        disk = Object("Disk", "Containerized Adapter", "Disk")
-        # gathering properties
-        partition, mount_point, *_ = psutil.disk_partitions().pop()
-        partition_property = Property("partition", partition)
+    # adding metrics to CPU
+    cpu.add_metric(user_time)
+    cpu.add_metric(nice_time)
+    cpu.add_metric(system_time)
+    cpu.add_metric(idle_time)
 
-        # adding properties
-        disk.add_property(partition_property)
+    # Disk
+    disk = Object("Disk", ADAPTER_KIND, "Disk")
+    # gathering properties
+    partition, mount_point, *_ = psutil.disk_partitions().pop()
+    partition_property = Property("partition", partition)
 
-        # gathering metrics
-        total, used, free, percent = psutil.disk_usage(mount_point)
+    # adding properties
+    disk.add_property(partition_property)
 
-        total_space = Metric("total_space", total)
-        used_space = Metric("used_space", used)
-        free_space = Metric("free_space", free)
-        percent_used_space = Metric("percent_used_space", percent)
+    # gathering metrics
+    total, used, free, percent = psutil.disk_usage(mount_point)
 
-        # adding metrics to Disk
-        disk.add_metric(total_space)
-        disk.add_metric(used_space)
-        disk.add_metric(free_space)
-        disk.add_metric(percent_used_space)
+    total_space = Metric("total_space", total)
+    used_space = Metric("used_space", used)
+    free_space = Metric("free_space", free)
+    percent_used_space = Metric("percent_used_space", percent)
 
-        #TODO: create system object to show user relationships
-        system = Object("System", "Containerized Adapter", "System")
+    # adding metrics to Disk
+    disk.add_metric(total_space)
+    disk.add_metric(used_space)
+    disk.add_metric(free_space)
+    disk.add_metric(percent_used_space)
 
-        system.add_child(disk)
-        system.add_child(cpu)
+    # TODO: create system object to show user relationships
+    system = Object("System", ADAPTER_KIND, "System")
 
-        result = Result([cpu,disk,system])
+    system.add_child(disk)
+    system.add_child(cpu)
 
-        print(result)
+    result = Result([cpu, disk, system])
 
+    return result.get_json()
 
 
 class Metric:
-    def __init__(self, key: str, value: int):
+    def __init__(self, key: str, value: float):
         self.key = key
         self.value = value
-        self.timestamp = -1
+        self.timestamp = int(time.time() * 1000)
 
-    def __str__(self):
-                return f"""
-        {{
-            key: {self.key},
-            numberValue: {self.value},
-            timestamp: {self.timestamp}
-        }}"""
+    def get_json(self):
+        return {
+            "key": self.key,
+            "numberValue": float(self.value),
+            "timestamp": self.timestamp
+        }
 
 
 class Property:
-    def __init__ (self, key: str, value):
-        #TODO: parse value and check whether is a string or a number
-          self.key = key
-          self.value = value
-          self.timestamp = -1
+    def __init__(self, key: str, value):
+        self.key = key
+        self.value = value
+        self.timestamp = int(time.time() * 1000)
 
-    def __str__(self):
-        label = 'numberValue' if type(self.value) == int or type(self.value) == float else 'stringValue'
+    def get_json(self):
+        if isinstance(self.value, str):
+            label = "stringValue"
+        else:
+            label = "numberValue"
+            self.value = float(self.value)
 
-        return f"""
-        {{
-          key: {self.key},
-          {label}: {self.value},
-          timestamp: {self.timestamp}
-        }}"""
+        return {
+            "key": self.key,
+            label: self.value,
+            "timestamp": self.timestamp
+        }
 
-class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
+
+class Object:  # NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     metrics = []
     properties = []
     parents = []
@@ -124,7 +129,7 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
         self.objectkind = objectkind
 
     def add_metric(self, metric: Metric):
-        #TODO: error handling maybe ?
+        # TODO: error handling
         self.metrics.append(metric)
 
     def add_property(self, property_: Property):
@@ -136,36 +141,39 @@ class Object: #NOTE: maybe extend JSONEncoder or maybe do that in Result Object
     def add_child(self, child):
         self.children.append(child)
 
+    def get_json(self):
+        return {
+            "key": {
+                "name": self.name,
+                "adapterKind": self.adapterkind,
+                "objectKind": self.objectkind,
+                # TODO: add identifiers
+                "identifiers": []
+            },
+            "metrics": [metric.get_json() for metric in self.metrics],
+            "properties": [prop.get_json() for prop in self.properties],
+            # TODO: add events
+            "events": []
+        }
 
-    #TODO: add events
-    #TODO: add identifiers
-
-    def __str__(self):
-        return f"""
-    {{
-      name: {self.name},
-      adapterKind: {self.adapterkind},
-      objectKind: {self.objectkind},
-      properties: [{','.join(map(str,self.properties))}],
-      metrics: [{','.join(map(str,self.metrics))}]
-    }}"""
 
 class Result:
     relationships = []
 
-    def __init__(self, objects = []):
+    def __init__(self, objects=None):
+        if objects is None:
+            objects = []
         self.objects = objects
 
-    #TODO: create relationships by parsing objects
+    # TODO: create relationships by parsing objects
     def add_object(self, object_: Object):
-        objects.append(object)
+        self.objects.append(object_)
 
-    def __str__(self):
-        return f"""
-{{
-  "result": [{','.join(map(str,self.objects))}],
+    def get_json(self):
+        return {
+            "result": [obj.get_json() for obj in self.objects],
+        }
 
-}}"""
 
 #                    "result": [Object1, Object2, Object3 ... ObjectN],
 #
@@ -189,7 +197,7 @@ class Result:
 #                    "errorMessage": "string"
 #                    }
 
-#class Event:
+# class Event:
 #    def __init__(self, criticality: str, message: str, faultKey, autocancel = False,  startDate, updateDate, cancelDate, watchWaitCyccle, cancelWaitCycle):
 #        self.criticality = criticality
 #        self.message = message
@@ -215,24 +223,46 @@ class Result:
 #                "cancelWaitCycle": self.cancelWaitCycle
 #                }
 #
-#class Identifier:
+# class Identifier:
 #    def __init__(self, key: str, value: str, isPartOfUniqueness: bool):
 #        #TODO constructor
 #
 
 
 def main(argv):
-    collector = Collector()
-    if len(argv) == 0:
-        print("No arguments")
-    elif argv[0] in 'collect':
-        #collect()
-        collector.collect()
-    elif argv[0] in 'test':
-        #test()
-        collector.test()
-    else:
-        print(f"Command {argv[0]} not found")
+    try:
+        logging.basicConfig(filename="/var/log/adapter.log",
+                            filemode="a",
+                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                            datefmt="%H:%M:%S",
+                            level=logging.DEBUG)
+    except Exception as e:
+        logging.basicConfig(level=logging.CRITICAL+1)
 
-if __name__ == '__main__':
+    if len(argv) != 2:
+        logger.debug("Arguments must be <method> <ouputfile>")
+    elif argv[0] == "collect":
+        to_server(argv[1], collect())
+    elif argv[0] == "test":
+        to_server(argv[1], test())
+    elif argv[0] == "endpoint_urls":
+        to_server(argv[1], [])
+    else:
+        logger.debug(f"Command {argv[0]} not found")
+
+
+def to_server(fifo, result):
+    logger.debug(repr(result))
+    logger.debug(f"FIFO = {fifo}")
+    try:
+        with open(fifo, "w") as output_file:
+            logger.debug(f"Opened {fifo}")
+            json.dump(result, output_file)
+            logger.debug(f"Closing {fifo}")
+    except Exception as e:
+        logger.debug(e)
+    logger.debug("Finished writing results to FIFO")
+
+
+if __name__ == "__main__":
     main(sys.argv[1:])

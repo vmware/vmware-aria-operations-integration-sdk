@@ -183,22 +183,30 @@ def main():
     with open(describe_file, "w") as describe_fd:
         describe_fd.write(
             f"""<?xml version = '1.0' encoding = 'UTF-8'?>
-            <!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
-            <AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
-                <CredentialKinds>
-                </CredentialKinds>
-                <ResourceKinds>
-                    <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
-                        <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
-                    </ResourceKind>
-                </ResourceKinds>
-            </AdapterKind>""")
+<!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
+<AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
+    <CredentialKinds>
+    </CredentialKinds>
+    <ResourceKinds>
+        <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
+            <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
+        </ResourceKind>
+        <ResourceKind key="CPU" nameKey="4"></ResourceKind>
+        <ResourceKind key="Disk" nameKey="5"></ResourceKind>
+        <ResourceKind key="System" nameKey="6"></ResourceKind>
+    </ResourceKinds>
+</AdapterKind>""")
+
+    # copy describe.xsd into conf directory
+    src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
+    dest = os.path.join(path, "conf")
+    copy(src, dest)
 
     print("")
 
     language = answers["language"]
     # create project structure
-    executable_directory_path = build_project_structure(path, language)
+    executable_directory_path = build_project_structure(path, manifest["name"], language)
 
     # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
@@ -253,12 +261,13 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
         commands.write("[Commands]\n")
         commands.write(f"test={command_and_executable} test\n")
         commands.write(f"collect={command_and_executable} collect\n")
+        commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
         commands.write("[Version]\n")
         commands.write("major:1\n")
         commands.write("minor:0\n")
 
 
-def build_project_structure(path: str, language: str):
+def build_project_structure(path: str, adapter_kind: str, language: str):
     print("generating project structure")
     project_directory = ''  # this is where all the source code will reside
 
@@ -277,6 +286,9 @@ def build_project_structure(path: str, language: str):
 
         # copy adapter.py into app directory
         copy(src, dest)
+
+        with open(os.path.join(path, project_directory, "constants.py"), "w") as constants:
+            constants.write(f'ADAPTER_KIND = "{adapter_kind}"')
 
     if language == "java":
         # TODO: copy a java class instead of generate it

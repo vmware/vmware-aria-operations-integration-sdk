@@ -6,7 +6,7 @@ info:
   contact: {}
   version: "1.0"
 servers:
-- url: http://localhost:8000
+- url: http://localhost:8080
 paths:
   /version:
     get:
@@ -24,7 +24,7 @@ paths:
                 example: Version 1.0
                 x-content-type: application/json
               examples: {}
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /test:
     post:
       tags: []
@@ -45,7 +45,7 @@ paths:
                 $ref: '#/components/schemas/TestResult'
         "400":
           description: Bad Request
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /collect:
     post:
       tags: []
@@ -66,7 +66,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectResult'
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /endpointURLs:
     post:
       tags: []
@@ -83,7 +83,7 @@ paths:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        "202":
+        "200":
           description: Accepted
           content:
             application/json:
@@ -92,7 +92,7 @@ paths:
                 items:
                   type: string
                 x-content-type: application/json
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
 components:
   schemas:
     ObjectKey:

@@ -1,5 +1,9 @@
 import configparser
+import json
+import logging
+import os.path
 import subprocess
+import tempfile
 
 import connexion
 
@@ -7,28 +11,32 @@ from swagger_server.models.adapter_config import AdapterConfig  # noqa: E501
 from swagger_server.models.collect_result import CollectResult  # noqa: E501
 from swagger_server.models.test_result import TestResult  # noqa: E501
 
+logger = logging.getLogger(__name__)
+
 
 def collect(body=None):  # noqa: E501
     """Data Collection
 
     Do data collection # noqa: E501
 
-    :param body: 
+    :param body:
     :type body: dict | bytes
 
     :rtype: CollectResult
     """
+    logger.info("Request: collect")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
 
     if body is None:
+        logger.debug("No body in request")
         return "No body in request", 400
 
     command = getcommand("collect")
     environment = create_env(body)
-    invocation = command + [str(body.adapter_key)]
 
-    return runcommand(invocation, environment)
+    return runcommand(command, environment, 202)
 
 
 def test(body=None):  # noqa: E501
@@ -36,11 +44,13 @@ def test(body=None):  # noqa: E501
 
     Trigger a connection test # noqa: E501
 
-    :param body: 
+    :param body:
     :type body: dict | bytes
 
     :rtype: TestResult
     """
+    logger.info("Request: test")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
 
@@ -49,9 +59,8 @@ def test(body=None):  # noqa: E501
 
     command = getcommand("test")
     environment = create_env(body)
-    invocation = command + [str(body.adapter_key)]
 
-    return runcommand(invocation, environment)
+    return runcommand(command, environment, 202)
 
 
 def version():  # noqa: E501
@@ -62,6 +71,7 @@ def version():  # noqa: E501
 
     :rtype: str
     """
+    logger.info("Request: version")
 
     config = configparser.ConfigParser()
     config.read("commands.cfg")
@@ -78,33 +88,42 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
     :rtype: List[str]
     """
+    logger.info("Request: get_endpoint_urls")
+
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
 
+    if body is None:
+        logger.debug("No body in request")
+        return "No body in request", 400
+
     command = getcommand("endpoint_urls")
     environment = create_env(body)
-    invocation = command + [str(body.adapter_key)]
 
-    return runcommand(invocation, environment)
+    return runcommand(command, environment, 200)
 
 
 def getcommand(commandtype):
     config = configparser.ConfigParser()
     config.read("commands.cfg")
-    print(f"config={config.sections()}")
     command = str(config["Commands"][commandtype])
-    print(config["Commands"])
-    print(config["Commands"][commandtype])
+    logger.debug(f"Command: {command}")
     return command.split(" ")
 
 
 def create_env(body: AdapterConfig):
-    env = {
-        "ADAPTER_KIND": body.adapter_key.adapter_kind,
-        "ADAPTER_INSTANCE_OBJECT_KIND": body.adapter_key.object_kind,
-        "SUITE_API_USER": body.internal_rest_credential.user_name,
-        "SUITE_API_PASSWORD": body.internal_rest_credential.password
-    }
+    logger.debug("Creating environment")
+
+    env = dict()
+    env["ADAPTER_KIND"] = body.adapter_key.adapter_kind
+    env["ADAPTER_INSTANCE_OBJECT_KIND"] = body.adapter_key.object_kind
+
+    if body.internal_rest_credential is not None:
+        env["SUITE_API_USER"] = body.internal_rest_credential.user_name
+        env["SUITE_API_PASSWORD"] = body.internal_rest_credential.password
+    else:
+        env["SUITE_API_USER"] = ""
+        env["SUITE_API_PASSWORD"] = ""
 
     for identifier in body.adapter_key.identifiers:
         env[identifier.key.upper()] = identifier.value
@@ -116,10 +135,27 @@ def create_env(body: AdapterConfig):
     return env
 
 
-def runcommand(command, environment=None):
-    print(f"Running command {repr(command)}")
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
-                               env=environment)
-    stdout, stderr = process.communicate()
-
-    return stdout
+def runcommand(command, environment=None, good_response_code=200):
+    logger.debug(f"Running command {repr(command)}")
+    dir = tempfile.mkdtemp()
+    pipe = os.path.join(dir, "output_pipe")
+    try:
+        os.mkfifo(pipe)
+        # TODO: Server should have some timeout mechanism if the adapter hangs or takes too long
+        process = subprocess.Popen(command + [pipe], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   universal_newlines=True, env=environment)
+    except OSError as e:
+        logger.debug(f"Failed to create pipe {pipe}: {e}")
+        return "Error initializing adapter communication", 500
+    else:
+        logger.debug(f"Process created using pipe {pipe}")
+        try:
+            with open(pipe, "r") as fifo:
+                return json.load(fifo), good_response_code
+        except Exception as e:
+            logger.warning(f"Unknown server error: {e}")
+            process.kill()
+            return f"Unknown server error", 500
+    finally:
+        os.unlink(pipe)
+        os.rmdir(dir)

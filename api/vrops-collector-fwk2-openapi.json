@@ -102,7 +102,7 @@
         "summary": "Retrieve endpoint URLs",
         "tags": [],
         "responses": {
-          "202": {
+          "200": {
             "description": "Accepted",
             "content": {
               "application/json": {
