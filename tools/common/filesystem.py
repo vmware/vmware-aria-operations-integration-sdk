@@ -48,7 +48,7 @@ def ask_for_repo_path():
     return repo_path
 
 def exit_and_prompt():
-    print(f"Go to {constant.CONFIG_FILE} and add the path to the {constant.REPO_NAME} repo")
+    print(f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
     exit(1)
 
 def get_root_directory(default_path=ask_for_repo_path):
