@@ -22,7 +22,7 @@ vROps Containerized Management Pack SDK
 
 [Examples](doc/examples.md)
 
-[Reference](doc/reference.md)
+[Reference](doc/references.md)
 * Architecture
 * Tools
 * Adapter
