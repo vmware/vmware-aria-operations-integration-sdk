@@ -48,7 +48,7 @@ def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file
                 values[key] = input(f"{key}: ")
                 config_json[key] = values[key]
 
-    with open(config_file_path, "w") as config:
+    with open(config_file, "w") as config:
         json.dump(config_json, config, indent=4, sort_keys=True)
 
     return values
