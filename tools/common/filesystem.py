@@ -65,7 +65,7 @@ def get_root_directory(default_path=ask_for_repo_path):
     if not os.path.isfile(config_file_path):
         root_directory = default_path()
         with open(config_file_path, "w") as config:
-            config_json = {constant.REPOSITORY_LOCATION: constant.CONFIG_FILE}
+            config_json = {constant.REPOSITORY_LOCATION: root_directory}
             json.dump(config_json, config, indent=4, sort_keys=True)
     else:
         with open(config_file_path, "r") as config:
