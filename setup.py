@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import os.path
+import os
 
 from setuptools import setup
 
 import tools.common.filesystem as filesystem
 
-filesystem.get_root_directory(default_path=lambda: __file__)
+filesystem.get_root_directory(default_path=lambda: os.getenv("REPO_PATH"))
 
 setup(
     name="vrops-adapter-tools",
