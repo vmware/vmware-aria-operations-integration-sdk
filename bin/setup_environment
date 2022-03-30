@@ -11,7 +11,6 @@ export REPO_PATH="$(realpath .)"
 source virtual_environment/bin/activate
 
 ## Install our package
-echo "Installing vrops-adapter-tools"
 pip install .
 
 echo "Installation completed. Run the following command to activate the virtual environment:"
