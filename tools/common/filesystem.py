@@ -35,7 +35,8 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        while not os.path.exists(repo_path := input(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")) \
+        while not os.path.exists(
+                repo_path := input(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")) \
                 and repo_path != "q":
             print(f"{repo_path} is not a valid path")
 
@@ -47,9 +48,14 @@ def ask_for_repo_path():
 
     return repo_path
 
+
 def exit_and_prompt():
-    print(f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
+    print(
+        f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be "
+        f"added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '"
+        f"{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
     exit(1)
+
 
 def get_root_directory(default_path=ask_for_repo_path):
     config_file_path = constant.CONFIG_DIRECTORY
@@ -65,7 +71,7 @@ def get_root_directory(default_path=ask_for_repo_path):
     if not os.path.isfile(config_file_path):
         root_directory = default_path()
         with open(config_file_path, "w") as config:
-            config_json = {constant.REPOSITORY_LOCATION: constant.CONFIG_FILE}
+            config_json = {constant.REPOSITORY_LOCATION: root_directory}
             json.dump(config_json, config, indent=4, sort_keys=True)
     else:
         with open(config_file_path, "r") as config:
