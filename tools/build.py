@@ -13,8 +13,15 @@ from common.filesystem import zip_dir, mkdir, zip_file
 from common.project import get_project
 
 
-def main(arguments):
-    project = get_project(arguments)
+def main():
+    description = "Tool for building a pak file for a project."
+    parser = argparse.ArgumentParser(description=description)
+
+    # General options
+    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
+                                             "or prompts if current directory is not a project.")
+
+    project = get_project(parser.parse_args())
     os.chdir(project["path"])
 
     with open("manifest.txt") as manifest_file:
@@ -84,11 +91,4 @@ def main(arguments):
 
 
 if __name__ == "__main__":
-    description = "Tool for building a pak file for a project."
-    parser = argparse.ArgumentParser(description=description)
-
-    # General options
-    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
-                                             "or prompts if current directory is not a project.")
-
-    main(parser.parse_args())
+    main()
