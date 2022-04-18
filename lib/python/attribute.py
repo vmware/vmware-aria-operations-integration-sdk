@@ -2,6 +2,7 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
 import time
+from typing import Union
 
 
 class Metric:
@@ -50,7 +51,7 @@ class Property:
         Software Version
         CPU Core Count
     """
-    def __init__(self, key: str, value, timestamp: int = int(time.time() * 1000)):
+    def __init__(self, key: str, value: Union[float, str], timestamp: int = int(time.time() * 1000)):
         """ Creates a Property.
 
         :param key: A string representing the type of property. TODO: Describe how Keys work.

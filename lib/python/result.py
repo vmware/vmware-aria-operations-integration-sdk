@@ -27,6 +27,7 @@ class Result:
             objects = []
         self.objects = {}
         self.add_objects(obj_list)
+        self._error_message = None
 
     def object(self, adapter_kind: str, object_kind: str, name: str, identifiers=None) -> Object:
         """Get or create the object with key specified by adapter_kind, object_kind, name, and identifiers.
@@ -48,7 +49,7 @@ class Result:
         :return: The object with the given key
         """
         obj = Object(Key(adapter_kind, object_kind, name, identifiers))
-        return self.objects.setdefault(obj._key, obj)
+        return self.objects.setdefault(obj.get_key(), obj)
 
     def add_object(self, obj: Object) -> Object:
         """Adds the given object to the Result and returns it.
@@ -60,10 +61,10 @@ class Result:
         :return: The object
         :raises: ObjectKeyAlreadyExistsException if a different object with the same key already exists in the Result
         """
-        o = self.objects.setdefault(obj._key, obj)
+        o = self.objects.setdefault(obj.get_key(), obj)
         if o is obj:
             return o
-        raise ObjectKeyAlreadyExistsException(f"A different object with key {obj._key} already exists.")
+        raise ObjectKeyAlreadyExistsException(f"A different object with key {obj.get_key()} already exists.")
 
     def add_objects(self, obj_list: list[Object]) -> None:
         """Adds the given objects to the Result and returns it.
@@ -78,6 +79,17 @@ class Result:
         for obj in obj_list:
             self.add_object(obj)
 
+    def with_error(self, error_message: str):
+        """ Set the Adapter Instance to an error state with the provided message.
+
+        If this method is called multiple times, only the most recent error message will be recorded.
+        If error_message is set, no results (objects, relationships) will be returned.
+
+        :param error_message: A string containing the error message
+        :return: None
+        """
+        self._error_message = error_message
+
     def get_json(self) -> dict:
         """Get a JSON representation of this Result
 
@@ -87,14 +99,19 @@ class Result:
 
         :return: A JSON representation of this Result
         """
-        return {
-            "result": [obj.get_json() for obj in self.objects],
-            "relationships": [
-                {
-                    "parent": obj.get_key(),
-                    "children": [child.get_key() for child in obj.children]
-                } for obj in self.objects
-            ],
-            "nonExistingObjects": [],
-            "errorMessage": None,
-        }
+        if self._error_message is None:
+            return {
+                "result": [obj.get_json() for obj in self.objects.values()],
+                "relationships": [
+                    {
+                        "parent": obj.get_key().get_json(),
+                        "children": [child_key.get_json() for child_key in obj._children]
+                    } for obj in self.objects.values()
+                ],
+                "nonExistingObjects": [],
+                "errorMessage": None,
+            }
+        else:
+            return {
+                "errorMessage": self._error_message
+            }

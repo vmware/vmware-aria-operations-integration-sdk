@@ -3,6 +3,9 @@ from __future__ import annotations
 __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
+import copy
+from typing import Optional
+
 from attribute import Metric, Property
 from event import Event
 
@@ -78,9 +81,9 @@ class Key:
         """
         return {
             "name": self.name,
-            "adapterKind": self._key.adapter_kind,
-            "objectKind": self._key.object_kind,
-            "identifiers": [identifier.get_json() for (key, identifier) in self._key.identifiers.items()],
+            "adapterKind": self.adapter_kind,
+            "objectKind": self.object_kind,
+            "identifiers": list(self.identifiers.values()),
         }
 
 
@@ -168,6 +171,15 @@ class Object:
         self._parents = set()
         self._children = set()
 
+    def get_key(self):
+        """ Get a copy of the Object's Key.
+
+        An object's Key cannot chance after it has been created.
+
+        :return: A copy of the object's key
+        """
+        return copy.deepcopy(self._key)
+
     def add_metric(self, metric: Metric) -> None:
         """ Method that adds a single Metric data point to this Object
 
@@ -193,6 +205,16 @@ class Object:
         """
         self.add_metric(Metric(*args, **kwargs))
 
+    def get_metric(self, key) -> Optional[Metric]:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return:
+        """
+        # TODO: Optimize this?
+        # TODO: If multiple match, do we return all, a 'random' one, the last added, or the latest timestamp?
+        return next(filter(lambda metric: metric.key == key, self._metrics), None)
+
     def add_property(self, property_: Property) -> None:
         """ Method that adds a single Property value to this Object
 
@@ -217,6 +239,16 @@ class Object:
         :return: None
         """
         self.add_property(Property(*args, **kwargs))
+
+    def get_property(self, key) -> Optional[Property]:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return:
+        """
+        # TODO: Optimize this?
+        # TODO: If multiple match, do we return all, a 'random' one, the last added, or the latest timestamp?
+        return next(filter(lambda property_: property_.key == key, self._properties), None)
 
     def add_event(self, event: Event) -> None:
         """ Method that adds a single Event to this Object

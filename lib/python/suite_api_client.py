@@ -32,9 +32,10 @@ def get_connection_params():
     :return: Default SuiteApi credentials
     """
     return SuiteApiConnectionParameters(
-        # TODO switch to using the provided hostname instead of the docker host once that is added to the
+        # TODO switch to using the provided network instead of the static IP once that is added to the
         #      collector framework api
-        "http://host.docker.internal",
+        #      https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=Platform&title=CF+2.0%3A+Adapter+to+cluster+communication
+        "https://172.17.0.1:443",
         os.getenv("SUITE_API_USER"),
         os.getenv("SUITE_API_PASSWORD")
     )
