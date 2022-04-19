@@ -25,7 +25,9 @@ setup(
         "requests",
         "urllib3",
         "common",
-        "templates"
+        "templates",
+        "flask",
+        "openapi_core"
     ],
     package_dir={
         "common": "tools/common",
@@ -35,7 +37,7 @@ setup(
     py_modules=[
         "init",
         "build",
-        "test"
+        "mp_test"
     ],
     packages=[
         "common",
@@ -43,9 +45,9 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "init=init:main",
-            "build=build:main",
-            "test=test:main"
+            "mp-init=init:main",
+            "mp-build=build:main",
+            "mp-test=mp_test:main"
         ]
     }
 )
