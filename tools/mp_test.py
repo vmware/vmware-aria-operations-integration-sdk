@@ -371,17 +371,60 @@ def get_request_body(project, connection):
 # Describe.xml helpers
 
 # describe validators
-def validate_resource_kinds(describe, param):
-    pass
+def validate_resource_kinds(resource_kinds, response):
+    """ Ensures that each Object in the response has a matching  ResourceKind in the describe.xml
+
+    There can be multiple instances of the same resource in the response
+
+    A resource can be present in in the describe sml, but not in the response, in which case we should make note
+    of the resource either missing from collection, or not having the right key.
+
+    If a Resource is present in the collection result, but not in the describe.xml, then we consider that an error
+
+    ResourceKinds must have unique keys and nameKeys
+
+    All objects should have the same AdapterKind
+
+    :param resource_kinds:
+    :param response:
+    :return:
+    """
+    print("Validating ResourceKinds")
+    # TODO: validate describe portion of the resources, by making sure they have unique keys and nameKeys
+    for resource in resource_kinds:
+        # check duplicate keys
+        # check duplicate nameKeys
+        pass
+
+    for _object in response:
+        # TODO: check all objects have the same AdapterKind
+        # adapter_kind_key = _object["key"]["adapterKind"]
+
+        # NOTE: does the json validation ensure that this keys are present or should we except an error here?
+        object_kind_key = _object["key"]["objectKind"]
+
+        # find any ResourceKind with a matching Key
+        matches = list(filter(lambda e: e.get("key") == object_kind_key, resource_kinds))
+        num_matches = len(matches)
+
+        if num_matches == 1:
+            # good stuff
+            print("GOOD STUFF")
+            pass
+        elif num_matches > 1:
+            # bad juju, we can return the nameKey of each element and tell the user about them being duplicates
+            print(f"BAD JUJU!: {num_matches}")
+            print(*matches, sep="\n")
+            pass
+        else:
+            # nothing found
+            print(f"Nothing found for {adapter_kind_key}")
+            pass
 
 
 def validate_describe(response, project):
     """ Validate the adapter response against the describe.xml
 
-      A resource can be present in in the describe sml, but not in the response, in which case we should make note
-      of the resource either missing from collection, or not having the right key.
-
-      If a Resource is present in the collection result, but not in the describe.xml, then we consider that an error
 
      An Identifier that isPartOfUniqueness, should be unique
 
@@ -389,18 +432,21 @@ def validate_describe(response, project):
     :param project: Metadata about the project being tested (we need this to get the describe.xml)
     :return: None
     """
+    print("Cross checking describe.xml and adapter response")
+    print("################################################")
     describe = get_describe(project["path"])
     resource_kinds = get_resource_kinds(describe)
     # check Resource kinds
-    validate_resource_kinds(describe, response["result"])
-    # check Object Identifiers
+    validate_resource_kinds(get_resource_kinds(describe), response["result"])
 
-    for resource_kind in resource_kinds:
-        print(f"resource_kind: {resource_kind}")
-        # NOTE: check for for an object_kind with teh same key as the resource_kind
-    for _object in response["result"]:
-        print(f"object: {_object}")
+    # TODO: check Object Identifiers
 
+    # for resource_kind in resource_kinds:
+    #     print(f"resource_kind: {resource_kind}")
+    #     # NOTE: check for for an object_kind with teh same key as the resource_kind
+    # for _object in response["result"]:
+    #     print(f"object: {_object}")
+    #
 
 # describe getters
 
