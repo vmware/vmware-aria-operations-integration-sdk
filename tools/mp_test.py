@@ -400,36 +400,37 @@ def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
 
         # NOTE: since we are iterating through the list, we are going to see this message appear as many times as the
         # repeated resource
+        # NOTE: Maybe we write a helper function that checks for duplicate keys
         if len(name_key_matches) > 1:
             print(f"Found {len(name_key_matches)} instances of {name_key} as a nameKey, when nameKey should be unique")
 
-        if len(key_matches) > 1: # check duplicate keys
+        if len(key_matches) > 1:  # Check duplicate keys
             print(f"Found {len(key_matches)} instances of {key} as a Key, when Key should be unique")
 
     for _object in response:
         # TODO: check all objects have the same AdapterKind
-        # adapter_kind_key = _object["key"]["adapterKind"]
-
+        object_adapter_kind_key = _object["key"]["adapterKind"]
         # NOTE: does the json validation ensure that this keys are present or should we except an error here?
         object_kind_key = _object["key"]["objectKind"]
+
+        if adapter_kind_key != object_adapter_kind_key:
+            print(f"AdapterKind {adapter_kind_key} was expected for object with objectKind {object_kind_key}, but "
+                  f"{object_adapter_kind_key} was found instead")
 
         # find any ResourceKind with a matching Key
         matches = list(filter(lambda e: e.get("key") == object_kind_key, resource_kinds))
         num_matches = len(matches)
 
         if num_matches == 1:
-            # good stuff
+            # good stuff the resource kind was found in the describe.xml
             print("GOOD STUFF")
-            pass
         elif num_matches > 1:
             # bad juju, we can return the nameKey of each element and tell the user about them being duplicates
             print(f"BAD JUJU!: {num_matches}")
             print(*matches, sep="\n")
-            pass
         else:
-            # nothing found
+            # nothing found means that the object from the response is not present in the describe.xml
             print(f"Nothing found for {adapter_kind_key}")
-            pass
 
 
 def validate_describe(response, project):
