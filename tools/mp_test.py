@@ -371,7 +371,7 @@ def get_request_body(project, connection):
 # Describe.xml helpers
 
 # describe validators
-def validate_resource_kinds(resource_kinds, response):
+def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
     """ Ensures that each Object in the response has a matching  ResourceKind in the describe.xml
 
     There can be multiple instances of the same resource in the response
@@ -385,6 +385,7 @@ def validate_resource_kinds(resource_kinds, response):
 
     All objects should have the same AdapterKind
 
+    :param adapter_kind_key:
     :param resource_kinds:
     :param response:
     :return:
@@ -392,9 +393,18 @@ def validate_resource_kinds(resource_kinds, response):
     print("Validating ResourceKinds")
     # TODO: validate describe portion of the resources, by making sure they have unique keys and nameKeys
     for resource in resource_kinds:
-        # check duplicate keys
-        # check duplicate nameKeys
-        pass
+        name_key = resource.get("nameKey")
+        key = resource.get("Key")
+        name_key_matches = list(filter(lambda r: r.get("nameKey") == name_key, resource_kinds))
+        key_matches = list(filter(lambda r: r.get("key") == key, resource_kinds))
+
+        # NOTE: since we are iterating through the list, we are going to see this message appear as many times as the
+        # repeated resource
+        if len(name_key_matches) > 1:
+            print(f"Found {len(name_key_matches)} instances of {name_key} as a nameKey, when nameKey should be unique")
+
+        if len(key_matches) > 1: # check duplicate keys
+            print(f"Found {len(key_matches)} instances of {key} as a Key, when Key should be unique")
 
     for _object in response:
         # TODO: check all objects have the same AdapterKind
@@ -435,9 +445,11 @@ def validate_describe(response, project):
     print("Cross checking describe.xml and adapter response")
     print("################################################")
     describe = get_describe(project["path"])
+    adapter_kind = get_adapter_kind(describe)
+
     resource_kinds = get_resource_kinds(describe)
     # check Resource kinds
-    validate_resource_kinds(get_resource_kinds(describe), response["result"])
+    validate_resource_kinds(adapter_kind, resource_kinds, response["result"])
 
     # TODO: check Object Identifiers
 
@@ -448,7 +460,13 @@ def validate_describe(response, project):
     #     print(f"object: {_object}")
     #
 
+
 # describe getters
+
+def get_adapter_kind(describe):
+    # TODO: if we get more than one adapter kind then we should considered it an error
+    return describe.get("key")
+
 
 def get_adapter_instance(describe):
     adapter_instance_kind = None
