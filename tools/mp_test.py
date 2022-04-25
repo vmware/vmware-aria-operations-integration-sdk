@@ -374,9 +374,9 @@ def get_request_body(project, connection):
 def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
     """ Ensures that each Object in the response has a matching  ResourceKind in the describe.xml
 
-    There can be multiple instances of the same resource in the response
+    There can be multiple instances of the same resource kind in the response
 
-    A resource can be present in in the describe sml, but not in the response, in which case we should make note
+    A resource can be present in in the describe xml, but not in the response, in which case we should make note
     of the resource either missing from collection, or not having the right key.
 
     If a Resource is present in the collection result, but not in the describe.xml, then we consider that an error
@@ -423,14 +423,15 @@ def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
 
         if num_matches == 1:
             # good stuff the resource kind was found in the describe.xml
-            print("GOOD STUFF")
+            print("GOOD STUFF (for demo only)")
         elif num_matches > 1:
-            # bad juju, we can return the nameKey of each element and tell the user about them being duplicates
-            print(f"BAD JUJU!: {num_matches}")
+            # bad juju means there are two or more ResourceKinds with the same key, we can return the nameKey of each
+            # element and tell the user about them being duplicates
+            print(f"ERROR: There was {num_matches} ResourceKinds with the key {object_kind_key}")
             print(*matches, sep="\n")
         else:
             # nothing found means that the object from the response is not present in the describe.xml
-            print(f"Nothing found for {adapter_kind_key}")
+            print(f"ERROR: No ResourceKind with key {adapter_kind_key} was foudn in the describe.xml")
 
 
 def validate_resource_identifiers(resource_kinds, response):
@@ -455,15 +456,55 @@ def validate_resource_identifiers(resource_kinds, response):
     # First we validate the individual requirements for the describe.xml
     for resource in resource_kinds:
         identifiers = get_identifiers(resource)
+        resource_key = resource.get("key")
 
+        duplicates = {}
+        print(f"Checking resource: {resource.get('key')}")
         for identifier in identifiers:
             name_key = identifier.get("nameKey")
             key = identifier.get("key")
             disp_order = identifier.get("dispOrder")
 
-            matches = list(filter(lambda i: i.get("key"), identifiers))
+            # TODO: improve logic
+            if name_key in duplicates:
+                duplicate = duplicates[f"{name_key}"]
 
-            #TODO: check for uniqueness in every key
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{name_key}"] = {
+                    "count": 1,
+                    "key": name_key
+                }
+
+            if key in duplicates:
+                duplicate = duplicates[f"{key}"]
+
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{key}"] = {
+                    "count": 1,
+                    "key": [key],
+                }
+
+            if disp_order in duplicates:
+                duplicate = duplicates[f"{disp_order}"]
+
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{disp_order}"] = {
+                    "count": 1,
+                    "key": key
+                }
+
+        for key, value in duplicates.items():
+            if value["count"] > 1:
+                print(f"duplicated attribute {value['key']} in {resource.get('key')}")
+
+        # Iterate thorough dictionary and check for duplicates
+        # if duplicate["count"] > 1:
+        #     print(f"There where {duplicate['count']} instances of attribute {duplicate['key']}")
+
+    # TODO: check for uniqueness in every key
 
     # Cross validate the JSON with teh describe.xml
     # for _object in response:
