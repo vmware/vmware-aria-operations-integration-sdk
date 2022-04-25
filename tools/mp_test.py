@@ -433,7 +433,7 @@ def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
             print(f"Nothing found for {adapter_kind_key}")
 
 
-def validate_resource_identifiers(resource_identifiers, response):
+def validate_resource_identifiers(resource_kinds, response):
     """
 
      An Identifier that isPartOfUniqueness, should be unique
@@ -445,11 +445,25 @@ def validate_resource_identifiers(resource_identifiers, response):
     ResourceIdentifiers have unique nameKey, dispOrder, and key
 
 
-    :param resource_identifiers:
+    :param resource_kinds:
     :param response:
     :return:
     """
+
+    # NOTE: If a ResourceKind has no identifier, should we report it?
+
     # First we validate the individual requirements for the describe.xml
+    for resource in resource_kinds:
+        identifiers = get_identifiers(resource)
+
+        for identifier in identifiers:
+            name_key = identifier.get("nameKey")
+            key = identifier.get("key")
+            disp_order = identifier.get("dispOrder")
+
+            matches = list(filter(lambda i: i.get("key"), identifiers))
+
+            #TODO: check for uniqueness in every key
 
     # Cross validate the JSON with teh describe.xml
     # for _object in response:
@@ -458,7 +472,6 @@ def validate_resource_identifiers(resource_identifiers, response):
     #     for identifier in identifiers:
     #
     #
-    pass
 
 
 def validate_describe(response, project):
@@ -508,8 +521,8 @@ def get_resource_kinds(describe):
     return describe.find(ns("ResourceKinds")).findall(ns("ResourceKind"))
 
 
-def get_identifiers(adapter_instance):
-    return adapter_instance.findall(ns("ResourceIdentifier"))
+def get_identifiers(resource_kind):
+    return resource_kind.findall(ns("ResourceIdentifier"))
 
 
 def get_credential_kinds(describe):
