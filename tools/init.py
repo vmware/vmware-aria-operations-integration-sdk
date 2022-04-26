@@ -89,7 +89,17 @@ def main():
             "type": "list",
             "name": "language",
             "message": "Select a language for the adapter. Supported languages are: ",
-            "choices": ["Python", "Java", "Powershell"],
+            "choices": [
+                "Python",
+                {
+                    "name": "Java",
+                    "disabled": "Unavailable for alpha release"
+                },
+                {
+                    "name": "Powershell",
+                    "disabled": "Unavailable for alpha release"
+                },
+            ],
             "filter": lambda l: l.lower()
         }
     ]
