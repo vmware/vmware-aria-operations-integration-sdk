@@ -1,8 +1,8 @@
 __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
-from object import Object, Key
-from pipe_utils import write_to_pipe
+from vrops.object import Object, Key
+from vrops.pipe_utils import write_to_pipe
 
 
 class ObjectKeyAlreadyExistsException(Exception):

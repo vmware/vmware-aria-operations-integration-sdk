@@ -6,8 +6,8 @@ __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 import copy
 from typing import Optional
 
-from attribute import Metric, Property
-from event import Event
+from vrops.attribute import Metric, Property
+from vrops.event import Event
 
 
 class Key:
