@@ -329,7 +329,7 @@ def get_identifiers(adapter_instance):
 def get_credential_kinds(describe):
     credential_kinds = describe.find(ns("CredentialKinds"))
     if credential_kinds is None:
-        return None
+        return []
     else:
         return credential_kinds.findall(ns("CredentialKind"))
 
