@@ -72,6 +72,16 @@ class Key:
     def __hash__(self) -> int:
         return hash(self.__key())
 
+    def get_identifier(self, key):
+        """ Return the value for the given identifier key
+
+        :param key: The identifier key
+        :return: The value associated with the identifier, or 'None' if the identifier key does not exist
+        """
+        if self.identifiers[key]:
+            return self.identifiers[key].value
+        return None
+
     def get_json(self) -> dict:
         """ Get a JSON representation of this Key
 
@@ -83,7 +93,7 @@ class Key:
             "name": self.name,
             "adapterKind": self.adapter_kind,
             "objectKind": self.object_kind,
-            "identifiers": list(self.identifiers.values()),
+            "identifiers": [identifier.get_json() for identifier in self.identifiers.values()],
         }
 
 

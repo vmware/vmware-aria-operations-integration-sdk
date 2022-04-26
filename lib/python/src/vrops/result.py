@@ -2,6 +2,7 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
 from object import Object, Key
+from pipe_utils import write_to_pipe
 
 
 class ObjectKeyAlreadyExistsException(Exception):
@@ -23,10 +24,9 @@ class Result:
         :param obj_list: an optional list of objects to send to vROps. Objects can be added later using add_object
         :param target_definition: an optional description of the returned objects, used for validation purposes
         """
-        if obj_list is None:
-            objects = []
         self.objects = {}
-        self.add_objects(obj_list)
+        if obj_list is list:
+            self.add_objects(obj_list)
         self._error_message = None
 
     def object(self, adapter_kind: str, object_kind: str, name: str, identifiers=None) -> Object:
@@ -109,9 +109,15 @@ class Result:
                     } for obj in self.objects.values()
                 ],
                 "nonExistingObjects": [],
-                "errorMessage": None,
             }
         else:
             return {
                 "errorMessage": self._error_message
             }
+
+    def send_results(self, output_pipe) -> None:
+        """Opens the output pipe and sends results directly back to the server
+
+        This method can only be called once per collection.
+        """
+        write_to_pipe(output_pipe, self.get_json())
