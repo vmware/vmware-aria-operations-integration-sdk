@@ -1,7 +1,10 @@
 import configparser
+import errno
+import functools
 import json
 import logging
 import os.path
+import signal
 import subprocess
 import tempfile
 
@@ -36,7 +39,7 @@ def collect(body=None):  # noqa: E501
     command = getcommand("collect")
     environment = create_env(body)
 
-    return runcommand(command, environment, 202)
+    return runcommand(command, body, environment, 202)
 
 
 def test(body=None):  # noqa: E501
@@ -60,7 +63,7 @@ def test(body=None):  # noqa: E501
     command = getcommand("test")
     environment = create_env(body)
 
-    return runcommand(command, environment, 202)
+    return runcommand(command, body, environment, 202)
 
 
 def version():  # noqa: E501
@@ -100,7 +103,7 @@ def get_endpoint_urls(body=None):  # noqa: E501
     command = getcommand("endpoint_urls")
     environment = create_env(body)
 
-    return runcommand(command, environment, 200)
+    return runcommand(command, body, environment, 200)
 
 
 def getcommand(commandtype):
@@ -135,27 +138,45 @@ def create_env(body: AdapterConfig):
     return env
 
 
-def runcommand(command, environment=None, good_response_code=200):
+def runcommand(command, body: AdapterConfig, environment=None, good_response_code=200):
     logger.debug(f"Running command {repr(command)}")
     dir = tempfile.mkdtemp()
-    pipe = os.path.join(dir, "output_pipe")
+    input_pipe = os.path.join(dir, "input_pipe")
+    output_pipe = os.path.join(dir, "output_pipe")
     try:
-        os.mkfifo(pipe)
-        # TODO: Server should have some timeout mechanism if the adapter hangs or takes too long
-        process = subprocess.Popen(command + [pipe], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        os.mkfifo(input_pipe)
+        os.mkfifo(output_pipe)
+        logger.debug("Finished making pipes")
+        process = subprocess.Popen(command + [input_pipe, output_pipe], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    universal_newlines=True, env=environment)
+        logger.debug(f"Started process {process.args}")
     except OSError as e:
-        logger.debug(f"Failed to create pipe {pipe}: {e}")
+        logger.debug(f"Failed to create pipe {input_pipe} or {output_pipe}: {e}")
         return "Error initializing adapter communication", 500
     else:
-        logger.debug(f"Process created using pipe {pipe}")
         try:
-            with open(pipe, "r") as fifo:
+            with open(input_pipe, "w") as fifo:
+                logger.debug("Opened input pipe")
+                logger.debug(f"{json.dumps(body.to_dict(), indent=3)}")
+                json.dump(body.to_dict(), fifo)
+        except Exception as e:
+            logger.warning(f"Unknown server error when writing adapter instance: {e}")
+            return f"Unknown server error", 500
+
+        logger.debug("Wrote message body to input pipe")
+
+        try:
+            with open(output_pipe, "r") as fifo:
+                logger.debug(f"Opened {fifo}")
                 return json.load(fifo), good_response_code
         except Exception as e:
-            logger.warning(f"Unknown server error: {e}")
-            process.kill()
+            logger.warning(f"Unknown server error when reading results: {e}")
             return f"Unknown server error", 500
     finally:
-        os.unlink(pipe)
+        out, err = process.communicate()
+        logger.warning(out)
+        logger.warning(err)
+        process.kill()
+        os.unlink(input_pipe)
+        os.unlink(output_pipe)
         os.rmdir(dir)
