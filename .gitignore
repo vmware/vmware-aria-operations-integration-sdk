@@ -69,3 +69,6 @@ http-server/.ipynb_checkpoints
 
 # local config file
 config.json
+
+# default virtual environment location
+vrops_mp_sdk_venv
