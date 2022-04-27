@@ -21,6 +21,7 @@ http-server/parts/
 http-server/sdist/
 http-server/var/
 http-server/.installed.cfg
+lib/python/dist
 *.egg-info/
 *.egg
 
