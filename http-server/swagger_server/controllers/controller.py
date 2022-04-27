@@ -1,12 +1,10 @@
 import configparser
-import errno
-import functools
 import json
 import logging
 import os.path
-import signal
 import subprocess
 import tempfile
+import threading
 
 import connexion
 
@@ -141,8 +139,19 @@ def create_env(body: AdapterConfig):
 def runcommand(command, body: AdapterConfig, environment=None, good_response_code=200):
     logger.debug(f"Running command {repr(command)}")
     dir = tempfile.mkdtemp()
+    # These are named from the perspective of the subprocess. We write the subprocess input to the input pipe
+    # and read the subprocess output from the output pipe.
     input_pipe = os.path.join(dir, "input_pipe")
     output_pipe = os.path.join(dir, "output_pipe")
+
+    # 'result' holds the adapter result and/or response code that the server should return
+    result = [None]
+
+    # Pipe operations are blocking; to prevent deadlocks if the adapter fails to read or write either or both of the
+    # pipes, the read/write operations are run in separate threads
+    writer_thread = threading.Thread(target=write_adapter_instance, args=(body, input_pipe))
+    reader_thread = threading.Thread(target=read_results, args=(output_pipe, result, good_response_code))
+
     try:
         os.mkfifo(input_pipe)
         os.mkfifo(output_pipe)
@@ -154,29 +163,66 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
         logger.debug(f"Failed to create pipe {input_pipe} or {output_pipe}: {e}")
         return "Error initializing adapter communication", 500
     else:
-        try:
-            with open(input_pipe, "w") as fifo:
-                logger.debug("Opened input pipe")
-                logger.debug(f"{json.dumps(body.to_dict(), indent=3)}")
-                json.dump(body.to_dict(), fifo)
-        except Exception as e:
-            logger.warning(f"Unknown server error when writing adapter instance: {e}")
-            return f"Unknown server error", 500
+        # Subprocess has successfully started, so start writer and reader threads.
+        writer_thread.start()
+        reader_thread.start()
 
-        logger.debug("Wrote message body to input pipe")
-
-        try:
-            with open(output_pipe, "r") as fifo:
-                logger.debug(f"Opened {fifo}")
-                return json.load(fifo), good_response_code
-        except Exception as e:
-            logger.warning(f"Unknown server error when reading results: {e}")
-            return f"Unknown server error", 500
-    finally:
+        # Wait until the subprocess has exited, and log stdout and stderr (if any)
         out, err = process.communicate()
-        logger.warning(out)
-        logger.warning(err)
-        process.kill()
+        logger.debug(out)
+        if len(err.strip()) > 0:
+            logger.warning(err)
+
+        # process.communicate() will wait until the subprocess has exited. If the subprocess has exited and
+        # writer_thread is still alive, then the input was not read. In that case we want the writer_thread to
+        # complete, and the easiest way to do that is to read the pipe. It's not required for the adapter info
+        # to be read, so this is not (necessarily) an error.
+        if writer_thread.is_alive():
+            logger.info("Subprocess exited before reading input.")
+            with open(input_pipe, "r") as fifo:
+                fifo.read()
+            writer_thread.join()
+
+        # If the subprocess has exited and reader_thread is still alive, then the adapter didn't write any results.
+        # In this case we want the reader_thread to complete but return an error to the user.
+        if reader_thread.is_alive():
+            logger.error("Subprocess exited before writing result")
+            with open(output_pipe, "w") as fifo:
+                fifo.write("")
+            reader_thread.join()
+            return "No result from adapter", 500
+
+        return result[0]
+    finally:
         os.unlink(input_pipe)
         os.unlink(output_pipe)
         os.rmdir(dir)
+
+
+def write_adapter_instance(body, input_pipe):
+    try:
+        body_dict = body.to_dict()
+
+        with open(input_pipe, "w") as fifo:
+            logger.debug("Opened input pipe for writing")
+            json.dump(body_dict, fifo)
+
+        logger.debug(f"Wrote adapter instance to input pipe {input_pipe}:")
+
+        # Don't log sensitive information!
+        body_dict["credential_config"] = "REDACTED"
+        body_dict["internal_rest_credential"] = "REDACTED"
+        logger.debug(f"{json.dumps(body_dict, indent=3)}")
+
+    except Exception as e:
+        logger.warning(f"Unknown server error when writing adapter instance to input pipe {input_pipe}: {e}")
+
+
+def read_results(output_pipe, result, good_response_code):
+    try:
+        with open(output_pipe, "r") as fifo:
+            logger.debug(f"Opened output pipe {fifo} for reading")
+            result[0] = json.load(fifo), good_response_code
+    except Exception as e:
+        logger.warning(f"Unknown server error when reading results: {e}")
+        result[0] = "Unknown server error", 500
