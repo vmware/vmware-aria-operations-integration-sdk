@@ -25,7 +25,7 @@ class Result:
         :param target_definition: an optional description of the returned objects, used for validation purposes
         """
         self.objects = {}
-        if obj_list is list:
+        if type(obj_list) is list:
             self.add_objects(obj_list)
         self._error_message = None
 
