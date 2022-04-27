@@ -244,7 +244,10 @@ def mkdir(basepath, *paths):
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
     with open(os.path.join(root_directory, "Dockerfile"), "w") as dockerfile:
-        dockerfile.write(f"FROM vrops-adapter-open-sdk-server:{language}-latest\n")
+        # NOTE: This host is only accessible internally, for future releases we have to provide a public host
+        dockerfile.write(f"# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
+        dockerfile.write(f"# Go to the vrops-python-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
+        dockerfile.write(f"FROM harbor-repo.vmware.com/tvs/vrops-adapter-open-sdk-server:{language}-latest\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
