@@ -104,8 +104,6 @@ def main(argv):
 
     command, infile, outfile = argv
 
-    # IMPORTANT: it is required to read the adapter instance, otherwise the server will hang waiting for the
-    # AdapterInstance's named pipe to be read
     adapter_instance = AdapterInstance.from_input(infile)
 
     if command == "collect":
