@@ -10,7 +10,7 @@ from vrops.attribute import Property, Metric
 from vrops.pipe_utils import write_to_pipe
 from vrops.result import Result
 
-logger = logging.getLogger("adapter")
+logger = logging.getLogger(__name__)
 
 
 def test(adapter_instance: AdapterInstance):
