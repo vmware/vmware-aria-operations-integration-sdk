@@ -29,7 +29,7 @@ def main():
 
     docker_client = docker.from_env()
     repo = get_config_value("docker_repo", "tvs")
-    registry_url = login(docker_client)
+    registry_url = login()
 
     tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
     registry_tag = f"{registry_url}/{repo}/{tag}"
