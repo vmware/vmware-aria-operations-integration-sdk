@@ -8,6 +8,7 @@ import threading
 
 import connexion
 
+from swagger_server.models import ApiVersion
 from swagger_server.models.adapter_config import AdapterConfig  # noqa: E501
 from swagger_server.models.collect_result import CollectResult  # noqa: E501
 from swagger_server.models.test_result import TestResult  # noqa: E501
@@ -37,7 +38,7 @@ def collect(body=None):  # noqa: E501
     command = getcommand("collect")
     environment = create_env(body)
 
-    return runcommand(command, body, environment, 202)
+    return runcommand(command, body, environment, 200)
 
 
 def test(body=None):  # noqa: E501
@@ -61,10 +62,10 @@ def test(body=None):  # noqa: E501
     command = getcommand("test")
     environment = create_env(body)
 
-    return runcommand(command, body, environment, 202)
+    return runcommand(command, body, environment, 200)
 
 
-def version():  # noqa: E501
+def api_version():  # noqa: E501
     """Adapter Version
 
     Get Adapter Version # noqa: E501
@@ -72,12 +73,13 @@ def version():  # noqa: E501
 
     :rtype: str
     """
-    logger.info("Request: version")
-
-    config = configparser.ConfigParser()
-    config.read("commands.cfg")
-    return config["Version"]["major"] + "." + config["Version"]["minor"]
-
+    logger.info("Request: apiVersion")
+    # This should match the version in swagger_server/swagger/swagger.yaml#/info/version
+    return ApiVersion(
+        major=1,
+        minor=0,
+        maintenance=0
+    )
 
 def get_endpoint_urls(body=None):  # noqa: E501
     """Retrieve endpoint URLs
@@ -89,7 +91,7 @@ def get_endpoint_urls(body=None):  # noqa: E501
 
     :rtype: List[str]
     """
-    logger.info("Request: get_endpoint_urls")
+    logger.info("Request: endpointURLs")
 
     if connexion.request.is_json:
         body = AdapterConfig.from_dict(connexion.request.get_json())  # noqa: E501
@@ -118,13 +120,6 @@ def create_env(body: AdapterConfig):
     env = dict()
     env["ADAPTER_KIND"] = body.adapter_key.adapter_kind
     env["ADAPTER_INSTANCE_OBJECT_KIND"] = body.adapter_key.object_kind
-
-    if body.internal_rest_credential is not None:
-        env["SUITE_API_USER"] = body.internal_rest_credential.user_name
-        env["SUITE_API_PASSWORD"] = body.internal_rest_credential.password
-    else:
-        env["SUITE_API_USER"] = ""
-        env["SUITE_API_PASSWORD"] = ""
 
     for identifier in body.adapter_key.identifiers:
         env[identifier.key.upper()] = identifier.value
@@ -211,7 +206,7 @@ def write_adapter_instance(body, input_pipe):
 
         # Don't log sensitive information!
         body_dict["credential_config"] = "REDACTED"
-        body_dict["internal_rest_credential"] = "REDACTED"
+        body_dict["cluster_connection_info"] = "REDACTED"
         logger.debug(f"{json.dumps(body_dict, indent=3)}")
 
     except Exception as e:

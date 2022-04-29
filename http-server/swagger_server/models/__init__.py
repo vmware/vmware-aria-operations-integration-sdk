@@ -4,14 +4,16 @@
 from __future__ import absolute_import
 # import models into model package
 from swagger_server.models.adapter_config import AdapterConfig
+from swagger_server.models.api_version import ApiVersion
 from swagger_server.models.certificate import Certificate
 from swagger_server.models.certificate_config import CertificateConfig
+from swagger_server.models.cluster_connection_info import ClusterConnectionInfo
 from swagger_server.models.collect_result import CollectResult
 from swagger_server.models.credential_config import CredentialConfig
 from swagger_server.models.credential_field import CredentialField
+from swagger_server.models.endpoint_results import EndpointResults
 from swagger_server.models.event import Event
 from swagger_server.models.identifier import Identifier
-from swagger_server.models.internal_rest_credential import InternalRestCredential
 from swagger_server.models.metric_data import MetricData
 from swagger_server.models.object_data import ObjectData
 from swagger_server.models.object_key import ObjectKey
