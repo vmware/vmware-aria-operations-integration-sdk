@@ -84,7 +84,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 def main():
     client = docker.from_env()
-    registry_url = login()
+    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com")
     repo = get_config_value("docker_repo", "tvs")
 
     base_image, secondary_images = get_latest_vrops_container_versions()
