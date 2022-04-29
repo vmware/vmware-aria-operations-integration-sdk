@@ -84,7 +84,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 def main():
     client = docker.from_env()
-    registry_url = login(client)
+    registry_url = login()
     repo = get_config_value("docker_repo", "tvs")
 
     base_image, secondary_images = get_latest_vrops_container_versions()
@@ -110,7 +110,7 @@ def main():
     }, style=style.vrops_sdk_prompt_style)["push_to_registry"]
 
     if push_to_registry:
-        registry_url = login(client)
+        registry_url = login()
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
