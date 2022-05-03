@@ -7,8 +7,8 @@ from typing import List, Dict  # noqa: F401
 
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.certificate_config import CertificateConfig  # noqa: F401,E501
+from swagger_server.models.cluster_connection_info import ClusterConnectionInfo  # noqa: F401,E501
 from swagger_server.models.credential_config import CredentialConfig  # noqa: F401,E501
-from swagger_server.models.internal_rest_credential import InternalRestCredential  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
 from swagger_server import util
 
@@ -18,34 +18,34 @@ class AdapterConfig(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, adapter_key: ObjectKey=None, credential_config: CredentialConfig=None, internal_rest_credential: InternalRestCredential=None, certificate_config: CertificateConfig=None):  # noqa: E501
+    def __init__(self, adapter_key: ObjectKey=None, credential_config: CredentialConfig=None, cluster_connection_info: ClusterConnectionInfo=None, certificate_config: CertificateConfig=None):  # noqa: E501
         """AdapterConfig - a model defined in Swagger
 
         :param adapter_key: The adapter_key of this AdapterConfig.  # noqa: E501
         :type adapter_key: ObjectKey
         :param credential_config: The credential_config of this AdapterConfig.  # noqa: E501
         :type credential_config: CredentialConfig
-        :param internal_rest_credential: The internal_rest_credential of this AdapterConfig.  # noqa: E501
-        :type internal_rest_credential: InternalRestCredential
+        :param cluster_connection_info: The cluster_connection_info of this AdapterConfig.  # noqa: E501
+        :type cluster_connection_info: ClusterConnectionInfo
         :param certificate_config: The certificate_config of this AdapterConfig.  # noqa: E501
         :type certificate_config: CertificateConfig
         """
         self.swagger_types = {
             'adapter_key': ObjectKey,
             'credential_config': CredentialConfig,
-            'internal_rest_credential': InternalRestCredential,
+            'cluster_connection_info': ClusterConnectionInfo,
             'certificate_config': CertificateConfig
         }
 
         self.attribute_map = {
             'adapter_key': 'adapterKey',
             'credential_config': 'credentialConfig',
-            'internal_rest_credential': 'internalRestCredential',
+            'cluster_connection_info': 'clusterConnectionInfo',
             'certificate_config': 'certificateConfig'
         }
         self._adapter_key = adapter_key
         self._credential_config = credential_config
-        self._internal_rest_credential = internal_rest_credential
+        self._cluster_connection_info = cluster_connection_info
         self._certificate_config = certificate_config
 
     @classmethod
@@ -104,25 +104,25 @@ class AdapterConfig(Model):
         self._credential_config = credential_config
 
     @property
-    def internal_rest_credential(self) -> InternalRestCredential:
-        """Gets the internal_rest_credential of this AdapterConfig.
+    def cluster_connection_info(self) -> ClusterConnectionInfo:
+        """Gets the cluster_connection_info of this AdapterConfig.
 
 
-        :return: The internal_rest_credential of this AdapterConfig.
-        :rtype: InternalRestCredential
+        :return: The cluster_connection_info of this AdapterConfig.
+        :rtype: ClusterConnectionInfo
         """
-        return self._internal_rest_credential
+        return self._cluster_connection_info
 
-    @internal_rest_credential.setter
-    def internal_rest_credential(self, internal_rest_credential: InternalRestCredential):
-        """Sets the internal_rest_credential of this AdapterConfig.
+    @cluster_connection_info.setter
+    def cluster_connection_info(self, cluster_connection_info: ClusterConnectionInfo):
+        """Sets the cluster_connection_info of this AdapterConfig.
 
 
-        :param internal_rest_credential: The internal_rest_credential of this AdapterConfig.
-        :type internal_rest_credential: InternalRestCredential
+        :param cluster_connection_info: The cluster_connection_info of this AdapterConfig.
+        :type cluster_connection_info: ClusterConnectionInfo
         """
 
-        self._internal_rest_credential = internal_rest_credential
+        self._cluster_connection_info = cluster_connection_info
 
     @property
     def certificate_config(self) -> CertificateConfig:

@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Adapter API",
-    "version": "1.0",
+    "version": "1.0.0",
     "contact": {},
     "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development."
   },
@@ -12,35 +12,33 @@
     }
   ],
   "paths": {
-    "/version": {
+    "/apiVersion": {
       "get": {
-        "summary": "Adapter Version",
-        "tags": [],
+        "summary": "API Version",
         "responses": {
-          "202": {
-            "description": "Accepted",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "Version 1.0"
-                },
-                "examples": {}
+                  "$ref": "#/components/schemas/ApiVersion"
+                }
               }
             }
           }
         },
-        "operationId": "version",
-        "description": "Get Adapter Version"
-      }
+        "operationId": "apiVersion",
+        "description": "Get API Version"
+      },
+      "parameters": []
     },
     "/test": {
       "post": {
         "summary": "Connection Test",
         "operationId": "test",
         "responses": {
-          "202": {
-            "description": "Accepted",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -62,8 +60,7 @@
               }
             }
           }
-        },
-        "tags": []
+        }
       }
     },
     "/collect": {
@@ -71,8 +68,8 @@
         "summary": "Data Collection",
         "operationId": "collect",
         "responses": {
-          "202": {
-            "description": "Accepted",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -93,31 +90,26 @@
           "description": ""
         },
         "parameters": [],
-        "description": "Do data collection",
-        "tags": []
+        "description": "Do data collection"
       }
     },
     "/endpointURLs": {
       "post": {
         "summary": "Retrieve endpoint URLs",
-        "tags": [],
         "responses": {
           "200": {
-            "description": "Accepted",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
+                  "$ref": "#/components/schemas/EndpointResults"
                 }
               }
             }
           }
         },
         "operationId": "get-endpointUrls",
-        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the vRealize Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manully.",
+        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the vRealize Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -231,7 +223,7 @@
         "properties": {
           "key": {
             "type": "string",
-            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
+            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
           },
           "numberValue": {
             "type": "number",
@@ -256,7 +248,7 @@
         "properties": {
           "key": {
             "type": "string",
-            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
+            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
           },
           "stringValue": {
             "type": "string",
@@ -323,6 +315,16 @@
             "items": {
               "$ref": "#/components/schemas/ObjectKey"
             }
+          },
+          "add": {
+            "type": "boolean",
+            "description": "If the value is true, then this relationship will be added to vRealize Operations Manager, if false, this relationship will be removed from vRealize Operations Manager.",
+            "default": true
+          },
+          "clearFirst": {
+            "type": "boolean",
+            "description": "If the value is true all children will be removed from the parent before adding this list.",
+            "default": true
           }
         },
         "required": [
@@ -352,8 +354,8 @@
           "credentialConfig": {
             "$ref": "#/components/schemas/CredentialConfig"
           },
-          "internalRestCredential": {
-            "$ref": "#/components/schemas/InternalRestCredential"
+          "clusterConnectionInfo": {
+            "$ref": "#/components/schemas/ClusterConnectionInfo"
           },
           "certificateConfig": {
             "$ref": "#/components/schemas/CertificateConfig"
@@ -399,7 +401,8 @@
           },
           "value": {
             "type": "string",
-            "description": "Value of the credential field. This field is populated  on adapter instance creation."
+            "description": "Value of the credential field. This field is populated  on adapter instance creation.",
+            "format": "password"
           },
           "isPassword": {
             "type": "boolean",
@@ -411,10 +414,10 @@
           "key"
         ]
       },
-      "InternalRestCredential": {
+      "ClusterConnectionInfo": {
         "type": "object",
-        "title": "InternalRestCredential",
-        "description": "Represents the credential object to be used by adapter to communicate with vR Ops.",
+        "title": "ClusterConnectionInfo",
+        "description": "Represents the connection info to be used by adapter to communicate with vROps Suite API.",
         "properties": {
           "userName": {
             "type": "string",
@@ -423,11 +426,17 @@
           },
           "password": {
             "type": "string",
-            "description": "Represents the password in the credential."
+            "description": "Represents the password in the credential.",
+            "format": "password"
+          },
+          "hostName": {
+            "type": "string",
+            "description": "Host name for connection to vROps Cluster"
           }
         },
         "required": [
-          "userName"
+          "userName",
+          "hostName"
         ]
       },
       "Certificate": {
@@ -513,6 +522,54 @@
         "required": [
           "message"
         ]
+      },
+      "ApiVersion": {
+        "title": "ApiVersion",
+        "type": "object",
+        "description": "API Version",
+        "properties": {
+          "major": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "exclusiveMinimum": false,
+            "readOnly": true
+          },
+          "minor": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "readOnly": true
+          },
+          "maintenance": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "readOnly": true
+          }
+        },
+        "required": [
+          "major",
+          "minor",
+          "maintenance"
+        ]
+      },
+      "EndpointResults": {
+        "title": "EndpointResults",
+        "type": "object",
+        "description": "Endpoint URLs collection",
+        "properties": {
+          "endpointUrls": {
+            "type": "array",
+            "description": "Collection of endpoint URLs",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       }
     },
     "links": {},

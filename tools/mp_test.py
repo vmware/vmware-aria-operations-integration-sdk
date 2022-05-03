@@ -50,7 +50,7 @@ def run(arguments):
         while not started:
             try:
                 version = requests.get(
-                    f"http://localhost:{DEFAULT_PORT}/version",
+                    f"http://localhost:{DEFAULT_PORT}/apiVersion",
                     headers={"Accept": "application/json"})
                 started = True
                 print(f"HTTP Server started with adapter version {version.text.strip()}.")
@@ -121,7 +121,7 @@ def post_endpoint_urls(project, connection):
 
 def get_version(project, connection):
     response = requests.get(
-        f"http://localhost:{DEFAULT_PORT}/version",
+        f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"})
     print(f"Adapter version: {response.text}")
 
@@ -370,9 +370,10 @@ def get_request_body(project, connection):
             "objectKind": adapter_instance.get("key"),
             "identifiers": identifiers,
         },
-        "internalRestCredential": {
+        "clusterConnectionInfo": {
             "userName": "string",
-            "password": "string"
+            "password": "string",
+            "hostName": "string"
         },
         "certificateConfig": {
             "certificates": []

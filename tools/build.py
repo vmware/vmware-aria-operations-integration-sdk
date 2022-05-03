@@ -43,7 +43,13 @@ def main():
 
     with open(adapter_dir + ".conf", "w") as docker_conf:
         docker_conf.write(f"KINDKEY={manifest['name']}\n")
-        docker_conf.write(f"ImageTag={registry_tag}\n")
+        # TODO: Need a way to determine this
+        docker_conf.write(f"API_VERSION=1.0.0\n")
+        # docker_conf.write(f"ImageTag={registry_tag}\n")
+        docker_conf.write(f"REGISTRY={registry_url}\n")
+        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
+        docker_conf.write(f"REPOSITORY={repo}\n")
+        docker_conf.write(f"DIGEST={adapter.id}\n")
 
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
         zip_file(adapter, docker_conf.name)

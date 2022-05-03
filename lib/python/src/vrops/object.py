@@ -78,7 +78,7 @@ class Key:
         :param key: The identifier key
         :return: The value associated with the identifier, or 'None' if the identifier key does not exist
         """
-        if self.identifiers[key]:
+        if self.identifiers.get(key):
             return self.identifiers[key].value
         return None
 
@@ -184,11 +184,19 @@ class Object:
     def get_key(self):
         """ Get a copy of the Object's Key.
 
-        An object's Key cannot chance after it has been created.
+        An object's Key cannot change after it has been created.
 
         :return: A copy of the object's key
         """
         return copy.deepcopy(self._key)
+
+    def get_identifier_value(self, identifier_key):
+        """ Retrieve the value of a given identifier
+
+        :param identifier_key: Key of the identifier
+        :return: value associated with the identifier, or None if identifier does not exist
+        """
+        return self._key.get_identifier(identifier_key)
 
     def add_metric(self, metric: Metric) -> None:
         """ Method that adds a single Metric data point to this Object

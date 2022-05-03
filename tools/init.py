@@ -5,9 +5,10 @@ from shutil import copy
 from PIL import Image, UnidentifiedImageError
 from PyInquirer import prompt
 
+import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
-import common.constant as constant
+from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
@@ -243,11 +244,22 @@ def mkdir(basepath, *paths):
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
+    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
+    print(version_file_path)
+    images = [get_config_value("base_image", config_file=version_file_path)] + \
+        get_config_value("secondary_images", config_file=version_file_path)
+    version = next(iter(filter(
+        lambda image: image["language"].lower() == language,
+        images
+    )))["version"]
+
     with open(os.path.join(root_directory, "Dockerfile"), "w") as dockerfile:
         # NOTE: This host is only accessible internally, for future releases we have to provide a public host
-        dockerfile.write(f"# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
-        dockerfile.write(f"# Go to the vrops-python-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
-        dockerfile.write(f"FROM harbor-repo.vmware.com/tvs/vrops-adapter-open-sdk-server:{language}-latest\n")
+        dockerfile.write(
+            "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
+        dockerfile.write(
+            "# Go to the vrops-python-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
+        dockerfile.write(f"FROM harbor-repo.vmware.com/tvs/vrops-adapter-open-sdk-server:{language}-{version}\n")
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
@@ -275,9 +287,6 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
         commands.write(f"test={command_and_executable} test\n")
         commands.write(f"collect={command_and_executable} collect\n")
         commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
-        commands.write("[Version]\n")
-        commands.write("major:1\n")
-        commands.write("minor:0\n")
 
 
 def build_project_structure(path: str, adapter_kind: str, language: str):
@@ -294,7 +303,7 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
             # Remove the extra-index-url once the vrops-integration library is in the main pypi repository
             requirements.write("--extra-index-url https://testpypi.python.org/pypi\n")
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vrops-integration==0.0.8\n")
+            requirements.write("vrops-integration==0.0.12\n")
 
         # get the path to templates.py
         src = get_absolute_project_directory("tools", "templates", "adapter.py")
