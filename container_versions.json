@@ -2,18 +2,18 @@
     "base_image": {
         "language": "Python",
         "path": "http-server",
-        "version": "0.5.0"
+        "version": "0.6.2"
     },
     "secondary_images": [
         {
             "language": "Java",
             "path": "java-client",
-            "version": "0.3.2"
+            "version": "0.4.0"
         },
         {
             "language": "Powershell",
             "path": "powershell-client",
-            "version": "0.3.2"
+            "version": "0.4.0"
         }
     ]
 }

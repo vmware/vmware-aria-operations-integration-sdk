@@ -11,8 +11,94 @@ class ObjectKeyAlreadyExistsException(Exception):
     pass
 
 
-class Result:
-    """Class for managing a collection of vROps Objects
+class TestResult:
+    """ Class for managing the results of an adapter instance connection test
+    """
+
+    def __init__(self):
+        """Initializes a Result
+        """
+        self._error_message = None
+
+    def with_error(self, error_message: str):
+        """ Set the adapter instance connection test to failed, and display the given error message.
+
+        If this method is called multiple times, only the most recent error message will be recorded.
+        If error_message is set, the test is considered failed.
+
+        :param error_message: A string containing the error message
+        :return: None
+        """
+        self._error_message = error_message
+
+    def get_json(self) -> dict:
+        """Get a JSON representation of this TestResult
+
+        Returns a JSON representation of this TestResult in the format required by vROps, indicating either a successful
+        test, or a failed test with error message.
+
+        :return: A JSON representation of this TestResult
+        """
+        if self._error_message is None:
+            return {}
+        else:
+            return {
+                "errorMessage": self._error_message
+            }
+
+    def send_results(self, output_pipe) -> None:
+        """Opens the output pipe and sends results directly back to the server
+
+        This method can only be called once per collection.
+        """
+        write_to_pipe(output_pipe, self.get_json())
+
+
+class EndpointResult:
+    """ Class for managing the results of an adapter instance get endpoint URLs call
+
+    The result of this should be a set of urls that the adapter will connect to. vROps will then attempt
+    to connect to each of these urls securely, and prompt the user to accept or reject the certificate
+    presented by each URL.
+
+    """
+
+    def __init__(self):
+        """Initializes an EndpointResult
+        """
+        self.endpoints = []
+
+    def with_endpoint(self, endpoint_url: str):
+        """ Adds an endpoint to the list of endpoints vROps will test for certificate validation
+
+        If this method is called multiple times, each url will be called by vROps
+
+        :param endpoint_url: A string containing the url
+        :return: None
+        """
+        self.endpoints.append(endpoint_url)
+
+    def get_json(self) -> dict:
+        """Get a JSON representation of this EndpointResult
+
+        Returns a JSON representation of this EndpointResult in the format required by vROps
+
+        :return: A JSON representation of this EndpointResult
+        """
+        return {
+            "endpointUrls": self.endpoints
+        }
+
+    def send_results(self, output_pipe) -> None:
+        """Opens the output pipe and sends results directly back to the server
+
+        This method can only be called once per collection.
+        """
+        write_to_pipe(output_pipe, self.get_json())
+
+
+class CollectResult:
+    """ Class for managing a collection of vROps Objects
     """
 
     def __init__(self, obj_list=None, target_definition=None):

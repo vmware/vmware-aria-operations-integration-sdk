@@ -4,30 +4,25 @@ info:
   description: The API contract is defined using a standard OpenAPI specification
     to simplify adapter development.
   contact: {}
-  version: "1.0"
+  version: 1.0.0
 servers:
 - url: http://localhost:8080
 paths:
-  /version:
+  /apiVersion:
     get:
-      tags: []
-      summary: Adapter Version
-      description: Get Adapter Version
-      operationId: version
+      summary: API Version
+      description: Get API Version
+      operationId: api_version
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                type: string
-                example: Version 1.0
-                x-content-type: application/json
-              examples: {}
+                $ref: '#/components/schemas/ApiVersion'
       x-openapi-router-controller: swagger_server.controllers.controller
   /test:
     post:
-      tags: []
       summary: Connection Test
       description: Trigger a connection test
       operationId: test
@@ -37,8 +32,8 @@ paths:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           content:
             application/json:
               schema:
@@ -48,7 +43,6 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.controller
   /collect:
     post:
-      tags: []
       summary: Data Collection
       description: Do data collection
       operationId: collect
@@ -60,8 +54,8 @@ paths:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           content:
             application/json:
               schema:
@@ -69,13 +63,12 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.controller
   /endpointURLs:
     post:
-      tags: []
       summary: Retrieve endpoint URLs
       description: This should return a list of properly formed endpoint URL(s) (https://ip
         address) this adapter instance is expected to communicate with. List of URLs
         will be used for taking advantage of the vRealize Operations Manager certificate
         trust system. If the list is empty this means adapter will handle certificates
-        manully.
+        manually.
       operationId: get_endpoint_urls
       requestBody:
         content:
@@ -84,14 +77,11 @@ paths:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
         "200":
-          description: Accepted
+          description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
-                x-content-type: application/json
+                $ref: '#/components/schemas/EndpointResults'
       x-openapi-router-controller: swagger_server.controllers.controller
 components:
   schemas:
@@ -259,7 +249,7 @@ components:
           type: string
           description: "Key represents a hierarchical structure for an individual\n\
             metric. The formation of the metric key is an important part of designing\
-            \ a\ndata feed. Well formed metric keys will lead to better usability,\
+            \ a\ndata feed. Well-formed metric keys will lead to better usability,\
             \ performance\nand visualization of analytics results, such as root cause\
             \ analysis.\n\nThe base concepts are as follows:<br>\nA metric key can\
             \ consist of any number of hierarchical groups. Each hierarchical group\
@@ -292,7 +282,7 @@ components:
           type: string
           description: "Key represents a hierarchical structure for an individual\n\
             metric. The formation of the metric key is an important part of designing\
-            \ a\ndata feed. Well formed metric keys will lead to better usability,\
+            \ a\ndata feed. Well-formed metric keys will lead to better usability,\
             \ performance\nand visualization of analytics results, such as root cause\
             \ analysis.\n\nThe base concepts are as follows:<br>\nA metric key can\
             \ consist of any number of hierarchical groups. Each hierarchical group\
@@ -438,14 +428,18 @@ components:
             faultKey: faultKey
             startDate: 2
         relationships:
-        - parent: null
+        - add: true
+          parent: null
           children:
           - null
           - null
-        - parent: null
+          clearFirst: true
+        - add: true
+          parent: null
           children:
           - null
           - null
+          clearFirst: true
         notExistingObjects:
         - null
         - null
@@ -463,12 +457,25 @@ components:
           description: Collection of children for the current parent.
           items:
             $ref: '#/components/schemas/ObjectKey'
+        add:
+          type: boolean
+          description: "If the value is true, then this relationship will be added\
+            \ to vRealize Operations Manager, if false, this relationship will be\
+            \ removed from vRealize Operations Manager."
+          default: true
+        clearFirst:
+          type: boolean
+          description: If the value is true all children will be removed from the
+            parent before adding this list.
+          default: true
       description: Represents a single parent to many children relationship.
       example:
+        add: true
         parent: null
         children:
         - null
         - null
+        clearFirst: true
     TestResult:
       title: TestResult
       type: object
@@ -491,8 +498,8 @@ components:
           $ref: '#/components/schemas/ObjectKey'
         credentialConfig:
           $ref: '#/components/schemas/CredentialConfig'
-        internalRestCredential:
-          $ref: '#/components/schemas/InternalRestCredential'
+        clusterConnectionInfo:
+          $ref: '#/components/schemas/ClusterConnectionInfo'
         certificateConfig:
           $ref: '#/components/schemas/CertificateConfig'
       description: "Is designed for transferring adapter instance configuration from\
@@ -536,6 +543,7 @@ components:
           type: string
           description: Value of the credential field. This field is populated  on
             adapter instance creation.
+          format: password
         isPassword:
           type: boolean
           description: Flag to indicate whether this is a password field.
@@ -543,9 +551,10 @@ components:
       description: |-
         Represents adapter's credential configuration field.
         This class contains all information about the credential's field entered when the adapter instance is created.
-    InternalRestCredential:
-      title: InternalRestCredential
+    ClusterConnectionInfo:
+      title: ClusterConnectionInfo
       required:
+      - hostName
       - userName
       type: object
       properties:
@@ -556,8 +565,12 @@ components:
         password:
           type: string
           description: Represents the password in the credential.
-      description: Represents the credential object to be used by adapter to communicate
-        with vR Ops.
+          format: password
+        hostName:
+          type: string
+          description: Host name for connection to vROps Cluster
+      description: Represents the connection info to be used by adapter to communicate
+        with vROps Suite API.
     Certificate:
       title: Certificate
       required:
@@ -637,6 +650,52 @@ components:
         autoCancel: false
         faultKey: faultKey
         startDate: 2
+    ApiVersion:
+      title: ApiVersion
+      required:
+      - maintenance
+      - major
+      - minor
+      type: object
+      properties:
+        major:
+          maximum: 1
+          minimum: 1
+          exclusiveMinimum: false
+          type: integer
+          readOnly: true
+          default: 1
+        minor:
+          maximum: 0
+          minimum: 0
+          type: integer
+          readOnly: true
+          default: 0
+        maintenance:
+          maximum: 0
+          minimum: 0
+          type: integer
+          readOnly: true
+          default: 0
+      description: API Version
+      example:
+        major: 1
+        minor: 0
+        maintenance: 0
+    EndpointResults:
+      title: EndpointResults
+      type: object
+      properties:
+        endpointUrls:
+          type: array
+          description: Collection of endpoint URLs
+          items:
+            type: string
+      description: Endpoint URLs collection
+      example:
+        endpointUrls:
+        - endpointUrls
+        - endpointUrls
   securitySchemes: {}
   links: {}
   callbacks: {}

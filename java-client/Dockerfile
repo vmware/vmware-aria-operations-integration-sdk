@@ -1,4 +1,4 @@
-FROM vrops-adapter-open-sdk-server:python-0.5.0
+FROM vrops-adapter-open-sdk-server:python-0.6.2
 
 # manual java install to prevent overwriting previous dependencies
 # switch to root in oder to do all installs
