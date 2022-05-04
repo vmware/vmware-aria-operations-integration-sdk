@@ -13,6 +13,33 @@ from common.filesystem import zip_dir, mkdir, zip_file
 from common.project import get_project
 
 
+def get_digest(response) -> str:
+    """
+    Get the images digest by parsing the server response.
+    An alternate method of parsing the digest from an image would be to
+    parse the attributes of an image and then check if the image has repoDigests
+    attribute, then we could parse the repo digest (different from digest) to get the digest.
+
+
+    :param response: A Stream that of dictionaries with information about the image being pushed
+    :return: A string version of the SHA256 digest
+    """
+    for line in response:
+        if 'aux' in line:
+            try:
+                return line['aux']['Digest']
+            except KeyError:
+                print("ERROR digest was not found in response from registry")
+                exit(1)
+
+        elif 'errorDetail' in line:
+            print("ERROR when pushing image to docker registry")
+            print("repo: {repo}")
+            print(line["errorDetail"]["message"])
+            exit(1)
+    pass
+
+
 def main():
     description = "Tool for building a pak file for a project."
     parser = argparse.ArgumentParser(description=description)
@@ -35,7 +62,9 @@ def main():
     registry_tag = f"{registry_url}/{repo}/{tag}"
     adapter, adapter_logs = docker_client.images.build(path=project["path"], nocache=True, rm=True, tag=tag)
     adapter.tag(registry_tag)
-    docker_client.images.push(registry_tag)
+
+    response = docker_client.images.push(registry_tag, stream=True, decode=True)
+    digest = get_digest(response)
 
     adapter_dir = manifest["name"] + "_adapter3"
     mkdir(adapter_dir)
@@ -48,8 +77,9 @@ def main():
         # docker_conf.write(f"ImageTag={registry_tag}\n")
         docker_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY={repo}\n")
-        docker_conf.write(f"DIGEST={adapter.id}\n")
+        docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
+        # solution, since this might be unique to harbor
+        docker_conf.write(f"DIGEST={digest}\n")
 
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
         zip_file(adapter, docker_conf.name)
