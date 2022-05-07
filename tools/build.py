@@ -81,12 +81,16 @@ def main():
         # solution, since this might be unique to harbor
         docker_conf.write(f"DIGEST={digest}\n")
 
+    eula_file = manifest["eula_file"]
+    icon_file = manifest["pak_icon"]
+
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
         zip_file(adapter, docker_conf.name)
         zip_file(adapter, "manifest.txt")
-        eula_file = manifest["eula_file"]
         if eula_file:
             zip_file(adapter, eula_file)
+        if icon_file:
+            zip_file(adapter, icon_file)
 
         zip_dir(adapter, "resources")
         zip_dir(adapter, adapter_dir)
@@ -111,11 +115,9 @@ def main():
         if pre_install_script:
             zip_file(pak, pre_install_script)
 
-        icon_file = manifest["pak_icon"]
         if icon_file:
             zip_file(pak, icon_file)
 
-        eula_file = manifest["eula_file"]
         if eula_file:
             zip_file(pak, eula_file)
 
