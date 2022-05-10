@@ -39,8 +39,8 @@ function test_dependency() {
 # Git is almost certainly installed if the user has gotten this far, but we'll test just in case they downloaded an
 # archive instead of cloning the repo
 test_dependency "Git" "git" "git version 2.35.0" "https://git-scm.com/downloads"
-test_dependency "Python" "python3" "Python 3.9.0" "https://wiki.python.org/moin/BeginnersGuide/Download"
-test_dependency "Docker" "docker" "Docker version 20.10.13" "https://docs.docker.com/engine/install/"
+test_dependency "Python" "python3" "Python 3.3.0" "https://wiki.python.org/moin/BeginnersGuide/Download"
+test_dependency "Docker" "docker" "Docker version 20.10.0" "https://docs.docker.com/engine/install/"
 
 if [ $DEPENDENCIES_MET = 0 ] ; then
   echo "${RED}Please fix above dependency issues and rerun this install script${DEFAULT}"

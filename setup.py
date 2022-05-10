@@ -18,7 +18,7 @@ else:
 setup(
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
-    python_requires=">=3.9",
+    python_requires=">=3.3",
     install_requires=[
         "docker==5.0.3",
         "Pillow==9.1.0",
