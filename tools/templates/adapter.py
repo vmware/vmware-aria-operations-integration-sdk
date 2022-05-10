@@ -21,7 +21,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
         # Thus, as there is not an actual failure condition to test for, this
         # example only shows the mechanics of reading identifiers and
         # constructing test results.
-        id = adapter_instance.get_identifier_value("id")
+        id = adapter_instance.get_identifier_value("ID")
         if id is None:
             result.with_error("No ID Found")
         elif id.lower() == "bad":
