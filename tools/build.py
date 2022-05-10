@@ -93,6 +93,7 @@ def main():
             zip_file(adapter, icon_file)
 
         zip_dir(adapter, "resources")
+        zip_dir(adapter, "content")
         zip_dir(adapter, adapter_dir)
 
     os.remove(docker_conf.name)
