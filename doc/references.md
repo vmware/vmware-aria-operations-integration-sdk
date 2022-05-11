@@ -10,9 +10,9 @@ Contents
     * Swagger API specification
 
 * Tools
-  * [init](setup_tool.md)
-  * test
-  * build
+  * [Init](mp-init.md)
+  * [Test](mp-test.md)
+  * [Build](mp-build.md)
   * build_images
 
 * Adapter

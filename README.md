@@ -67,8 +67,8 @@ the creation of a new management pack project.
 
 2. `Management Pack display name`
 
-    The Management Pack display name will show up in vROps (Data Sources &rarr; Integrations &rarr;
-    Repository), or when adding an account.
+    The Management Pack display name will show up in vROps (**Data Sources &rarr; Integrations &rarr;
+    Repository**), or when adding an account.
 
     ![Integration Card for the 'TestAdapter' Management Pack](doc/test-adapter-integration-card.png)
 
@@ -99,7 +99,7 @@ the creation of a new management pack project.
 
     The icon is used in the vROps UI if present. If it is not present, a default icon will be used. 
     The icon file must be png format and 256x256 px. An icon file can be added later by copying the icon to the root
-    project directory and setting the 
+    project directory and setting the value of `"pak_icon"` to the icon's file name in the `manifest.txt` file.
 
 8. `Select a language for the adapter. Supported languages are [...]`
 
@@ -112,9 +112,53 @@ For complete documentation of the `mp-init` tool see the [MP Initialization Tool
 ### Testing a Management Pack
 To test a project, run `mp-test`  in the virtual environment.
 
+If `mp-test` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
+test the selected project. If the tool is run from a project directory, the tool will automatically test that
+project.
+
+`mp-test` will ask for a _connection_. No connections should exist, so choose **New Connection**. The test tool then
+parses the `describe.xml` file to find the connection parameters and credentials required for a connection, and prompts
+for each. This is similar to creating a new _Adapter Instance_ in the vROps UI. Connections are automatically saved
+per project, and can be reused when re-running the `mp-test` tool.
+
+In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
+the parameter is not necessary; it is only there as an example, and can be set to any value.
+
+The test tool also asks for the method to test. There are four options:
+* Test Connection - This call tests the connection and returns either an error message if the connection failed, or an empty json object if the connection succeeded.
+* Collect - This call test the collection, and returns objects, metrics, properties, events, and relationships.
+* Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that vROps can ask the end user to import into the vROps TrustStore.
+* Version - This returns the API version the adapter implements. The implementation of this method is not generally handled by the developer.
+
+For more information on these endpoints, see the [Swagger API documentation](api/vrops-collector-fwk2-openapi.json). 
+Each response is validated against the API.
+
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).
 
 ### Building and installing a Management Pack
 To build a project, run `mp-build`  in the virtual environment.
+
+If `mp-build` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
+build the selected project. If the tool is run from a project directory, the tool will automatically build that
+project.
+
+Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be 
+installed on vROps. The `pak` file will be located in the project directory.
+
+To install the `pak` file, in vROps navigate to **Data Sources &rarr; Integrations &rarr;
+Repository** and click `ADD`. Select and upload the generated `pak` file, accept the README, and install the management pack.
+
+To configure the management pack, vROps navigate to **Data Sources &rarr; Integrations &rarr;
+Accounts** and click `ADD ACCOUNT`. Select the newly-installed management pack and configure the required fields. For 
+`Collector/Group`, make sure that a cloud proxy collector is selected. Click `VALIDATE CONNECTION` to test the connection. 
+It should return successfully, then click `ADD`.
+
+By default, a collection will run every 5 minutes. The first collection should happen immediately, however newly-created
+objects cannot have metrics, properties, and events added to them. After the second collection, approximately five minutes
+later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **Environment
+&rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
+
+![CPU Idle Time](doc/test-adapter-cpu-idle-time.png)
+*The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](doc/mp-build.md).
