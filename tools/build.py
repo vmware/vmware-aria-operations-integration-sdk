@@ -8,7 +8,7 @@ import zipfile
 import docker
 
 from common.config import get_config_value
-from common.docker import login
+from common.docker_wrapper import login
 from common.filesystem import zip_dir, mkdir, zip_file
 from common.project import get_project
 
@@ -54,7 +54,7 @@ def main():
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    docker_client = docker.from_env()
+    docker_client = docker.from_env()  # TODO: switch to init
     repo = get_config_value("docker_repo", "tvs")
     registry_url = login()
 

@@ -4,7 +4,7 @@ import common.style as style
 
 from common.filesystem import get_absolute_project_directory
 from common.config import get_config_values, get_config_value, set_config_value
-from common.docker import login
+from common.docker_wrapper import login, init
 
 from PyInquirer import prompt
 
@@ -83,7 +83,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 
 def main():
-    client = docker.from_env()
+    client = init()
     registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com")
     repo = get_config_value("docker_repo", "tvs")
 
