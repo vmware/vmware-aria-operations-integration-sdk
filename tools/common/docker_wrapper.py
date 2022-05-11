@@ -87,7 +87,7 @@ def build_image(client, path, tag):
 
 
 class InitError(Exception):
-    """Raise for any unzatgorized errors during init"""
+    """Raised when there is an error starting the docker client"""
     pass
 
 class PushError(Exception):
