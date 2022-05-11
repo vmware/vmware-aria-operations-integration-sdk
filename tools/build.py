@@ -40,6 +40,33 @@ def get_digest(response) -> str:
     pass
 
 
+def build_subdirectories(directory: str):
+    """
+    Parse the given directory and generates a subdirectory for every file in the current directory, then it moves each
+    file inside the subdirectory. Subdirectories are ignored.
+
+    If the given directory contains a file with a .properties extension, we exit the program
+
+    :return: None
+    """
+    dashboards = os.listdir(directory)
+    if len(dashboards) > 0:
+        for file in dashboards:
+            file_ext = os.path.splitext(file)[1].lower()
+            if file_ext == ".properties":
+                print("Every '.properties' file should reside inside a 'resources' directory inside another directory "
+                      "with the configuration file referenced by the .properties files")
+                exit(-1)
+
+        for file in dashboards:
+            # If the user already has a directory with the config files inside then we ignore the directories content
+            if os.path.isfile(os.path.join(directory, file)):
+                file_name = os.path.splitext(file)[0].lower()
+                dir_path = os.path.join(directory, f"{file_name}")
+                os.mkdir(dir_path)
+                shutil.move(os.path.join(directory, file), dir_path)
+
+
 def main():
     description = "Tool for building a pak file for a project."
     parser = argparse.ArgumentParser(description=description)
@@ -93,13 +120,17 @@ def main():
             zip_file(adapter, icon_file)
 
         zip_dir(adapter, "resources")
-        zip_dir(adapter, "content")
         zip_dir(adapter, adapter_dir)
 
     os.remove(docker_conf.name)
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
+
+
+    # Every config file in dashboards and reports should be in it's own subdirectory
+    build_subdirectories("content/dashboards")
+    build_subdirectories("content/reports")
 
     with zipfile.ZipFile(f"{name}.pak", "w") as pak:
         zip_file(pak, "manifest.txt")
