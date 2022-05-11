@@ -128,7 +128,7 @@ def main():
     name = manifest["name"] + "_" + manifest["version"]
 
 
-    # Every config file in dashboards and reports should be in it's own subdirectory
+    # Every config file in dashboards and reports should be in its own subdirectory
     build_subdirectories("content/dashboards")
     build_subdirectories("content/reports")
 
