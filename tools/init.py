@@ -57,7 +57,7 @@ def main():
         {
             "type": "input",
             "name": "vendor",
-            "message": "Management Pack Vendor: ",
+            "message": "Management Pack vendor: ",
         },
         {
             "type": "input",

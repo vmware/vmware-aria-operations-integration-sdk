@@ -18,16 +18,17 @@ else:
 setup(
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
+    python_requires=">=3.3",
     install_requires=[
-        "docker",
-        "Pillow",
-        "PyInquirer",
-        "requests",
-        "urllib3",
-        "common",
-        "templates",
-        "flask",
-        "openapi_core"
+        "docker==5.0.3",
+        "Pillow==9.1.0",
+        "PyInquirer==1.0.3",
+        "requests==2.27.1",
+        "urllib3==1.26.9",
+        "common==0.1.2",
+        "templates==0.0.5",
+        "flask==2.1.1",
+        "openapi_core==0.14.2"
     ],
     package_dir={
         "common": "tools/common",
