@@ -37,9 +37,9 @@ def init():
         if "ConnectionRefusedError" in e.args[0]:
             print("Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?")
         elif "PermissionError" in e.args[0]:
-            print(f"Cannoct run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
+            print(f"Cannot run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
         else:
-            print(f"Unexpected error when stablishing connection with Docker daemon: {e}")
+            print(f"Unexpected error when establishing connection with Docker daemon: {e}")
 
         raise InitError
 
