@@ -8,41 +8,16 @@ import zipfile
 import docker
 
 from common.config import get_config_value
-from common.docker import login
+from common.docker_wrapper import login, init, push_image, build_image
 from common.filesystem import zip_dir, mkdir, zip_file
 from common.project import get_project
-
-
-def get_digest(response) -> str:
-    """
-    Get the images digest by parsing the server response.
-    An alternate method of parsing the digest from an image would be to
-    parse the attributes of an image and then check if the image has repoDigests
-    attribute, then we could parse the repo digest (different from digest) to get the digest.
-
-
-    :param response: A Stream that of dictionaries with information about the image being pushed
-    :return: A string version of the SHA256 digest
-    """
-    for line in response:
-        if 'aux' in line:
-            try:
-                return line['aux']['Digest']
-            except KeyError:
-                print("ERROR digest was not found in response from registry")
-                exit(1)
-
-        elif 'errorDetail' in line:
-            print("ERROR when pushing image to docker registry")
-            print("repo: {repo}")
-            print(line["errorDetail"]["message"])
-            exit(1)
-    pass
 
 
 def main():
     description = "Tool for building a pak file for a project."
     parser = argparse.ArgumentParser(description=description)
+
+    docker_client = init()
 
     # General options
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
@@ -54,17 +29,17 @@ def main():
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    docker_client = docker.from_env()
     repo = get_config_value("docker_repo", "tvs")
     registry_url = login()
 
     tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
     registry_tag = f"{registry_url}/{repo}/{tag}"
-    adapter, adapter_logs = docker_client.images.build(path=project["path"], nocache=True, rm=True, tag=tag)
+    adapter, adapter_logs = build_image(docker_client, path=project["path"], tag=tag)
+    # TODO: handle BuildError
     adapter.tag(registry_tag)
 
-    response = docker_client.images.push(registry_tag, stream=True, decode=True)
-    digest = get_digest(response)
+    digest = push_image(docker_client, registry_tag)
+    # TODO: handle exception by deleting all generated artifacts
 
     adapter_dir = manifest["name"] + "_adapter3"
     mkdir(adapter_dir)
