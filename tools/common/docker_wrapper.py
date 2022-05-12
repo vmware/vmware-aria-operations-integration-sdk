@@ -20,7 +20,7 @@ def login():
     return docker_registry
 
 def init():
-    """ Tries to sttablish a connection with the docker daemon via unix socket.
+    """ Tries to establish a connection with the docker daemon via unix socket.
 
     If the connection fails, the error message is parsed to find a coomon error message that could inidicate that the
     daemon isn't running.
