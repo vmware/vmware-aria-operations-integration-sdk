@@ -49,22 +49,26 @@ def build_subdirectories(directory: str):
 
     :return: None
     """
-    dashboards = os.listdir(directory)
-    if len(dashboards) > 0:
-        for file in dashboards:
-            file_ext = os.path.splitext(file)[1].lower()
-            if file_ext == ".properties":
-                print("Every '.properties' file should reside inside a 'resources' directory inside another directory "
-                      "with the configuration file referenced by the .properties files")
-                exit(-1)
+    content_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
 
-        for file in dashboards:
-            # If the user already has a directory with the config files inside then we ignore the directories content
-            if os.path.isfile(os.path.join(directory, file)):
-                file_name = os.path.splitext(file)[0].lower()
-                dir_path = os.path.join(directory, f"{file_name}")
-                os.mkdir(dir_path)
-                shutil.move(os.path.join(directory, file), dir_path)
+    for file in content_files:
+        file_ext = os.path.splitext(file)[1].lower()
+        if file_ext == ".properties":
+            print("If a <dashboard/report> requires a '.properties' file, move the <dashboard/report>"
+                  "into a subdirectory inside the <dashboard/report> directory, and move the properties"
+                  "file to a 'resources' directory that is also inside that subdirectory.")
+            print("")
+            print("The result should look like this: ")
+            print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            print(f"{directory}/myContent/resources/myContent.properties")
+            print(f"For detailed information, consult the documentation for vrops-python-sdk")
+            exit(1)
+
+    for file in content_files:
+        file_name = os.path.splitext(file)[0].lower()
+        dir_path = os.path.join(directory, f"{file_name}")
+        os.mkdir(dir_path)
+        shutil.move(os.path.join(directory, file), dir_path)
 
 
 def main():
