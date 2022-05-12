@@ -4,7 +4,7 @@ import common.style as style
 
 from common.filesystem import get_absolute_project_directory
 from common.config import get_config_values, get_config_value, set_config_value
-from common.docker import login
+from common.docker_wrapper import login, init, push_image
 
 from PyInquirer import prompt
 
@@ -83,7 +83,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 
 def main():
-    client = docker.from_env()
+    client = init()
     registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com")
     repo = get_config_value("docker_repo", "tvs")
 
@@ -135,11 +135,11 @@ def build_image(client: docker.client, language: str, version: str, path: str):
 
     # TODO use Low level API to show user build progress
     print(f"building {language} image:vrops-adapter-open-sdk-server:{language}-{version}...")
-    image, _ = client.images.build(path=build_path,
-                                   nocache=True,
-                                   rm=True,
-                                   tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
-                                   )
+    image, _ = docker_wrapper.build_image(client,
+                                          path=build_path,
+                                          tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
+                                          )
+    #TODO: handle build error
 
     # TODO try pulling/building base image
 
@@ -164,12 +164,11 @@ def push_image_to_registry(client, image, registry_url: str, repo: str):
     registry_tag = f"{registry_url}/{repo}"
     print(f"pushing image to {registry_tag}")
     for tag in image.tags:
-        # TODO: This works for Harbor but is probably not generic enough for other registries.
         #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
         reference_tag = f"{registry_tag}/{tag}"
         image.tag(reference_tag)
-        for line in client.images.push(reference_tag, stream=True, decode=True):
-            print(line)
+        push_image(client, reference_tag)
+        # TODO: handle exception by deleting all generated artifacts
 
         print(f"removing {reference_tag} from local client")
         client.images.remove(reference_tag)
