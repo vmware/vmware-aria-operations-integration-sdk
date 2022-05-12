@@ -61,7 +61,7 @@ def build_subdirectories(directory: str):
             print("The result should look like this: ")
             print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             print(f"{directory}/myContent/resources/myContent.properties")
-            print(f"For detailed information, consult the documentation for vrops-python-sdk")
+            print(f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
             exit(1)
 
     for file in content_files:
