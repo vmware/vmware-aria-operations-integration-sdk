@@ -13,6 +13,64 @@ from common.filesystem import zip_dir, mkdir, zip_file
 from common.project import get_project
 
 
+def get_digest(response) -> str:
+    """
+    Get the images digest by parsing the server response.
+    An alternate method of parsing the digest from an image would be to
+    parse the attributes of an image and then check if the image has repoDigests
+    attribute, then we could parse the repo digest (different from digest) to get the digest.
+
+
+    :param response: A Stream that of dictionaries with information about the image being pushed
+    :return: A string version of the SHA256 digest
+    """
+    for line in response:
+        if 'aux' in line:
+            try:
+                return line['aux']['Digest']
+            except KeyError:
+                print("ERROR digest was not found in response from registry")
+                exit(1)
+
+        elif 'errorDetail' in line:
+            print("ERROR when pushing image to docker registry")
+            print("repo: {repo}")
+            print(line["errorDetail"]["message"])
+            exit(1)
+    pass
+
+
+def build_subdirectories(directory: str):
+    """
+    Parse the given directory and generates a subdirectory for every file in the current directory, then it moves each
+    file inside the subdirectory. Subdirectories are ignored.
+
+    If the given directory contains a file with a .properties extension, we exit the program
+
+    :return: None
+    """
+    content_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
+
+    for file in content_files:
+        file_ext = os.path.splitext(file)[1].lower()
+        if file_ext == ".properties":
+            print(f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
+                  f"into a subdirectory inside the {directory} directory, and move the properties"
+                  "file to a 'resources' directory that is also inside that subdirectory.")
+            print("")
+            print("The result should look like this: ")
+            print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            print(f"{directory}/myContent/resources/myContent.properties")
+            print(f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
+            exit(1)
+
+    for file in content_files:
+        file_name = os.path.splitext(file)[0].lower()
+        dir_path = os.path.join(directory, f"{file_name}")
+        os.mkdir(dir_path)
+        shutil.move(os.path.join(directory, file), dir_path)
+
+
 def main():
     description = "Tool for building a pak file for a project."
     parser = argparse.ArgumentParser(description=description)
@@ -68,13 +126,17 @@ def main():
             zip_file(adapter, icon_file)
 
         zip_dir(adapter, "resources")
-        zip_dir(adapter, "content")
         zip_dir(adapter, adapter_dir)
 
     os.remove(docker_conf.name)
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
+
+
+    # Every config file in dashboards and reports should be in its own subdirectory
+    build_subdirectories("content/dashboards")
+    build_subdirectories("content/reports")
 
     with zipfile.ZipFile(f"{name}.pak", "w") as pak:
         zip_file(pak, "manifest.txt")
