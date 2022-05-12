@@ -2,9 +2,7 @@ import subprocess
 import os
 import docker
 
-
 from common.config import get_config_value
-
 
 
 def login():
@@ -15,9 +13,10 @@ def login():
 
     # Since we are using a subprocess, we cannot be very specific about the type of failure we get
     if response.returncode != 0:
-        raise LoginFailure
+        raise LoginError
 
     return docker_registry
+
 
 def init():
     """ Tries to establish a connection with the docker daemon via unix socket.
@@ -42,6 +41,7 @@ def init():
             print(f"Unexpected error when establishing connection with Docker daemon: {e}")
 
         raise InitError
+
 
 def push_image(client, image_tag):
     """
@@ -77,22 +77,30 @@ def push_image(client, image_tag):
 
     return image_digest
 
+
 def build_image(client, path, tag):
     try:
-        return  client.images.build(path=path, tag=tag, nocache=True, rm=True)
+        return client.images.build(path=path, tag=tag, nocache=True, rm=True)
     except docker.errors.BuildError as error:
         print(f"An error ocurred while trying to build docker image at {path}")
         print(error)
         raise BuildError
 
 
+class LoginError(Exception):
+    """Raised when there is an error logging into docker"""
+    pass
+
+
 class InitError(Exception):
     """Raised when there is an error starting the docker client"""
     pass
 
+
 class PushError(Exception):
     """Raised when the registry server sends back an error"""
     pass
+
 
 class BuildError(Exception):
     """Raised when and error occurs while building the Docker image"""

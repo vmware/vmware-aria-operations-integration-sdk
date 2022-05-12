@@ -5,8 +5,6 @@ import shutil
 import time
 import zipfile
 
-import docker
-
 from common.config import get_config_value
 from common.docker_wrapper import login, init, push_image, build_image
 from common.filesystem import zip_dir, mkdir, zip_file

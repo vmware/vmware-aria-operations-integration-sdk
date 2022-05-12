@@ -1,9 +1,10 @@
 import docker
 import common.constant as constant
 import common.style as style
+from common import docker_wrapper
 
 from common.filesystem import get_absolute_project_directory
-from common.config import get_config_values, get_config_value, set_config_value
+from common.config import get_config_value, set_config_value
 from common.docker_wrapper import login, init, push_image
 
 from PyInquirer import prompt
@@ -114,7 +115,8 @@ def main():
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
-        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"], path=image["path"])
+        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"],
+                                path=image["path"])
 
         if push_to_registry:
             push_image_to_registry(client, new_image, registry_url, repo)
@@ -139,7 +141,7 @@ def build_image(client: docker.client, language: str, version: str, path: str):
                                           path=build_path,
                                           tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
                                           )
-    #TODO: handle build error
+    # TODO: handle BuildError
 
     # TODO try pulling/building base image
 
@@ -172,6 +174,7 @@ def push_image_to_registry(client, image, registry_url: str, repo: str):
 
         print(f"removing {reference_tag} from local client")
         client.images.remove(reference_tag)
+
 
 if __name__ == "__main__":
     main()
