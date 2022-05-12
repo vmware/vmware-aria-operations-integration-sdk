@@ -5,7 +5,7 @@ from common import docker_wrapper
 
 from common.filesystem import get_absolute_project_directory
 from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image
+from common.docker_wrapper import login, init, push_image, PushError, BuildError
 
 from PyInquirer import prompt
 
@@ -115,11 +115,14 @@ def main():
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
-        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"],
+        try:
+            new_image = build_image(client=client, language=image["language"].lower(), version=image["version"],
                                 path=image["path"])
 
-        if push_to_registry:
-            push_image_to_registry(client, new_image, registry_url, repo)
+            if push_to_registry:
+                push_image_to_registry(client, new_image, registry_url, repo)
+        except BuildError:
+            print(f"ERROR: Failed to build {image['language']} image")
 
 
 def get_latest_vrops_container_versions() -> (dict, [dict]):
@@ -169,11 +172,13 @@ def push_image_to_registry(client, image, registry_url: str, repo: str):
         #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
         reference_tag = f"{registry_tag}/{tag}"
         image.tag(reference_tag)
-        push_image(client, reference_tag)
-        # TODO: handle exception by deleting all generated artifacts
-
-        print(f"removing {reference_tag} from local client")
-        client.images.remove(reference_tag)
+        try:
+            push_image(client, reference_tag)
+        except PushError:
+            print(f"ERROR: Failed to push {reference_tag}")
+        finally:
+            print(f"Removing {reference_tag} from local client")
+            client.images.remove(reference_tag)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from common.config import get_config_value
 def login():
     docker_registry = get_config_value("registry_url", default="harbor-repo.vmware.com")
 
-    print(f"login into {docker_registry}")
+    print(f"Login into {docker_registry}")
     response = subprocess.run(["docker", "login", f"{docker_registry}"])
 
     # Since we are using a subprocess, we cannot be very specific about the type of failure we get
@@ -34,11 +34,11 @@ def init():
         return client
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" in e.args[0]:
-            print("Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?")
+            print("ERROR: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?")
         elif "PermissionError" in e.args[0]:
-            print(f"Cannot run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
+            print(f"ERROR: Cannot run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
         else:
-            print(f"Unexpected error when establishing connection with Docker daemon: {e}")
+            print(f"ERROR: {e}")
 
         raise InitError
 
@@ -47,7 +47,7 @@ def push_image(client, image_tag):
     """
     Pushes the given image tag and returns the images digest.
 
-    If there is an error during while pushing the image, then it will gerenate a
+    If there is an error during while pushing the image, then it will generate a
     PushError, that the user can handle
 
     NOTE: An alternate method of parsing the digest from an image would be to
@@ -55,7 +55,7 @@ def push_image(client, image_tag):
     attribute, then we could parse the repo digest (different from digest) to get the digest.
 
 
-    :param client: the docker client that comunicates to the docker daemon
+    :param client: the docker client that communicates to the docker daemon
     :param image_tag: An image tag that identifies the image to be pushed
     :return: A string version of the SHA256 digest
     """
@@ -68,11 +68,11 @@ def push_image(client, image_tag):
             try:
                 image_digest = line['aux']['Digest']
             except KeyError:
-                print(f"Image Digest was not found in response from server")
+                print(f"ERROR: Image digest was not found in response from server")
                 raise PushError
 
         elif 'errorDetail' in line:
-            print(f"{line['errorDetail']['message']}")
+            print(f"ERROR: {line['errorDetail']['message']}")
             raise PushError
 
     return image_digest
@@ -82,7 +82,7 @@ def build_image(client, path, tag):
     try:
         return client.images.build(path=path, tag=tag, nocache=True, rm=True)
     except docker.errors.BuildError as error:
-        print(f"An error ocurred while trying to build docker image at {path}")
+        print(f"ERROR: Unable to build Docker file at {path}")
         print(error)
         raise BuildError
 
