@@ -54,8 +54,8 @@ def build_subdirectories(directory: str):
     for file in content_files:
         file_ext = os.path.splitext(file)[1].lower()
         if file_ext == ".properties":
-            print("If a <dashboard/report> requires a '.properties' file, move the <dashboard/report>"
-                  "into a subdirectory inside the <dashboard/report> directory, and move the properties"
+            print(f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
+                  f"into a subdirectory inside the {directory} directory, and move the properties"
                   "file to a 'resources' directory that is also inside that subdirectory.")
             print("")
             print("The result should look like this: ")
