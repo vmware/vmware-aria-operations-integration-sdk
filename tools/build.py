@@ -89,7 +89,12 @@ def main():
     if not os.path.exists(build_dir):
         mkdir(build_dir)
 
-    mkdir(temp_dir)
+    # TODO: remove this copy and add the addecuate logic to zip files from the source
+    shutil.copytree(
+        project["path"],
+        temp_dir,
+        ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
+    )
 
     os.chdir(temp_dir)
 
@@ -97,7 +102,7 @@ def main():
 
         docker_client = init()
 
-        with open(path("manifest.txt")) as manifest_file:
+        with open("manifest.txt") as manifest_file:
             manifest = json.load(manifest_file)
 
         repo = get_config_value("docker_repo", "tvs")
@@ -115,7 +120,7 @@ def main():
 
         adapter_dir = manifest["name"] + "_adapter3"
         mkdir(adapter_dir)
-        shutil.copytree(path("conf"), os.path.join(adapter_dir, "conf"))
+        shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
 
         with open(adapter_dir + ".conf", "w") as docker_conf:
             docker_conf.write(f"KINDKEY={manifest['name']}\n")
@@ -124,7 +129,8 @@ def main():
             # docker_conf.write(f"ImageTag={registry_tag}\n")
             docker_conf.write(f"REGISTRY={registry_url}\n")
             # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-            docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
+            docker_conf.write(
+                f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
             # solution, since this might be unique to harbor
             docker_conf.write(f"DIGEST={digest}\n")
 
@@ -147,12 +153,12 @@ def main():
 
         name = manifest["name"] + "_" + manifest["version"]
 
-
         # Every config file in dashboards and reports should be in its own subdirectory
         build_subdirectories("content/dashboards")
         build_subdirectories("content/reports")
 
-        with zipfile.ZipFile(f"{name}.pak", "w") as pak:
+        pak_file = f"{name}.pak"
+        with zipfile.ZipFile(pak_file, "w") as pak:
             zip_file(pak, "manifest.txt")
 
             pak_validation_script = manifest["pak_validation_script"]["script"]
@@ -178,16 +184,19 @@ def main():
             zip_file(pak, "adapter.zip")
 
             os.remove("adapter.zip")
+
+            shutil.move(pak_file, build_dir)
     except (BuildError, PushError, InitError):
         print("Unable to build pak file")
     finally:
         rmdir(temp_dir)
 
 
-def path(*path):
-    actual_path = os.path.join(project["path"], *path)
-    return actual_path
-
+# This function might needed to calculate path later
+# def path(*path):
+#     actual_path = os.path.join(project["path"], *path)
+#     return actual_path
+#
 
 if __name__ == "__main__":
     main()
