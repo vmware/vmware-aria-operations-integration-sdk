@@ -9,7 +9,7 @@ import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
 from common.config import get_config_value
-from common.filesystem import get_absolute_project_directory, get_root_directory
+from common.filesystem import get_absolute_project_directory, get_root_directory, rmdir
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
 
@@ -111,89 +111,90 @@ def main():
     name = answers["name"]
 
     # create project_directory
-    mkdir(path)
+    try:
+        mkdir(path)
 
-    project = Project(path)
-    record_project(project.__dict__)
+        project = Project(path)
+        record_project(project.__dict__)
 
-    content_dir = mkdir(path, "content")
-    conf_dir = mkdir(path, "conf")
-    dashboard_dir = mkdir(content_dir, "dashboards")
-    files_dir = mkdir(content_dir, "files")
-    reports_dir = mkdir(content_dir, "reports")
+        content_dir = mkdir(path, "content")
+        conf_dir = mkdir(path, "conf")
+        dashboard_dir = mkdir(content_dir, "dashboards")
+        files_dir = mkdir(content_dir, "files")
+        reports_dir = mkdir(content_dir, "reports")
 
-    resources_dir = mkdir(path, "resources")
-    resources_file = os.path.join(resources_dir, "resources.properties")
-    with open(resources_file, "w") as resources_fd:
-        resources_fd.write("#This is the default localization file.\n")
-        resources_fd.write("\n")
-        resources_fd.write("#The solution's localized name displayed in UI\n")
-        resources_fd.write(f"DISPLAY_NAME={name}\n")
-        resources_fd.write("\n")
-        resources_fd.write("#The solution's localized description\n")
-        resources_fd.write(f"DESCRIPTION={answers['description']}\n")
-        resources_fd.write("\n")
-        resources_fd.write("#The vendor's localized name\n")
-        resources_fd.write(f"VENDOR={answers['vendor']}\n")
+        resources_dir = mkdir(path, "resources")
+        resources_file = os.path.join(resources_dir, "resources.properties")
+        with open(resources_file, "w") as resources_fd:
+            resources_fd.write("#This is the default localization file.\n")
+            resources_fd.write("\n")
+            resources_fd.write("#The solution's localized name displayed in UI\n")
+            resources_fd.write(f"DISPLAY_NAME={name}\n")
+            resources_fd.write("\n")
+            resources_fd.write("#The solution's localized description\n")
+            resources_fd.write(f"DESCRIPTION={answers['description']}\n")
+            resources_fd.write("\n")
+            resources_fd.write("#The vendor's localized name\n")
+            resources_fd.write(f"VENDOR={answers['vendor']}\n")
 
-    if not answers["eula_file"]:
-        eula_file = "eula.txt"
-        with open(os.path.join(path, eula_file), "w") as eula_fd:
-            # Note: vROps requires a EULA file, and it must not be blank.
-            eula_fd.write("There is no EULA associated with this Management Pack.")
-    else:
-        eula_file = answers["eula_file"]
-        copy(eula_file, path)
-        eula_file = os.path.basename(eula_file)
+        if not answers["eula_file"]:
+            eula_file = "eula.txt"
+            with open(os.path.join(path, eula_file), "w") as eula_fd:
+                # Note: vROps requires a EULA file, and it must not be blank.
+                eula_fd.write("There is no EULA associated with this Management Pack.")
+        else:
+            eula_file = answers["eula_file"]
+            copy(eula_file, path)
+            eula_file = os.path.basename(eula_file)
 
-    if not answers["icon_file"]:
-        icon_file = ""
-    else:
-        icon_file = answers["icon_file"]
-        copy(icon_file, path)
-        icon_file = os.path.basename(icon_file)
+        if not answers["icon_file"]:
+            icon_file = ""
+        else:
+            icon_file = answers["icon_file"]
+            copy(icon_file, path)
+            icon_file = os.path.basename(icon_file)
 
-    manifest_file = os.path.join(path, "manifest.txt")
-    manifest = {
-        "display_name": "DISPLAY_NAME",
-        "name": "".join(name.split(" ")),
-        "description": "DESCRIPTION",
-        "version": "1.0.0",
-        "vcops_minimum_version": "8.1.1",
-        "disk_space_required": 500,
-        "run_scripts_on_all_nodes": "true",
-        "eula_file": eula_file,
-        "platform": [
-            "Linux Non-VA",
-            "Linux VA"
-        ],
-        "vendor": "VENDOR",
-        "pak_icon": icon_file,
-        "pak_validation_script": {
-            "script": ""
-        },
-        "adapter_pre_script": {
-            "script": ""
-        },
-        "adapter_post_script": {
-            "script": ""
-        },
-        "adapters": [
-            "adapter.zip"
-        ],
-        "adapter_kinds": [
-            "".join(name.split(" "))
-        ],
-        "license_type": ""
-    }
-    with open(manifest_file, "w") as manifest_fd:
-        json.dump(manifest, manifest_fd, indent=4)
+        manifest_file = os.path.join(path, "manifest.txt")
+        manifest = {
+            "display_name": "DISPLAY_NAME",
+            "name": "".join(name.split(" ")),
+            "description": "DESCRIPTION",
+            "version": "1.0.0",
+            "vcops_minimum_version": "8.1.1",
+            "disk_space_required": 500,
+            "run_scripts_on_all_nodes": "true",
+            "eula_file": eula_file,
+            "platform": [
+                "Linux Non-VA",
+                "Linux VA"
+            ],
+            "vendor": "VENDOR",
+            "pak_icon": icon_file,
+            "pak_validation_script": {
+                "script": ""
+            },
+            "adapter_pre_script": {
+                "script": ""
+            },
+            "adapter_post_script": {
+                "script": ""
+            },
+            "adapters": [
+                "adapter.zip"
+            ],
+            "adapter_kinds": [
+                "".join(name.split(" "))
+            ],
+            "license_type": ""
+        }
+        with open(manifest_file, "w") as manifest_fd:
+            json.dump(manifest, manifest_fd, indent=4)
 
-    # TODO: This should be a template file, or dynamically generated
-    describe_file = os.path.join(path, "conf", "describe.xml")
-    with open(describe_file, "w") as describe_fd:
-        describe_fd.write(
-            f"""<?xml version = '1.0' encoding = 'UTF-8'?>
+        # TODO: This should be a template file, or dynamically generated
+        describe_file = os.path.join(path, "conf", "describe.xml")
+        with open(describe_file, "w") as describe_fd:
+            describe_fd.write(
+                f"""<?xml version = '1.0' encoding = 'UTF-8'?>
 <!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
 <AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
     <CredentialKinds>
@@ -208,24 +209,29 @@ def main():
     </ResourceKinds>
 </AdapterKind>""")
 
-    # copy describe.xsd into conf directory
-    src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
-    dest = os.path.join(path, "conf")
-    copy(src, dest)
+        # copy describe.xsd into conf directory
+        src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
+        dest = os.path.join(path, "conf")
+        copy(src, dest)
 
-    print("")
+        print("")
 
-    language = answers["language"]
-    # create project structure
-    executable_directory_path = build_project_structure(path, manifest["name"], language)
+        language = answers["language"]
+        # create project structure
+        executable_directory_path = build_project_structure(path, manifest["name"], language)
 
-    # create Dockerfile
-    create_dockerfile(language, path, executable_directory_path)
+        # create Dockerfile
+        create_dockerfile(language, path, executable_directory_path)
 
-    # create Commandsfile
-    create_commands_file(language, path, executable_directory_path)
-    print("")
-    print("project generation completed")
+        # create Commandsfile
+        create_commands_file(language, path, executable_directory_path)
+        print("")
+        print("project generation completed")
+    except Exception as error:
+        print("There was an error during the generation of the project")
+        if os.getenv("DEBUG_VROPS_TOOLS", "false") == "true":
+            print(error)
+        rmdir(path)
 
 
 def input_with_retry(message: str, validation_function):
@@ -247,7 +253,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
     version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
     print(version_file_path)
     images = [get_config_value("base_image", config_file=version_file_path)] + \
-        get_config_value("secondary_images", config_file=version_file_path)
+             get_config_value("secondary_images", config_file=version_file_path)
     version = next(iter(filter(
         lambda image: image["language"].lower() == language,
         images
