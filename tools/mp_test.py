@@ -15,6 +15,7 @@ import requests
 import urllib3
 from PyInquirer import prompt
 from docker import DockerClient
+from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
@@ -23,6 +24,7 @@ from openapi_core.validation.response.validators import ResponseValidator
 from requests import RequestException
 
 from common.constant import DEFAULT_PORT
+from common.docker_wrapper import init, build_image, BuildError, InitError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.style import vrops_sdk_prompt_style
@@ -36,12 +38,14 @@ def run(arguments):
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
-    docker_client = docker.client.from_env()
-    # TODO: add init()
-    print("Building adapter image")
-    image = create_container_image(docker_client, project["path"])
-    print("Starting adapter HTTP server")
-    container = run_image(docker_client, image, project["path"])
+    try:
+        docker_client = init()
+        print("Building adapter image")
+        image = create_container_image(docker_client, project["path"])
+        print("Starting adapter HTTP server")
+        container = run_image(docker_client, image, project["path"])
+    except (BuildError, InitError, ContainerError, APIError):
+        print("There was an Error while trying to start the test")
 
     try:
         # Need time for the server to start
@@ -177,11 +181,12 @@ def create_container_image(client: DockerClient, build_path: str) -> Image:
     #       or mount the code directory and have it dynamically update.
     #       Either way, we should avoid building the image ever time this script is called
     docker_image_tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
-    client.images.build(path=build_path, nocache=True, rm=True, tag=docker_image_tag)
+    build_image(client, path=build_path, tag=docker_image_tag)
     return docker_image_tag
 
 
 def run_image(client: DockerClient, image: Image, path: str) -> Container:
+    # TODO: handle errors from running image eg. if there is a process using port 8080 it will cause an error
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
