@@ -34,13 +34,13 @@ def init():
         return client
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" in e.args[0]:
-            print("ERROR: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?")
+            raise InitError(message="Cannot connect to the Docker daemon at unix:///var/run/docker.sock.",
+                            recommnedation="Check that the docker daemon is running")
         elif "PermissionError" in e.args[0]:
-            print(f"ERROR: Cannot run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
+            raise InitError(message="Cannot run docker commands.",
+                            recommendation=f"Make sure the user {os.getlogin()} has permissions to run docker")
         else:
-            print(f"ERROR: {e}")
-
-        raise InitError
+            raise InitError(f"ERROR: {e}")
 
 
 def push_image(client, image_tag):
@@ -68,12 +68,10 @@ def push_image(client, image_tag):
             try:
                 image_digest = line['aux']['Digest']
             except KeyError:
-                print(f"ERROR: Image digest was not found in response from server")
-                raise PushError
+                raise PushError("Image digest was not found in response from server")
 
         elif 'errorDetail' in line:
-            print(f"ERROR: {line['errorDetail']['message']}")
-            raise PushError
+            raise PushError(line['errorDetail']['message'])
 
     return image_digest
 
@@ -82,9 +80,7 @@ def build_image(client, path, tag):
     try:
         return client.images.build(path=path, tag=tag, nocache=True, rm=True)
     except docker.errors.BuildError as error:
-        print(f"ERROR: Unable to build Docker file at {path}")
-        print(error)
-        raise BuildError
+        raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
 
 
 class LoginError(Exception):
