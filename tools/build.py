@@ -6,8 +6,8 @@ import time
 import zipfile
 
 from common.config import get_config_value
-from common.docker_wrapper import login, init, push_image, build_image
-from common.filesystem import zip_dir, mkdir, zip_file
+from common.docker_wrapper import login, init, push_image, build_image, BuildError, PushError, InitError
+from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 
 
@@ -52,14 +52,16 @@ def build_subdirectories(directory: str):
     for file in content_files:
         file_ext = os.path.splitext(file)[1].lower()
         if file_ext == ".properties":
-            print(f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
-                  f"into a subdirectory inside the {directory} directory, and move the properties"
-                  "file to a 'resources' directory that is also inside that subdirectory.")
+            print(
+                f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
+                f"into a subdirectory inside the {directory} directory, and move the properties"
+                "file to a 'resources' directory that is also inside that subdirectory.")
             print("")
             print("The result should look like this: ")
             print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             print(f"{directory}/myContent/resources/myContent.properties")
-            print(f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
+            print(
+                f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
             exit(1)
 
     for file in content_files:
@@ -73,95 +75,118 @@ def main():
     description = "Tool for building a pak file for a project."
     parser = argparse.ArgumentParser(description=description)
 
-    docker_client = init()
-
     # General options
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
                                              "or prompts if current directory is not a project.")
 
+    global project
     project = get_project(parser.parse_args())
-    os.chdir(project["path"])
+    # We want to store pak files in the build dir
+    build_dir = os.path.join(project["path"], 'build')
+    # Any artifacts for generating the pak file should be stored here
+    temp_dir = os.path.join(build_dir, 'tmp')
 
-    with open("manifest.txt") as manifest_file:
-        manifest = json.load(manifest_file)
+    if not os.path.exists(build_dir):
+        mkdir(build_dir)
 
-    repo = get_config_value("docker_repo", "tvs")
-    registry_url = login()
+    mkdir(temp_dir)
 
-    tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
-    registry_tag = f"{registry_url}/{repo}/{tag}"
-    adapter, adapter_logs = build_image(docker_client, path=project["path"], tag=tag)
-    # TODO: handle BuildError
-    adapter.tag(registry_tag)
+    os.chdir(temp_dir)
 
-    digest = push_image(docker_client, registry_tag)
-    # TODO: handle exception by deleting all generated artifacts
+    try:
 
-    adapter_dir = manifest["name"] + "_adapter3"
-    mkdir(adapter_dir)
-    shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
+        docker_client = init()
 
-    with open(adapter_dir + ".conf", "w") as docker_conf:
-        docker_conf.write(f"KINDKEY={manifest['name']}\n")
-        # TODO: Need a way to determine this
-        docker_conf.write(f"API_VERSION=1.0.0\n")
-        # docker_conf.write(f"ImageTag={registry_tag}\n")
-        docker_conf.write(f"REGISTRY={registry_url}\n")
-        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
-        # solution, since this might be unique to harbor
-        docker_conf.write(f"DIGEST={digest}\n")
+        with open(path("manifest.txt")) as manifest_file:
+            manifest = json.load(manifest_file)
 
-    eula_file = manifest["eula_file"]
-    icon_file = manifest["pak_icon"]
+        repo = get_config_value("docker_repo", "tvs")
+        registry_url = login()
 
-    with zipfile.ZipFile("adapter.zip", "w") as adapter:
-        zip_file(adapter, docker_conf.name)
-        zip_file(adapter, "manifest.txt")
-        if eula_file:
-            zip_file(adapter, eula_file)
-        if icon_file:
-            zip_file(adapter, icon_file)
+        tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
+        registry_tag = f"{registry_url}/{repo}/{tag}"
+        try:
+            adapter, adapter_logs = build_image(docker_client, path=project["path"], tag=tag)
+            adapter.tag(registry_tag)
 
-        zip_dir(adapter, "resources")
-        zip_dir(adapter, adapter_dir)
+            digest = push_image(docker_client, registry_tag)
+        finally:
+            docker_client.images.remove(registry_tag)
 
-    os.remove(docker_conf.name)
-    shutil.rmtree(adapter_dir)
+        adapter_dir = manifest["name"] + "_adapter3"
+        mkdir(adapter_dir)
+        shutil.copytree(path("conf"), os.path.join(adapter_dir, "conf"))
 
-    name = manifest["name"] + "_" + manifest["version"]
+        with open(adapter_dir + ".conf", "w") as docker_conf:
+            docker_conf.write(f"KINDKEY={manifest['name']}\n")
+            # TODO: Need a way to determine this
+            docker_conf.write(f"API_VERSION=1.0.0\n")
+            # docker_conf.write(f"ImageTag={registry_tag}\n")
+            docker_conf.write(f"REGISTRY={registry_url}\n")
+            # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
+            docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
+            # solution, since this might be unique to harbor
+            docker_conf.write(f"DIGEST={digest}\n")
+
+        eula_file = manifest["eula_file"]
+        icon_file = manifest["pak_icon"]
+
+        with zipfile.ZipFile("adapter.zip", "w") as adapter:
+            zip_file(adapter, docker_conf.name)
+            zip_file(adapter, "manifest.txt")
+            if eula_file:
+                zip_file(adapter, eula_file)
+            if icon_file:
+                zip_file(adapter, icon_file)
+
+            zip_dir(adapter, "resources")
+            zip_dir(adapter, adapter_dir)
+
+        os.remove(docker_conf.name)
+        shutil.rmtree(adapter_dir)
+
+        name = manifest["name"] + "_" + manifest["version"]
 
 
-    # Every config file in dashboards and reports should be in its own subdirectory
-    build_subdirectories("content/dashboards")
-    build_subdirectories("content/reports")
+        # Every config file in dashboards and reports should be in its own subdirectory
+        build_subdirectories("content/dashboards")
+        build_subdirectories("content/reports")
 
-    with zipfile.ZipFile(f"{name}.pak", "w") as pak:
-        zip_file(pak, "manifest.txt")
+        with zipfile.ZipFile(f"{name}.pak", "w") as pak:
+            zip_file(pak, "manifest.txt")
 
-        pak_validation_script = manifest["pak_validation_script"]["script"]
-        if pak_validation_script:
-            zip_file(pak, pak_validation_script)
+            pak_validation_script = manifest["pak_validation_script"]["script"]
+            if pak_validation_script:
+                zip_file(pak, pak_validation_script)
 
-        post_install_script = manifest["adapter_post_script"]["script"]
-        if post_install_script:
-            zip_file(pak, post_install_script)
+            post_install_script = manifest["adapter_post_script"]["script"]
+            if post_install_script:
+                zip_file(pak, post_install_script)
 
-        pre_install_script = manifest["adapter_pre_script"]["script"]
-        if pre_install_script:
-            zip_file(pak, pre_install_script)
+            pre_install_script = manifest["adapter_pre_script"]["script"]
+            if pre_install_script:
+                zip_file(pak, pre_install_script)
 
-        if icon_file:
-            zip_file(pak, icon_file)
+            if icon_file:
+                zip_file(pak, icon_file)
 
-        if eula_file:
-            zip_file(pak, eula_file)
+            if eula_file:
+                zip_file(pak, eula_file)
 
-        zip_dir(pak, "resources")
-        zip_dir(pak, "content")
-        zip_file(pak, "adapter.zip")
+            zip_dir(pak, "resources")
+            zip_dir(pak, "content")
+            zip_file(pak, "adapter.zip")
 
-    os.remove("adapter.zip")
+            os.remove("adapter.zip")
+    except (BuildError, PushError, InitError):
+        print("Unable to build pak file")
+    finally:
+        rmdir(temp_dir)
+
+
+def path(*path):
+    actual_path = os.path.join(project["path"], *path)
+    return actual_path
 
 
 if __name__ == "__main__":

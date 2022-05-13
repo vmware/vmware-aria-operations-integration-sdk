@@ -37,6 +37,7 @@ def run(arguments):
     method = get_method(arguments)
 
     docker_client = docker.client.from_env()
+    # TODO: add init()
     print("Building adapter image")
     image = create_container_image(docker_client, project["path"])
     print("Starting adapter HTTP server")
