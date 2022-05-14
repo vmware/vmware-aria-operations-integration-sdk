@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 from shutil import copy
 
 from PIL import Image, UnidentifiedImageError
@@ -12,6 +13,9 @@ from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory, rmdir
 from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
+
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "WARNING").upper())
 
 
 def is_directory_or_not_existing(p: str):
@@ -228,9 +232,8 @@ def main():
         print("")
         print("project generation completed")
     except Exception as error:
-        print("There was an error during the generation of the project")
-        if os.getenv("DEBUG_VROPS_TOOLS", "false") == "true":
-            print(error)
+        logger.debug("Deleting generated artifacts")
+        logger.error(error)
         rmdir(path)
 
 
@@ -251,7 +254,6 @@ def mkdir(basepath, *paths):
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
     version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-    print(version_file_path)
     images = [get_config_value("base_image", config_file=version_file_path)] + \
              get_config_value("secondary_images", config_file=version_file_path)
     version = next(iter(filter(
