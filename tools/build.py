@@ -164,7 +164,7 @@ def main():
     if not os.path.exists(build_dir):
         mkdir(build_dir)
 
-    # TODO: remove this copy and add the addecuate logic to zip files from the source
+    # TODO: remove this copy and add the adequate logic to zip files from the source
     shutil.copytree(
         project["path"],
         temp_dir,
