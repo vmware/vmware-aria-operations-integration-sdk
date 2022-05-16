@@ -108,6 +108,10 @@ def build_pak_file(project_path):
     build_subdirectories("content/reports")
 
     pak_file = f"{name}.pak"
+    if os.path.exists(pak_file):
+        # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+        os.remove(pak_file)
+
     with zipfile.ZipFile(pak_file, "w") as pak:
         zip_file(pak, "manifest.txt")
 
