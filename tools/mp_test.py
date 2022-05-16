@@ -10,6 +10,7 @@ from json import JSONDecodeError
 from pprint import pprint
 
 import docker
+import logging
 import openapi_core
 import requests
 import urllib3
@@ -31,6 +32,17 @@ from common.style import vrops_sdk_prompt_style
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+
+
+def with_keyboard_interrupt(ans):
+    # TODO: Revisit this logic when we stop using PyInquirer
+    if len(ans) == 0:
+        raise KeyboardInterrupt
+    else:
+        return ans
+
 
 def run(arguments):
     # User input
@@ -38,14 +50,11 @@ def run(arguments):
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
-    try:
-        docker_client = init()
-        print("Building adapter image")
-        image = create_container_image(docker_client, project["path"])
-        print("Starting adapter HTTP server")
-        container = run_image(docker_client, image, project["path"])
-    except (BuildError, InitError, ContainerError, APIError):
-        print("There was an Error while trying to start the test")
+    docker_client = init()
+    print("Building adapter image")
+    image = create_container_image(docker_client, project["path"])
+    print("Starting adapter HTTP server")
+    container = run_image(docker_client, image, project["path"])
 
     try:
         # Need time for the server to start
@@ -77,8 +86,6 @@ def run(arguments):
             if times > 0:
                 print(f"{times} requests remaining. Waiting {wait} seconds until next request.")
                 time.sleep(wait)
-    except BaseException as e:
-        print(e)
     finally:
         stop_container(container)
 
@@ -87,13 +94,14 @@ def get_method(arguments):
     if "func" in vars(arguments):
         return vars(arguments)["func"]
 
-    ans = prompt([
+    ans = with_keyboard_interrupt(prompt([
         {
             "type": "list",
             "name": "method",
             "message": "Choose a method to test:",
             "choices": ["Test Connection", "Collect", "Endpoint URLs", "Version"],
-        }], style=vrops_sdk_prompt_style)
+        }], style=vrops_sdk_prompt_style))
+
     if ans["method"] == "Test Connection":
         return post_test
     elif ans["method"] == "Collect":
@@ -220,7 +228,7 @@ def get_connection(project, arguments):
         }
     ]
     if arguments.connection not in connection_names:
-        answers = prompt(questions, style=vrops_sdk_prompt_style)
+        answers = with_keyboard_interrupt(prompt(questions, style=vrops_sdk_prompt_style))
     else:
         answers = {"connection": arguments.connection}
 
@@ -261,7 +269,8 @@ def get_connection(project, arguments):
             }
         })
 
-    identifiers = prompt(questions, style=vrops_sdk_prompt_style)
+    identifiers = with_keyboard_interrupt(prompt(questions, style=vrops_sdk_prompt_style))
+
     credential_type = valid_credential_kind_keys[0]
 
     if len(valid_credential_kind_keys) > 1:
@@ -271,7 +280,7 @@ def get_connection(project, arguments):
             "name": "credential_kind",
             "choices": valid_credential_kind_keys
         }]
-        credential_type = prompt(questions, style=vrops_sdk_prompt_style)["credential_kind"]
+        credential_type = with_keyboard_interrupt(prompt(questions, style=vrops_sdk_prompt_style))["credential_kind"]
 
     # Get credential Kind element
     credential_kind = [credential_kind for credential_kind in credential_kinds if
@@ -296,7 +305,8 @@ def get_connection(project, arguments):
                 "filter": lambda v: {"value": v, "required": required, "password": password}
             })
 
-        credentials = prompt(questions, style=vrops_sdk_prompt_style)
+        credentials = with_keyboard_interrupt(prompt(questions, style=vrops_sdk_prompt_style))
+
         credentials["credential_kind_key"] = credential_type
 
     connection_names = list(map(lambda connection: connection["name"], (project["connections"] or [])))
@@ -311,7 +321,7 @@ def get_connection(project, arguments):
                                                                                            "name already exists. "
         }
     ]
-    name = prompt(questions, style=vrops_sdk_prompt_style)["name"]
+    name = with_keyboard_interrupt(prompt(questions, style=vrops_sdk_prompt_style))["name"]
     new_connection = Connection(name, identifiers, credentials).__dict__
     project["connections"].append(new_connection)
     record_project(project)
@@ -392,6 +402,15 @@ def get_request_body(project, connection):
 
 
 def main():
+    try:
+        logging.basicConfig(filename="logs/test.log",
+                            filemode="a",
+                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                            datefmt="%H:%M:%S",
+                            level=logging.DEBUG)
+    except Exception:
+        logging.basicConfig(level=logging.CRITICAL + 1)
+
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
 
@@ -436,7 +455,26 @@ def main():
                                          "Insomnia or Postman.")
     url_method.set_defaults(func=wait)
 
-    run(parser.parse_args())
+    try:
+        run(parser.parse_args())
+    except KeyboardInterrupt:
+        logger.debug("Ctrl C pressed by user")
+        print("\nTesting canceled")
+        exit(0)
+    except (InitError, BuildError) as docker_error:
+        logger.error("Unable to build pak file")
+        logger.error(f"{docker_error.args['message']}")
+        logger.error(f"{docker_error.args['recommendation']}")
+        exit(1)
+    except (ContainerError, APIError) as skd_error:
+        logger.error("Unable to run container")
+        logger.error(f"SDK message: {skd_error}")
+        exit(1)
+    except BaseException as base_error:
+        logger.error(base_error)
+        exit(1)
+
+
 
 
 if __name__ == '__main__':

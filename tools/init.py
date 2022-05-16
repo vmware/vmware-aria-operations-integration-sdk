@@ -15,7 +15,7 @@ from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
 
 logger = logging.getLogger(__name__)
-logger.setLevel(os.getenv("LOG_LEVEL", "WARNING").upper())
+logger.setLevel(os.getenv("LOG_LEVEL", INFO).upper())
 
 
 def is_directory_or_not_existing(p: str):
