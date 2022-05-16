@@ -190,7 +190,7 @@ def main():
     except (BuildError, PushError, InitError) as error:
         logger.error("Unable to build pak file")
         logger.error(f"{error.args['message']}")
-        logger.error(f"{error.args['recommendatm ion']}")
+        logger.error(f"{error.args['recommendation']}")
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
