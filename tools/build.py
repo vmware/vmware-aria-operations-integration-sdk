@@ -145,7 +145,7 @@ def main():
                             format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
                             datefmt="%H:%M:%S",
                             level=logging.DEBUG)
-    except Exception as e:
+    except Exception:
         logging.basicConfig(level=logging.CRITICAL + 1)
 
     description = "Tool for building a pak file for a project."
@@ -155,7 +155,14 @@ def main():
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
                                              "or prompts if current directory is not a project.")
 
-    project = get_project(parser.parse_args())
+    project = None
+    try:
+        project = get_project(parser.parse_args())
+    except KeyboardInterrupt:
+        logger.debug("Ctrl C pressed by user")
+        print("Exiting script")
+        exit(0)
+
     # We want to store pak files in the build dir
     build_dir = os.path.join(project["path"], 'build')
     # Any artifacts for generating the pak file should be stored here
@@ -179,8 +186,12 @@ def main():
     except (BuildError, PushError, InitError) as error:
         logger.error("Unable to build pak file")
         logger.error(f"{error.args['message']}")
-        logger.error(f"{error.args['recommendation']}")
+        logger.error(f"{error.args['recommendatm ion']}")
         exit(1)
+    except KeyboardInterrupt:
+        logger.debug("Ctrl C pressed by user")
+        print("\nBuild canceled")
+        exit(0)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
         logger.debug(exception)

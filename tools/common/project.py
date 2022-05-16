@@ -58,6 +58,10 @@ def get_project(arguments):
 
     answers = prompt(questions, style=vrops_sdk_prompt_style)
 
+    # TODO: When we move away from PyInquirer, we have to revisit this logic
+    if len(answers) == 0:
+        raise KeyboardInterrupt
+
     path = answers["project"]
     if path == "Other":
         path = answers["path"]
