@@ -35,7 +35,7 @@ def init():
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" in e.args[0]:
             raise InitError(message="Cannot connect to the Docker daemon at unix:///var/run/docker.sock.",
-                            recommnedation="Check that the docker daemon is running")
+                            recommendation="Check that the docker daemon is running")
         elif "PermissionError" in e.args[0]:
             raise InitError(message="Cannot run docker commands.",
                             recommendation=f"Make sure the user {os.getlogin()} has permissions to run docker")
@@ -83,21 +83,25 @@ def build_image(client, path, tag):
         raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
 
 
-class LoginError(Exception):
+class DockerWrapperError(Exception):
+    def __init__(self, message="", recommendation=""):
+        self.message = message
+        self.recommendation = recommendation
+
+
+class LoginError(DockerWrapperError):
     """Raised when there is an error logging into docker"""
     pass
 
 
-class InitError(Exception):
+class InitError(DockerWrapperError):
     """Raised when there is an error starting the docker client"""
-    pass
 
 
-class PushError(Exception):
+class PushError(DockerWrapperError):
     """Raised when the registry server sends back an error"""
     pass
 
 
-class BuildError(Exception):
+class BuildError(DockerWrapperError):
     """Raised when and error occurs while building the Docker image"""
-    pass

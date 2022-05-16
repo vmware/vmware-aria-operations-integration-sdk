@@ -34,6 +34,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
 
 
 def with_keyboard_interrupt(ans):
@@ -473,8 +475,6 @@ def main():
     except BaseException as base_error:
         logger.error(base_error)
         exit(1)
-
-
 
 
 if __name__ == '__main__':

@@ -13,6 +13,8 @@ from common.project import get_project
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
 
 
 def build_subdirectories(directory: str):
@@ -190,8 +192,7 @@ def main():
         shutil.move(pak_file, build_dir)
     except (BuildError, PushError, InitError) as error:
         logger.error("Unable to build pak file")
-        logger.error(f"{error.args['message']}")
-        logger.error(f"{error.args['recommendation']}")
+        logger.error(f"{error.message} \n {error.recommendation}")
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
