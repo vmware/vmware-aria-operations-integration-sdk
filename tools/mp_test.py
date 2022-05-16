@@ -7,9 +7,7 @@ import os
 import time
 import xml.etree.ElementTree as ET
 from json import JSONDecodeError
-from pprint import pprint
 
-import docker
 import logging
 import openapi_core
 import requests
@@ -53,9 +51,9 @@ def run(arguments):
     method = get_method(arguments)
 
     docker_client = init()
-    print("Building adapter image")
+    logger.info("Building adapter image")
     image = create_container_image(docker_client, project["path"])
-    print("Starting adapter HTTP server")
+    logger.info("Starting adapter HTTP server")
     container = run_image(docker_client, image, project["path"])
 
     try:
@@ -69,13 +67,13 @@ def run(arguments):
                     f"http://localhost:{DEFAULT_PORT}/apiVersion",
                     headers={"Accept": "application/json"})
                 started = True
-                print(f"HTTP Server started with adapter version {version.text.strip()}.")
+                logger.info(f"HTTP Server started with adapter version {version.text.strip()}.")
             except (RequestException, ConnectionError) as e:
                 elapsed_time = time.perf_counter() - start_time
                 if elapsed_time > max_wait_time:
-                    print(f"HTTP Server did not start after {max_wait_time} seconds")
+                    logger.info(f"HTTP Server did not start after {max_wait_time} seconds")
                     exit(1)
-                print("Waiting for HTTP server to start...")
+                logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
         args = vars(arguments)
@@ -86,7 +84,7 @@ def run(arguments):
             method(project, connection)
             times = times - 1
             if times > 0:
-                print(f"{times} requests remaining. Waiting {wait} seconds until next request.")
+                logger.info(f"{times} requests remaining. Waiting {wait} seconds until next request.")
                 time.sleep(wait)
     finally:
         stop_container(container)
@@ -138,7 +136,7 @@ def get_version(project, connection):
     response = requests.get(
         f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"})
-    print(f"Adapter version: {response.text}")
+    logger.info(f"Adapter version: {response.text}")
 
 
 def wait(project, connection):
@@ -158,7 +156,7 @@ def handle_response(request, response):
     with open(schema_file, "r") as schema:
         try:
             json_response = json.loads(response.text)
-            print(json.dumps(json_response, sort_keys=True, indent=3))
+            logger.info(json.dumps(json_response, sort_keys=True, indent=3))
 
             json_schema = json.load(schema)
             spec = openapi_core.create_spec(json_schema, validate_spec=True)
@@ -167,17 +165,17 @@ def handle_response(request, response):
             openapi_response = RequestsOpenAPIResponse(response)
             validation = validator.validate(openapi_request, openapi_response)
             if validation.errors is not None and len(validation.errors) > 0:
-                print("Validation failed: ")
+                logger.info("Validation failed: ")
                 for error in validation.errors:
                     if "schema_errors" in vars(error):
-                        pprint(vars(error)["schema_errors"])
+                        logger.info(vars(error)["schema_errors"])
                     else:
-                        pprint(error)
+                        logger.info(error)
         except JSONDecodeError as d:
-            print("Returned result is not valid json:")
-            print("Response:")
-            print(repr(response.text))
-            print(f"Error: {d}")
+            logger.info("Returned result is not valid json:")
+            logger.info("Response:")
+            logger.info(repr(response.text))
+            logger.info(f"Error: {d}")
 
 
 # Docker helpers ***************
@@ -238,13 +236,13 @@ def get_connection(project, arguments):
         for connection in project["connections"]:
             if answers["connection"] == connection["name"]:
                 return connection
-        print(f"Cannot find connection corresponding to {answers['connection']}.")
+        logger.info(f"Cannot find connection corresponding to {answers['connection']}.")
         exit(1)
 
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:
-        print("Cannot find adapter instance in conf/describe.xml.")
-        print("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
+        logger.info("Cannot find adapter instance in conf/describe.xml.")
+        logger.info("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
     credential_kinds = get_credential_kinds(describe)
@@ -461,7 +459,7 @@ def main():
         run(parser.parse_args())
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        print("\nTesting canceled")
+        logger.info("\nTesting canceled")
         exit(0)
     except (InitError, BuildError) as docker_error:
         logger.error("Unable to build pak file")

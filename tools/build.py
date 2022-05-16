@@ -32,15 +32,15 @@ def build_subdirectories(directory: str):
         file_ext = os.path.splitext(file)[1].lower()
         if file_ext == ".properties":
             logger.error(f"Found .properties file in {os.path.basename(directory)}")
-            print(
+            logger.info(
                 f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
                 f"into a subdirectory inside the {directory} directory, and move the properties"
                 "file to a 'resources' directory that is also inside that subdirectory.")
-            print("")
-            print("The result should look like this: ")
-            print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
-            print(f"{directory}/myContent/resources/myContent.properties")
-            print(
+            logger.info("")
+            logger.info("The result should look like this: ")
+            logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            logger.info(f"{directory}/myContent/resources/myContent.properties")
+            logger.info(
                 f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
             exit(1)
 
@@ -161,7 +161,7 @@ def main():
         project = get_project(parser.parse_args())
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        print("Exiting script")
+        logger.info("Exiting script")
         exit(0)
 
     # We want to store pak files in the build dir
@@ -196,7 +196,7 @@ def main():
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        print("\nBuild canceled")
+        logger.info("\nBuild canceled")
         exit(0)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
