@@ -108,10 +108,6 @@ def build_pak_file(project_path):
     build_subdirectories("content/reports")
 
     pak_file = f"{name}.pak"
-    if os.path.exists(pak_file):
-        # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
-        os.remove(pak_file)
-
     with zipfile.ZipFile(pak_file, "w") as pak:
         zip_file(pak, "manifest.txt")
 
@@ -186,6 +182,12 @@ def main():
 
     try:
         pak_file = build_pak_file(project["path"])
+
+        if os.path.exists(os.path.join(build_dir, pak_file)):
+            # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+            logger.debug("Deleting old pak file")
+            os.remove(os.path.join(build_dir, pak_file))
+
         shutil.move(pak_file, build_dir)
     except (BuildError, PushError, InitError) as error:
         logger.error("Unable to build pak file")
