@@ -38,9 +38,152 @@ def is_valid_image(p: str):
         return f"{e}"
 
 
-def main():
-    get_root_directory()
+def create_resources_file(path, name, vendor, description):
+    resources_dir = mkdir(path, "resources")
+    resources_file = os.path.join(resources_dir, "resources.properties")
+    with open(resources_file, "w") as resources_fd:
+        resources_fd.write("#This is the default localization file.\n")
+        resources_fd.write("\n")
+        resources_fd.write("#The solution's localized name displayed in UI\n")
+        resources_fd.write(f"DISPLAY_NAME={name}\n")
+        resources_fd.write("\n")
+        resources_fd.write("#The solution's localized description\n")
+        resources_fd.write(f"DESCRIPTION={description}\n")
+        resources_fd.write("\n")
+        resources_fd.write("#The vendor's localized name\n")
+        resources_fd.write(f"VENDOR={vendor}\n")
 
+
+def create_eula_file(path, eula_file):
+    if not eula_file:
+        eula_file = "eula.txt"
+        with open(os.path.join(path, eula_file), "w") as eula_fd:
+            # Note: vROps requires a EULA file, and it must not be blank.
+            eula_fd.write("There is no EULA associated with this Management Pack.")
+    else:
+        copy(eula_file, path)
+        eula_file = os.path.basename(eula_file)
+
+    return eula_file
+
+
+def create_icon_file(path, icon_file):
+    if not icon_file:
+        icon_file = ""
+    else:
+        copy(icon_file, path)
+        icon_file = os.path.basename(icon_file)
+
+    return icon_file
+
+
+def create_manifest_file(path, name, eula_file, icon_file):
+    manifest_file = os.path.join(path, "manifest.txt")
+    manifest = {
+        "display_name": "DISPLAY_NAME",
+        "name": "".join(name.split(" ")),
+        "description": "DESCRIPTION",
+        "version": "1.0.0",
+        "vcops_minimum_version": "8.1.1",
+        "disk_space_required": 500,
+        "run_scripts_on_all_nodes": "true",
+        "eula_file": eula_file,
+        "platform": [
+            "Linux Non-VA",
+            "Linux VA"
+        ],
+        "vendor": "VENDOR",
+        "pak_icon": icon_file,
+        "pak_validation_script": {
+            "script": ""
+        },
+        "adapter_pre_script": {
+            "script": ""
+        },
+        "adapter_post_script": {
+            "script": ""
+        },
+        "adapters": [
+            "adapter.zip"
+        ],
+        "adapter_kinds": [
+            "".join(name.split(" "))
+        ],
+        "license_type": ""
+    }
+    with open(manifest_file, "w") as manifest_fd:
+        json.dump(manifest, manifest_fd, indent=4)
+
+    return manifest
+
+
+def create_describe(path, manifest):
+    # TODO: This should be a template file, or dynamically generated
+    describe_file = os.path.join(path, "conf", "describe.xml")
+    with open(describe_file, "w") as describe_fd:
+        describe_fd.write(
+            f"""<?xml version = '1.0' encoding = 'UTF-8'?>
+<!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
+<AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
+    <CredentialKinds>
+    </CredentialKinds>
+    <ResourceKinds>
+        <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
+            <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
+        </ResourceKind>
+        <ResourceKind key="CPU" nameKey="4"></ResourceKind>
+        <ResourceKind key="Disk" nameKey="5"></ResourceKind>
+        <ResourceKind key="System" nameKey="6"></ResourceKind>
+    </ResourceKinds>
+</AdapterKind>""")
+
+
+def build_project(answers):
+    path = answers["project_directory"]
+    name = answers["name"]
+    description = answers['description']
+    vendor = answers['vendor']
+    eula_file = answers["eula_file"]
+    icon_file = answers["icon_file"]
+
+    mkdir(path)
+
+    project = Project(path)
+    record_project(project.__dict__)
+
+    content_dir = mkdir(path, "content")
+    conf_dir = mkdir(path, "conf")
+    dashboard_dir = mkdir(content_dir, "dashboards")
+    files_dir = mkdir(content_dir, "files")
+    reports_dir = mkdir(content_dir, "reports")
+
+    create_resources_file(path, name, vendor, description)
+    eula_file = create_eula_file(path, eula_file)
+    icon_file = create_icon_file(path, icon_file)
+    manifest = create_manifest_file(path, name, eula_file, icon_file)
+    create_describe(path, manifest)
+
+    # copy describe.xsd into conf directory
+    src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
+    dest = os.path.join(path, "conf")
+    copy(src, dest)
+
+    print("")
+
+    language = answers["language"]
+    # create project structure
+    executable_directory_path = build_project_structure(path, manifest["name"], language)
+
+    # create Dockerfile
+    create_dockerfile(language, path, executable_directory_path)
+
+    # create Commandsfile
+    create_commands_file(language, path, executable_directory_path)
+    print("")
+    print("project generation completed")
+
+
+def ask_project_questions():
     questions = [
         {
             "type": "input",
@@ -109,128 +252,25 @@ def main():
         }
     ]
 
-    answers = prompt(questions, style=vrops_sdk_prompt_style)
+    return prompt(questions, style=vrops_sdk_prompt_style)
 
+
+def main():
+    get_root_directory()
+
+    answers = ask_project_questions()
+    # TODO: add try except KeyboardInterrupt when we move away from PyInquirer
+    if len(answers) == 0:
+        logger.debug("Ctrl C pressed by user")
+        print("Exiting script")
+        exit(0)
+
+    # We need to know the root directory of the project in case we have to delete it
     path = answers["project_directory"]
-    name = answers["name"]
 
     # create project_directory
     try:
-        mkdir(path)
-
-        project = Project(path)
-        record_project(project.__dict__)
-
-        content_dir = mkdir(path, "content")
-        conf_dir = mkdir(path, "conf")
-        dashboard_dir = mkdir(content_dir, "dashboards")
-        files_dir = mkdir(content_dir, "files")
-        reports_dir = mkdir(content_dir, "reports")
-
-        resources_dir = mkdir(path, "resources")
-        resources_file = os.path.join(resources_dir, "resources.properties")
-        with open(resources_file, "w") as resources_fd:
-            resources_fd.write("#This is the default localization file.\n")
-            resources_fd.write("\n")
-            resources_fd.write("#The solution's localized name displayed in UI\n")
-            resources_fd.write(f"DISPLAY_NAME={name}\n")
-            resources_fd.write("\n")
-            resources_fd.write("#The solution's localized description\n")
-            resources_fd.write(f"DESCRIPTION={answers['description']}\n")
-            resources_fd.write("\n")
-            resources_fd.write("#The vendor's localized name\n")
-            resources_fd.write(f"VENDOR={answers['vendor']}\n")
-
-        if not answers["eula_file"]:
-            eula_file = "eula.txt"
-            with open(os.path.join(path, eula_file), "w") as eula_fd:
-                # Note: vROps requires a EULA file, and it must not be blank.
-                eula_fd.write("There is no EULA associated with this Management Pack.")
-        else:
-            eula_file = answers["eula_file"]
-            copy(eula_file, path)
-            eula_file = os.path.basename(eula_file)
-
-        if not answers["icon_file"]:
-            icon_file = ""
-        else:
-            icon_file = answers["icon_file"]
-            copy(icon_file, path)
-            icon_file = os.path.basename(icon_file)
-
-        manifest_file = os.path.join(path, "manifest.txt")
-        manifest = {
-            "display_name": "DISPLAY_NAME",
-            "name": "".join(name.split(" ")),
-            "description": "DESCRIPTION",
-            "version": "1.0.0",
-            "vcops_minimum_version": "8.1.1",
-            "disk_space_required": 500,
-            "run_scripts_on_all_nodes": "true",
-            "eula_file": eula_file,
-            "platform": [
-                "Linux Non-VA",
-                "Linux VA"
-            ],
-            "vendor": "VENDOR",
-            "pak_icon": icon_file,
-            "pak_validation_script": {
-                "script": ""
-            },
-            "adapter_pre_script": {
-                "script": ""
-            },
-            "adapter_post_script": {
-                "script": ""
-            },
-            "adapters": [
-                "adapter.zip"
-            ],
-            "adapter_kinds": [
-                "".join(name.split(" "))
-            ],
-            "license_type": ""
-        }
-        with open(manifest_file, "w") as manifest_fd:
-            json.dump(manifest, manifest_fd, indent=4)
-
-        # TODO: This should be a template file, or dynamically generated
-        describe_file = os.path.join(path, "conf", "describe.xml")
-        with open(describe_file, "w") as describe_fd:
-            describe_fd.write(
-                f"""<?xml version = '1.0' encoding = 'UTF-8'?>
-<!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
-<AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
-    <CredentialKinds>
-    </CredentialKinds>
-    <ResourceKinds>
-        <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
-            <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
-        </ResourceKind>
-        <ResourceKind key="CPU" nameKey="4"></ResourceKind>
-        <ResourceKind key="Disk" nameKey="5"></ResourceKind>
-        <ResourceKind key="System" nameKey="6"></ResourceKind>
-    </ResourceKinds>
-</AdapterKind>""")
-
-        # copy describe.xsd into conf directory
-        src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
-        dest = os.path.join(path, "conf")
-        copy(src, dest)
-
-        print("")
-
-        language = answers["language"]
-        # create project structure
-        executable_directory_path = build_project_structure(path, manifest["name"], language)
-
-        # create Dockerfile
-        create_dockerfile(language, path, executable_directory_path)
-
-        # create Commandsfile
-        create_commands_file(language, path, executable_directory_path)
-        print("")
-        print("project generation completed")
+        build_project(answers)
     except Exception as error:
         logger.debug("Deleting generated artifacts")
         logger.error(error)
