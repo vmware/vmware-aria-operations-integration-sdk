@@ -79,8 +79,7 @@ def build_pak_file(project_path):
         # docker_conf.write(f"ImageTag={registry_tag}\n")
         docker_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(
-            f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
+        docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
         # solution, since this might be unique to harbor
         docker_conf.write(f"DIGEST={digest}\n")
 
