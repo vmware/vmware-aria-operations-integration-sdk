@@ -74,11 +74,16 @@ the creation of a new management pack project.
 
     *This Management Pack's display name is 'TestAdapter', and uses the default icon*
 
-3. `Management Pack description`
+3. `Management Pack adapter key`
+
+    This field is used internally to identify the Management Pack and Adapter Kind. By default, it is set to the 
+    Management Pack display name with special characters and whitespace stripped from it.
+
+4. `Management Pack description`
 
     This field should describe what the Management Pack will do or monitor.
 
-4. `Management Pack vendor`
+5. `Management Pack vendor`
 
     The vendor field shows up in the UI under 'About' on the Integration Card.
 
@@ -86,7 +91,7 @@ the creation of a new management pack project.
 
     *This Management Pack's vendor is 'VMware'*
 
-5. `Enter a path to a EULA text file, or leave blank for no EULA`
+6. `Enter a path to a EULA text file, or leave blank for no EULA`
 
     vROps requires a EULA file to be present in a Management
     Pack. If one isn't provided, a stub EULA file (`eula.txt` in the root project directory) will be added to the project
@@ -95,7 +100,7 @@ the creation of a new management pack project.
     There is no EULA associated with this Management Pack.
     ```
 
-6. `Enter a path to the Management Pack icon file, or leave blank for no icon`
+7. `Enter a path to the Management Pack icon file, or leave blank for no icon`
 
     The icon is used in the vROps UI if present. If it is not present, a default icon will be used. 
     The icon file must be png format and 256x256 px. An icon file can be added later by copying the icon to the root
@@ -117,12 +122,14 @@ test the selected project. If the tool is run from a project directory, the tool
 project.
 
 `mp-test` will ask for a _connection_. No connections should exist, so choose **New Connection**. The test tool then
-parses the `describe.xml` file to find the connection parameters and credentials required for a connection, and prompts
+reads the `conf/describe.xml` file to find the connection parameters and credentials required for a connection, and prompts
 for each. This is similar to creating a new _Adapter Instance_ in the vROps UI. Connections are automatically saved
 per project, and can be reused when re-running the `mp-test` tool.
 
 In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
-the parameter is not necessary; it is only there as an example, and can be set to any value.
+this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements
+an example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test
+Connection will fail.
 
 The test tool also asks for the method to test. There are four options:
 * Test Connection - This call tests the connection and returns either an error message if the connection failed, or an empty json object if the connection succeeded.

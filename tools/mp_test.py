@@ -13,19 +13,21 @@ import docker
 import openapi_core
 import requests
 import urllib3
-from PyInquirer import prompt
 from docker import DockerClient
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.validators import ResponseValidator
+from prompt_toolkit import prompt
+from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from common.constant import DEFAULT_PORT
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
-from common.style import vrops_sdk_prompt_style
+from common.ui import selection_prompt, print_formatted as print
+from common.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -82,21 +84,12 @@ def get_method(arguments):
     if "func" in vars(arguments):
         return vars(arguments)["func"]
 
-    ans = prompt([
-        {
-            "type": "list",
-            "name": "method",
-            "message": "Choose a method to test:",
-            "choices": ["Test Connection", "Collect", "Endpoint URLs", "Version"],
-        }], style=vrops_sdk_prompt_style)
-    if ans["method"] == "Test Connection":
-        return post_test
-    elif ans["method"] == "Collect":
-        return post_collect
-    elif ans["method"] == "Endpoint URLs":
-        return post_endpoint_urls
-    else:
-        return get_version
+    return selection_prompt(
+        "Choose a method to test:",
+        [(post_test, "Test Connection"),
+         (post_collect, "Collect"),
+         (post_endpoint_urls, "Endpoint URLs"),
+         (get_version, "Version")])
 
 
 # REST calls ***************
@@ -205,24 +198,18 @@ def get_connection(project, arguments):
     connection_names = [connection["name"] for connection in project["connections"]]
     describe = get_describe(project["path"])
     project.setdefault("connections", [])
-    questions = [
-        {
-            "type": "list",
-            "name": "connection",
-            "message": "Choose a connection:",
-            "choices": connection_names + ["New Connection"],
-        }
-    ]
-    if arguments.connection not in connection_names:
-        answers = prompt(questions, style=vrops_sdk_prompt_style)
-    else:
-        answers = {"connection": arguments.connection}
 
-    if answers["connection"] != "New Connection":
+    if arguments.connection not in connection_names:
+        connection = selection_prompt("Choose a connection: ",
+                                      connection_names + [("new_connection", "New Connection")])
+    else:
+        connection = arguments.connection
+
+    if connection != "new_connection":
         for connection in project["connections"]:
-            if answers["connection"] == connection["name"]:
+            if connection == connection["name"]:
                 return connection
-        print(f"Cannot find connection corresponding to {answers['connection']}.")
+        print(f"Cannot find connection corresponding to {connection}.")
         exit(1)
 
     adapter_instance_kind = get_adapter_instance(describe)
@@ -234,38 +221,44 @@ def get_connection(project, arguments):
     credential_kinds = get_credential_kinds(describe)
     valid_credential_kind_keys = (adapter_instance_kind.get("credentialKind") or "").split(",")
 
-    identifiers = get_identifiers(adapter_instance_kind)
+    print("""
+    Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target 
+    envrironment. As such, the following connection parameters and credential fields are derived from the 
+    'conf/describe.xml' file and are specific to each Management Pack.
+    """, "fg:ansidarkgray")
 
-    questions = []
-    for identifier in sorted(identifiers, key=lambda i: int(i.get("dispOrder") or "100")):
-        required = (identifier.get("required") or "true").lower() == "true"
-        postfix = "': "
-        if not required:
-            postfix = "' (Optional): "
-        questions.append({
-            "type": "input",
-            "message": "Enter connection parameter '" + identifier.get("key") + postfix,
-            "name": identifier.get("key"),
-            "validate": lambda v: True if (not required) else (
-                True if v else "Parameter is required and cannot be blank."),
-            "filter": lambda v: {
-                "value": v,
-                "required": required,
-                "part_of_uniqueness": identifier.get("identType") == "1"
-            }
-        })
+    # TODO: Parse resources.properties and use nameKey labels (if they exist) for UI purposes.
+    #       If we do this we can also use the <nameKey>.description text here too for additional explanation.
 
-    identifiers = prompt(questions, style=vrops_sdk_prompt_style)
+    identifiers = {}
+    for identifier in sorted(get_identifiers(adapter_instance_kind), key=lambda i: int(i.get("dispOrder") or "100")):
+        key = identifier.get("key")
+        is_required = (identifier.get("required") or "true").lower() == "true"
+        postfix = "': " if is_required else "' (Optional): "
+        default = identifier.get("default") or ""
+        is_integer = (identifier.get("type") or "string") == "integer"
+        is_enum = (identifier.get("enum") or "false").lower() == "true"
+
+        if is_enum:
+            enum_values = [(enum_value.get("value"), enum_value.get("value")) for enum_value in identifier.findall(ns("enum"))]
+            value = selection_prompt("Enter connection parameter '" + key + postfix, enum_values)
+        else:
+            value = prompt(message="Enter connection parameter '" + key + postfix,
+                           default=default,
+                           validator=ChainValidator([ConditionalValidator(NotEmptyValidator(f"Parameter '{key}'"), is_required),
+                                                    ConditionalValidator(IntegerValidator(f"Parameter '{key}'"), is_integer)]))
+
+        identifiers[key] = {
+            "value": value,
+            "required": is_required,
+            "part_of_uniqueness": identifier.get("identType") == "1"
+        }
+
     credential_type = valid_credential_kind_keys[0]
 
     if len(valid_credential_kind_keys) > 1:
-        questions = [{
-            "type": "list",
-            "message": "Select the credential kind for this connection:",
-            "name": "credential_kind",
-            "choices": valid_credential_kind_keys
-        }]
-        credential_type = prompt(questions, style=vrops_sdk_prompt_style)["credential_kind"]
+        credential_type = selection_prompt("Select the credential kind for this connection: ",
+                                           [(kind_key, kind_key) for kind_key in valid_credential_kind_keys])
 
     # Get credential Kind element
     credential_kind = [credential_kind for credential_kind in credential_kinds if
@@ -274,38 +267,29 @@ def get_connection(project, arguments):
     if len(credential_kind) == 1:
         credential_fields = credential_kind[0].findall(ns("CredentialField"))
 
-        questions = []
-        for credential_field in credential_fields:
-            required = (credential_field.get("required") or "true").lower() == "true"
-            postfix = ": "
-            if not required:
-                postfix = " (Optional): "
-            password = (credential_field.get("password") or "false").lower() == "true"
-            questions.append({
-                "type": "input" if (not password) else "password",
-                "message": credential_field.get("key") + postfix,
-                "name": credential_field.get("key"),
-                "validate": lambda v: True if (not required) else (
-                    True if v else "This field is required and cannot be blank."),
-                "filter": lambda v: {"value": v, "required": required, "password": password}
-            })
-
-        credentials = prompt(questions, style=vrops_sdk_prompt_style)
         credentials["credential_kind_key"] = credential_type
+        for credential_field in credential_fields:
+            key = credential_field.get("key")
+            is_required = (credential_field.get("required") or "true").lower() == "true"
+            is_password = (credential_field.get("password") or "false").lower() == "true"
+            postfix = "': " if is_required else "' (Optional): "
 
-    connection_names = list(map(lambda connection: connection["name"], (project["connections"] or [])))
+            value = prompt(message="Enter credential field '" + key + postfix,
+                           is_password=is_password,
+                           validator=ConditionalValidator(NotEmptyValidator(f"Credential field '{key}'"), is_required))
+
+            credentials[key] = {
+                "value": value,
+                "required": is_required,
+                "password": is_password
+            }
+
+    connection_names = [connection["name"] for connection in (project["connections"] or [])]
     connection_names.append("New Connection")
 
-    questions = [
-        {
-            "type": "input",
-            "name": "name",
-            "message": "Enter a name for this connection:",
-            "validate": lambda connection_name: connection_name not in connection_names or "A connection with that "
-                                                                                           "name already exists. "
-        }
-    ]
-    name = prompt(questions, style=vrops_sdk_prompt_style)["name"]
+    name = prompt(message="Enter a name for this connection: ",
+                  validator=UniquenessValidator("Connection name", connection_names),
+                  validate_while_typing=False)
     new_connection = Connection(name, identifiers, credentials).__dict__
     project["connections"].append(new_connection)
     record_project(project)

@@ -2,7 +2,9 @@ import json
 import os
 import zipfile
 
+from prompt_toolkit import print_formatted_text as print, prompt
 from . import constant
+from .constant import REPOSITORY_LOCATION
 
 
 def get_absolute_project_directory(*path: [str]):
@@ -35,18 +37,17 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        while not os.path.exists(
-                repo_path := input(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")) \
-                and repo_path != "q":
+        repo_path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")
+        while not os.path.exists(repo_path) and repo_path != "q":
             print(f"{repo_path} is not a valid path")
+            repo_path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")
 
         if repo_path == "q":
             exit_and_prompt()
+        return repo_path
     except KeyboardInterrupt:
         print()
         exit_and_prompt()
-
-    return repo_path
 
 
 def exit_and_prompt():

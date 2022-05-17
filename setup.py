@@ -22,7 +22,7 @@ setup(
     install_requires=[
         "docker==5.0.3",
         "Pillow==9.1.0",
-        "PyInquirer==1.0.3",
+        "prompt_toolkit==3.0.29",
         "requests==2.27.1",
         "urllib3==1.26.9",
         "common==0.1.2",
