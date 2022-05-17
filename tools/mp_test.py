@@ -47,6 +47,14 @@ def with_keyboard_interrupt(ans):
 def run(arguments):
     # User input
     project = get_project(arguments)
+    try:
+        logging.basicConfig(filename=f"{project['path']}/logs/test.log",
+                            filemode="a",
+                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                            datefmt="%H:%M:%S",
+                            level=logging.DEBUG)
+    except Exception:
+        logging.basicConfig(level=logging.CRITICAL + 1)
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
@@ -402,14 +410,6 @@ def get_request_body(project, connection):
 
 
 def main():
-    try:
-        logging.basicConfig(filename="logs/test.log",
-                            filemode="a",
-                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-                            datefmt="%H:%M:%S",
-                            level=logging.DEBUG)
-    except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
 
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
@@ -460,7 +460,7 @@ def main():
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
         print("")
-        logger.info("Testing canceled")
+        logger.info("Testing cancelled")
         exit(1)
     except (InitError, BuildError) as docker_error:
         logger.error("Unable to build pak file")

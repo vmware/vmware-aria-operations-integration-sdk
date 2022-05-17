@@ -140,25 +140,27 @@ def build_pak_file(project_path):
 
 
 def main():
+
     try:
-        logging.basicConfig(filename="logs/build.log",
-                            filemode="a",
-                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-                            datefmt="%H:%M:%S",
-                            level=logging.DEBUG)
-    except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
+        description = "Tool for building a pak file for a project."
+        parser = argparse.ArgumentParser(description=description)
 
-    description = "Tool for building a pak file for a project."
-    parser = argparse.ArgumentParser(description=description)
+        # General options
+        parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
+                                                 "or prompts if current directory is not a project.")
 
-    # General options
-    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
-                                             "or prompts if current directory is not a project.")
-
-    temp_dir = ""
-    try:
+        temp_dir = ""
         project = get_project(parser.parse_args())
+
+        try:
+            logging.basicConfig(filename=f"{project['path']}/logs/build.log",
+                                filemode="a",
+                                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                                datefmt="%H:%M:%S",
+                                level=logging.DEBUG)
+        except Exception:
+            logging.basicConfig(level=logging.CRITICAL + 1)
+
         # We want to store pak files in the build dir
         build_dir = os.path.join(project["path"], 'build')
         # Any artifacts for generating the pak file should be stored here
