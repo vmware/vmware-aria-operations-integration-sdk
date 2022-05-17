@@ -1,25 +1,24 @@
 import docker
+
 import common.constant as constant
-import common.style as style
-
-from common.filesystem import get_absolute_project_directory
-from common.config import get_config_values, get_config_value, set_config_value
+from common import docker_wrapper
+from common.config import get_config_value, set_config_value
 from common.docker_wrapper import login, init, push_image
-
-from PyInquirer import prompt
+from common.filesystem import get_absolute_project_directory
+from common.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
 
 def update_version(update_type: str, current_version: str) -> str:
     semantic_components = list(map(int, current_version.split(".")))
 
-    if update_type in "major":
+    if update_type == "major":
         semantic_components[0] = semantic_components[0] + 1
         semantic_components[1] = 0
         semantic_components[2] = 0
-    elif update_type in "minor":
+    elif update_type == "minor":
         semantic_components[1] = semantic_components[1] + 1
         semantic_components[2] = 0
-    elif update_type in "patch":
+    elif update_type == "patch":
         semantic_components[2] = semantic_components[2] + 1
     else:
         raise ValueError(f"Value not identified: {update_type}")
@@ -28,58 +27,32 @@ def update_version(update_type: str, current_version: str) -> str:
 
 
 def should_update_version(language: str, current_version: str) -> str:
-    return prompt({
-        "type": "list",
-        "message": f"Update the version of the {language} image (current version:"
-                   f" {current_version})",
-        "name": "update",
-        "choices": [
-            {
-                "name": "major",
-                "value": "major"
-            },
-            {
-                "name": "minor",
-                "value": "minor"
-            },
-            {
-                "name": "patch",
-                "value": "patch"
-            },
-            {
-                "name": "no update",
-                "value": "no_update"
-            },
-        ]
-    }, style=style.vrops_sdk_prompt_style)["update"]
+    return selection_prompt(
+        prompt=f"Update the version of the {language} image (current version: {current_version})",
+        items=[
+            ("major", "Major"),
+            ("minor", "Minor"),
+            ("patch", "Patch"),
+            ("no_update", "No Update")
+        ])
 
 
 def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
     # Create an array with the base image as the first option
-    choices = [{
-        "name": f"{base_image['language']}",
-        "value": base_image,
-        "checked": True
-    }]
+    choices = [(base_image, f"{base_image['language']}", True)]
 
     # Create choices for all secondary images and add it to the current choices
-    choices.extend([{"name": f"{i['language']}", "value": i} for i in secondary_images])
+    choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
 
-    answer = prompt({
-        "type": "checkbox",
-        "message": "Select one or more docker images to build: ",
-        "name": "images",
-        "choices": choices,
-        "validate": lambda a: "You must choose at least one image." if len(a) == 0 else True
-        # Validation doesn't work: https://github.com/CITGuru/PyInquirer/issues/161
-    }, style=style.vrops_sdk_prompt_style)
+    images = multiselect_prompt(
+        prompt="Select one or more docker images to build:",
+        items=choices)
 
-    if len(answer[
-               'images']) == 0:  # TODO remove this logic whenever validation for PyInquirer starts working again
+    if len(images) == 0:
         print("No images were selected to build. Exiting.")
         exit(1)
 
-    return answer['images']
+    return images
 
 
 def main():
@@ -103,18 +76,18 @@ def main():
     if any(i in images_to_build for i in secondary_images):
         set_config_value("secondary_images", secondary_images, constant.VERSION_FILE)
 
-    push_to_registry: bool = prompt({
-        "type": "confirm",
-        "message": f"Push images to {registry_url}/{repo}?",
-        "name": "push_to_registry"  # TODO add registry and repo
-    }, style=style.vrops_sdk_prompt_style)["push_to_registry"]
+    push_to_registry: bool = selection_prompt(
+        prompt=f"Push images to {registry_url}/{repo}?",
+        items=[(True, "Yes"),
+               (False, "No")])
 
     if push_to_registry:
         registry_url = login()
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
-        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"], path=image["path"])
+        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"],
+                                path=image["path"])
 
         if push_to_registry:
             push_image_to_registry(client, new_image, registry_url, repo)
@@ -139,7 +112,7 @@ def build_image(client: docker.client, language: str, version: str, path: str):
                                           path=build_path,
                                           tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
                                           )
-    #TODO: handle build error
+    # TODO: handle build error
 
     # TODO try pulling/building base image
 
@@ -172,6 +145,7 @@ def push_image_to_registry(client, image, registry_url: str, repo: str):
 
         print(f"removing {reference_tag} from local client")
         client.images.remove(reference_tag)
+
 
 if __name__ == "__main__":
     main()

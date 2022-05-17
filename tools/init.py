@@ -2,113 +2,57 @@ import json
 import os
 from shutil import copy
 
-from PIL import Image, UnidentifiedImageError
-from PyInquirer import prompt
+from prompt_toolkit import prompt
+from prompt_toolkit.completion.filesystem import PathCompleter
 
 import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
 from common.config import get_config_value
-from common.filesystem import get_absolute_project_directory, get_root_directory
+from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir
 from common.project import Project, record_project
-from common.style import vrops_sdk_prompt_style
-
-
-def is_directory_or_not_existing(p: str):
-    if not os.path.exists(p):
-        return True
-    if os.path.isfile(p):
-        return "Path must be a directory."
-    return True
-
-
-def is_valid_image(p: str):
-    try:
-        image = Image.open(p, formats=["PNG"])
-        return True if image.size == (256, 256) else "Image must be 256x256 pixels"
-    except FileNotFoundError:
-        return "Could not find image file"
-    except TypeError:
-        return "Image must be in PNG format"
-    except UnidentifiedImageError as e:
-        return f"{e}"
+from common.ui import print_formatted as print
+from common.ui import selection_prompt
+from common.validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
+    ImageValidator
 
 
 def main():
     get_root_directory()
 
-    questions = [
-        {
-            "type": "input",
-            "name": "project_directory",
-            "message": "Enter a path for the project (where code for collection, metadata, and content reside): ",
-            "validate": is_directory_or_not_existing
-        },
-        {
-            "type": "input",
-            "name": "name",
-            "message": "Management Pack display name: ",
-        },
-        {
-            "type": "input",
-            "name": "description",
-            "message": "Management Pack description: ",
-        },
-        {
-            "type": "input",
-            "name": "vendor",
-            "message": "Management Pack vendor: ",
-        },
-        {
-            "type": "input",
-            "name": "eula_file",
-            "message": "Enter a path to a EULA text file, or leave blank for no EULA: ",
-            "validate": lambda file: True if file == "" or os.path.isfile(file) else "Path must be a text file."
-        },
-        {
-            "type": "list",
-            "name": "eula_message",
-            "when": lambda a: not a["eula_file"],
-            "message": "A EULA can be added later by editing the default 'eula.txt' file.",
-            "choices": ["Ok"]
-        },
-        {
-            "type": "input",
-            "name": "icon_file",
-            "message": "Enter a path to the Management Pack icon file, or leave blank for no icon: ",
-            "validate": lambda image_file: image_file == "" or is_valid_image(image_file)
-        },
-        {
-            "type": "list",
-            "name": "icon_message",
-            "when": lambda a: not a["icon_file"],
-            "message": "An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
-                       "name and adding the icon file to the root project directory.",
-            "choices": ["Ok"]
-        },
-        {
-            "type": "list",
-            "name": "language",
-            "message": "Select a language for the adapter. Supported languages are: ",
-            "choices": [
-                "Python",
-                {
-                    "name": "Java",
-                    "disabled": "Unavailable for alpha release"
-                },
-                {
-                    "name": "Powershell",
-                    "disabled": "Unavailable for alpha release"
-                },
-            ],
-            "filter": lambda l: l.lower()
-        }
-    ]
+    path = prompt(
+        "Enter a path for the project (where code for collection, metadata, and content reside): ",
+        validator=NewProjectDirectoryValidator("Path"),
+        validate_while_typing=False,
+        completer=PathCompleter(),
+        complete_in_thread=True)
 
-    answers = prompt(questions, style=vrops_sdk_prompt_style)
+    name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
+    adapter_key = prompt("Management pack adapter key: ",
+                         validator=AdapterKeyValidator("Adapter key"),
+                         default=AdapterKeyValidator.default(name))
+    description = prompt("Management pack description: ", validator=NotEmptyValidator("Description"))
+    vendor = prompt("Management pack vendor: ", validator=NotEmptyValidator("Vendor"))
+    eula_file = prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
+                       validator=EulaValidator(),
+                       validate_while_typing=False,
+                       completer=PathCompleter(),
+                       complete_in_thread=True)
+    if eula_file == "":
+        print("A EULA can be added later by editing the default 'eula.txt' file.")
+    icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
+                       validator=ImageValidator(),
+                       validate_while_typing=False,
+                       completer=PathCompleter(),
+                       complete_in_thread=True)
+    if icon_file == "":
+        print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
+              "name and adding the icon file to the root project directory.")
 
-    path = answers["project_directory"]
-    name = answers["name"]
+    language = selection_prompt("Select a language for the adapter.",
+                                items=[("python", "Python"),
+                                       ("java", "Java", "Unavailable for alpha release"),
+                                       ("powershell", "PowerShell", "Unavailable for alpha release")])
 
     # create project_directory
     mkdir(path)
@@ -131,35 +75,33 @@ def main():
         resources_fd.write(f"DISPLAY_NAME={name}\n")
         resources_fd.write("\n")
         resources_fd.write("#The solution's localized description\n")
-        resources_fd.write(f"DESCRIPTION={answers['description']}\n")
+        resources_fd.write(f"DESCRIPTION={description}\n")
         resources_fd.write("\n")
         resources_fd.write("#The vendor's localized name\n")
-        resources_fd.write(f"VENDOR={answers['vendor']}\n")
+        resources_fd.write(f"VENDOR={vendor}\n")
 
-    if not answers["eula_file"]:
+    if not eula_file:
         eula_file = "eula.txt"
         with open(os.path.join(path, eula_file), "w") as eula_fd:
             # Note: vROps requires a EULA file, and it must not be blank.
             eula_fd.write("There is no EULA associated with this Management Pack.")
     else:
-        eula_file = answers["eula_file"]
         copy(eula_file, path)
         eula_file = os.path.basename(eula_file)
 
-    if not answers["icon_file"]:
+    if not icon_file:
         icon_file = ""
     else:
-        icon_file = answers["icon_file"]
         copy(icon_file, path)
         icon_file = os.path.basename(icon_file)
 
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
         "display_name": "DISPLAY_NAME",
-        "name": "".join(name.split(" ")),
+        "name": adapter_key,
         "description": "DESCRIPTION",
         "version": "1.0.0",
-        "vcops_minimum_version": "8.1.1",
+        "vcops_minimum_version": "8.7.1",
         "disk_space_required": 500,
         "run_scripts_on_all_nodes": "true",
         "eula_file": eula_file,
@@ -182,7 +124,7 @@ def main():
             "adapter.zip"
         ],
         "adapter_kinds": [
-            "".join(name.split(" "))
+            adapter_key
         ],
         "license_type": ""
     }
@@ -195,11 +137,11 @@ def main():
         describe_fd.write(
             f"""<?xml version = '1.0' encoding = 'UTF-8'?>
 <!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
-<AdapterKind key="{manifest['name']}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
+<AdapterKind key="{adapter_key}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
     <CredentialKinds>
     </CredentialKinds>
     <ResourceKinds>
-        <ResourceKind key="{manifest['name']}_adapter_instance" nameKey="2" type="7">
+        <ResourceKind key="{adapter_key}_adapter_instance" nameKey="2" type="7">
             <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
         </ResourceKind>
         <ResourceKind key="CPU" nameKey="4"></ResourceKind>
@@ -213,9 +155,6 @@ def main():
     dest = os.path.join(path, "conf")
     copy(src, dest)
 
-    print("")
-
-    language = answers["language"]
     # create project structure
     executable_directory_path = build_project_structure(path, manifest["name"], language)
 
@@ -225,29 +164,15 @@ def main():
     # create Commandsfile
     create_commands_file(language, path, executable_directory_path)
     print("")
+    print("")
     print("project generation completed")
-
-
-def input_with_retry(message: str, validation_function):
-    while True:
-        value = input(message)
-        if validation_function(value):
-            return value
-
-
-def mkdir(basepath, *paths):
-    path = os.path.join(basepath, *paths)
-    if not os.path.exists(path):
-        os.mkdir(path, 0o755)
-    return path
 
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     print("generating Dockerfile")
     version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-    print(version_file_path)
     images = [get_config_value("base_image", config_file=version_file_path)] + \
-        get_config_value("secondary_images", config_file=version_file_path)
+             get_config_value("secondary_images", config_file=version_file_path)
     version = next(iter(filter(
         lambda image: image["language"].lower() == language,
         images

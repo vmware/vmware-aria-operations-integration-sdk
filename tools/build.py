@@ -5,7 +5,7 @@ import shutil
 import time
 import zipfile
 
-import docker
+from common.ui import print_formatted as print
 
 from common.config import get_config_value
 from common.docker_wrapper import login, init, push_image, build_image
@@ -132,7 +132,6 @@ def main():
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
-
 
     # Every config file in dashboards and reports should be in its own subdirectory
     build_subdirectories("content/dashboards")

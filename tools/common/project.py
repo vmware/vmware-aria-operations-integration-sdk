@@ -1,9 +1,11 @@
 import os
 
-from PyInquirer import prompt
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import PathCompleter
 
 from common.config import get_config_value, set_config_value
-from common.style import vrops_sdk_prompt_style
+from common.ui import selection_prompt
+from common.validators import ProjectValidator
 
 
 class Connection:
@@ -24,43 +26,25 @@ class Project:
         self.docker_port = docker_port
 
 
-def is_project_dir(path):
-    return path is not None and os.path.isdir(path) and os.path.isfile(os.path.join(path, "manifest.txt"))
-
-
 def get_project(arguments):
     # If a path is supplied, use it first
     path = arguments.path
-    if is_project_dir(path):
+    if ProjectValidator.is_project_dir(path):
         return find_project_by_path(path)
 
     # Otherwise, check if the current directory is a project
-    if is_project_dir(os.getcwd()):
+    if ProjectValidator.is_project_dir(os.getcwd()):
         return find_project_by_path(os.getcwd())
 
     # Finally, prompt the user for the project
     projects = get_config_value("projects", [])
-    questions = [
-        {
-            "type": "list",
-            "name": "project",
-            "message": "Select a project: ",
-            "choices": [project["path"] for project in projects] + ["Other"]
-        },
-        {
-            "type": "input",
-            "name": "path",
-            "message": "Enter the path to the project: ",
-            "validate": lambda path: is_project_dir(path) or "Path must be a valid Management Pack project directory",
-            "when": lambda answers: answers["project"] == "Other"
-        },
-    ]
-
-    answers = prompt(questions, style=vrops_sdk_prompt_style)
-
-    path = answers["project"]
+    path = selection_prompt("Select a project: ", [(project["path"], project["path"]) for project in projects] + [("Other", "Other")])
     if path == "Other":
-        path = answers["path"]
+        path = prompt("Enter the path to the project: ",
+                      validator=ProjectValidator(),
+                      validate_while_typing=False,
+                      completer=PathCompleter(),
+                      complete_in_thread=True)
 
     return find_project_by_path(path)
 
