@@ -193,7 +193,7 @@ def main():
         logger.debug("Ctrl C pressed by user")
         print("")
         logger.info("Build cancelled")
-        exit(0)
+        exit(1)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
         logger.debug(exception)

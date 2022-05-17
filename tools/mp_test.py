@@ -71,7 +71,7 @@ def run(arguments):
             except (RequestException, ConnectionError) as e:
                 elapsed_time = time.perf_counter() - start_time
                 if elapsed_time > max_wait_time:
-                    logger.info(f"HTTP Server did not start after {max_wait_time} seconds")
+                    logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
                     exit(1)
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
@@ -172,10 +172,10 @@ def handle_response(request, response):
                     else:
                         logger.info(error)
         except JSONDecodeError as d:
-            logger.info("Returned result is not valid json:")
-            logger.info("Response:")
-            logger.info(repr(response.text))
-            logger.info(f"Error: {d}")
+            logger.error("Returned result is not valid json:")
+            logger.error("Response:")
+            logger.error(repr(response.text))
+            logger.error(f"Error: {d}")
 
 
 # Docker helpers ***************
@@ -236,13 +236,13 @@ def get_connection(project, arguments):
         for connection in project["connections"]:
             if answers["connection"] == connection["name"]:
                 return connection
-        logger.info(f"Cannot find connection corresponding to {answers['connection']}.")
+        logger.error(f"Cannot find connection corresponding to {answers['connection']}.")
         exit(1)
 
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:
-        logger.info("Cannot find adapter instance in conf/describe.xml.")
-        logger.info("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
+        logger.error("Cannot find adapter instance in conf/describe.xml.")
+        logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
     credential_kinds = get_credential_kinds(describe)
@@ -459,8 +459,9 @@ def main():
         run(parser.parse_args())
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        logger.info("\nTesting canceled")
-        exit(0)
+        print("")
+        logger.info("Testing canceled")
+        exit(1)
     except (InitError, BuildError) as docker_error:
         logger.error("Unable to build pak file")
         logger.error(f"{docker_error.args['message']}")

@@ -265,7 +265,7 @@ def main():
     if len(answers) == 0:
         logger.debug("Ctrl C pressed by user")
         logger.info("Exiting script")
-        exit(0)
+        exit(1)
 
     # We need to know the root directory of the project in case we have to delete it
     path = answers["project_directory"]
@@ -331,7 +331,7 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
             command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
         else:
             logger.error(f"language {language} is not supported")
-            exit(-1)
+            exit(1)
 
         commands.write("[Commands]\n")
         commands.write(f"test={command_and_executable} test\n")
