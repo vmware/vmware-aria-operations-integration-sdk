@@ -7,7 +7,7 @@ import zipfile
 import logging
 
 from common.config import get_config_value
-from common.docker_wrapper import login, init, push_image, build_image, BuildError, PushError, InitError
+from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 
@@ -156,32 +156,26 @@ def main():
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
                                              "or prompts if current directory is not a project.")
 
-    project = None
+    temp_dir = ""
     try:
         project = get_project(parser.parse_args())
-    except KeyboardInterrupt:
-        logger.debug("Ctrl C pressed by user")
-        logger.info("Exiting script")
-        exit(0)
+        # We want to store pak files in the build dir
+        build_dir = os.path.join(project["path"], 'build')
+        # Any artifacts for generating the pak file should be stored here
+        temp_dir = os.path.join(build_dir, 'tmp')
 
-    # We want to store pak files in the build dir
-    build_dir = os.path.join(project["path"], 'build')
-    # Any artifacts for generating the pak file should be stored here
-    temp_dir = os.path.join(build_dir, 'tmp')
+        if not os.path.exists(build_dir):
+            mkdir(build_dir)
 
-    if not os.path.exists(build_dir):
-        mkdir(build_dir)
+        # TODO: remove this copy and add the adequate logic to zip files from the source
+        shutil.copytree(
+            project["path"],
+            temp_dir,
+            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
+        )
 
-    # TODO: remove this copy and add the adequate logic to zip files from the source
-    shutil.copytree(
-        project["path"],
-        temp_dir,
-        ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
-    )
+        os.chdir(temp_dir)
 
-    os.chdir(temp_dir)
-
-    try:
         pak_file = build_pak_file(project["path"])
 
         if os.path.exists(os.path.join(build_dir, pak_file)):
@@ -190,9 +184,10 @@ def main():
             os.remove(os.path.join(build_dir, pak_file))
 
         shutil.move(pak_file, build_dir)
-    except (BuildError, PushError, InitError) as error:
+    except DockerWrapperError as error:
         logger.error("Unable to build pak file")
-        logger.error(f"{error.message} \n {error.recommendation}")
+        logger.error(error.message)
+        logger.info(error.recommendation)
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
@@ -203,8 +198,10 @@ def main():
         logger.debug(exception)
         exit(1)
     finally:
-        logger.debug(f"Deleting directory: {temp_dir}")
-        rmdir(temp_dir)
+        # There is a small provability that the temp dir doesn't exist
+        if os.path.exists(temp_dir):
+            logger.debug(f"Deleting directory: {temp_dir}")
+            rmdir(temp_dir)
 
 
 if __name__ == "__main__":

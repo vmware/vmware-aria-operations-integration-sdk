@@ -15,7 +15,9 @@ from common.project import Project, record_project
 from common.style import vrops_sdk_prompt_style
 
 logger = logging.getLogger(__name__)
-logger.setLevel(os.getenv("LOG_LEVEL", INFO).upper())
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
 
 
 def is_directory_or_not_existing(p: str):
@@ -168,7 +170,7 @@ def build_project(answers):
     dest = os.path.join(path, "conf")
     copy(src, dest)
 
-    print("")
+    logger.info("")
 
     language = answers["language"]
     # create project structure
@@ -179,8 +181,8 @@ def build_project(answers):
 
     # create Commandsfile
     create_commands_file(language, path, executable_directory_path)
-    print("")
-    print("project generation completed")
+    logger.info("")
+    logger.info("project generation completed")
 
 
 def ask_project_questions():
@@ -262,7 +264,7 @@ def main():
     # TODO: add try except KeyboardInterrupt when we move away from PyInquirer
     if len(answers) == 0:
         logger.debug("Ctrl C pressed by user")
-        print("Exiting script")
+        logger.info("Exiting script")
         exit(0)
 
     # We need to know the root directory of the project in case we have to delete it
@@ -292,7 +294,7 @@ def mkdir(basepath, *paths):
 
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
-    print("generating Dockerfile")
+    logger.info("generating Dockerfile")
     version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
     images = [get_config_value("base_image", config_file=version_file_path)] + \
              get_config_value("secondary_images", config_file=version_file_path)
@@ -317,7 +319,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
 
 def create_commands_file(language: str, path: str, executable_directory_path: str):
-    print("generating commands file")
+    logger.info("generating commands file")
     with open(os.path.join(path, "commands.cfg"), "w") as commands:
 
         command_and_executable = ""
@@ -328,7 +330,7 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
         elif "powershell" == language:
             command_and_executable = f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
         else:
-            print(f"ERROR: language {language} is not supported")
+            logger.error(f"language {language} is not supported")
             exit(-1)
 
         commands.write("[Commands]\n")
@@ -338,7 +340,7 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
 
 
 def build_project_structure(path: str, adapter_kind: str, language: str):
-    print("generating project structure")
+    logger.info("generating project structure")
     project_directory = ''  # this is where all the source code will reside
 
     if language == "python":

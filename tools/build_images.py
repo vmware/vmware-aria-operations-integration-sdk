@@ -121,8 +121,10 @@ def main():
 
             if push_to_registry:
                 push_image_to_registry(client, new_image, registry_url, repo)
-        except BuildError:
-            print(f"ERROR: Failed to build {image['language']} image")
+        except BuildError as build_error:
+            print(f"Failed to build {image['language']} image")
+            print(build_error.message)
+            print(build_error.recommendation)
 
 
 def get_latest_vrops_container_versions() -> (dict, [dict]):
@@ -144,7 +146,6 @@ def build_image(client: docker.client, language: str, version: str, path: str):
                                           path=build_path,
                                           tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
                                           )
-    # TODO: handle BuildError
 
     # TODO try pulling/building base image
 
