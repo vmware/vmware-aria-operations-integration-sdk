@@ -196,7 +196,7 @@ def main():
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        logger.info("\nBuild canceled")
+        logger.info("Build cancelled")
         exit(0)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
