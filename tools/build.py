@@ -191,6 +191,7 @@ def main():
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
+        print("")
         logger.info("Build cancelled")
         exit(0)
     except Exception as exception:
