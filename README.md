@@ -169,10 +169,3 @@ later, the objects' metrics, properties, and events should appear. These can be 
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](doc/mp-build.md).
-
-## vROps Integration SDK Examples 
-As more developers adopt the vROps Integration SDK, we encourage everyone to share their work so that others can use it 
-as a reference. By seeing what other developers are working on and how they are using our tools, we'll also be able to 
-make decisions for the future maintenance of the project.
-
-- [NXL ALB AVI MP](https://gitlab.eng.vmware.com/cmbu-tvg/nxl-alb-avi-mp)

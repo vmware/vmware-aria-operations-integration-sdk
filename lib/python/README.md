@@ -1,3 +1,11 @@
+
+Installing
+---------
+To install this package, run the following command while standing in the python directory 
+```
+pip install .
+```
+
 Releasing
 ---------
 https://packaging.python.org/en/latest/tutorials/packaging-projects/
@@ -25,3 +33,4 @@ https://packaging.python.org/en/latest/tutorials/packaging-projects/
    python3 -m pip install vrops-integration-x.y.z
    ```
    In both cases, use `__token__` for the username, and paste the token (including `pypi-` prefix) as password
+
