@@ -49,7 +49,7 @@ class ListControlBase(FormattedTextControl):
         @bindings.add("c-c", eager=True)
         @bindings.add("c-d", eager=True)
         def _(event):
-            raise KeyboardInterrupt()
+            event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
 
         @bindings.add("down", eager=True)
         def _down(event):

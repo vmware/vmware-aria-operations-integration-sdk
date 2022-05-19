@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import zipfile
 
 from prompt_toolkit import print_formatted_text as print, prompt
@@ -17,6 +18,11 @@ def mkdir(basepath, *paths):
     if not os.path.exists(path):
         os.mkdir(path, 0o755)
     return path
+
+
+def rmdir(basepath, *paths):
+    path = os.path.join(basepath, *paths)
+    shutil.rmtree(path)
 
 
 def zip_file(_zip, file):

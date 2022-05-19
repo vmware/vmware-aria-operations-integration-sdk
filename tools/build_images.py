@@ -3,7 +3,7 @@ import docker
 import common.constant as constant
 from common import docker_wrapper
 from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image
+from common.docker_wrapper import login, init, push_image, BuildError, PushError
 from common.filesystem import get_absolute_project_directory
 from common.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
@@ -28,7 +28,7 @@ def update_version(update_type: str, current_version: str) -> str:
 
 def should_update_version(language: str, current_version: str) -> str:
     return selection_prompt(
-        prompt=f"Update the version of the {language} image (current version: {current_version})",
+        message=f"Update the version of the {language} image (current version: {current_version})",
         items=[
             ("major", "Major"),
             ("minor", "Minor"),
@@ -45,7 +45,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
     choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
 
     images = multiselect_prompt(
-        prompt="Select one or more docker images to build:",
+        message="Select one or more docker images to build:",
         items=choices)
 
     if len(images) == 0:
@@ -77,7 +77,7 @@ def main():
         set_config_value("secondary_images", secondary_images, constant.VERSION_FILE)
 
     push_to_registry: bool = selection_prompt(
-        prompt=f"Push images to {registry_url}/{repo}?",
+        message=f"Push images to {registry_url}/{repo}?",
         items=[(True, "Yes"),
                (False, "No")])
 
@@ -86,11 +86,20 @@ def main():
         repo = get_config_value("docker_repo", "tvs")
 
     for image in images_to_build:
-        new_image = build_image(client=client, language=image["language"].lower(), version=image["version"],
-                                path=image["path"])
+        try:
+            new_image = build_image(
+                client=client,
+                language=image["language"].lower(),
+                version=image["version"],
+                path=image["path"]
+            )
 
-        if push_to_registry:
-            push_image_to_registry(client, new_image, registry_url, repo)
+            if push_to_registry:
+                push_image_to_registry(client, new_image, registry_url, repo)
+        except BuildError as build_error:
+            print(f"Failed to build {image['language']} image")
+            print(build_error.message)
+            print(build_error.recommendation)
 
 
 def get_latest_vrops_container_versions() -> (dict, [dict]):
@@ -112,8 +121,6 @@ def build_image(client: docker.client, language: str, version: str, path: str):
                                           path=build_path,
                                           tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
                                           )
-    # TODO: handle build error
-
     # TODO try pulling/building base image
 
     add_stable_tags(image, language, version)
@@ -140,11 +147,13 @@ def push_image_to_registry(client, image, registry_url: str, repo: str):
         #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
         reference_tag = f"{registry_tag}/{tag}"
         image.tag(reference_tag)
-        push_image(client, reference_tag)
-        # TODO: handle exception by deleting all generated artifacts
-
-        print(f"removing {reference_tag} from local client")
-        client.images.remove(reference_tag)
+        try:
+            push_image(client, reference_tag)
+        except PushError:
+            print(f"ERROR: Failed to push {reference_tag}")
+        finally:
+            print(f"Removing {reference_tag} from local client")
+            client.images.remove(reference_tag)
 
 
 if __name__ == "__main__":
