@@ -1,6 +1,5 @@
 Examples
 ========
-## vROps Integration SDK Examples
 
 - [NXL ALB AVI MP](https://gitlab.eng.vmware.com/cmbu-tvg/nxl-alb-avi-mp)
-- This Management Pack uses the [vrops-integration](../lib/python/README.md) package, and it communicates with AVI via a REST API.
+  - This Management Pack uses the [vrops-integration](../lib/python/README.md) package, and it communicates with AVI via a REST API.
