@@ -123,17 +123,32 @@ def create_describe(path, adapter_key):
 </AdapterKind>""")
 
 
+def build_content_directory(path):
+
+    content_dir = mkdir(path, "content")
+    mkdir(content_dir, "alerts")
+    mkdir(content_dir, "groups")
+    mkdir(content_dir, "dashboards")
+    mkdir(content_dir, "policies")
+    mkdir(content_dir, "recommendations")
+    mkdir(content_dir, "reports")
+    mkdir(content_dir, "resources")
+    mkdir(content_dir, "supermetrics")
+    mkdir(content_dir, "symptoms")
+    mkdir(content_dir, "traversal specs")
+    mkdir(content_dir, "files")
+
+    return content_dir
+
+
 def build_project(path, adapter_key, description, vendor, eula_file, icon_file, language):
     mkdir(path)
 
     project = Project(path)
     record_project(project.__dict__)
 
-    content_dir = mkdir(path, "content")
+    content_dir = build_content_directory(path)
     conf_dir = mkdir(path, "conf")
-    dashboard_dir = mkdir(content_dir, "dashboards")
-    files_dir = mkdir(content_dir, "files")
-    reports_dir = mkdir(content_dir, "reports")
 
     create_manifest_localization_file(path, adapter_key, vendor, description)
     eula_file = create_eula_file(path, eula_file)
