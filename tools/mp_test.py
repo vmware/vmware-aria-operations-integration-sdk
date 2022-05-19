@@ -7,13 +7,13 @@ import os
 import time
 import xml.etree.ElementTree as ET
 from json import JSONDecodeError
-from pprint import pprint
 
-import docker
+import logging
 import openapi_core
 import requests
 import urllib3
 from docker import DockerClient
+from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
@@ -24,6 +24,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from common.constant import DEFAULT_PORT
+from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
@@ -31,17 +32,30 @@ from common.validators import NotEmptyValidator, UniquenessValidator, ChainValid
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
+
 
 def run(arguments):
     # User input
     project = get_project(arguments)
+    try:
+        logging.basicConfig(filename=f"{project['path']}/logs/test.log",
+                            filemode="a",
+                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                            datefmt="%H:%M:%S",
+                            level=logging.DEBUG)
+    except Exception:
+        logging.basicConfig(level=logging.CRITICAL + 1)
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
-    docker_client = docker.client.from_env()
-    print("Building adapter image")
+    docker_client = init()
+    logger.info("Building adapter image")
     image = create_container_image(docker_client, project["path"])
-    print("Starting adapter HTTP server")
+    logger.info("Starting adapter HTTP server")
     container = run_image(docker_client, image, project["path"])
 
     try:
@@ -55,13 +69,13 @@ def run(arguments):
                     f"http://localhost:{DEFAULT_PORT}/apiVersion",
                     headers={"Accept": "application/json"})
                 started = True
-                print(f"HTTP Server started with adapter version {version.text.strip()}.")
+                logger.info(f"HTTP Server started with adapter version {version.text.strip()}.")
             except (RequestException, ConnectionError) as e:
                 elapsed_time = time.perf_counter() - start_time
                 if elapsed_time > max_wait_time:
-                    print(f"HTTP Server did not start after {max_wait_time} seconds")
+                    logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
                     exit(1)
-                print("Waiting for HTTP server to start...")
+                logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
         args = vars(arguments)
@@ -72,10 +86,8 @@ def run(arguments):
             method(project, connection)
             times = times - 1
             if times > 0:
-                print(f"{times} requests remaining. Waiting {wait} seconds until next request.")
+                logger.info(f"{times} requests remaining. Waiting {wait} seconds until next request.")
                 time.sleep(wait)
-    except BaseException as e:
-        print(e)
     finally:
         stop_container(container)
 
@@ -116,7 +128,7 @@ def get_version(project, connection):
     response = requests.get(
         f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"})
-    print(f"Adapter version: {response.text}")
+    logger.info(f"Adapter version: {response.text}")
 
 
 def wait(project, connection):
@@ -136,7 +148,7 @@ def handle_response(request, response):
     with open(schema_file, "r") as schema:
         try:
             json_response = json.loads(response.text)
-            print(json.dumps(json_response, sort_keys=True, indent=3))
+            logger.info(json.dumps(json_response, sort_keys=True, indent=3))
 
             json_schema = json.load(schema)
             spec = openapi_core.create_spec(json_schema, validate_spec=True)
@@ -145,17 +157,17 @@ def handle_response(request, response):
             openapi_response = RequestsOpenAPIResponse(response)
             validation = validator.validate(openapi_request, openapi_response)
             if validation.errors is not None and len(validation.errors) > 0:
-                print("Validation failed: ")
+                logger.info("Validation failed: ")
                 for error in validation.errors:
                     if "schema_errors" in vars(error):
-                        pprint(vars(error)["schema_errors"])
+                        logger.info(vars(error)["schema_errors"])
                     else:
-                        pprint(error)
+                        logger.info(error)
         except JSONDecodeError as d:
-            print("Returned result is not valid json:")
-            print("Response:")
-            print(repr(response.text))
-            print(f"Error: {d}")
+            logger.error("Returned result is not valid json:")
+            logger.error("Response:")
+            logger.error(repr(response.text))
+            logger.error(f"Error: {d}")
 
 
 # Docker helpers ***************
@@ -169,11 +181,12 @@ def create_container_image(client: DockerClient, build_path: str) -> Image:
     #       or mount the code directory and have it dynamically update.
     #       Either way, we should avoid building the image ever time this script is called
     docker_image_tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
-    client.images.build(path=build_path, nocache=True, rm=True, tag=docker_image_tag)
+    build_image(client, path=build_path, tag=docker_image_tag)
     return docker_image_tag
 
 
 def run_image(client: DockerClient, image: Image, path: str) -> Container:
+    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled by the try/except block in the 'main' function
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
@@ -195,35 +208,35 @@ def ns(kind):
 
 
 def get_connection(project, arguments):
-    connection_names = [connection["name"] for connection in project["connections"]]
+    connection_names = [(connection["name"], connection["name"]) for connection in project["connections"]]
     describe = get_describe(project["path"])
     project.setdefault("connections", [])
 
-    if arguments.connection not in connection_names:
+    if (arguments.connection, arguments.connection) not in connection_names:
         connection = selection_prompt("Choose a connection: ",
                                       connection_names + [("new_connection", "New Connection")])
     else:
         connection = arguments.connection
 
     if connection != "new_connection":
-        for connection in project["connections"]:
-            if connection == connection["name"]:
-                return connection
-        print(f"Cannot find connection corresponding to {connection}.")
+        for _connection in project["connections"]:
+            if _connection["name"] == connection:
+                return _connection
+        logger.error(f"Cannot find connection corresponding to {connection}.")
         exit(1)
 
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:
-        print("Cannot find adapter instance in conf/describe.xml.")
-        print("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
+        logger.error("Cannot find adapter instance in conf/describe.xml.")
+        logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
     credential_kinds = get_credential_kinds(describe)
     valid_credential_kind_keys = (adapter_instance_kind.get("credentialKind") or "").split(",")
 
     print("""
-    Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target 
-    envrironment. As such, the following connection parameters and credential fields are derived from the 
+    Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
+    envrironment. As such, the following connection parameters and credential fields are derived from the
     'conf/describe.xml' file and are specific to each Management Pack.
     """, "fg:ansidarkgray")
 
@@ -370,6 +383,7 @@ def get_request_body(project, connection):
 
 
 def main():
+
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
 
@@ -414,7 +428,25 @@ def main():
                                          "Insomnia or Postman.")
     url_method.set_defaults(func=wait)
 
-    run(parser.parse_args())
+    try:
+        run(parser.parse_args())
+    except KeyboardInterrupt:
+        logger.debug("Ctrl C pressed by user")
+        print("")
+        logger.info("Testing cancelled")
+        exit(1)
+    except DockerWrapperError as docker_error:
+        logger.error("Unable to build pak file")
+        logger.error(f"{docker_error.args['message']}")
+        logger.error(f"{docker_error.args['recommendation']}")
+        exit(1)
+    except (ContainerError, APIError) as skd_error:
+        logger.error("Unable to run container")
+        logger.error(f"SDK message: {skd_error}")
+        exit(1)
+    except BaseException as base_error:
+        logger.error(base_error)
+        exit(1)
 
 
 if __name__ == '__main__':

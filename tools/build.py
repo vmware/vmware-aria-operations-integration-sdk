@@ -4,40 +4,19 @@ import os
 import shutil
 import time
 import zipfile
+import logging
 
 from common.ui import print_formatted as print
 
 from common.config import get_config_value
-from common.docker_wrapper import login, init, push_image, build_image
-from common.filesystem import zip_dir, mkdir, zip_file
+from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
+from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 
-
-def get_digest(response) -> str:
-    """
-    Get the images digest by parsing the server response.
-    An alternate method of parsing the digest from an image would be to
-    parse the attributes of an image and then check if the image has repoDigests
-    attribute, then we could parse the repo digest (different from digest) to get the digest.
-
-
-    :param response: A Stream that of dictionaries with information about the image being pushed
-    :return: A string version of the SHA256 digest
-    """
-    for line in response:
-        if 'aux' in line:
-            try:
-                return line['aux']['Digest']
-            except KeyError:
-                print("ERROR digest was not found in response from registry")
-                exit(1)
-
-        elif 'errorDetail' in line:
-            print("ERROR when pushing image to docker registry")
-            print("repo: {repo}")
-            print(line["errorDetail"]["message"])
-            exit(1)
-    pass
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
 
 
 def build_subdirectories(directory: str):
@@ -54,14 +33,17 @@ def build_subdirectories(directory: str):
     for file in content_files:
         file_ext = os.path.splitext(file)[1].lower()
         if file_ext == ".properties":
-            print(f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
-                  f"into a subdirectory inside the {directory} directory, and move the properties"
-                  "file to a 'resources' directory that is also inside that subdirectory.")
-            print("")
-            print("The result should look like this: ")
-            print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
-            print(f"{directory}/myContent/resources/myContent.properties")
-            print(f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
+            logger.error(f"Found .properties file in {os.path.basename(directory)}")
+            logger.info(
+                f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
+                f"into a subdirectory inside the {directory} directory, and move the properties"
+                "file to a 'resources' directory that is also inside that subdirectory.")
+            logger.info("")
+            logger.info("The result should look like this: ")
+            logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            logger.info(f"{directory}/myContent/resources/myContent.properties")
+            logger.info(
+                f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
             exit(1)
 
     for file in content_files:
@@ -71,18 +53,8 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def main():
-    description = "Tool for building a pak file for a project."
-    parser = argparse.ArgumentParser(description=description)
-
+def build_pak_file(project_path):
     docker_client = init()
-
-    # General options
-    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
-                                             "or prompts if current directory is not a project.")
-
-    project = get_project(parser.parse_args())
-    os.chdir(project["path"])
 
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
@@ -92,12 +64,15 @@ def main():
 
     tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
     registry_tag = f"{registry_url}/{repo}/{tag}"
-    adapter, adapter_logs = build_image(docker_client, path=project["path"], tag=tag)
-    # TODO: handle BuildError
-    adapter.tag(registry_tag)
+    try:
+        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=tag)
+        adapter.tag(registry_tag)
 
-    digest = push_image(docker_client, registry_tag)
-    # TODO: handle exception by deleting all generated artifacts
+        digest = push_image(docker_client, registry_tag)
+    finally:
+        # We have to make sure the image was built, otherwise we can raise another exception
+        if docker_client.images.list(registry_tag):
+            docker_client.images.remove(registry_tag)
 
     adapter_dir = manifest["name"] + "_adapter3"
     mkdir(adapter_dir)
@@ -137,7 +112,8 @@ def main():
     build_subdirectories("content/dashboards")
     build_subdirectories("content/reports")
 
-    with zipfile.ZipFile(f"{name}.pak", "w") as pak:
+    pak_file = f"{name}.pak"
+    with zipfile.ZipFile(pak_file, "w") as pak:
         zip_file(pak, "manifest.txt")
 
         pak_validation_script = manifest["pak_validation_script"]["script"]
@@ -162,7 +138,77 @@ def main():
         zip_dir(pak, "content")
         zip_file(pak, "adapter.zip")
 
-    os.remove("adapter.zip")
+        os.remove("adapter.zip")
+
+        return pak_file
+
+
+def main():
+
+    temp_dir = ""
+    try:
+        description = "Tool for building a pak file for a project."
+        parser = argparse.ArgumentParser(description=description)
+
+        # General options
+        parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
+                                                 "or prompts if current directory is not a project.")
+
+        project = get_project(parser.parse_args())
+
+        try:
+            logging.basicConfig(filename=f"{project['path']}/logs/build.log",
+                                filemode="a",
+                                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                                datefmt="%H:%M:%S",
+                                level=logging.DEBUG)
+        except Exception:
+            logging.basicConfig(level=logging.CRITICAL + 1)
+
+        # We want to store pak files in the build dir
+        build_dir = os.path.join(project["path"], 'build')
+        # Any artifacts for generating the pak file should be stored here
+        temp_dir = os.path.join(build_dir, 'tmp')
+
+        if not os.path.exists(build_dir):
+            mkdir(build_dir)
+
+        # TODO: remove this copy and add the adequate logic to zip files from the source
+        shutil.copytree(
+            project["path"],
+            temp_dir,
+            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
+        )
+
+        os.chdir(temp_dir)
+
+        pak_file = build_pak_file(project["path"])
+
+        if os.path.exists(os.path.join(build_dir, pak_file)):
+            # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+            logger.debug("Deleting old pak file")
+            os.remove(os.path.join(build_dir, pak_file))
+
+        shutil.move(pak_file, build_dir)
+    except DockerWrapperError as error:
+        logger.error("Unable to build pak file")
+        logger.error(error.message)
+        logger.info(error.recommendation)
+        exit(1)
+    except KeyboardInterrupt:
+        logger.debug("Ctrl C pressed by user")
+        print("")
+        logger.info("Build cancelled")
+        exit(1)
+    except Exception as exception:
+        logger.error("Unexpected exception occurred while trying to build pak file")
+        logger.debug(exception)
+        exit(1)
+    finally:
+        # There is a small provability that the temp dir doesn't exist
+        if os.path.exists(temp_dir):
+            logger.debug(f"Deleting directory: {temp_dir}")
+            rmdir(temp_dir)
 
 
 if __name__ == "__main__":
