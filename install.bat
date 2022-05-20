@@ -10,7 +10,9 @@ python3 -m venv %VIRTUAL_ENV_FILE_NAME%
 call cd %VIRTUAL_ENV_FILE_NAME%/Scripts;activate.bat
 
 
-:: Install our package
-pip install .
+:: TODO install prompt toolkit before running install
+:: TODO run tool successfully
+:: TODO install package in venv not local env
+pip install .:: This install the package in the wrong place
 
 echo "Everything went well"
