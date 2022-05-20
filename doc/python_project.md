@@ -31,7 +31,7 @@ Contains all the source adapter source code. This directory is copied into the c
 ### adapter.py (file)
  - This file is used by the HTTP server to server request made by the vRealize Operations Manager.
  - the HTTP server passes each request in the form of a parameter, and reads the responses through stdout.
- - To re-define the file the HTTP server uses to perform HTTP request for the server, the user should modify the commands.cfg file.
+ - To re-define the file the HTTP server uses to perform HTTP requests for the server, the user should modify the commands.cfg file.
  - The adapter uses the python vROps library (TODO create the vROps Library)
  - API calls table
 | Request/Parameter  | Description   |

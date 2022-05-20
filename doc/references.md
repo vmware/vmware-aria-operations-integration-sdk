@@ -23,18 +23,19 @@ Contents
   * describe.xml
   * commands.cfg
 
-* SDK Reference
-  * Object model
-    * Adapter Instance
-      * Identifiers
-      * Advanced Identifiers
-      * Credentials
-    * Resources
-      * Name
-      * Identifiers
-      * State
-      * Status
-      * Metrics
-      * Properties
-      * Events
-    * Relationships
+* vROps Integration Library
+  * [Python](python-integration-module.md)
+    * Object model
+      * Adapter Instance
+        * Identifiers
+        * Advanced Identifiers
+        * Credentials
+      * Resources
+        * Name
+        * Identifiers
+        * State
+        * Status
+        * Metrics
+        * Properties
+        * Events
+      * Relationships
