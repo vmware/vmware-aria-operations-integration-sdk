@@ -3,7 +3,7 @@ Installing
 ---------
 To install this package, run the following command while standing in the python directory 
 ```
-pip install .
+pip install -i https://test.pypi.org/simple/ vrops-integration
 ```
 
 Releasing
