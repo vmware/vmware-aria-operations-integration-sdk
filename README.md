@@ -20,8 +20,6 @@ Contents
 
 ### Prerequisites
 
-Note: Currently the SDK does not support Windows.
-
 #### Requirements
 The SDK requires a few prerequisites:
 * Docker 20.10.13 or later. Earlier versions of 20.10 may also work, but updating to the latest stable version is recommended.
@@ -41,12 +39,24 @@ is disabled)
 * Java. Java is only required for building Java Management Packs. We recommend the latest version of the [Azul Zulu SDK](https://www.azul.com/downloads/?package=jdk#download-openjdk).
 * Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2).
 
-### Installation
+### Installation 
+
+
 ```sh
 git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
+````
+For Mac and Linux:
+```
 cd vrops-python-sdk
 ./install.sh
 ```
+
+For Windows:
+```
+dir vrops-python-sdk
+./install.bat
+```
+ -----
 The install script creates a config file (`~/.vrops-sdk/config.json`), generates a Python virtual environment, and
 installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. To access these tools,
 activate the virtual environment:
