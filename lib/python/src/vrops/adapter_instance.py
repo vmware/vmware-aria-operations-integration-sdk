@@ -1,3 +1,5 @@
+import sys
+
 from vrops.object import Key, Identifier, Object
 from vrops.pipe_utils import read_from_pipe
 from vrops.suite_api_client import VROpsSuiteApiClient, SuiteApiConnectionParameters
@@ -13,9 +15,10 @@ class AdapterInstance(Object):
                              identifier in json["adapter_key"]["identifiers"]]))
 
         if type(json.get("credential_config")) is dict:
-            self.credentials = json["credential_config"]["credential_fields"]
+            self.credentials = {credential.get("key"): credential.get("value")
+                                for credential in json["credential_config"]["credential_fields"]}
         else:
-            self.credentials = None
+            self.credentials = {}
 
         if type(json.get("cluster_connection_info")) is dict:
             self.suite_api_client = VROpsSuiteApiClient(SuiteApiConnectionParameters(
@@ -30,6 +33,15 @@ class AdapterInstance(Object):
         else:
             self.certificates = []
 
+    def get_credential_value(self, credential_key):
+        """ Retrieve the value of a given credential
+
+        :param credential_key: Key of the credential
+        :return: value associated with the credential, or None if credential does not exist
+        """
+        return self.credentials.get(credential_key)
+
     @classmethod
-    def from_input(cls, infile):
+    def from_input(cls, infile=sys.argv[-2]):
+        # The server always invokes methods with the input file as the second to last argument
         return cls(read_from_pipe(infile))
