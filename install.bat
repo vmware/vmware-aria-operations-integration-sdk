@@ -7,12 +7,7 @@ set "VROPS_SDK_REPO_PATH=%cd%"
 python3 -m venv %VIRTUAL_ENV_FILE_NAME%
 
 :: Activate virtual environment to source
-call cd %VIRTUAL_ENV_FILE_NAME%/Scripts;activate.bat
+call cd %VIRTUAL_ENV_FILE_NAME%/Scripts;activate.bat; cd ../../;pip install .
 
+echo "Run activate.bat script located at %VROPS_SDK_REPO_PATH%/Scripts/activate.bat"
 
-:: TODO install prompt toolkit before running install
-:: TODO run tool successfully
-:: TODO install package in venv not local env
-pip install .:: This install the package in the wrong place
-
-echo "Everything went well"
