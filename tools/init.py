@@ -251,7 +251,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
         if "python" in language:
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
-            dockerfile.write("RUN pip3 install -r adapter_requirements.txt")
+            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade")
 
 
 def create_commands_file(language: str, path: str, executable_directory_path: str):
@@ -286,10 +286,11 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            # Remove the extra-index-url once the vrops-integration library is in the main pypi repository
+            requirements.write("# Remove the following line once the vrops-integration library is in the main pypi"
+                               " repository.\n")
             requirements.write("--extra-index-url https://testpypi.python.org/pypi\n")
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vrops-integration==0.0.14\n")
+            requirements.write("vrops-integration==0.0.*\n")
 
         # get the path to templates.py
         src = get_absolute_project_directory("tools", "templates", "adapter.py")
