@@ -437,8 +437,8 @@ def main():
         exit(1)
     except DockerWrapperError as docker_error:
         logger.error("Unable to build pak file")
-        logger.error(f"{docker_error.args['message']}")
-        logger.error(f"{docker_error.args['recommendation']}")
+        logger.error(f"{docker_error.message}")
+        logger.error(f"{docker_error.recommendation}")
         exit(1)
     except (ContainerError, APIError) as skd_error:
         logger.error("Unable to run container")

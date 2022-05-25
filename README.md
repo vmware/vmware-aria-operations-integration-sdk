@@ -20,8 +20,6 @@ Contents
 
 ### Prerequisites
 
-Note: Currently the SDK does not support Windows.
-
 #### Requirements
 The SDK requires a few prerequisites:
 * Docker 20.10.13 or later. Earlier versions of 20.10 may also work, but updating to the latest stable version is recommended.
@@ -35,6 +33,15 @@ The SDK requires a few prerequisites:
 * Git. For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
 
+System Requirements:
+* 5 Gb of RAM
+* Windows
+  * 10 or later
+* MacOS
+  * 10.15 or newer
+* Linux:
+  * Ubuntu, Debian, or Fedora
+
 #### Optional Requirements
 In addition, the following are optional requirements. (Note: For the Alpha, creating Java and Powershell Management Packs
 is disabled)
@@ -42,11 +49,23 @@ is disabled)
 * Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2).
 
 ### Installation
+
+
 ```sh
 git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
+````
+For Mac and Linux:
+```
 cd vrops-python-sdk
 ./install.sh
 ```
+
+For Windows:
+```
+dir vrops-python-sdk
+install.bat
+```
+ -----
 The install script creates a config file (`~/.vrops-sdk/config.json`), generates a Python virtual environment, and
 installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. To access these tools,
 activate the virtual environment:

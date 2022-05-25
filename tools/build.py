@@ -177,7 +177,8 @@ def main():
         shutil.copytree(
             project["path"],
             temp_dir,
-            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
+            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
+            dirs_exist_ok=True
         )
 
         os.chdir(temp_dir)
@@ -208,6 +209,10 @@ def main():
         # There is a small provability that the temp dir doesn't exist
         if os.path.exists(temp_dir):
             logger.debug(f"Deleting directory: {temp_dir}")
+            if os.getcwd() == temp_dir:
+                # Change working directory to the build directory, otherwise we won't be able to delete the directory
+                # in Windows based systems
+                os.chdir(os.path.dirname(temp_dir))
             rmdir(temp_dir)
 
 

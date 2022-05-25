@@ -3,7 +3,7 @@ import os
 
 from setuptools import setup
 
-import tools.common.filesystem as filesystem
+import tools.common.repository as repository
 
 repo_path = os.getenv("VROPS_SDK_REPO_PATH")
 
@@ -13,9 +13,10 @@ if repo_path is None:
     print("Alternatively, set the environment variable 'VROPS_SDK_REPO_PATH' to the path of the 'vrops-python-sdk' repository and rerun this command.")
     exit(1)
 else:
-    filesystem.get_root_directory(default_path=lambda: repo_path)
+    repository.get_root_directory(default_path=lambda: repo_path)
 
 setup(
+    version="0.0.1",
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
     python_requires=">=3.3",
