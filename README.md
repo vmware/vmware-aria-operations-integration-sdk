@@ -34,10 +34,13 @@ The SDK requires a few prerequisites:
   choose the OS you need and follow the instructions provided.
 
 System Requirements:
-* 5GB of RAM   
-* Windows 10 or later
-* macOS 10.15 or newer 
-* Ubuntu, Debian, or Fedora (Linux)
+* 5 Gb of RAM
+* Windows
+  * 10 or later
+* MacOS
+  * 10.15 or newer
+* Linux:
+  * Ubuntu, Debian, or Fedora
 
 #### Optional Requirements
 In addition, the following are optional requirements. (Note: For the Alpha, creating Java and Powershell Management Packs
@@ -45,7 +48,7 @@ is disabled)
 * Java. Java is only required for building Java Management Packs. We recommend the latest version of the [Azul Zulu SDK](https://www.azul.com/downloads/?package=jdk#download-openjdk).
 * Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2).
 
-### Installation 
+### Installation
 
 
 ```sh
