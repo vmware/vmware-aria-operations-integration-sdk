@@ -289,7 +289,7 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
             # Remove the extra-index-url once the vrops-integration library is in the main pypi repository
             requirements.write("--extra-index-url https://testpypi.python.org/pypi\n")
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vrops-integration==0.0.12\n")
+            requirements.write("vrops-integration==0.0.17\n")
 
         # get the path to templates.py
         src = get_absolute_project_directory("tools", "templates", "adapter.py")

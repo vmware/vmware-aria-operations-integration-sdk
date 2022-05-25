@@ -33,6 +33,12 @@ The SDK requires a few prerequisites:
 * Git. For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
 
+System Requirements:
+* 5GB of RAM   
+* Windows 10 or later
+* macOS 10.15 or newer 
+* Ubuntu, Debian, or Fedora (Linux)
+
 #### Optional Requirements
 In addition, the following are optional requirements. (Note: For the Alpha, creating Java and Powershell Management Packs
 is disabled)
