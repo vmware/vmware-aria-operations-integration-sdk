@@ -12,4 +12,4 @@ call .\%VIRTUAL_ENV_FILE_NAME%\Scripts\activate.bat; pip install .
 
 :: Deactivate virtual environment, so the user experience is the same for both platforms
 call deactivate
-echo "Run activate.bat script located at %VROPS_SDK_REPO_PATH%/Scripts/activate.bat"
+echo "Run activate.bat script located at %VROPS_SDK_REPO_PATH%\%VIRTUAL_ENV_FILE_NAME%\Scripts\activate.bat"

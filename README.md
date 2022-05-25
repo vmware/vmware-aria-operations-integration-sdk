@@ -63,7 +63,7 @@ cd vrops-python-sdk
 For Windows:
 ```
 dir vrops-python-sdk
-./install.bat
+install.bat
 ```
  -----
 The install script creates a config file (`~/.vrops-sdk/config.json`), generates a Python virtual environment, and
