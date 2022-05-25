@@ -126,16 +126,15 @@ def main(argv):
         logger.debug("Arguments must be <method> <inputfile> <ouputfile>")
         exit(1)
 
-    method, infile, outfile = argv
-
-    adapter_instance = AdapterInstance.from_input(infile)
+    method = argv[0]
+    adapter_instance = AdapterInstance.from_input()
 
     if method == "test":
-        test(adapter_instance).send_results(outfile)
+        test(adapter_instance).send_results()
     elif method == "endpoint_urls":
-        get_endpoints(adapter_instance).send_results(outfile)
+        get_endpoints(adapter_instance).send_results()
     elif method == "collect":
-        collect(adapter_instance).send_results(outfile)
+        collect(adapter_instance).send_results()
     else:
         logger.debug(f"Command {method} not found")
         exit(1)
