@@ -177,7 +177,8 @@ def main():
         shutil.copytree(
             project["path"],
             temp_dir,
-            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
+            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
+            dirs_exist_ok=True
         )
 
         os.chdir(temp_dir)
