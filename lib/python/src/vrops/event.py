@@ -58,14 +58,26 @@ class Event:
 
         :return: A JSON representation of this Event.
         """
-        return {
-            "criticality": self.criticality,
-            "message": self.message,
-            "faultKey": self.fault_key,
-            "autoCancel": self.auto_cancel,
-            "startDate": self.start_date,
-            "updateDate": self.update_date,
-            "cancelDate": self.cancel_date,
-            "watchWaitCycle": self.watch_wait_cycle,
-            "cancelWaitCycle": self.cancel_wait_cycle
-        }
+        # message is the only required field. Other fields are optional but non-nullable if present
+        json = {"message": self.message}
+
+        if self.criticality is not None:
+            json["criticality"] = self.criticality.value
+        if self.message is not None:
+            json["message"] = self.message
+        if self.fault_key is not None:
+            json["faultKey"] = self.fault_key
+        if self.auto_cancel is not None:
+            json["autoCancel"] = self.auto_cancel
+        if self.start_date is not None:
+            json["startDate"] = self.start_date
+        if self.update_date is not None:
+            json["updateDate"] = self.update_date
+        if self.cancel_date is not None:
+            json["cancelDate"] = self.cancel_date
+        if self.watch_wait_cycle is not None:
+            json["watchWaitCycle"] = self.watch_wait_cycle
+        if self.cancel_wait_cycle is not None:
+            json["cancelWaitCycle"] = self.cancel_wait_cycle
+
+        return json

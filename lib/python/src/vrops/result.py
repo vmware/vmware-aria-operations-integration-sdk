@@ -196,7 +196,7 @@ class CollectResult:
                     {
                         "parent": obj.get_key().get_json(),
                         "children": [child_key.get_json() for child_key in obj._children]
-                    } for obj in self.objects.values()
+                    } for obj in self.objects.values() if len(obj._children) > 0
                 ],
                 "nonExistingObjects": [],
             }
