@@ -8,7 +8,8 @@ python -m venv %VIRTUAL_ENV_FILE_NAME%
 
 echo "Installing Python dependencies and tooling in virtual environment"
 :: Activate virtual environment to source
-call .\%VIRTUAL_ENV_FILE_NAME%\Scripts\activate.bat; pip install .
+call .\%VIRTUAL_ENV_FILE_NAME%\Scripts\activate.bat
+call pip install .
 
 :: Deactivate virtual environment, so the user experience is the same for both platforms
 call deactivate

@@ -2,7 +2,6 @@ import json
 import os
 
 from . import constant
-from .filesystem import mkdir
 
 
 def get_root_directory(default_path):
@@ -10,7 +9,7 @@ def get_root_directory(default_path):
 
     # Check for config directory
     if not os.path.isdir(config_file_path):
-        mkdir(config_file_path)
+        os.mkdir(config_file_path, 0o755)
 
     # Add the file to the path
     config_file_path = constant.CONFIG_FILE
