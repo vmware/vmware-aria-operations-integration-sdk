@@ -16,6 +16,7 @@ else:
     filesystem.get_root_directory(default_path=lambda: repo_path)
 
 setup(
+    version="0.0.1",
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
     python_requires=">=3.3",
