@@ -30,7 +30,6 @@ setup(
         "templates==0.0.5",
         "flask==2.1.1",
         "openapi_core==0.14.2",
-        "appdirs==1.4.4"
     ],
     package_dir={
         "common": "tools/common",

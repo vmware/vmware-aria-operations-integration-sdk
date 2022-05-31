@@ -20,15 +20,19 @@ Contents
 
 ### Prerequisites
 
-#### System Requirements:
-* 5 Gb of RAM
+#### Operating System:
+The vROps Integrating SDK has been tested in the following OS:
 * Windows
-    * 10 or later
+  * 10
+  * 11
 * MacOS
-    * 10.15 or newer
+  * Monterey
 * Linux:
-    * Ubuntu, Debian, or Fedora
-     
+    * Debian
+    * Fedora
+    
+Other operating systems might be compatible. The main limiting factor is docker and its requirements ([docker documentation](https://docs.docker.com/desktop/))
+
 #### Requirements
      
 The SDK requires a few prerequisites:
@@ -67,11 +71,18 @@ dir vrops-python-sdk
 install.bat
 ```
  -----
-The install script creates a config file (`~/.vrops-sdk/config.json`), generates a Python virtual environment, and
+The install script create a config file (`~/.vrops-sdk/config.json` for Mac and Linux, and `%APPDATA%` for Windows), generates a Python virtual environment, and
 installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. To access these tools,
 activate the virtual environment:
+
+For Mac and Linux
 ```sh
 source vrops_mp_sdk_venv/bin/activate
+```
+
+For Windows 
+```bach
+vrops_mp_sdk_venv\Scripts\activate.bat
 ```
 To exit the virtual environment, run `deactivate` in the virtual environment.
 
