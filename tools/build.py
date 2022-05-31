@@ -1,17 +1,16 @@
 import argparse
 import json
+import logging
 import os
 import shutil
 import time
 import zipfile
-import logging
-
-from common.ui import print_formatted as print
 
 from common.config import get_config_value
 from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
+from common.ui import print_formatted as print
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -43,7 +42,7 @@ def build_subdirectories(directory: str):
             logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             logger.info(f"{directory}/myContent/resources/myContent.properties")
             logger.info(
-                f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
+                f"For detailed information, consult the documentation in vROps Integration SDK -> Guides -> Adding Content.")
             exit(1)
 
     for file in content_files:
@@ -62,7 +61,17 @@ def build_pak_file(project_path):
     repo = get_config_value("docker_repo", "tvs")
     registry_url = login()
 
-    tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
+    adapter_kinds = manifest["adapter_kinds"]
+    if len(adapter_kinds) == 0:
+        logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
+        exit(1)
+    if len(adapter_kinds) > 1:
+        logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
+                     "kinds are specified in manifest.txt (key='adapter_kinds').")
+        exit(1)
+    adapter_kind_key = adapter_kinds[0]
+
+    tag = adapter_kind_key.lower() + ":" + manifest["version"] + "_" + str(time.time())
     registry_tag = f"{registry_url}/{repo}/{tag}"
     try:
         adapter, adapter_logs = build_image(docker_client, path=project_path, tag=tag)
@@ -74,18 +83,18 @@ def build_pak_file(project_path):
         if docker_client.images.list(registry_tag):
             docker_client.images.remove(registry_tag)
 
-    adapter_dir = manifest["name"] + "_adapter3"
+    adapter_dir = adapter_kind_key + "_adapter3"
     mkdir(adapter_dir)
     shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
 
     with open(adapter_dir + ".conf", "w") as docker_conf:
-        docker_conf.write(f"KINDKEY={manifest['name']}\n")
+        docker_conf.write(f"KINDKEY={adapter_kind_key}\n")
         # TODO: Need a way to determine this
         docker_conf.write(f"API_VERSION=1.0.0\n")
         # docker_conf.write(f"ImageTag={registry_tag}\n")
         docker_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
+        docker_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")  # TODO: replace this with a more optimal
         # solution, since this might be unique to harbor
         docker_conf.write(f"DIGEST={digest}\n")
 
@@ -144,7 +153,6 @@ def build_pak_file(project_path):
 
 
 def main():
-
     temp_dir = ""
     project = ""
     try:
@@ -152,8 +160,9 @@ def main():
         parser = argparse.ArgumentParser(description=description)
 
         # General options
-        parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
-                                                 "or prompts if current directory is not a project.")
+        parser.add_argument("-p", "--path",
+                            help="Path to root directory of project. Defaults to the current directory, "
+                                 "or prompts if current directory is not a project.")
 
         project = get_project(parser.parse_args())
 

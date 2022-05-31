@@ -1,6 +1,8 @@
 __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
+import sys
+
 from vrops.object import Object, Key
 from vrops.pipe_utils import write_to_pipe
 
@@ -46,11 +48,12 @@ class TestResult:
                 "errorMessage": self._error_message
             }
 
-    def send_results(self, output_pipe) -> None:
+    def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
         """
+        # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())
 
 
@@ -89,11 +92,12 @@ class EndpointResult:
             "endpointUrls": self.endpoints
         }
 
-    def send_results(self, output_pipe) -> None:
+    def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
         """
+        # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())
 
 
@@ -192,7 +196,7 @@ class CollectResult:
                     {
                         "parent": obj.get_key().get_json(),
                         "children": [child_key.get_json() for child_key in obj._children]
-                    } for obj in self.objects.values()
+                    } for obj in self.objects.values() if len(obj._children) > 0
                 ],
                 "nonExistingObjects": [],
             }
@@ -201,9 +205,10 @@ class CollectResult:
                 "errorMessage": self._error_message
             }
 
-    def send_results(self, output_pipe) -> None:
+    def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
         """
+        # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())
