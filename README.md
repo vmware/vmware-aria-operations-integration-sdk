@@ -20,7 +20,17 @@ Contents
 
 ### Prerequisites
 
+#### System Requirements:
+* 5 Gb of RAM
+* Windows
+    * 10 or later
+* MacOS
+    * 10.15 or newer
+* Linux:
+    * Ubuntu, Debian, or Fedora
+     
 #### Requirements
+     
 The SDK requires a few prerequisites:
 * Docker 20.10.13 or later. Earlier versions of 20.10 may also work, but updating to the latest stable version is recommended.
   For instructions on installing Docker, go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
@@ -32,15 +42,6 @@ The SDK requires a few prerequisites:
   [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/).
 * Git. For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
-
-System Requirements:
-* 5 Gb of RAM
-* Windows
-  * 10 or later
-* MacOS
-  * 10.15 or newer
-* Linux:
-  * Ubuntu, Debian, or Fedora
 
 #### Optional Requirements
 In addition, the following are optional requirements. (Note: For the Alpha, creating Java and Powershell Management Packs

@@ -146,6 +146,7 @@ def build_pak_file(project_path):
 def main():
 
     temp_dir = ""
+    project = ""
     try:
         description = "Tool for building a pak file for a project."
         parser = argparse.ArgumentParser(description=description)
@@ -212,7 +213,7 @@ def main():
             if os.getcwd() == temp_dir:
                 # Change working directory to the build directory, otherwise we won't be able to delete the directory
                 # in Windows based systems
-                os.chdir(os.path.dirname(temp_dir))
+                os.chdir(project["path"])
             rmdir(temp_dir)
 
 
