@@ -71,7 +71,7 @@ dir vrops-python-sdk
 install.bat
 ```
  -----
-The install script create a config file (`~/.vrops-sdk/config.json` for Mac and Linux, and `%APPDATA%` for Windows), generates a Python virtual environment, and
+The install script create a config file (`~/.vrops-integration-sdk/config.json` for Mac and Linux, and `%APPDATA%\vrops-integration-sdk` for Windows), generates a Python virtual environment, and
 installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. To access these tools,
 activate the virtual environment:
 
