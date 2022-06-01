@@ -18,24 +18,19 @@ Contents
 * [Installation](#installation)
 * [First Management Pack](#creating-a-management-pack)
 
-### Prerequisites
+### Requirements
 
 #### Operating System:
-The vROps Integrating SDK has been tested in the following OS:
-* Windows
-  * 10
-  * 11
-* MacOS
-  * Monterey
-* Linux:
-    * Debian
-    * Fedora
+The vROps Integration SDK has been tested in the following OSes:
+* Windows 10
+* Windows 11
+* macOS Monterey
+* Debian Linux
+* Fedora Linux
     
-Other operating systems might be compatible. The main limiting factor is docker and its requirements ([docker documentation](https://docs.docker.com/desktop/))
+Other operating systems may be compatible.
 
-#### Requirements
-     
-The SDK requires a few prerequisites:
+#### Prerequisites
 * Docker 20.10.13 or later. Earlier versions of 20.10 may also work, but updating to the latest stable version is recommended.
   For instructions on installing Docker, go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   choose the OS you need and follow the instructions provided.
@@ -47,41 +42,40 @@ The SDK requires a few prerequisites:
 * Git. For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
 
-#### Optional Requirements
-In addition, the following are optional requirements. (Note: For the Alpha, creating Java and Powershell Management Packs
-is disabled)
+#### Optional Prerequisites
 * Java. Java is only required for building Java Management Packs. We recommend the latest version of the [Azul Zulu SDK](https://www.azul.com/downloads/?package=jdk#download-openjdk).
 * Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2).
+> Note: Creating Java and Powershell Management Packs is disabled for the Beta
 
 ### Installation
 
+To install the SDK, download the SDK Git repository and run the installation script.
 
+For Mac and Linux:
 ```sh
 git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
-````
-For Mac and Linux:
-```
 cd vrops-python-sdk
 ./install.sh
 ```
 
 For Windows:
-```
+```cmd
+git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
 dir vrops-python-sdk
 install.bat
 ```
- -----
-The install script create a config file (`~/.vrops-integration-sdk/config.json` for Mac and Linux, and `%APPDATA%\vrops-integration-sdk` for Windows), generates a Python virtual environment, and
-installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. To access these tools,
-activate the virtual environment:
 
-For Mac and Linux
+The installation script create a config file (`~/.vrops-integration-sdk/config.json` for Mac and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows), generates a Python virtual environment, and
+installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. 
+To access these tools, activate the virtual environment:
+
+For Mac and Linux:
 ```sh
 source vrops_mp_sdk_venv/bin/activate
 ```
 
-For Windows 
-```bach
+For Windows:
+```cmd
 vrops_mp_sdk_venv\Scripts\activate.bat
 ```
 To exit the virtual environment, run `deactivate` in the virtual environment.
