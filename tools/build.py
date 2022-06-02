@@ -153,7 +153,6 @@ def build_pak_file(project_path):
 
 
 def main():
-    temp_dir = ""
     try:
         description = "Tool for building a pak file for a project."
         parser = argparse.ArgumentParser(description=description)
@@ -174,38 +173,50 @@ def main():
         except Exception:
             logging.basicConfig(level=logging.CRITICAL + 1)
 
+        project_dir = project["path"]
         # We want to store pak files in the build dir
-        build_dir = os.path.join(project["path"], 'build')
+        build_dir = os.path.join(project_dir, 'build')
         # Any artifacts for generating the pak file should be stored here
         temp_dir = os.path.join(build_dir, 'tmp')
 
         if not os.path.exists(build_dir):
             mkdir(build_dir)
 
-        # TODO: remove this copy and add the adequate logic to zip files from the source
-        shutil.copytree(
-            project["path"],
-            temp_dir,
-            ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg")
-        )
+        try:
+            # TODO: remove this copy and add logic to zip files from the source
+            shutil.copytree(
+                project["path"],
+                temp_dir,
+                ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
+                dirs_exist_ok=True
+            )
 
-        os.chdir(temp_dir)
+            os.chdir(temp_dir)
 
-        pak_file = build_pak_file(project["path"])
+            pak_file = build_pak_file(project_dir)
 
-        if os.path.exists(os.path.join(build_dir, pak_file)):
-            # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
-            logger.debug("Deleting old pak file")
-            os.remove(os.path.join(build_dir, pak_file))
+            if os.path.exists(os.path.join(build_dir, pak_file)):
+                # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+                logger.debug("Deleting old pak file")
+                os.remove(os.path.join(build_dir, pak_file))
 
-        shutil.move(pak_file, build_dir)
+            shutil.move(pak_file, build_dir)
+        finally:
+            # There is a small probability that the temp dir doesn't exist
+            if os.path.exists(temp_dir):
+                logger.debug(f"Deleting directory: '{temp_dir}'")
+                if os.getcwd() == temp_dir:
+                    # Change working directory to the build directory, otherwise we won't be able to delete the
+                    # directory in Windows based systems
+                    os.chdir(project_dir)
+                rmdir(temp_dir)
     except DockerWrapperError as error:
         logger.error("Unable to build pak file")
         logger.error(error.message)
         logger.info(error.recommendation)
         exit(1)
     except KeyboardInterrupt:
-        logger.debug("Ctrl C pressed by user")
+        logger.debug("Ctrl-C pressed by user")
         print("")
         logger.info("Build cancelled")
         exit(1)
@@ -213,11 +224,6 @@ def main():
         logger.error("Unexpected exception occurred while trying to build pak file")
         logger.debug(exception)
         exit(1)
-    finally:
-        # There is a small provability that the temp dir doesn't exist
-        if os.path.exists(temp_dir):
-            logger.debug(f"Deleting directory: {temp_dir}")
-            rmdir(temp_dir)
 
 
 if __name__ == "__main__":
