@@ -213,8 +213,8 @@ def main():
 
         language = selection_prompt("Select a language for the adapter.",
                                     items=[("python", "Python"),
-                                           ("java", "Java", "Unavailable for alpha release"),
-                                           ("powershell", "PowerShell", "Unavailable for alpha release")])
+                                           ("java", "Java", "Unavailable for beta release"),
+                                           ("powershell", "PowerShell", "Unavailable for beta release")])
 
         # create project_directory
         build_project(path, adapter_key, description, vendor, eula_file, icon_file, language)
