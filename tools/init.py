@@ -1,14 +1,14 @@
 import json
-import os
 import logging
+import os
 from shutil import copy
 
 from prompt_toolkit import prompt
 from prompt_toolkit.completion.filesystem import PathCompleter
 
+import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
-import common.constant as constant
 from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir, rmdir
 from common.project import Project, record_project
@@ -124,7 +124,6 @@ def create_describe(path, adapter_key):
 
 
 def build_content_directory(path):
-
     content_dir = mkdir(path, "content")
     mkdir(content_dir, "policies")
     mkdir(content_dir, "traversalspecs")
@@ -183,7 +182,8 @@ def main():
         get_root_directory()
 
         path = prompt(
-            "Enter a path for the project (where code for collection, metadata, and content reside): ",
+            "Enter a path for the project directory where adapter code, metadata, and content will reside. " +
+            "If the directory doesn't already exist, it will be created for you. ",
             validator=NewProjectDirectoryValidator("Path"),
             validate_while_typing=False,
             completer=PathCompleter(expanduser=True),
