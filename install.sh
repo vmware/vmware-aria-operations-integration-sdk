@@ -14,26 +14,26 @@ function test_dependency() {
   MIN_VERSION=${3}
   DOC_LINK=${4}
 
-  echo "Checking ${NAME} version."
+  echo -e "Checking ${NAME} version."
 
   if command -v "${EXECUTABLE}" >/dev/null 2>&1 ; then
     CUR_VERSION="$("${EXECUTABLE}" --version)"
     if [ "$(printf '%s\n' "$MIN_VERSION" "$CUR_VERSION" | sort -V | head -n1)" = "$MIN_VERSION" ]; then
-      echo "${GREEN}${CUR_VERSION}${DEFAULT}"
+      echo -e "${GREEN}${CUR_VERSION}${DEFAULT}"
     else
-      echo "${RED}${CUR_VERSION}${DEFAULT}"
-      echo "> ${YELLOW}Please update ${NAME} to ${MIN_VERSION} or later.${DEFAULT}"
-      echo "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
+      echo -e "${RED}${CUR_VERSION}${DEFAULT}"
+      echo -e "> ${YELLOW}Please update ${NAME} to ${MIN_VERSION} or later.${DEFAULT}"
+      echo -e "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
       DEPENDENCIES_MET=0
     fi
   else
-    echo "${RED}${NAME} is not installed${DEFAULT}"
-    echo "> ${YELLOW}Please install ${NAME}.${DEFAULT}"
-    echo "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
+    echo -e "${RED}${NAME} is not installed${DEFAULT}"
+    echo -e "> ${YELLOW}Please install ${NAME}.${DEFAULT}"
+    echo -e "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
     DEPENDENCIES_MET=0
   fi
 
-  echo ""
+  echo -e ""
 }
 
 # Git is almost certainly installed if the user has gotten this far, but we'll test just in case they downloaded an
@@ -43,7 +43,7 @@ test_dependency "Python" "python3" "Python 3.3.0" "https://wiki.python.org/moin/
 test_dependency "Docker" "docker" "Docker version 20.10.0" "https://docs.docker.com/engine/install/"
 
 if [ $DEPENDENCIES_MET = 0 ] ; then
-  echo "${RED}Please fix above dependency issues and rerun this install script${DEFAULT}"
+  echo -e "${RED}Please fix above dependency issues and rerun this install script${DEFAULT}"
   exit
 fi
 
@@ -60,6 +60,6 @@ source $VIRTUAL_ENV_FILE_NAME/bin/activate
 ## Install our package
 pip install .
 
-echo "${GREEN}Installation completed. Run the following command to activate the virtual environment:${DEFAULT}"
-echo "${LT_BLUE}source $VIRTUAL_ENV_FILE_NAME/bin/activate${DEFAULT}"
+echo -e "${GREEN}Installation completed. Run the following command to activate the virtual environment:${DEFAULT}"
+echo -e "${LT_BLUE}source $VIRTUAL_ENV_FILE_NAME/bin/activate${DEFAULT}"
 
