@@ -221,11 +221,14 @@ def main():
         print("")
         print("")
         print("project generation completed")
-    except (Exception, KeyboardInterrupt) as error:
-        logger.info("Init cancelled")
+    except (KeyboardInterrupt, Exception) as error:
+        if type(error) is KeyboardInterrupt:
+            logger.info("Init cancelled by user")
+        else:
+            logger.error(error)
+        # In both cases, we want to clean up afterwards
         if os.path.exists(path):
             logger.debug("Deleting generated artifacts")
-            logger.error(error)
             rmdir(path)
 
 
