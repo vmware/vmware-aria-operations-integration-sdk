@@ -186,7 +186,7 @@ def main():
             "Enter a path for the project (where code for collection, metadata, and content reside): ",
             validator=NewProjectDirectoryValidator("Path"),
             validate_while_typing=False,
-            completer=PathCompleter(),
+            completer=PathCompleter(expanduser=True),
             complete_in_thread=True)
 
         name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
@@ -198,14 +198,14 @@ def main():
         eula_file = prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
                            validator=EulaValidator(),
                            validate_while_typing=False,
-                           completer=PathCompleter(),
+                           completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
         if eula_file == "":
             print("A EULA can be added later by editing the default 'eula.txt' file.")
         icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
                            validator=ImageValidator(),
                            validate_while_typing=False,
-                           completer=PathCompleter(),
+                           completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
         if icon_file == "":
             print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "

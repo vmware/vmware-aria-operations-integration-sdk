@@ -43,7 +43,7 @@ def get_project(arguments):
         path = prompt("Enter the path to the project: ",
                       validator=ProjectValidator(),
                       validate_while_typing=False,
-                      completer=PathCompleter(),
+                      completer=PathCompleter(expanduser=True),
                       complete_in_thread=True)
 
     return find_project_by_path(path)
