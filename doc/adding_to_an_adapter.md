@@ -251,7 +251,7 @@ database2.add_parent(instance)
 # database2 and database1 both have the same relationship with respect to the instance object after these calls
 ```
 
-> Important: Relationships must not have cycles. For example, object1 `parentOf` object2, object2 `parentOf` object3, object3 `parentOf` object1 creates a cycle.
+> Important: Relationships must not have cycles. A cycle happens when an object's relationships are structured in such a way that it is its own descendant (or ancestor). For example, object1 `parentOf` object2, object2 `parentOf` object3, object3 `parentOf` object1 creates a cycle. Care should be taken to avoid these, as they can adversely affect vROps' analytics calculations.
 
 > ![Result of the above code](adding_relationships.png)
 > 
