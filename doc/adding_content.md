@@ -57,7 +57,7 @@ Then follow the instructions below to create the content, export it, and add to 
    ![](export_report_1.png)
 
    ![](export_report_2.png)
-   > Note: Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of three things:
+   > Note: Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of two things:
    >  * Select all report templates with the shared view, so that they are combined into a single file and the view is not duplicated, or
    >  * Duplicate the view before exporting, so that each report template has its own unique view that can be modified separately.
    > 
@@ -93,10 +93,12 @@ Then follow the instructions below to create the content, export it, and add to 
 1. To add an alert definition to a Management Pack, first create the alert definition. Creating an alert definition is outside the scope of this document, but more information can be found here:
    * [Configuring Alerts (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html)
 
-2. Once the alert definition is created, click `Manage` on the `Configure` &rarr; `Alerts` &rarr; `Alert Definitions` page. Select the alerts, click the `...` button, and select `Export`.
-   ![](adding_an alert_1.png)
+2. Once the alert definition is created, click `Manage` on the `Configure` &rarr; `Alerts` &rarr; `Alert Definitions` page. Select the alert, click the `...` button, and select `Export`.
+
+   ![](export_alert_1.png)
  
-   ![](adding_an alert_2.png)
+   ![](export_alert_2.png)
+ 
    > Note: Selecting multiple alert definitions will combine them into a single xml file (see step 3). All the following steps are identical in this case, but exporting each alert individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple alert definitions share symptoms or recommendations. In this case, best practice is to do one of three things:
    > * Select all alert definitions with a shared dependency, so that they are combined into a single file and the dependency is not duplicated, or
    > * Move the shared dependency out of the alert definition xml file and into its own xml file, which then goes in the `content/recommendations` or `content/symptoms` directory.
@@ -104,7 +106,7 @@ Then follow the instructions below to create the content, export it, and add to 
    > 
    > The reason for this is that if a dependency is shared between two alerts, but is defined in multiple files, than the dependency could be modified in multiple places, leading to potential conflicts.
    
-   ![](adding_an alert_3.png)
+   ![](export_alert_3.png)
 
 4. After selecting `Export` a zip file will download containing a single xml file that contains the alert definition and any dependent content (e.g., symptoms, recommendations)
    Unzip the file and move the alert xml file to the `[project_dir]/content/alertdefs` directory. The alert file can be renamed. For example, with two alerts, `myAlert` and `myOtherAlert`, the project's content directory should look like this:
@@ -120,7 +122,62 @@ Then follow the instructions below to create the content, export it, and add to 
 
 ## Adding a Traversal
 
-Traversals must be created manually. There is no option to create in the vROps UI and export.
+> Note: Traversals must be created manually. There is no option to create in the vROps UI and export.
+ 
+A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the `describe.xml` file.
+Each path consists of two or more _nodes_, and each node is separated by two bars (`||`).
+A traversal always starts with the same object type, known as the _root_. When creating a traversal, the root object type is specified using the `rootAdapterKind` and `rootResourceKind` attributes. Every path in the traversal must start with the root object as its first node. Nodes are represented by the adapter type and object type separated by double colons (`::`). After the first node, each node must also include a relationship direction, either `child`, or `~child` (parent), separated from the adapter kind and resource kind by double colons (`::`).
+Multiple traversals can be included in a Management Pack, and each individual traversal can have its own root object type.
+
+For example, assume we have an adapter called `my_adapter` with two object types, `my_instance_resource_kind` and `my_database_resource_kind` that have a parent-child relationship (each `my_instance_resource_kind` object is the parent of some number of `my_database_resource_kind` objects). Additionally, we have a relationship to VMs that are a parent to `my_instance_resource_kind` objects. The raw relationships look like this:
+```
+     VirtualMachine
+           |
+my_instance_resource_kind
+           |
+my_database_resource_kind
+```
+Now, say that we want to be able to select an instance and see all the databases running on it. We can make a very simple traversal with a single path in `describe.xml`:
+```xml
+<AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+   <!-- ... -->
+   <TraversalSpecKinds>
+      <TraversalSpecKind name="MyTraversal" rootAdapterKind="my_adapter" rootResourceKind="my_instance_resource_kind" description="Navigate from the Instance to the Databases hosted on it.">
+         <ResourcePath path="my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child"/>
+      </TraversalSpecKind>
+   </TraversalSpecKinds>
+</AdapterKind>
+```
+When the Management Pack is installed in vROps, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
+
+![Simple Traversal in vROps](traversal_1.png)
+
+Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:
+
+```xml
+<AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+   <!-- ... -->
+   <TraversalSpecKinds>
+      <TraversalSpecKind name="MyTraversal" rootAdapterKind="my_adapter" rootResourceKind="my_instance_resource_kind" description="Navigate from the Instance to the Databases hosted on it and VM hosting it.">
+         <ResourcePath path="my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child"/>
+         <ResourcePath path="my_adapter::my_instance_resource_kind||VMWARE::VirtualMachine::~child"/>
+      </TraversalSpecKind>
+      <TraversalSpecKind name="MyReversedTraversal" rootAdapterKind="my_adapter" rootResourceKind="my_database_resource_kind" description="Navigate from each Database to its Instance, and from the Instance to the VM.">
+         <ResourcePath path="my_adapter::my_database_resource_kind||my_adapter::my_instance_resource_kind::~child||VMWARE::VirtualMachine::~child"/>
+      </TraversalSpecKind>
+   </TraversalSpecKinds>
+</AdapterKind>
+```
+> For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+
+When the Management Pack is installed in vROps, the `Object Browser` will show the both traversals in the `Environments` section.
+In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
+
+![MyTraversal in vROps](traversal_2.png)
+
+In the second traversal ("MyReversedTraversal"), instead of starting from the instance, the traversal's root node is a database. This traversal has a single path, from database to instance to VM. Thus, every database will show up at the top level, and each can be expanded to show the instance it resides on, and the instance can be expanded to show the VM:
+
+![MyReversedTraversal in vROps](traversal_3.png)
 
 ## Adding Localization
 

@@ -251,6 +251,8 @@ database2.add_parent(instance)
 # database2 and database1 both have the same relationship with respect to the instance object after these calls
 ```
 
+> Important: Relationships must not have cycles. For example, object1 `parentOf` object2, object2 `parentOf` object3, object3 `parentOf` object1 creates a cycle.
+
 > ![Result of the above code](adding_relationships.png)
 > 
 > Result of the above code. The db1 and db2 objects are both children of the 'instance' object. The health of a child object can impact the health of a parent object.
