@@ -2,11 +2,16 @@ VIRTUAL_ENV_FILE_NAME="vrops_mp_sdk_venv"
 
 DEPENDENCIES_MET=1
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-LT_BLUE='\033[1;34m'
-DEFAULT='\033[0m'
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+LT_BLUE=$(tput setaf 153)
+BRIGHT=$(tput bold)
+DEFAULT=$(tput sgr0)
 
 function test_dependency() {
   NAME=${1}
@@ -14,26 +19,26 @@ function test_dependency() {
   MIN_VERSION=${3}
   DOC_LINK=${4}
 
-  echo -e "Checking ${NAME} version."
+  printf "Checking %s version.\n" "$NAME"
 
   if command -v "${EXECUTABLE}" >/dev/null 2>&1 ; then
     CUR_VERSION="$("${EXECUTABLE}" --version)"
     if [ "$(printf '%s\n' "$MIN_VERSION" "$CUR_VERSION" | sort -V | head -n1)" = "$MIN_VERSION" ]; then
-      echo -e "${GREEN}${CUR_VERSION}${DEFAULT}"
+      printf "%s%s%s\n" "$GREEN" "$CUR_VERSION" "$DEFAULT"
     else
-      echo -e "${RED}${CUR_VERSION}${DEFAULT}"
-      echo -e "> ${YELLOW}Please update ${NAME} to ${MIN_VERSION} or later.${DEFAULT}"
-      echo -e "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
+      printf "%s%s%s\n" "$RED" "$CUR_VERSION" "$DEFAULT"
+      printf "> %sPlease update %s to %s or later.%s\n" "$YELLOW" "$NAME" "$MIN_VERSION" "$DEFAULT"
+      printf "> %s%s downloads and installation instructions: %s%s\n" "$YELLOW" "$NAME" "$DOC_LINK" "$DEFAULT"
       DEPENDENCIES_MET=0
     fi
   else
-    echo -e "${RED}${NAME} is not installed${DEFAULT}"
-    echo -e "> ${YELLOW}Please install ${NAME}.${DEFAULT}"
-    echo -e "> ${YELLOW}${NAME} downloads and installation instructions: ${DOC_LINK}${DEFAULT}"
+    printf "%s%s is not installed%s\n" "$RED" "$NAME" "$DEFAULT"
+    printf "> %sPlease install %s.%s\n" "$YELLOW" "$NAME" "$DEFAULT"
+    printf "> %s%s downloads and installation instructions: %s%s\n" "$YELLOW" "$NAME" "$DOC_LINK" "$DEFAULT"
     DEPENDENCIES_MET=0
   fi
 
-  echo -e ""
+  printf "\n"
 }
 
 # Git is almost certainly installed if the user has gotten this far, but we'll test just in case they downloaded an
@@ -43,7 +48,7 @@ test_dependency "Python" "python3" "Python 3.3.0" "https://wiki.python.org/moin/
 test_dependency "Docker" "docker" "Docker version 20.10.0" "https://docs.docker.com/engine/install/"
 
 if [ $DEPENDENCIES_MET = 0 ] ; then
-  echo -e "${RED}Please fix above dependency issues and rerun this install script${DEFAULT}"
+  printf "%sPlease fix above dependency issues and rerun this install script%s\n" "$RED" "$DEFAULT"
   exit
 fi
 
@@ -60,6 +65,6 @@ source $VIRTUAL_ENV_FILE_NAME/bin/activate
 ## Install our package
 pip install .
 
-echo -e "${GREEN}Installation completed. Run the following command to activate the virtual environment:${DEFAULT}"
-echo -e "${LT_BLUE}source $VIRTUAL_ENV_FILE_NAME/bin/activate${DEFAULT}"
+printf "%sInstallation completed. Run the following command to activate the virtual environment:%s\n" "$GREEN" "$DEFAULT"
+printf "%ssource %s/bin/activate%s\n" "$LT_BLUE$BRIGHT" "$VIRTUAL_ENV_FILE_NAME" "$DEFAULT"
 
