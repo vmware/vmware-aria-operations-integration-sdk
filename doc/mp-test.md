@@ -1,4 +1,16 @@
 Management Pack Test Tool
 -------------------------
 
-TODO
+## Purpose
+
+## Prerequisites
+
+## Input
+
+### Command-line Arguments
+
+### Interactive Prompts
+
+## Output
+
+## Troubleshooting
