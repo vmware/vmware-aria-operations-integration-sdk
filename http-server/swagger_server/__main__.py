@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import logging
+import os
 
 import connexion
-import logging
+# production server
+from waitress import serve
 
 from swagger_server import encoder
 
@@ -16,7 +19,7 @@ def main():
         logger = logging.getLogger("waitress")
         logger.setLevel(logging.DEBUG)
     except Exception as e:
-        logging.basicConfig(level=logging.CRITICAL+1)
+        logging.basicConfig(level=logging.CRITICAL + 1)
 
     app = connexion.App(__name__, specification_dir="./swagger/")
     app.app.json_encoder = encoder.JSONEncoder
@@ -25,9 +28,10 @@ def main():
     # development server
     # app.run(port=8080)
 
-    # production server
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=8080)
+    scheme = "http"
+    if len(os.listdir("/Certs")) > 0:
+        scheme = "https"
+    serve(app, host="0.0.0.0", port=8080, url_scheme=scheme)
 
 
 if __name__ == "__main__":
