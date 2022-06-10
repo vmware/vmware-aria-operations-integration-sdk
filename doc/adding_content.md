@@ -29,6 +29,9 @@ Then follow the instructions below to create the content, export it, and add to 
    └── resources
        └── resources.properties
    ```
+
+   > Note: A newly created dashboard will not contain a `resources` directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See [Adding Localization](#Adding Localization)). If localization is not required, ignore the `resources` directories in the following steps.
+
    Unzip the file and move the root `dashboard` directory to the `[project_dir]/content/dashboards` directory. The `dashboard` directory and dashboard file (`dashboard.json`) can be renamed, but should match. For example, with two dashboards, `myDashboard` and `myOtherDashboard`, the project's content directory should look like this:
    ```
    content
@@ -72,6 +75,9 @@ Then follow the instructions below to create the content, export it, and add to 
    └── resources
        └── content.properties
    ```
+
+   > Note: A newly created report template will not contain a `resources` directory, unless it was cloned and/or edited from an existing report template that contained localization (See [Adding Localization](#Adding Localization)). If localization is not required, ignore the `resources` directories in the following steps.
+    
    Unzip the file and move the root directory to the `[project_dir]/content/reports` directory. The directory and report file (`content.xml`) can be renamed to match, if desired. For example, with two reports, `myReport` and `myOtherReport`, the project's content directory should look like this:
    ```
    content
