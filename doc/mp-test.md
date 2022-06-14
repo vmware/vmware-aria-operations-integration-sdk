@@ -130,4 +130,4 @@ All logs can be seen in the command line, but they are also saved in a `logs/bui
 
 ### Unexpected exception occurred while trying to build pak file (Beta)
 While `mp-test` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue, or
-isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or krokos@vmware.com via email or Slack private message. 
+isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack private message. 
