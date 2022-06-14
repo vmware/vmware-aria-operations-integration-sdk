@@ -1,14 +1,14 @@
 import json
-import os
 import logging
+import os
 from shutil import copy
 
 from prompt_toolkit import prompt
 from prompt_toolkit.completion.filesystem import PathCompleter
 
+import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
-import common.constant as constant
 from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir, rmdir
 from common.project import Project, record_project
@@ -124,7 +124,6 @@ def create_describe(path, adapter_key):
 
 
 def build_content_directory(path):
-
     content_dir = mkdir(path, "content")
     mkdir(content_dir, "policies")
     mkdir(content_dir, "traversalspecs")
@@ -183,10 +182,11 @@ def main():
         get_root_directory()
 
         path = prompt(
-            "Enter a path for the project (where code for collection, metadata, and content reside): ",
+            "Enter a path for the project directory where adapter code, metadata, and content will reside. " +
+            "If the directory doesn't already exist, it will be created for you. ",
             validator=NewProjectDirectoryValidator("Path"),
             validate_while_typing=False,
-            completer=PathCompleter(),
+            completer=PathCompleter(expanduser=True),
             complete_in_thread=True)
 
         name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
@@ -198,14 +198,14 @@ def main():
         eula_file = prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
                            validator=EulaValidator(),
                            validate_while_typing=False,
-                           completer=PathCompleter(),
+                           completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
         if eula_file == "":
             print("A EULA can be added later by editing the default 'eula.txt' file.")
         icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
                            validator=ImageValidator(),
                            validate_while_typing=False,
-                           completer=PathCompleter(),
+                           completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
         if icon_file == "":
             print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
@@ -221,11 +221,14 @@ def main():
         print("")
         print("")
         print("project generation completed")
-    except (Exception, KeyboardInterrupt) as error:
-        logger.info("Init cancelled")
+    except (KeyboardInterrupt, Exception) as error:
+        if type(error) is KeyboardInterrupt:
+            logger.info("Init cancelled by user")
+        else:
+            logger.error(error)
+        # In both cases, we want to clean up afterwards
         if os.path.exists(path):
             logger.debug("Deleting generated artifacts")
-            logger.error(error)
             rmdir(path)
 
 

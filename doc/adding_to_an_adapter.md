@@ -26,7 +26,7 @@ An adapter instance is a special object in vROps that stores user configuration 
 </AdapterKind>
 ```
 
-Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) and credentials (`CredentialKind`) will be prompted to the user when creating an account in vROps on the Data Sources -> Integrations page (See [Adding a Configuration Field to an Adapter Instance](#Adding a Configuration field to an Adapter Instance) and [Adding a Credential](#Adding a Credential).
+Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) and credentials (`CredentialKind`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page (See [Adding a Configuration Field to an Adapter Instance](#Adding a Configuration field to an Adapter Instance) and [Adding a Credential](#Adding a Credential).
 After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
 
 ## Adding a Configuration Field to an Adapter Instance
@@ -57,7 +57,7 @@ Adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1
 
 > Note: If there are any existing connections used by the [`mp-test`](mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
  
-Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) will be prompted to the user when creating an account in vROps on the Data Sources -> Integrations page.
+Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page.
 After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
 
 ## Adding a Credential
@@ -105,7 +105,7 @@ In the case where multiple credential kinds are supported, the keys are separate
 Once the credential is defined in the `describe.xml` file, it can be used in the adapter code.
 > Note: If there are any existing connections used by the [`mp-test`](mp-test.md) tool before the credential was created or updated, these will need to be deleted or updated.
 
-Once an adapter instance is defined, any credential fields (`CredentialField`) will be prompted to the user when creating an account in vROps on the Data Sources -> Integrations page.
+Once an adapter instance is defined, any credential fields (`CredentialField`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page.
 After the account has been created, credential fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
 
 Using the [Python vROps Integration Module](python-integration-module.md), the credential is available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
@@ -172,7 +172,7 @@ result.send_result()
 
 > ![Example of a database object with the above settings](adding_an_object_type.png)
 > 
-> Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in Environment -> Inventory. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.
+> Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.
 
 For other languages, or using Python without the vROps Integration module, objects must be returned as json, described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
 
@@ -250,6 +250,8 @@ instance.add_child(database1)
 database2.add_parent(instance) 
 # database2 and database1 both have the same relationship with respect to the instance object after these calls
 ```
+
+> Important: Relationships must not have cycles. A cycle happens when an object's relationships are structured in such a way that it is its own descendant (or ancestor). For example, object1 `parentOf` object2, object2 `parentOf` object3, object3 `parentOf` object1 creates a cycle. Care should be taken to avoid these, as they can adversely affect vROps' analytics calculations.
 
 > ![Result of the above code](adding_relationships.png)
 > 
