@@ -39,7 +39,7 @@ If 'Other' is selected, the tool will prompt for a project path. If the path is 
 
 #### Docker Registry Credentials
 If the user is not logged into  [harbor-repo.vmware.com](harbor-reop.vmware.com) registry, `mp-build` will prompt
-the user for their credentials. Credentials are lodged and stored using docker CLI:
+the user for their credentials. Credentials are stored using Docker CLI.
 
 ```shell
 Login into harbor-repo.vmware.com
@@ -69,6 +69,8 @@ The pak file contains:
 * An adapter.zip file, containing:
   * The `conf` directory (including `describe.xml` and its localization file(s)).
   * A configuration file that includes information about the adapter, including the docker container's registry, repository, and digest. 
+
+A pak file is a zip file created using the deflate compression algorithm. The contents can be inspected by using most unzip tools for extraction (depending on the tool, it may be necessary to rename the `.pak` extension to `.zip`).
 
 ### Logs
 Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
