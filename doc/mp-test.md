@@ -126,7 +126,7 @@ mp-test
 ```
 For Windows, set the log level back to `info` after debugging.
 
-All logs can be seen in the command line, but they are also saved in a `logs/build.log` with `debug` log level.
+All logs can be seen in the command line, but they are also saved in `logs/test.log` with `debug` log level.
 
 ### Unexpected exception occurred while trying to build pak file (Beta)
 While `mp-test` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue, or
