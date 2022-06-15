@@ -126,22 +126,22 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 
 | Manifest Property        | Value|
 | :-----------------------:| :--- |
-| display_name             | A display name for this management pack in the list of installed management packs in the vRealize Operations Manager user interface. If not included or blank, the value of the name entry appears. set to "DISPLAY_NAME" for localization|
-| name*                    | Management pack name. Uniquely identifies the management pack and appears in the vRealize Operations Manager user interface when you leave display_name blank. Valid values are ASCII alphanumeric characters [a-z], [A-Z], [0-9], and hyphen and underscore characters. |
-| description              | Brief description of the management pack and what it does. Set to "DESCRIPTION" for localization.
-| version                  | A numeric string in the form "major.minor.build". For example: "1.0.1234".vRealize Operations Manager installs an update to a management pack only if the version is different from the one currently installed.|
+| display_name             | A display name for this management pack, which appears in the list of installed management packs in the vRealize Operations Manager user interface. If not included or blank, the value of the name entry appears. Set to "DISPLAY_NAME" for localization<sup>2</sup>|
+| name*                    | Management pack name. Uniquely identifies the management pack but only appears in the vRealize Operations Manager user interface if display_name is blank. Valid values are ASCII alphanumeric characters [a-z], [A-Z], [0-9], and hyphen and underscore characters. |
+| description              | Brief description of the management pack and what it does. Set to "DESCRIPTION" for localization<sup>2</sup>.
+| version                  | A numeric string in the form "major.minor.build". For example: "1.0.1234".|
 | vcops_minimum_version    | Minimum version number of vRealize Operations Manager in which the management pack can be installed. For example, if the value is " 7.0.0", you cannot install the management pack version 6.7.0.|
-| disk_space_required      | Required. A number of MB that specifies the approximate disk space that must be available to install this management pack.|
+| disk_space_required<sup>1</sup>     | Size in megabytes that specifies the minimum disk space that must be available to install this management pack.|
 | run_scripts_on_all_nodes | When true, validation and initialization scripts are run in all nodes in the cluster where the Management Pack is installed. The default is false, meaning that the scripts are only run in the specific node where the Management Pack is installed.|
-| eula_file*               | Name of the End User License Agreement (EULA) file. If not localized, the value must be "eula.txt:" The filename must be all lowercase for operating-system compatability.The content of this file appears in vRealize Operations Manager during installation of this management pack.|
+| eula_file*               | Name of the End User License Agreement (EULA) file. If not localized, the value must be "eula.txt:" The filename must be all lowercase for operating-system compatability. The content of this file appears in vRealize Operations Manager during installation of this management pack.|
 | platform*                | An Array of supported platforms. Set to ["Linux-Non_VA", "Linux VA"].
-| vendor*                  | The vendor who provides this management pack. Set to "VENDOR" for localization.|
+| vendor<sup>1</sup>                  | The vendor who provides this management pack. Set to "VENDOR" for localization<sup>2</sup>.|
 | pak_icon                 | The file name for an icon image that appears in the vRealize Operations Manager user interface to visually identify this management pack. The icon image must be 256x256 pixels in PNG format.|
 | pak_validation_script    | A command that runs necessary validation code that must be performed before the management pack installation operation starts. For example: "python validate.py".|
 | adapter_pre_script       | A command that runs initialization actions to be performed at the beginning of the management pack installation operation. For example: "python preAdapters.py".|
 | adapter_post_script      | A command that runs initialization actions to be performed at the end of the management pack installation operation. For example: "python postAdapters.py"|
-| adapters                 | Location where the adapter configuration is stored relative to the root of the pak file| 
-| adapter_kinds*           | A comma-separated array of adapter kind keys for all adapters included in this management pack. For example, ["myAdapter1", "myAdapter2"].|
+| adapters                 | List of zipped adapter bundles. The vROps Integration SDK does not currently support multiple adapters in a single management pack.| 
+| adapter_kinds<sup>1</sup>           | A comma-separated array of adapter kind keys for all adapters included in this management pack. For example, ["myAdapter"]. The vROps Integration SDK does not currently support multiple adapters in a single management pack.|
 | license_type             | The supported license type for this management pack. A string of the form"adapter:licensingAdapterName". If you do not support licensing, leave this field blank. For more information about defining licensing behavior, see Chapter 11 Solution Licensing. |
 
  *required  
