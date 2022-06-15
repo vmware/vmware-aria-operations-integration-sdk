@@ -8,6 +8,7 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 
 ## Prerequisites
 * The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* A Management Pack project created by the [mp-init](mp-init.md) tool.
 * The [Dockerfile](mp-init#Dockerfile) is uploaded to [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
 
 ## Input
