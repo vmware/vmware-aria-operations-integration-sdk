@@ -9,7 +9,7 @@ calling `mp-init`, the user will be prompted with a series of questions. The scr
 an initial project structure and create classifiers that other tools and vROps will use.
 
 ## Prerequisites
-- [vROps implementation SDK](../README.md#installation)
+* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
 
 ## Input
 
@@ -38,7 +38,7 @@ Management pack adapter key: NSXALBAdapter
 The _adapter key_ is used internally to identify the Management Pack and Adapter. It should be unique and cannot contain spaces or other special characters. It also cannot start with a number. By default, it is set to the Display Name with special characters removed (if the Display Name begins with a number, 'Adapter' is prepended).
 
 ```
-Management pack description: This management pack is a proof of concept for the vROps Integration Open SDK project.
+Management pack description: This management pack is a proof of concept for the vROps Integration SDK project.
 ```
 A brief _description_ of the Management Pack and the technology it monitors. The description should include relevant versions of the monitored technology.
 
@@ -171,7 +171,7 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 ### Setting log level
 
 Set log level to debug to see a verbose output of the program:
-For Linux and Mac Os
+For Linux and macOS
 ```sh
 LOG_LEVEL=debug mp-init
 ```
