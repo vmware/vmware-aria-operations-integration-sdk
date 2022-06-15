@@ -107,15 +107,15 @@ command. By default, all commands are run by executing the adapter.py file along
 For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test` 
 and runs the process defined by the key value.
 
-### conf Folder (directory)
+### conf (directory)
 The configuration folder contains configuration files used by the PakFileBuilder command-line tool in order to create a 
 management pack inside the vRealize Operations.   
 - describe.xml: An XML configuration file that defines the object model for an adapter, along with semantic definitions for use in data analysis and management.
 
-### content Folder(directory)
+### content (directory)
 Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, resources, and traversal specs. To learn more about adding content, consult the [Adding Content](adding_content.md) guide. 
 
-### resources Folder(directory)
+### resources (directory)
 - resources.properties: A file that specifies the mapping of `nameKey` attribute of elements inside the `conf/describe.xml`. 
 
 ### manifest.txt (file)
