@@ -7,19 +7,13 @@ The mp-build tool builds a pak file and uploads the adapter container to a docke
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
-### vROps Implementation SDK:
-Most prerequisites for the `mp-build` tool, including the tool itself, are installed during the installation of vROps
-implementation SDK. To install the vROps implementation SDK, consult the [installation](../README.md#installation) section of the README.
-
-### Write permissions to the TVS Harbor project:
-The `mp-build` tool uses harbor to store the image related to the [Dockefile](mp-init#Dockerfile), so the user is required to have  
-write permissions to the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project.
-To obtain write permissions, post a request in the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
+* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* The [Dockerfile](mp-init#Dockerfile) is uploaded to [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
 
 ## Input
 
 ### Command-line Arguments
-```shell
+```
 -h, --help            show this help message and exit
 -p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current directory is not a project.
 ```
@@ -102,5 +96,7 @@ To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmwa
 post a request to the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
 
 ### Unexpected exception occurred while trying to build pak file (Beta)
-While `mp-build` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue or
-isn't evident at first sight, post your issue in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel. 
+While `mp-build` catches the most known exceptions, there is always the possibility of running into an unexpected error. 
+Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration 
+issue or isn't evident at first sight,isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) channel.
+ 
