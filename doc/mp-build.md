@@ -1,4 +1,4 @@
-Management Pack Initialization Tool
+Management Pack Build Tool
 -----------------------------------
 
 ## Purpose
