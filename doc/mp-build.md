@@ -25,16 +25,25 @@ To obtain write permissions, post a request in the [vrops-integrations-sdk](http
 ```
 
 ### Interactive Prompts
-When using the `mp-build` script, if the user isn't standing in a directory with a project, the user will be prompt to select
-a project to build:
+#### Project
+In order to build an adapter, the tool needs to know which adapter to build. This is done by specifying the project. It can be set in a number of ways. 
+ 
+* If the `-p PROJECT_PATH` or `--path PROJECT_PATH` argument is specified, the project in the path will be used.
+ 
+* If the current working directory is a Management Pack project, that project will be used (unless a valid project was specified in command line arguments).
+ 
+* If neither of the above options resolves to a valid project, the tool will prompt the user to select one:
+ 
+    ```
+     Select a project:
+     ❯ /Users/user/projects/test
+       /Users/user/projects/nsx-alb-avi
+       Other
+     ```
+ 
+If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
-```shell
-Select a project:
- ❯ /Users/user/projects/test
-   /Users/user/projects/nsx-alb-avi
-   Other
-```
-
+#### Docker Registry Credentials
 If the user is not logged into  [harbor-repo.vmware.com](harbor-reop.vmware.com) registry, `mp-build` will prompt
 the user for their credentials. Credentials are lodged and stored using docker CLI:
 
@@ -46,24 +55,35 @@ Login Succeeded
 ```
 
 ##  Output
-After logging into harbor, `mp-build` will upload the image related to the Dockerfile located at the project's root.
-Then, it will generate a pak file inside the project's build directory. The Management paks name comes from the adapter
-key provided during the `mp-build` process and the adapter version; both fields are inside the `manifest.txt` file under
+After logging into harbor, `mp-build` will upload the image related to the Dockerfile located in the project's root directory.
+Then, it will generate a pak file inside the project's build directory. The Management Pack's name comes from the adapter
+key (provided during the `mp-init` process) and the adapter version. Both fields are in the `manifest.txt` file under
 the keys `name` and `version`.
 
 ```shell
 build
-└── ManagemenPack_1.0.0.pak
+└── ManagementPack_1.0.0.pak
 ```
-The pak file produced by `mp-build` contains a copy of the manifest.txt  along with all content
-While the main output of `mp-build` is a pak file that is ready to be uploaded to vROps, it also outputs a log file
-`log/build.log` can be used for debugging purposes in case the build fails.
+### Pak file
+The primary artifact of the `mp-build` tool is a pak file that can be uploaded directly to on-prem vROps installations. The vROps Integration SDK does not currently have support for vROps Cloud. 
+
+The pak file contains: 
+* The `manifest.txt` file and its localization inside the `resources` directory. 
+* The EULA file(s)
+* An optional Management Pack icon file
+* All content inside the `content` directory.
+* An adapter.zip file, containing:
+  * The `conf` directory (including `describe.xml` and its localization file(s)).
+  * A configuration file that includes information about the adapter, including the docker container's registry, repository, and digest. 
+
+### Logs
+Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
 
 ## Troubleshooting
 ### Setting log level
 
 Set log level to debug to see a verbose output of the program:
-For Linux and Mac Os
+For Linux and macOS
 ```shell
 LOG_LEVEL=debug mp-build
 ```
@@ -74,12 +94,12 @@ mp-build
 ```
 For Windows, set the log level back to `info` after debugging.
 
-All logs can be seen in the command line, but they are also saved in a  `logs/build.log` with `debug` log level.
+All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
 
 
 ### Docker Registry Permissions (Beta)
 To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
-contact squirogacubi@vmware.com or krokos@vmware.com  via email or Slack private message.
+post a request to the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
 
 ### Unexpected exception occurred while trying to build pak file (Beta)
 While `mp-build` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue or
