@@ -142,7 +142,7 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 | adapter_post_script      | A command that runs initialization actions to be performed at the end of the management pack installation operation. For example: "python postAdapters.py"|
 | adapters                 | List of zipped adapter bundles. The vROps Integration SDK does not currently support multiple adapters in a single management pack.| 
 | adapter_kinds<sup>1</sup>           | A comma-separated array of adapter kind keys for all adapters included in this management pack. For example, ["myAdapter"]. The vROps Integration SDK does not currently support multiple adapters in a single management pack.|
-| license_type             | The supported license type for this management pack. A string of the form"adapter:licensingAdapterName". If you do not support licensing, leave this field blank. For more information about defining licensing behavior, see Chapter 11 Solution Licensing. |
+| license_type             | Management Packs made using the vROps Integration SDK do not support licensing. |
 
  *required  
  ** localized fields must be specified in the property files located at `resources/` 
@@ -152,7 +152,7 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 ### Setting log level
 
 Set log level to debug to see a verbose output of the program:
-For Linux and Mac Os
+For Linux and macOS
 ```sh
 LOG_LEVEL=debug mp-init
 ```
