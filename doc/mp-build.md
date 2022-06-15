@@ -35,16 +35,11 @@ In order to build an adapter, the tool needs to know which adapter to build. Thi
 * If neither of the above options resolves to a valid project, the tool will prompt the user to select one:
  
     ```
- 
-    Select a project:
- 
-    ❯ /Users/user/projects/test
- 
-      /Users/user/projects/nsx-alb-avi
- 
-      Other
- 
-    ```
+     Select a project:
+     ❯ /Users/user/projects/test
+       /Users/user/projects/nsx-alb-avi
+       Other
+     ```
  
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
