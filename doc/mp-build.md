@@ -93,7 +93,9 @@ For Windows, set the log level back to `info` after debugging.
 All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
 
 ### 'Unknown adapter type' when creating an account in vROps
-!['Unknown Adapter Type' error message for a 'Testserver' adapter](unknown_adapter_type.png)
+![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](unknown_adapter_type.png)
+> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
+
 If the pak file installs successfully but errors when creating an account (adapter instance), check that:
 * The Collector/Group the MP is running on is a Cloud Proxy, and
 * Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.7.1 and later.
