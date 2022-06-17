@@ -1,4 +1,5 @@
-connexion == 2.6.0
+connexion == 2.*
 python_dateutil == 2.6.0
-setuptools >= 21.0.0
-waitress >= 2.0.0
+setuptools >= 21.*
+waitress >= 2.0.*
+cheroot
