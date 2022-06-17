@@ -87,22 +87,24 @@ def build_pak_file(project_path):
     mkdir(adapter_dir)
     shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
 
-    with open(adapter_dir + ".conf", "w") as docker_conf:
-        docker_conf.write(f"KINDKEY={adapter_kind_key}\n")
+    with open(adapter_dir + ".conf", "w") as adapter_conf:
+        adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
         # TODO: Need a way to determine this
-        docker_conf.write(f"API_VERSION=1.0.0\n")
+        adapter_conf.write(f"API_VERSION=1.0.0\n")
         # docker_conf.write(f"ImageTag={registry_tag}\n")
-        docker_conf.write(f"REGISTRY={registry_url}\n")
+        adapter_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")  # TODO: replace this with a more optimal
+        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")  # TODO: replace this with a more optimal
         # solution, since this might be unique to harbor
-        docker_conf.write(f"DIGEST={digest}\n")
+        adapter_conf.write(f"DIGEST={digest}\n")
+        adapter_conf.write(f"API_PROTOCOL=https\n")
+        adapter_conf.write(f"API_PORT=443\n")
 
     eula_file = manifest["eula_file"]
     icon_file = manifest["pak_icon"]
 
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
-        zip_file(adapter, docker_conf.name)
+        zip_file(adapter, adapter_conf.name)
         zip_file(adapter, "manifest.txt")
         if eula_file:
             zip_file(adapter, eula_file)
@@ -112,7 +114,7 @@ def build_pak_file(project_path):
         zip_dir(adapter, "resources")
         zip_dir(adapter, adapter_dir)
 
-    os.remove(docker_conf.name)
+    os.remove(adapter_conf.name)
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
@@ -201,6 +203,7 @@ def main():
                 os.remove(os.path.join(build_dir, pak_file))
 
             shutil.move(pak_file, build_dir)
+            print("Build succeeded", "fg:ansigreen")
         finally:
             # There is a small probability that the temp dir doesn't exist
             if os.path.exists(temp_dir):
