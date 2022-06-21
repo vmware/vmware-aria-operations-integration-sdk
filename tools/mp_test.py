@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import time
+import hashlib
 import xml.etree.ElementTree as ET
 from json import JSONDecodeError
 
@@ -38,6 +39,36 @@ consoleHandler = logging.StreamHandler()
 logger.addHandler(consoleHandler)
 
 
+def hash_file(file):
+    BUF_SIZE = 65536
+
+    sha256 = hashlib.sha256()
+
+    with open(file, 'rb') as f:
+
+        while True:
+            data = f.read(BUF_SIZE)
+
+            if not data:
+                break
+
+            sha256.update(data)
+    return sha256.hexdigest()
+
+
+def unique_files_hash():
+    # check if commands.cfg or adapter_requirements.txt changed
+    # TODO : get unique files from project when supporting other languages
+    unique_files = ["commands.cfg", "adapter_requirements.txt"]
+    unique_files.sort()  # We should ensure the files order is always the same
+
+    sha256 = hashlib.sha256()
+    for file in unique_files:
+        sha256.update(hash_file(file).encode())
+
+    return sha256.hexdigest()
+
+
 def run(arguments):
     # User input
     project = get_project(arguments)
@@ -53,8 +84,8 @@ def run(arguments):
     method = get_method(arguments)
 
     docker_client = init()
-    logger.info("Building adapter image")
-    image = create_container_image(docker_client, project["path"])
+
+    image = get_container_image(docker_client, project['path'])
     logger.info("Starting adapter HTTP server")
     container = run_image(docker_client, image, project["path"])
 
@@ -173,15 +204,24 @@ def handle_response(request, response):
 # Docker helpers ***************
 
 
-def create_container_image(client: DockerClient, build_path: str) -> Image:
+def get_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
 
-    # TODO: Only build image if sources have changed or a previous image does not exist,
-    #       or mount the code directory and have it dynamically update.
-    #       Either way, we should avoid building the image ever time this script is called
-    docker_image_tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
-    build_image(client, path=build_path, tag=docker_image_tag)
+    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"] + "-" + unique_files_hash()
+
+    test_images = [image.attrs["RepoTags"][0] for image in client.images.list(name=f"{manifest['name'].lower()}-test")]
+    if docker_image_tag not in test_images:
+        for image in test_images:
+            logger.info(f"Removing old test image {image} from docker")
+            client.images.remove(image)
+
+        logger.info("Building adapter image")
+        build_image(client, path=build_path, tag=docker_image_tag)
+    else:
+        logger.info("Reusing Image")
+        logger.debug(f"Reused image tag: {docker_image_tag}")
+
     return docker_image_tag
 
 
@@ -190,11 +230,16 @@ def run_image(client: DockerClient, image: Image, path: str) -> Container:
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
-                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
+                                 volumes={
+                                     f"{path}/logs": {"bind": "/var/log/", "mode": "rw"},
+                                     # TODO: use the right path based on src code structure (language dependent)
+                                     f"{path}/app": {"bind": "/home/vrops-adapter-user/src/app/app", "mode": "ro"}
+                                 })
 
 
 def stop_container(container: Container):
     container.kill()
+    container.remove()
 
 
 # Helpers for creating the json payload ***************
@@ -253,13 +298,15 @@ def get_connection(project, arguments):
         is_enum = (identifier.get("enum") or "false").lower() == "true"
 
         if is_enum:
-            enum_values = [(enum_value.get("value"), enum_value.get("value")) for enum_value in identifier.findall(ns("enum"))]
+            enum_values = [(enum_value.get("value"), enum_value.get("value")) for enum_value in
+                           identifier.findall(ns("enum"))]
             value = selection_prompt("Enter connection parameter '" + key + postfix, enum_values)
         else:
             value = prompt(message="Enter connection parameter '" + key + postfix,
                            default=default,
-                           validator=ChainValidator([ConditionalValidator(NotEmptyValidator(f"Parameter '{key}'"), is_required),
-                                                    ConditionalValidator(IntegerValidator(f"Parameter '{key}'"), is_integer)]))
+                           validator=ChainValidator(
+                               [ConditionalValidator(NotEmptyValidator(f"Parameter '{key}'"), is_required),
+                                ConditionalValidator(IntegerValidator(f"Parameter '{key}'"), is_integer)]))
 
         identifiers[key] = {
             "value": value,
@@ -383,7 +430,6 @@ def get_request_body(project, connection):
 
 
 def main():
-
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
 
