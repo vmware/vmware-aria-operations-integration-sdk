@@ -24,6 +24,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
+from common.collection_validation import validate_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
@@ -138,9 +139,11 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection):
-    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+    response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
          json=get_request_body(project, connection),
          headers={"Accept": "application/json"})
+    # validation here
+    validate_describe(response, project)
 
 
 def post_test(project, connection):
@@ -172,6 +175,7 @@ def post(url, json, headers):
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
     handle_response(request, response)
+    return response
 
 
 def handle_response(request, response):
