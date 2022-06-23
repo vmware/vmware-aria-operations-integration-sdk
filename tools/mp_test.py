@@ -57,7 +57,7 @@ def hash_file(file):
     return sha256.hexdigest()
 
 
-def unique_files_hash():
+def unique_files_hash(path):
     # check if commands.cfg or adapter_requirements.txt changed
     # TODO : get unique files from project when supporting other languages
     unique_files = ["commands.cfg", "adapter_requirements.txt"]
@@ -65,7 +65,7 @@ def unique_files_hash():
 
     sha256 = hashlib.sha256()
     for file in unique_files:
-        sha256.update(hash_file(file).encode())
+        sha256.update(hash_file(os.path.join(path,file)).encode())
 
     return sha256.hexdigest()
 
@@ -212,7 +212,7 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
 
-    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"] + "-" + unique_files_hash()
+    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"] + "-" + unique_files_hash(build_path)
 
     test_images = [image.attrs["RepoTags"][0] for image in client.images.list(name=f"{manifest['name'].lower()}-test")]
     if docker_image_tag not in test_images:
