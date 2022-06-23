@@ -24,6 +24,8 @@ from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
+from common.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
+    get_identifiers
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
@@ -80,6 +82,7 @@ def run(arguments):
                             level=logging.DEBUG)
     except Exception:
         logging.basicConfig(level=logging.CRITICAL + 1)
+
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
@@ -138,9 +141,11 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection):
-    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+    response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
          json=get_request_body(project, connection),
          headers={"Accept": "application/json"})
+    # validation here
+    validate_describe(response, project)
 
 
 def post_test(project, connection):
@@ -172,6 +177,7 @@ def post(url, json, headers):
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
     handle_response(request, response)
+    return response
 
 
 def handle_response(request, response):
@@ -243,14 +249,6 @@ def stop_container(container: Container):
 
 
 # Helpers for creating the json payload ***************
-
-def get_describe(path):
-    return ET.parse(os.path.join(path, "conf", "describe.xml")).getroot()
-
-
-def ns(kind):
-    return "{http://schemas.vmware.com/vcops/schema}" + kind
-
 
 def get_connection(project, arguments):
     connection_names = [(connection["name"], connection["name"]) for connection in project["connections"]]
@@ -354,28 +352,6 @@ def get_connection(project, arguments):
     project["connections"].append(new_connection)
     record_project(project)
     return new_connection
-
-
-def get_adapter_instance(describe):
-    adapter_instance_kind = None
-
-    for resource_kind in describe.find(ns("ResourceKinds")).findall(ns("ResourceKind")):
-        if resource_kind.get("type") == "7":
-            adapter_instance_kind = resource_kind
-
-    return adapter_instance_kind
-
-
-def get_identifiers(adapter_instance):
-    return adapter_instance.findall(ns("ResourceIdentifier"))
-
-
-def get_credential_kinds(describe):
-    credential_kinds = describe.find(ns("CredentialKinds"))
-    if credential_kinds is None:
-        return []
-    else:
-        return credential_kinds.findall(ns("CredentialKind"))
 
 
 def get_request_body(project, connection):
@@ -490,6 +466,8 @@ def main():
         logger.error("Unable to run container")
         logger.error(f"SDK message: {skd_error}")
         exit(1)
+    except ET.ParseError as describe_error:
+        logger.error(f"Unable to parse describe.xml: {describe_error}")
     except BaseException as base_error:
         logger.error(base_error)
         exit(1)
