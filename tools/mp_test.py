@@ -24,7 +24,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
-from common.collection_validation import validate_describe
+from common.describe import validate_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
