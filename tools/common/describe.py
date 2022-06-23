@@ -110,7 +110,6 @@ def validate_describe(response, project):
 
 
 # describe getters
-
 def get_adapter_kind(describe):
     # TODO: if we get more than one adapter kind then we should considered it an error
     return describe.get("key")
