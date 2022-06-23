@@ -82,6 +82,7 @@ def run(arguments):
                             level=logging.DEBUG)
     except Exception:
         logging.basicConfig(level=logging.CRITICAL + 1)
+
     connection = get_connection(project, arguments)
     method = get_method(arguments)
 
@@ -465,6 +466,8 @@ def main():
         logger.error("Unable to run container")
         logger.error(f"SDK message: {skd_error}")
         exit(1)
+    except ET.ParseError as describe_error:
+        logger.error(f"Unable to parse describe.xml: {describe_error}")
     except BaseException as base_error:
         logger.error(base_error)
         exit(1)
