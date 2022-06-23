@@ -44,7 +44,6 @@ def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
     for resource in copy:
         name_key = resource.get("nameKey")
         key = resource.get("Key")
-
         name_key_matches = list(filter(lambda r: r.get("nameKey") == name_key, resource_kinds))
         key_matches = list(filter(lambda r: r.get("key") == key, resource_kinds))
 
@@ -86,6 +85,87 @@ def validate_resource_kinds(adapter_kind_key, resource_kinds, response):
             logger.warning(f"No ResourceKind with key {adapter_kind_key} was found in the describe.xml")
 
 
+def validate_resource_identifiers(resource_kinds, response):
+    """
+
+     An Identifier that isPartOfUniqueness, should be unique
+
+     If a ResourceIdentifier is present in collection, but not in the describe.xml then we should report it/ consider
+     it an error
+
+    A ResourceKind should not have two of the same identifier
+    ResourceIdentifiers have unique nameKey, dispOrder, and key
+
+
+    :param resource_kinds:
+    :param response:
+    :return:
+    """
+
+    # NOTE: If a ResourceKind has no identifier, should we report it?
+
+    # First we validate the individual requirements for the describe.xml
+    for resource in resource_kinds:
+        identifiers = get_identifiers(resource)
+        resource_key = resource.get("key")
+
+        duplicates = {}
+        logger.info(f"Validating identifiers for ResourceKind: {resource_key}")
+        for identifier in identifiers:
+            name_key = identifier.get("nameKey")
+            key = identifier.get("key")
+            disp_order = identifier.get("dispOrder")
+
+            # TODO: improve logic
+            if name_key in duplicates:
+                duplicate = duplicates[f"{name_key}"]
+
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{name_key}"] = {
+                    "count": 1,
+                    "key": name_key
+                }
+
+            if key in duplicates:
+                duplicate = duplicates[f"{key}"]
+
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{key}"] = {
+                    "count": 1,
+                    "key": [key],
+                }
+
+            if disp_order in duplicates:
+                duplicate = duplicates[f"{disp_order}"]
+
+                duplicate["count"] = duplicate["count"] + 1
+            else:
+                duplicates[f"{disp_order}"] = {
+                    "count": 1,
+                    "key": key
+                }
+
+        for key, value in duplicates.items():
+            if value["count"] > 1:
+                logger.info(f"duplicated attribute {value['key']} in {resource.get('key')}")
+
+        # Iterate thorough dictionary and check for duplicates
+        # if duplicate["count"] > 1:
+        #     logger.info(f"There where {duplicate['count']} instances of attribute {duplicate['key']}")
+
+    # TODO: check for uniqueness in every key
+
+    # Cross validate the JSON with teh describe.xml
+    # for _object in response:
+    #     identifiers = _object["key"]["identifiers"]
+    #
+    #     for identifier in identifiers:
+    #
+    #
+
+
 def validate_describe(response, project):
     """ Validate the adapter response against the describe.xml
 
@@ -105,7 +185,9 @@ def validate_describe(response, project):
     # check Resource kinds
     validate_resource_kinds(adapter_kind, resource_kinds, results)
 
-    # TODO: validate ResourceIdentifiers
+    # NOTE: We need the ResourceKind to validate parts of the identifiers
+    validate_resource_identifiers(resource_kinds, results)
+
     # TODO: check Object Identifiers
 
 
