@@ -25,7 +25,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from common.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
-    get_identifiers
+    get_identifiers, cross_check_collection_with_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
@@ -66,7 +66,7 @@ def unique_files_hash(path):
 
     sha256 = hashlib.sha256()
     for file in unique_files:
-        sha256.update(hash_file(os.path.join(path,file)).encode())
+        sha256.update(hash_file(os.path.join(path, file)).encode())
 
     return sha256.hexdigest()
 
@@ -142,10 +142,11 @@ def get_method(arguments):
 
 def post_collect(project, connection):
     response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-         json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
+                    json=get_request_body(project, connection),
+                    headers={"Accept": "application/json"})
     # validation here
-    validate_describe(response, project)
+    # TODO:  add flag that shows detailed output
+    cross_check_collection_with_describe(project["path"], response)
 
 
 def post_test(project, connection):
@@ -252,6 +253,8 @@ def stop_container(container: Container):
 
 def get_connection(project, arguments):
     connection_names = [(connection["name"], connection["name"]) for connection in project["connections"]]
+    # We should ensure the describe is valid before parsing through it.
+    validate_describe(project["path"])
     describe = get_describe(project["path"])
     project.setdefault("connections", [])
 
