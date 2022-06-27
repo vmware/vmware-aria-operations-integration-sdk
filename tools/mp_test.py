@@ -141,24 +141,27 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection):
-    response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                    json=get_request_body(project, connection),
-                    headers={"Accept": "application/json"})
-    # validation here
-    # TODO:  add flag that shows detailed output
-    cross_check_collection_with_describe(project["path"], response)
+    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+         json=get_request_body(project, connection),
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response, cross_check_collection_with_describe])
 
 
 def post_test(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/test",
          json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response])
 
 
 def post_endpoint_urls(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
          json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response])
 
 
 def get_version(project, connection):
@@ -172,16 +175,17 @@ def wait(project, connection):
     input("Press enter to finish")
 
 
-def post(url, json, headers):
+def post(url, json, headers, project, validators):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
-    handle_response(request, response)
-    return response
+
+    for validate in validators:
+        validate(project, request, response)
 
 
-def handle_response(request, response):
+def validate_api_response(project, request, response):
     schema_file = get_absolute_project_directory("api", "vrops-collector-fwk2-openapi.json")
     with open(schema_file, "r") as schema:
         try:
@@ -209,8 +213,6 @@ def handle_response(request, response):
 
 
 # Docker helpers ***************
-
-
 def get_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
@@ -434,6 +436,9 @@ def main():
     collect_method.add_argument("-n", "--times", help="Run the given method 'n' times.", type=int, default=1)
     collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
                                 type=int, default=10)
+    collect_method.add_argument("-V", "--verbose-validation-log-level",
+                                help="TODO",
+                                type=bool, default=False)
     collect_method.set_defaults(func=post_collect)
 
     # URL Endpoints method

@@ -29,7 +29,8 @@ def cross_check_metric(metric, resource):
     return False
 
 
-def cross_check_collection_with_describe(path, response):
+def cross_check_collection_with_describe(project, request, response):
+    path = project["path"]
     results = json.loads(response.text)["result"]
     describe = get_describe(path)
     adapter_kind = get_adapter_kind(describe)
