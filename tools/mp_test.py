@@ -436,9 +436,6 @@ def main():
     collect_method.add_argument("-n", "--times", help="Run the given method 'n' times.", type=int, default=1)
     collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
                                 type=int, default=10)
-    collect_method.add_argument("-V", "--verbose-validation-log-level",
-                                help="TODO",
-                                type=bool, default=False)
     collect_method.set_defaults(func=post_collect)
 
     # URL Endpoints method
