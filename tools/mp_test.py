@@ -25,7 +25,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from common.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
-    get_identifiers
+    get_identifiers, cross_check_collection_with_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
@@ -66,7 +66,7 @@ def unique_files_hash(path):
 
     sha256 = hashlib.sha256()
     for file in unique_files:
-        sha256.update(hash_file(os.path.join(path,file)).encode())
+        sha256.update(hash_file(os.path.join(path, file)).encode())
 
     return sha256.hexdigest()
 
@@ -141,23 +141,27 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection):
-    response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
          json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
-    # validation here
-    validate_describe(response, project)
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response, cross_check_collection_with_describe])
 
 
 def post_test(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/test",
          json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response])
 
 
 def post_endpoint_urls(project, connection):
     post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
          json=get_request_body(project, connection),
-         headers={"Accept": "application/json"})
+         headers={"Accept": "application/json"},
+         project=project,
+         validators=[validate_api_response])
 
 
 def get_version(project, connection):
@@ -171,16 +175,17 @@ def wait(project, connection):
     input("Press enter to finish")
 
 
-def post(url, json, headers):
+def post(url, json, headers, project, validators):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
-    handle_response(request, response)
-    return response
+
+    for validate in validators:
+        validate(project, request, response)
 
 
-def handle_response(request, response):
+def validate_api_response(project, request, response):
     schema_file = get_absolute_project_directory("api", "vrops-collector-fwk2-openapi.json")
     with open(schema_file, "r") as schema:
         try:
@@ -208,8 +213,6 @@ def handle_response(request, response):
 
 
 # Docker helpers ***************
-
-
 def get_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
@@ -252,6 +255,8 @@ def stop_container(container: Container):
 
 def get_connection(project, arguments):
     connection_names = [(connection["name"], connection["name"]) for connection in project["connections"]]
+    # We should ensure the describe is valid before parsing through it.
+    validate_describe(project["path"])
     describe = get_describe(project["path"])
     project.setdefault("connections", [])
 
