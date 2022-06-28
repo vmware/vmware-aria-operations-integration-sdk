@@ -89,16 +89,17 @@ def build_pak_file(project_path):
 
     with open(adapter_dir + ".conf", "w") as adapter_conf:
         adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
-        # TODO: Need a way to determine this
+        # TODO: Need a way to determine the api version
         adapter_conf.write(f"API_VERSION=1.0.0\n")
-        # docker_conf.write(f"ImageTag={registry_tag}\n")
-        adapter_conf.write(f"REGISTRY={registry_url}\n")
-        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")  # TODO: replace this with a more optimal
-        # solution, since this might be unique to harbor
-        adapter_conf.write(f"DIGEST={digest}\n")
+
         adapter_conf.write(f"API_PROTOCOL=https\n")
         adapter_conf.write(f"API_PORT=443\n")
+
+        adapter_conf.write(f"REGISTRY={registry_url}\n")
+        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
+        # TODO: replace this with a more optimal solution, since this might be unique to harbor
+        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")
+        adapter_conf.write(f"DIGEST={digest}\n")
 
     eula_file = manifest["eula_file"]
     icon_file = manifest["pak_icon"]
