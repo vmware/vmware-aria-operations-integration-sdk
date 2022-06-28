@@ -45,6 +45,7 @@ def get_project(arguments):
                       validate_while_typing=False,
                       completer=PathCompleter(expanduser=True),
                       complete_in_thread=True)
+        path = os.path.expanduser(path)
 
     return find_project_by_path(path)
 
