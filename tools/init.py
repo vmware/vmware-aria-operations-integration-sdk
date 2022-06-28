@@ -5,6 +5,7 @@ from shutil import copy
 
 from prompt_toolkit import prompt
 from prompt_toolkit.completion.filesystem import PathCompleter
+from git import Repo
 
 import common.constant as constant
 import templates.java as java
@@ -172,8 +173,16 @@ def build_project(path, adapter_key, description, vendor, eula_file, icon_file, 
     # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
 
-    # create Commandsfile
+    # create Commands File
     create_commands_file(language, path, executable_directory_path)
+
+    # initialize new project as a git repository
+    repo = Repo.init(path)
+    git_ignore = os.path.join(path, ".gitignore")
+    with open(git_ignore, "w") as git_ignore_fd:
+        git_ignore_fd.write("\n")
+    repo.git.add(all=True)
+    repo.index.commit("Initial commit.")
 
 
 def main():
