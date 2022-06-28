@@ -30,15 +30,25 @@ def cross_check_metric(metric, resource):
     return False
 
 
-def cross_check_identifier(metric, resource):
-    # NOTE: this function will need modifications when we implement validation for groups and instanced groups
-    children = resource.findall(ns("ResourceIdentifier"))
+def cross_check_identifiers(identifiers, resource):
+    # NOTE: identifiers have to be checked as a group, since they can be dependent on one another
+    described_indentifiers = {i.get("key"): i for i in resource.findall(ns("ResourceIdentifier"))}
 
-    for child in children:
-        if metric["key"] == child.get("key"):
-            return True
+    for identifier in  identifiers:
+        if  identifier["key"] not in described_indentifiers.keys():
+            if identifier["isPartOfUniqueness"]:
+                logger.error(f"Collected indetifier with key {identifier['key']} should be defined in the describe.xml")
+            else:
+                logger.warning(f"Collected indetifier with key {identifier['key']} was not found in describe.xml")
+        else:
+            described_indentifiers.pop(identifier["key"])
 
-    return False
+    for described_indentifier in described_indentifiers.values():
+        if described_indentifier.get("required") in ['true', 'True']:
+            logger.error(f"Required '{described_indentifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
+        else:
+            logger.warning(f"'{described_indentifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
+
 
 
 def cross_check_collection_with_describe(project, request, response):
@@ -73,21 +83,7 @@ def cross_check_collection_with_describe(project, request, response):
                     logger.warning(f"Collected metric with key {metric['key']} was not found in describe.xml")
 
             # identifiers validation
-            described_indentifiers = {i.get("key"): i for i in describe_resources[resource_kind].findall(ns("ResourceIdentifier"))}
-            for identifier in  resource["key"]["identifiers"]:
-                if  identifier["key"] not in described_indentifiers.keys():
-                   if identifier["isPartOfUniqueness"]:
-                       logger.error(f"Collected indetifier with key {identifier['key']} should be defined in the describe.xml")
-                   else:
-                    logger.warning(f"Collected indetifier with key {identifier['key']} was not found in describe.xml")
-                else:
-                    described_indentifiers.pop(identifier["key"])
-
-            for described_indentifier in described_indentifiers.values():
-                if described_indentifier.get("required") in ['true', 'True']:
-                    logger.error(f"Required '{described_indentifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
-                else:
-                    logger.warning(f"'{described_indentifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
+            cross_check_identifiers(resource["key"]["identifiers"], describe_resources[resource_kind])
 
 
 
