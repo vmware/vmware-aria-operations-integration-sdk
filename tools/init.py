@@ -183,6 +183,9 @@ def build_project(path, adapter_key, description, vendor, eula_file, icon_file, 
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
     repo.index.commit("Initial commit.")
+    # TODO: Prompt to create remote, once we know what the default remote should be.
+    # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
+    # remote.push(refspec='main:main')
 
 
 def main():
