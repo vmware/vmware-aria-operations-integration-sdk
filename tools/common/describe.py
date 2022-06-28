@@ -80,11 +80,11 @@ def cross_check_collection_with_describe(project, request, response):
             described_resource = describe_resources[resource_kind]
             logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
-                if not cross_check_metric(metric, describe_resource):
+                if not cross_check_metric(metric, described_resource):
                     logger.warning(f"Collected metric with key {metric['key']} was not found in describe.xml")
 
             # identifiers validation
-            cross_check_identifiers(resource["key"]["identifiers"], describe_resource)
+            cross_check_identifiers(resource["key"]["identifiers"], described_resource)
 
 
 
