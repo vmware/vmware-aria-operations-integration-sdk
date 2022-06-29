@@ -33,23 +33,27 @@ def cross_check_metric(collected_metric, resource_kind_element):
 def cross_check_identifiers(collected_identifiers, resource_kind_element):
     described_identifiers = {i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))}
 
-    for identifier in  collected_identifiers:
-        if  identifier["key"] not in described_identifiers.keys():
-                logger.warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
+    for identifier in collected_identifiers:
+        if identifier["key"] not in described_identifiers.keys():
+            logger.warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
         else:
-            if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in  ["1", None]:
-                logger.warning(f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
-            elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") != "2":
-                logger.warning(f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
+            if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in [
+                "1", None]:
+                logger.warning(
+                    f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
+            elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
+                    "identType") != "2":
+                logger.warning(
+                    f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
 
             described_identifiers.pop(identifier["key"])
 
     for described_identifier in described_identifiers.values():
         if described_identifier.get("required") in ['true', 'True']:
-            logger.error(f"Required '{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
+            logger.error(f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
         else:
-            logger.debug(f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
-
+            logger.debug(
+                f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
 
 
 def cross_check_collection_with_describe(project, request, response):
@@ -86,7 +90,6 @@ def cross_check_collection_with_describe(project, request, response):
 
             # identifiers validation
             cross_check_identifiers(resource["key"]["identifiers"], described_resource)
-
 
 
 def validate_describe(path):
