@@ -5,6 +5,7 @@ from shutil import copy
 
 from prompt_toolkit import prompt
 from prompt_toolkit.completion.filesystem import PathCompleter
+from git import Repo
 
 import common.constant as constant
 import templates.java as java
@@ -172,8 +173,19 @@ def build_project(path, adapter_key, description, vendor, eula_file, icon_file, 
     # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
 
-    # create Commandsfile
+    # create Commands File
     create_commands_file(language, path, executable_directory_path)
+
+    # initialize new project as a git repository
+    repo = Repo.init(path)
+    git_ignore = os.path.join(path, ".gitignore")
+    with open(git_ignore, "w") as git_ignore_fd:
+        git_ignore_fd.write("\n")
+    repo.git.add(all=True)
+    repo.index.commit("Initial commit.")
+    # TODO: Prompt to create remote, once we know what the default remote should be.
+    # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
+    # remote.push(refspec='main:main')
 
 
 def main():
@@ -182,12 +194,13 @@ def main():
         get_root_directory()
 
         path = prompt(
-            "Enter a path for the project directory where adapter code, metadata, and content will reside. " +
-            "If the directory doesn't already exist, it will be created for you. ",
+            "Enter a path for the project directory where adapter code, metadata, and content will reside. \n" +
+            "If the directory doesn't already exist, it will be created. \nPath: ",
             validator=NewProjectDirectoryValidator("Path"),
             validate_while_typing=False,
             completer=PathCompleter(expanduser=True),
             complete_in_thread=True)
+        path = os.path.expanduser(path)
 
         name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
         adapter_key = prompt("Management pack adapter key: ",
@@ -200,6 +213,8 @@ def main():
                            validate_while_typing=False,
                            completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
+        eula_file = os.path.expanduser(eula_file)
+
         if eula_file == "":
             print("A EULA can be added later by editing the default 'eula.txt' file.")
         icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
@@ -207,6 +222,7 @@ def main():
                            validate_while_typing=False,
                            completer=PathCompleter(expanduser=True),
                            complete_in_thread=True)
+        icon_file = os.path.expanduser(icon_file)
         if icon_file == "":
             print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
                   "name and adding the icon file to the root project directory.")
@@ -215,7 +231,6 @@ def main():
                                     items=[("python", "Python"),
                                            ("java", "Java", "Unavailable for beta release"),
                                            ("powershell", "PowerShell", "Unavailable for beta release")])
-
         # create project_directory
         build_project(path, adapter_key, description, vendor, eula_file, icon_file, language)
         print("")
