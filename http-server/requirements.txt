@@ -1,5 +1,4 @@
 connexion == 2.14.*
 python_dateutil == 2.8.*
 setuptools == 62.*
-waitress == 2.1.*
 cheroot == 8.6.*
