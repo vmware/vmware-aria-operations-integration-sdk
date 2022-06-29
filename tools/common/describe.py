@@ -35,12 +35,12 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element):
 
     for identifier in  collected_identifiers:
         if  identifier["key"] not in described_identifiers.keys():
-                logger.warning(f"Collected indetifier with key {identifier['key']} was not found in describe.xml")
+                logger.warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
         else:
             if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in  ["1", None]:
-                logger.warning(f"Collected indetifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
+                logger.warning(f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
             elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") != "2":
-                logger.warning(f"Collected indetifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
+                logger.warning(f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
 
             described_identifiers.pop(identifier["key"])
 
