@@ -15,7 +15,12 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 ### Command-line Arguments
 ```
 -h, --help            show this help message and exit
--p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current directory is not a project.
+-p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current 
+                      directory is not a project.
+-i, --insecure-collector-communication
+                      If this flag is present, communication between the vROps collector and the adapter will be 
+                      unencrypted. If using a custom server with this option, the server must be configured to listen on 
+                      port 8080.
 ```
 
 ### Interactive Prompts
@@ -64,7 +69,7 @@ The primary artifact of the `mp-build` tool is a pak file that can be uploaded d
 The pak file contains: 
 * The `manifest.txt` file and its localization inside the `resources` directory. 
 * The EULA file(s)
-* An optional Management Pack icon file
+* An optional Management Pack icon file.
 * All content inside the `content` directory.
 * An adapter.zip file, containing:
   * The `conf` directory (including `describe.xml` and its localization file(s)).

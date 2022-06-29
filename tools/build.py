@@ -52,7 +52,7 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def build_pak_file(project_path):
+def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
     with open("manifest.txt") as manifest_file:
@@ -92,8 +92,12 @@ def build_pak_file(project_path):
         # TODO: Need a way to determine the api version
         adapter_conf.write(f"API_VERSION=1.0.0\n")
 
-        adapter_conf.write(f"API_PROTOCOL=https\n")
-        adapter_conf.write(f"API_PORT=443\n")
+        if insecure_communication:
+            adapter_conf.write(f"API_PROTOCOL=http\n")
+            adapter_conf.write(f"API_PORT=8080\n")
+        else:
+            adapter_conf.write(f"API_PROTOCOL=https\n")
+            adapter_conf.write(f"API_PORT=443\n")
 
         adapter_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
@@ -165,7 +169,14 @@ def main():
                             help="Path to root directory of project. Defaults to the current directory, "
                                  "or prompts if current directory is not a project.")
 
-        project = get_project(parser.parse_args())
+        parser.add_argument("-i", "--insecure-collector-communication",
+                            help="If this flag is present, communication between the vROps collector and the adapter "
+                                 "will be unencrypted. If using a custom server with this option, the server must be "
+                                 "configured to listen on port 8080.",
+                            action="store_true")
+        parsed_args = parser.parse_args()
+        project = get_project(parsed_args)
+        insecure_communication = parsed_args.insecure_collector_communication
 
         try:
             logging.basicConfig(filename=f"{project['path']}/logs/build.log",
@@ -196,7 +207,7 @@ def main():
 
             os.chdir(temp_dir)
 
-            pak_file = build_pak_file(project_dir)
+            pak_file = build_pak_file(project_dir, insecure_communication)
 
             if os.path.exists(os.path.join(build_dir, pak_file)):
                 # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
