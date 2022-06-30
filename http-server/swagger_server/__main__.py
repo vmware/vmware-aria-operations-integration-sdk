@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import logging
+import os
 
 import connexion
-import logging
+from cheroot import wsgi
+from cheroot.ssl.builtin import BuiltinSSLAdapter
 
 from swagger_server import encoder
 
@@ -16,18 +19,26 @@ def main():
         logger = logging.getLogger("waitress")
         logger.setLevel(logging.DEBUG)
     except Exception as e:
-        logging.basicConfig(level=logging.CRITICAL+1)
+        logging.basicConfig(level=logging.CRITICAL + 1)
+    logger = logging.getLogger("main")
 
     app = connexion.App(__name__, specification_dir="./swagger/")
     app.app.json_encoder = encoder.JSONEncoder
     app.add_api("swagger.yaml", arguments={"title": "Adapter API"}, pythonic_params=True, validate_responses=False)
 
-    # development server
-    # app.run(port=8080)
+    ssl_cert = "/etc/ssl/certs/dockerized.crt"
+    ssl_key = "/etc/ssl/certs/dockerized.key"
+    port = 8080
+    if os.path.exists(ssl_cert) and os.path.exists(ssl_key):
+        port = 443
+
+    logger.info(f"Port: {port}")
 
     # production server
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=8080)
+    server = wsgi.Server(('0.0.0.0', port), app)
+    if port == 443:
+        server.ssl_adapter = BuiltinSSLAdapter(ssl_cert, ssl_key, None)
+    server.start()
 
 
 if __name__ == "__main__":
