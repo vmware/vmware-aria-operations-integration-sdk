@@ -1,3 +1,5 @@
+#!/bin/sh
+
 VIRTUAL_ENV_FILE_NAME="vrops_mp_sdk_venv"
 
 DEPENDENCIES_MET=1
@@ -41,29 +43,59 @@ function test_dependency() {
   printf "\n"
 }
 
+if [ "$1" = "--verbose" ] ; then
+  VERBOSE=1
+else
+  VERBOSE=0
+fi
+
+printf "%s* Checking Dependencies%s\n" "$MAGENTA" "$DEFAULT"
 # Git is almost certainly installed if the user has gotten this far, but we'll test just in case they downloaded an
 # archive instead of cloning the repo
 test_dependency "Git" "git" "git version 2.35.0" "https://git-scm.com/downloads"
-test_dependency "Python" "python3" "Python 3.3.0" "https://wiki.python.org/moin/BeginnersGuide/Download"
+test_dependency "Python" "python3" "Python 3.9.0" "https://wiki.python.org/moin/BeginnersGuide/Download"
 test_dependency "Docker" "docker" "Docker version 20.10.0" "https://docs.docker.com/engine/install/"
 
 if [ $DEPENDENCIES_MET = 0 ] ; then
   printf "%sPlease fix above dependency issues and rerun this install script%s\n" "$RED" "$DEFAULT"
-  exit
+  exit 1
 fi
 
+printf "%s* Creating Virtual Environment%s\n" "$MAGENTA" "$DEFAULT"
 # Add path to repo
+STATUS=0
 VROPS_SDK_REPO_PATH="$(realpath .)"
+STATUS=$(($STATUS + $?))
 export VROPS_SDK_REPO_PATH
+STATUS=$(($STATUS + $?))
 
 # Create virtual environment
 (python3 -m venv $VIRTUAL_ENV_FILE_NAME)
+STATUS=$(($STATUS + $?))
 
 # Activate virtual environment to source
 source $VIRTUAL_ENV_FILE_NAME/bin/activate
+STATUS=$(($STATUS + $?))
+if [ $STATUS -ne 0 ] ; then
+  printf "\n"
+  printf "%sError creating or activating the Virtual Environment%s\n" "$RED" "$DEFAULT"
+  exit 2
+fi
 
+printf "%s* Installing SDK tools into Virtual Environment%s\n" "$MAGENTA" "$DEFAULT"
 ## Install our package
-pip install .
+if [ $VERBOSE = 1 ] ; then
+  pip install .
+else 
+  pip install . > /dev/null
+fi
+
+if [ $? -ne 0 ] ; then
+  printf "\n"
+  printf "%sError installing SDK tools or dependencies into Virtual Environment%s\n" "$RED" "$DEFAULT"
+  exit 3
+fi
+
 
 printf "%sInstallation completed. Run the following command to activate the virtual environment:%s\n" "$GREEN" "$DEFAULT"
 printf "%ssource %s/bin/activate%s\n" "$LT_BLUE$BRIGHT" "$VIRTUAL_ENV_FILE_NAME" "$DEFAULT"
