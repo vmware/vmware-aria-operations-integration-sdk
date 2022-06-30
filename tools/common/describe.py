@@ -54,16 +54,21 @@ def cross_check_metric(collected_metric, resource_kind_element):
 def cross_check_identifiers(collected_identifiers, resource_kind_element):
     described_identifiers = {i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))}
 
+    errors = 0
+    warnings = 0
     for identifier in collected_identifiers:
         if identifier["key"] not in described_identifiers.keys():
+            warnings += 1
             logger.warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
         else:
             if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in [
                 "1", None]:
+                warnings += 1
                 logger.warning(
                     f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
             elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
                     "identType") != "2":
+                warnings += 1
                 logger.warning(
                     f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
 
@@ -71,14 +76,21 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element):
 
     for described_identifier in described_identifiers.values():
         if described_identifier.get("required") in ['true', 'True']:
+            errors += 1
             logger.error(
                 f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
         else:
             logger.debug(
                 f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
 
+    return errors, warnings
+
 
 def cross_check_collection_with_describe(project, request, response, verbose=False):
+    user_facing_log = logging.getLogger("user_facing")
+    user_facing_log.addHandler(logging.StreamHandler())
+    user_facing_log.info("Validating collection results against describe.xml")
+
     try:
         if verbose:
             consoleHandler = logging.StreamHandler()
@@ -98,6 +110,7 @@ def cross_check_collection_with_describe(project, request, response, verbose=Fal
     describe_resources = {resource_kind.get("key"): resource_kind for resource_kind in resource_kinds}
 
     # check Resource kinds
+    errors, warnings = 0, 0
     for resource in results:
         resource_adapter_kind = resource["key"]["adapterKind"]
         resource_kind = resource["key"]["objectKind"]
@@ -109,6 +122,7 @@ def cross_check_collection_with_describe(project, request, response, verbose=Fal
 
         # resource kind validation
         if resource_kind not in describe_resources.keys():
+            warnings += 1
             logger.warning(f"No ResourceKind with key '{resource_kind}' was found in the describe.xml")
             logger.info(f"Skipping metric validation for '{resource_kind}'")
         else:
@@ -117,10 +131,16 @@ def cross_check_collection_with_describe(project, request, response, verbose=Fal
             logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
                 if not cross_check_metric(metric, described_resource):
+                    warnings += 1
                     logger.warning(f"Collected metric with key {metric['key']} was not found in describe.xml")
 
             # identifiers validation
-            cross_check_identifiers(resource["key"]["identifiers"], described_resource)
+            results = cross_check_identifiers(resource["key"]["identifiers"], described_resource)
+            errors += results[0]
+            warnings += results[1]
+
+    user_facing_log.info(f"Validation results: errors: {errors} warning: {warnings}")
+    user_facing_log.info(f"For detailed logs see {project['path']}/logs/describe_validation.log")
 
 
 def validate_describe(path):
