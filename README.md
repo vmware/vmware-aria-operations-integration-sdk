@@ -4,9 +4,9 @@ vROps Integration SDK
 Welcome to the vRealize Operations Integration SDK. 
 
 Where should I start?
-* If you want to get started creating your first Management Pack, or don't know where to start, [read the get started tutorial](#Get Started).
+* If you want to get started creating your first Management Pack, or don't know where to start, read the 'Get Started' tutorial below.
 * If you'd like an introduction to vROps, Management Packs, and this SDK, [read the introduction](doc/introduction.md).
-* All documentation is available [here](doc/contents.md).
+* All documentation is available from the [contents](doc/contents.md) page.
 
 ## Get Started
 
@@ -14,9 +14,11 @@ This guide will walk through setting up the SDK and using the SDK
 to create, test, and install a simple Management Pack (integration) onto vROps.
 
 Contents
-* [Prerequisites](#prerequisites)
+* [Requirements](#requirements)
 * [Installation](#installation)
-* [First Management Pack](#creating-a-management-pack)
+* [Creating a Management Pack](#creating-a-management-pack)
+* [Testing a Management Pack](#testing-a-management-pack)
+* [Building and Installing a Management Pack](#building-and-installing-a-management-pack)
 
 ### Requirements
 
@@ -30,43 +32,50 @@ The vROps Integration SDK has been tested in the following OSes:
     
 Other operating systems may be compatible.
 
-#### Prerequisites
-* Docker 20.10.13 or later. Earlier versions of 20.10 may also work, but updating to the latest stable version is recommended.
+#### Dependencies
+* Docker 20.10.0 or later. Updating to the latest stable version is recommended.
   For instructions on installing Docker, go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   choose the OS you need and follow the instructions provided.
-* Python3 3.9. Earlier versions of Python3 may also work, but updating to the latest stable version is recommended. Python2 is not supported.
+* Python3 3.9.0 or later. Earlier versions of Python3 may also work, but updating to the latest stable version is recommended. Python2 is not supported.
   For instructions on installing Python, go to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   choose the OS you need and follow the instructions provided.
 * Pip. If Python3 is installed, pip is most likely also installed.
-  [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/).
-* Git. For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
+  For instructions on installing Pip, go to [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions provided.
+* Git 2.35.0 or later. Updating to the latest stable version is recommended. 
+  For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
 
-#### Optional Prerequisites
-* Java. Java is only required for building Java Management Packs. We recommend the latest version of the [Azul Zulu SDK](https://www.azul.com/downloads/?package=jdk#download-openjdk).
-* Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2).
-> Note: Creating Java and Powershell Management Packs is disabled for the Beta
+[//]: # (TODO: Add this section back in once we support them)
+[//]: # (#### Optional Prerequisites)
+[//]: # (* Java. Java is only required for building Java Management Packs. We recommend the latest version of the [Azul Zulu SDK]&#40;https://www.azul.com/downloads/?package=jdk#download-openjdk&#41;.)
+[//]: # (* Powershell. Powershell is only required for building Powershell Management Packs. See [Microsoft's installation instructions for PowerShell]&#40;https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.2&#41;.)
+[//]: # (> Note: Creating Java and Powershell Management Packs is disabled for the Beta)
 
 ### Installation
 
 To install the SDK, download the SDK Git repository and run the installation script.
 
+The installation script performs several steps:
+* Verifies the dependencies (currently macOS and Linux only)
+* Creates a config file (`~/.vrops-sdk/config.json` for macOS and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows).
+* Generates a Python virtual environment
+* Installs several tools (`mp-init`, `mp-test`, and `mp-build`) and their requirements into the virtual environment using `Pip`.
+  > Note: By default only Pip's warnings and errors are displayed. For more detailed output about what is being installed, pass the `--verbose` flag to the installation script.
+
 For Mac and Linux:
 ```sh
-git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
-cd vrops-python-sdk
+git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-integration-sdk
+cd vrops-integration-sdk
 ./install.sh
 ```
 
 For Windows:
 ```cmd
-git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
-dir vrops-python-sdk
+git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-integration-sdk
+dir vrops-integration-sdk
 install.bat
 ```
 
-The installation script create a config file (`~/.vrops-integration-sdk/config.json` for Mac and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows), generates a Python virtual environment, and
-installs several tools (`mp-init`, `mp-test`, and `mp-build`) into the virtual environment. 
 To access these tools, activate the virtual environment:
 
 For Mac and Linux:
@@ -83,8 +92,11 @@ To exit the virtual environment, run `deactivate` in the virtual environment.
 ### Creating a Management Pack
 To create a new project, run `mp-init` in the virtual environment. This tool asks a series of questions that guides
 the creation of a new management pack project. 
+> Note: If you see the prompt "Enter path to the 'vrops-integration-sdk' repository:", refer to
+> the [mp-init troubleshooting section](doc/mp-init.md#path-to-vrops-integration-sdk)
 
-1. `Enter a path for the project (where code for collection, metadata, and content reside)`
+
+1. `Enter a path for the project (where code for collection, metadata, and content reside). Path:`
 
     The path can be an absolute path, or a path relative to the directory `mp-init` was run from. The path should end in an empty
     or non-existing directory. If the directory does not exist, it will be created. This directory will contain a new Management
@@ -167,7 +179,7 @@ Each response is validated against the API.
 
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).
 
-### Building and installing a Management Pack
+### Building and Installing a Management Pack
 To build a project, run `mp-build`  in the virtual environment.
 
 If `mp-build` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
