@@ -52,7 +52,7 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def build_pak_file(project_path):
+def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
     with open("manifest.txt") as manifest_file:
@@ -87,22 +87,29 @@ def build_pak_file(project_path):
     mkdir(adapter_dir)
     shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
 
-    with open(adapter_dir + ".conf", "w") as docker_conf:
-        docker_conf.write(f"KINDKEY={adapter_kind_key}\n")
-        # TODO: Need a way to determine this
-        docker_conf.write(f"API_VERSION=1.0.0\n")
-        # docker_conf.write(f"ImageTag={registry_tag}\n")
-        docker_conf.write(f"REGISTRY={registry_url}\n")
+    with open(adapter_dir + ".conf", "w") as adapter_conf:
+        adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
+        # TODO: Need a way to determine the api version
+        adapter_conf.write(f"API_VERSION=1.0.0\n")
+
+        if insecure_communication:
+            adapter_conf.write(f"API_PROTOCOL=http\n")
+            adapter_conf.write(f"API_PORT=8080\n")
+        else:
+            adapter_conf.write(f"API_PROTOCOL=https\n")
+            adapter_conf.write(f"API_PORT=443\n")
+
+        adapter_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")  # TODO: replace this with a more optimal
-        # solution, since this might be unique to harbor
-        docker_conf.write(f"DIGEST={digest}\n")
+        # TODO: replace this with a more optimal solution, since this might be unique to harbor
+        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")
+        adapter_conf.write(f"DIGEST={digest}\n")
 
     eula_file = manifest["eula_file"]
     icon_file = manifest["pak_icon"]
 
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
-        zip_file(adapter, docker_conf.name)
+        zip_file(adapter, adapter_conf.name)
         zip_file(adapter, "manifest.txt")
         if eula_file:
             zip_file(adapter, eula_file)
@@ -112,7 +119,7 @@ def build_pak_file(project_path):
         zip_dir(adapter, "resources")
         zip_dir(adapter, adapter_dir)
 
-    os.remove(docker_conf.name)
+    os.remove(adapter_conf.name)
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
@@ -162,7 +169,14 @@ def main():
                             help="Path to root directory of project. Defaults to the current directory, "
                                  "or prompts if current directory is not a project.")
 
-        project = get_project(parser.parse_args())
+        parser.add_argument("-i", "--insecure-collector-communication",
+                            help="If this flag is present, communication between the vROps collector and the adapter "
+                                 "will be unencrypted. If using a custom server with this option, the server must be "
+                                 "configured to listen on port 8080.",
+                            action="store_true")
+        parsed_args = parser.parse_args()
+        project = get_project(parsed_args)
+        insecure_communication = parsed_args.insecure_collector_communication
 
         try:
             logging.basicConfig(filename=f"{project['path']}/logs/build.log",
@@ -193,7 +207,7 @@ def main():
 
             os.chdir(temp_dir)
 
-            pak_file = build_pak_file(project_dir)
+            pak_file = build_pak_file(project_dir, insecure_communication)
 
             if os.path.exists(os.path.join(build_dir, pak_file)):
                 # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
@@ -201,6 +215,7 @@ def main():
                 os.remove(os.path.join(build_dir, pak_file))
 
             shutil.move(pak_file, build_dir)
+            print("Build succeeded", "fg:ansigreen")
         finally:
             # There is a small probability that the temp dir doesn't exist
             if os.path.exists(temp_dir):

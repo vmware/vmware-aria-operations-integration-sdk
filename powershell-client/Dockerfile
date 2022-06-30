@@ -1,4 +1,4 @@
-FROM vrops-adapter-open-sdk-server:python-0.6.2
+FROM vrops-adapter-open-sdk-server:python-0.7.0
 
 # manual powershell install to prevent overwritting previous dependecies
 # switch to root in oder to do all installs
