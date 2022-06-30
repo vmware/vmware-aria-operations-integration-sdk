@@ -5,31 +5,10 @@ import os
 import xml.etree.ElementTree as ET
 import xmlschema
 
+import common.logging_format as logging_format
+
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-
-
-# TODO: extract this into a class
-class CustomFormatter(logging.Formatter):
-    grey = "\x1b[38;20m"
-    yellow = "\x1b[33;20m"
-    red = "\x1b[31;20m"
-    bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m"
-    format = "%(levelname)s %(message)s"
-
-    FORMATS = {
-        logging.DEBUG: grey + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset
-    }
-
-    def format(self, record):
-        log_fmt = self.FORMATS.get(record.levelno)
-        formatter = logging.Formatter(log_fmt)
-        return formatter.format(record)
 
 
 def get_describe(path):
@@ -90,14 +69,14 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element):
 def cross_check_collection_with_describe(project, request, response, verbose=True):
     user_facing_log = logging.getLogger("user_facing")
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(CustomFormatter())
+    stream_handler.setFormatter(logging_format.CustomFormatter())
     user_facing_log.addHandler(stream_handler)
     user_facing_log.info("Validating collection results against describe.xml")
 
     try:
         if verbose:
             consoleHandler = logging.StreamHandler()
-            consoleHandler.setFormatter(CustomFormatter())
+            consoleHandler.setFormatter(logging_format.CustomFormatter())
             logger.addHandler(consoleHandler)
 
         logger.addHandler(logging.FileHandler(f"{project['path']}/logs/describe_validation.log"))
