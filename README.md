@@ -57,7 +57,7 @@ To install the SDK, download the SDK Git repository and run the installation scr
 
 The installation script performs several steps:
 * Verifies the dependencies (currently macOS and Linux only)
-* Creates a config file (`~/.vrops-integration-sdk/config.json` for macOS and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows).
+* Creates a config file (`~/.vrops-sdk/config.json` for macOS and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows).
 * Generates a Python virtual environment
 * Installs several tools (`mp-init`, `mp-test`, and `mp-build`) and their requirements into the virtual environment using `Pip`.
   > Note: By default only Pip's warnings and errors are displayed. For more detailed output about what is being installed, pass the `--verbose` flag to the installation script.
