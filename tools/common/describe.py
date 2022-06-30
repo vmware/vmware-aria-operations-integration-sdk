@@ -7,8 +7,29 @@ import xmlschema
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = logging.StreamHandler()
-logger.addHandler(consoleHandler)
+
+
+# TODO: extract this into a class
+class CustomFormatter(logging.Formatter):
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
 
 
 def get_describe(path):
@@ -50,13 +71,23 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element):
 
     for described_identifier in described_identifiers.values():
         if described_identifier.get("required") in ['true', 'True']:
-            logger.error(f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
+            logger.error(
+                f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
         else:
             logger.debug(
                 f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
 
 
-def cross_check_collection_with_describe(project, request, response):
+def cross_check_collection_with_describe(project, request, response, verbose=False):
+    try:
+        if verbose:
+            consoleHandler = logging.StreamHandler()
+            consoleHandler.setFormatter(CustomFormatter())
+            logger.addHandler(consoleHandler)
+
+        logger.addHandler(logging.FileHandler(f"{project['path']}/logs/describe_validation.log"))
+    except Exception:
+        logging.basicConfig(level=logging.CRITICAL + 1)
     path = project["path"]
     results = json.loads(response.text)["result"]
     describe = get_describe(path)
