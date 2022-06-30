@@ -64,15 +64,15 @@ The installation script performs several steps:
 
 For Mac and Linux:
 ```sh
-git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
-cd vrops-python-sdk
+git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-integration-sdk
+cd vrops-integration-sdk
 ./install.sh
 ```
 
 For Windows:
 ```cmd
-git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-python-sdk
-dir vrops-python-sdk
+git clone https://gitlab.eng.vmware.com/cmbu-tvg/vrops-integration-sdk
+dir vrops-integration-sdk
 install.bat
 ```
 
