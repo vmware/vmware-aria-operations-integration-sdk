@@ -15,7 +15,7 @@ from common.filesystem import get_absolute_project_directory, get_root_directory
 from common.project import Project, record_project
 from common.ui import print_formatted as print
 from common.ui import selection_prompt
-from common.validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
+from common.validation.validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
     ImageValidator
 
 logger = logging.getLogger(__name__)

@@ -24,14 +24,14 @@ from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
-from common.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
+from common.validation.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, cross_check_collection_with_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
-from common.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
+from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
