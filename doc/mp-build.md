@@ -15,7 +15,12 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 ### Command-line Arguments
 ```
 -h, --help            show this help message and exit
--p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current directory is not a project.
+-p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current 
+                      directory is not a project.
+-i, --insecure-collector-communication
+                      If this flag is present, communication between the vROps collector and the adapter will be 
+                      unencrypted. If using a custom server with this option, the server must be configured to listen on 
+                      port 8080.
 ```
 
 ### Interactive Prompts
@@ -64,7 +69,7 @@ The primary artifact of the `mp-build` tool is a pak file that can be uploaded d
 The pak file contains: 
 * The `manifest.txt` file and its localization inside the `resources` directory. 
 * The EULA file(s)
-* An optional Management Pack icon file
+* An optional Management Pack icon file.
 * All content inside the `content` directory.
 * An adapter.zip file, containing:
   * The `conf` directory (including `describe.xml` and its localization file(s)).
@@ -92,6 +97,13 @@ For Windows, set the log level back to `info` after debugging.
 
 All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
 
+### 'Unknown adapter type' when creating an account in vROps
+![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](unknown_adapter_type.png)
+> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
+
+If the pak file installs successfully but errors when creating an account (adapter instance), check that:
+* The Collector/Group the MP is running on is a Cloud Proxy, and
+* Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.7.1 and later.
 
 ### Docker Registry Permissions (Beta)
 To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
