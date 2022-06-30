@@ -181,8 +181,12 @@ def post(url, json, headers, project, validators):
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
 
+    # TODO: collect the validation results
     for validate in validators:
         validate(project, request, response)
+
+    # TODO: write a file with all validation results
+    # TODO: if there was errors in the validation log them to the user
 
 
 def validate_api_response(project, request, response):
