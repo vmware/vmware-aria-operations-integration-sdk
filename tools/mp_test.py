@@ -417,11 +417,12 @@ def main():
     # General options
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
                                              "or prompts if current directory is not a project.")
-
     parser.add_argument("-c", "--connection", help="Name of a connection in this project.")
 
     # TODO: Hook this up to logging, once we have adapter logging. May want to set the level rather than verbose.
-    # parser.add_argument("-v", "--verbose", help="Include extra logging.", action="store_true")
+    # parser.add_argument("-V", "--verbose-validation-output",
+    #                     help="If this flag is present, validation results will be displayed in the user shell",
+    #                     action="store_true")
 
     methods = parser.add_subparsers(required=False)
 

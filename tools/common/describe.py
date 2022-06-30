@@ -16,7 +16,7 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    format = "%(levelname)s %(message)s"
 
     FORMATS = {
         logging.DEBUG: grey + format + reset,
@@ -43,12 +43,13 @@ def ns(kind):
 def cross_check_metric(collected_metric, resource_kind_element):
     # NOTE: this function will need modifications when we implement validation for groups and instanced groups
     children = resource_kind_element.findall(ns("ResourceAttribute"))
-
+    errors, warnings = 0, 0
     for child in children:
-        if collected_metric["key"] == child.get("key"):
-            return True
+        if not collected_metric["key"] == child.get("key"):
+            warnings += 1
+            logger.warning(f"Collected metric with key {collected_metric['key']} was not found in describe.xml")
 
-    return False
+    return errors, warnings
 
 
 def cross_check_identifiers(collected_identifiers, resource_kind_element):
@@ -86,9 +87,11 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element):
     return errors, warnings
 
 
-def cross_check_collection_with_describe(project, request, response, verbose=False):
+def cross_check_collection_with_describe(project, request, response, verbose=True):
     user_facing_log = logging.getLogger("user_facing")
-    user_facing_log.addHandler(logging.StreamHandler())
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(CustomFormatter())
+    user_facing_log.addHandler(stream_handler)
     user_facing_log.info("Validating collection results against describe.xml")
 
     try:
@@ -117,12 +120,14 @@ def cross_check_collection_with_describe(project, request, response, verbose=Fal
 
         # adapter kind validation
         if adapter_kind != resource_adapter_kind:
+            warnings += 1
             logger.warning(f"AdapterKind '{adapter_kind}' was expected for object with objectKind '{resource_kind}', "
                            f"but '{resource_adapter_kind}' was found instead")
 
         # resource kind validation
         if resource_kind not in describe_resources.keys():
             warnings += 1
+            # TODO: couple error messages with resource kind and key
             logger.warning(f"No ResourceKind with key '{resource_kind}' was found in the describe.xml")
             logger.info(f"Skipping metric validation for '{resource_kind}'")
         else:
@@ -130,17 +135,25 @@ def cross_check_collection_with_describe(project, request, response, verbose=Fal
             described_resource = describe_resources[resource_kind]
             logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
-                if not cross_check_metric(metric, described_resource):
-                    warnings += 1
-                    logger.warning(f"Collected metric with key {metric['key']} was not found in describe.xml")
+                result = cross_check_metric(metric, described_resource)
+                errors += result[0]
+                warnings += result[1]
 
             # identifiers validation
-            results = cross_check_identifiers(resource["key"]["identifiers"], described_resource)
-            errors += results[0]
-            warnings += results[1]
+            # TODO: small wrapper class that helps count errors and warnings(optional)
+            result = cross_check_identifiers(resource["key"]["identifiers"], described_resource)
+            errors += result[0]
+            warnings += result[1]
 
-    user_facing_log.info(f"Validation results: errors: {errors} warning: {warnings}")
-    user_facing_log.info(f"For detailed logs see {project['path']}/logs/describe_validation.log")
+    if errors > 0:
+        user_facing_log.error(f"Found {errors} errors when validating collection against describe.xml")
+    if warnings > 0:
+        user_facing_log.warning(f"Found {warnings} minor errors when validating collection against describe.xml")
+
+    if (errors or warnings) > 0:
+        user_facing_log.info(f"For detailed logs see '{project['path']}/logs/describe_validation.log'")
+    else:
+        user_facing_log.info("\u001b[32m Collection matches describe.xml \u001b[0m")
 
 
 def validate_describe(path):
