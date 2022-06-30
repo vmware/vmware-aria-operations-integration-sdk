@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 import xmlschema
 
 import common.logging_format as logging_format
+from common.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -19,51 +20,45 @@ def ns(kind):
     return "{http://schemas.vmware.com/vcops/schema}" + kind
 
 
-def cross_check_metric(collected_metric, resource_kind_element):
+def cross_check_metric(collected_metric, resource_kind_element) -> Result:
     # NOTE: this function will need modifications when we implement validation for groups and instanced groups
     children = resource_kind_element.findall(ns("ResourceAttribute"))
-    errors, warnings = 0, 0
+    result = Result()
     for child in children:
         if not collected_metric["key"] == child.get("key"):
-            warnings += 1
-            logger.warning(f"Collected metric with key {collected_metric['key']} was not found in describe.xml")
+            result.with_warning(f"Collected metric with key {collected_metric['key']} was not found in describe.xml")
 
-    return errors, warnings
+    return result
 
 
-def cross_check_identifiers(collected_identifiers, resource_kind_element):
+def cross_check_identifiers(collected_identifiers, resource_kind_element) -> Result:
     described_identifiers = {i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))}
 
-    errors = 0
-    warnings = 0
+    result = Result()
     for identifier in collected_identifiers:
         if identifier["key"] not in described_identifiers.keys():
-            warnings += 1
-            logger.warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
+            result.with_warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
         else:
             if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in [
                 "1", None]:
-                warnings += 1
-                logger.warning(
+                result.with_warning(
                     f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
             elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
                     "identType") != "2":
-                warnings += 1
-                logger.warning(
+                result.with_warning(
                     f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
 
             described_identifiers.pop(identifier["key"])
 
     for described_identifier in described_identifiers.values():
         if described_identifier.get("required") in ['true', 'True']:
-            errors += 1
-            logger.error(
+            result.with_error(
                 f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
         else:
-            logger.debug(
+            result.with_warning(
                 f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
 
-    return errors, warnings
+    return result
 
 
 def cross_check_collection_with_describe(project, request, response, verbose=True):
@@ -115,14 +110,12 @@ def cross_check_collection_with_describe(project, request, response, verbose=Tru
             logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
                 result = cross_check_metric(metric, described_resource)
-                errors += result[0]
-                warnings += result[1]
+                print(f"RESULT: {result} errors: {result.errors} warnings: {result.warnings} ")
 
             # identifiers validation
             # TODO: small wrapper class that helps count errors and warnings(optional)
             result = cross_check_identifiers(resource["key"]["identifiers"], described_resource)
-            errors += result[0]
-            warnings += result[1]
+            print(f"RESULT: {result} errors: {result.errors} warnings: {result.warnings} ")
 
     if errors > 0:
         user_facing_log.error(f"Found {errors} errors when validating collection against describe.xml")
