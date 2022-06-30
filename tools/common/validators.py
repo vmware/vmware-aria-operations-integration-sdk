@@ -4,6 +4,8 @@ from PIL import Image, UnidentifiedImageError
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import Validator, ValidationError
 
+from common import constant
+
 
 class NotEmptyValidator(Validator):
     def __init__(self, label):
@@ -50,11 +52,25 @@ class IntegerValidator(Validator):
 class NewProjectDirectoryValidator(NotEmptyValidator):
     def validate(self, document: Document):
         super().validate(document)
-        dir = document.text
-        if os.path.exists(dir) and os.path.isfile(dir):
+        directory = os.path.expanduser(document.text)
+        if os.path.exists(directory) and os.path.isfile(directory):
             raise ValidationError(message=f"{self.label} must be a directory.")
-        if os.path.exists(dir) and len(os.listdir(dir)) > 0:
+        if os.path.exists(directory) and len(os.listdir(directory)) > 0:
             raise ValidationError(message=f"{self.label} must be empty if it is an existing directory.")
+
+
+class RepoValidator(NotEmptyValidator):
+    def __init__(self):
+        super().__init__("Repository")
+
+    def validate(self, document: Document):
+        super().validate(document)
+        directory = os.path.expanduser(document.text)
+        if os.path.exists(directory) and os.path.isfile(directory):
+            raise ValidationError(message=f"Repository must be the '{constant.REPO_NAME}' directory.")
+        else:
+            if not os.path.exists(os.path.join(directory, "tools", "templates")):
+                raise ValidationError(message=f"Repository does not appear to be the '{constant.REPO_NAME}' directory.")
 
 
 class UniquenessValidator(NotEmptyValidator):
@@ -72,7 +88,9 @@ class UniquenessValidator(NotEmptyValidator):
 class EulaValidator(Validator):
     def validate(self, document: Document):
         file = document.text
-        if not (file == "" or os.path.isfile(file)):
+        if file == "":
+            return
+        if not os.path.isfile(os.path.expanduser(file)):
             raise ValidationError(message="Path must be a text file.")
 
 
@@ -82,6 +100,7 @@ class ImageValidator(Validator):
         if img == "":
             return
         try:
+            img = os.path.expanduser(img)
             if os.path.isdir(img):
                 raise ValidationError(message="Path must be an image file.")
             image = Image.open(img, formats=["PNG"])
@@ -91,9 +110,9 @@ class ImageValidator(Validator):
         except FileNotFoundError:
             raise ValidationError(message="Could not find image file.")
         except TypeError:
-            raise ValidationError(message="Image must be in PNG format.")
+            raise ValidationError(message="Image must be in PNG format and 256x256 pixels.")
         except UnidentifiedImageError as e:
-            raise ValidationError(message=f"{e}")
+            raise ValidationError(message=f"{e}. Image must be in PNG format and 256x256 pixels.")
 
 
 class ProjectValidator(Validator):
@@ -103,6 +122,7 @@ class ProjectValidator(Validator):
 
     @classmethod
     def is_project_dir(cls, path):
+        path = os.path.expanduser(path)
         return path is not None and os.path.isdir(path) and os.path.isfile(os.path.join(path, "manifest.txt"))
 
 
