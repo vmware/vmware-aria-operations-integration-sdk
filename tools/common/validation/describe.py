@@ -20,42 +20,80 @@ def ns(kind):
     return "{http://schemas.vmware.com/vcops/schema}" + kind
 
 
-def cross_check_metric(collected_metric, resource_kind_element) -> Result:
+def message_format(resource_kind, resource_name, message):
+    # NOTE: Names aren’t guaranteed to be unique, so we should think of a way to further help the user identify the resource
+    return f"({resource_kind}:{resource_name}) > {message}"
+
+
+def cross_check_metric(resource_kind, resource_name, collected_metric, resource_kind_element) -> Result:
     # NOTE: this function will need modifications when we implement validation for groups and instanced groups
     children = resource_kind_element.findall(ns("ResourceAttribute"))
     result = Result()
     for child in children:
         if not collected_metric["key"] == child.get("key"):
-            result.with_warning(f"Collected metric with key {collected_metric['key']} was not found in describe.xml")
+            result.with_warning(
+                message_format(
+                    resource_kind,
+                    resource_name,
+                    f"Collected metric with key {collected_metric['key']} was not found in describe.xml"
+                )
+            )
     return result
 
 
-def cross_check_identifiers(collected_identifiers, resource_kind_element) -> Result:
+def cross_check_identifiers(parent_resource_kind, parent_resource_name, collected_identifiers,
+                            resource_kind_element) -> Result:
     described_identifiers = {i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))}
 
     result = Result()
     for identifier in collected_identifiers:
         if identifier["key"] not in described_identifiers.keys():
-            result.with_warning(f"Collected identifier with key {identifier['key']} was not found in describe.xml")
+            result.with_warning(
+                message_format(
+                    parent_resource_kind,
+                    parent_resource_namef,
+                    "Collected identifier with key {identifier['key']} for resource  was not found in describe.xml"
+                )
+            )
         else:
             if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in [
                 "1", None]:
                 result.with_warning(
-                    f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1")
+                    message_format(
+                        parent_resource_kind,
+                        parent_resource_name,
+                        f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to true, but identType in describe.xml is not 1"
+                    )
+                )
             elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
                     "identType") != "2":
                 result.with_warning(
-                    f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2")
+                    message_format(
+                        parent_resource_kind,
+                        parent_resource_name,
+                        f"Collected identifier with key {identifier['key']} has isPartOfUniqueness set to false, but identType in describe.xml is not 2"
+                    )
+                )
 
             described_identifiers.pop(identifier["key"])
 
     for described_identifier in described_identifiers.values():
         if described_identifier.get("required") in ['true', 'True']:
             result.with_error(
-                f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection.")
+                message_format(
+                    parent_resource_kind,
+                    parent_resource_name,
+                    f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection."
+                )
+            )
         else:
             result.with_warning(
-                f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection ")
+                message_format(
+                    parent_resource_kind,
+                    parent_resource_name,
+                    f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection"
+                )
+            )
 
     return result
 
@@ -75,26 +113,39 @@ def cross_check_collection_with_describe(project, request, response):
     for resource in results:
         resource_adapter_kind = resource["key"]["adapterKind"]
         resource_kind = resource["key"]["objectKind"]
+        resource_name = resource["key"]["name"]
 
         # adapter kind validation
         if adapter_kind != resource_adapter_kind:
-            result.with_warning(f"AdapterKind '{adapter_kind}' was expected for object with objectKind '{resource_kind}', "
-                           f"but '{resource_adapter_kind}' was found instead")
+            result.with_warning(
+                message_format(
+                    resource_kind,
+                    resource_name,
+                    f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead"
+                )
+            )
 
         # resource kind validation
         if resource_kind not in describe_resources.keys():
             # TODO: couple error messages with resource kind and key
-            result.with_warning(f"No ResourceKind with key '{resource_kind}' was found in the describe.xml")
-            logger.info(f"Skipping metric validation for '{resource_kind}'")
+            result.with_warning(
+                message_format(
+                    resource_kind,
+                    resource_name,
+                    f"No ResourceKind with key '{resource_kind}' was found in the describe.xml"
+                )
+            )
+            logger.debug(f"Skipping metric validation for '{resource_kind}'")
         else:
             # metric validation
             described_resource = describe_resources[resource_kind]
-#            logger.info(f"Validating metrics for {resource_kind}")
+            #            logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
-                result += cross_check_metric(metric, described_resource)
+                result += cross_check_metric(resource_kind, resource_name, metric, described_resource)
 
             # identifiers validation
-            result += cross_check_identifiers(resource["key"]["identifiers"], described_resource)
+            result += cross_check_identifiers(resource_kind, resource_name, resource["key"]["identifiers"],
+                                              described_resource)
 
     return result
 
