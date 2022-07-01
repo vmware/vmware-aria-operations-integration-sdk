@@ -116,22 +116,26 @@ def create_describe(path, adapter_key, name):
     <ResourceKinds>
         <ResourceKind key="{adapter_key}_adapter_instance" nameKey="2" type="7">
             <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
+            <!-- The key 'container_memory_limit' is a special key that is read by the vROps collector to 
+            determine how much memory to allocate to the docker container running this adapter. It does not 
+            need to be read inside the adapter code. -->
+			<ResourceIdentifier dispOrder="2" key="container_memory_limit" nameKey="4" required="true" type="integer" identType="2" default="1024" />
         </ResourceKind>
-        <ResourceKind key="CPU" nameKey="4">
-            <ResourceAttribute key="cpu_count" nameKey="5" dataType="float" isProperty="true"/>
-            <ResourceAttribute key="user_time" nameKey="6" dataType="float" unit="sec"/>
-            <ResourceAttribute key="nice_time" nameKey="7" dataType="float" keyAttribute="true" unit="sec"/>
-            <ResourceAttribute key="system_time" nameKey="8" dataType="float" unit="sec"/>
-            <ResourceAttribute key="idle_time" nameKey="9" dataType="float" unit="sec"/>
+        <ResourceKind key="CPU" nameKey="5">
+            <ResourceAttribute key="cpu_count" nameKey="6" dataType="float" isProperty="true"/>
+            <ResourceAttribute key="user_time" nameKey="7" dataType="float" unit="sec"/>
+            <ResourceAttribute key="nice_time" nameKey="8" dataType="float" keyAttribute="true" unit="sec"/>
+            <ResourceAttribute key="system_time" nameKey="9" dataType="float" unit="sec"/>
+            <ResourceAttribute key="idle_time" nameKey="10" dataType="float" unit="sec"/>
         </ResourceKind>
-        <ResourceKind key="Disk" nameKey="10">
-            <ResourceAttribute key="partition" nameKey="11" dataType="string" isProperty="true"/>
-            <ResourceAttribute key="total_space" nameKey="12" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="used_space" nameKey="13" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="free_space" nameKey="14" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="percent_used_space" nameKey = "15" dataType="float" keyAttribute="true" unit="percent"/>
+        <ResourceKind key="Disk" nameKey="11">
+            <ResourceAttribute key="partition" nameKey="12" dataType="string" isProperty="true"/>
+            <ResourceAttribute key="total_space" nameKey="13" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="used_space" nameKey="14" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="free_space" nameKey="15" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="percent_used_space" nameKey = "16" dataType="float" keyAttribute="true" unit="percent"/>
         </ResourceKind>
-        <ResourceKind key="System" nameKey="16">
+        <ResourceKind key="System" nameKey="17">
         </ResourceKind>
     </ResourceKinds>
 </AdapterKind>""")
@@ -140,20 +144,23 @@ def create_describe(path, adapter_key, name):
         describe_resources_fd.write(f"""version=1
 1={name}
 2={name} Adapter Instance
-3=Identifier
-4=CPU
-5=CPU Count
-6=User Time
-7=Nice Time
-8=System Time
-9=Idle Time
-10=Disk
-11=Partition
-12=Total Space
-13=Used Space
-14=Free Space
-15=Disk Utilization
-16=System
+3=ID
+3.description=Example (dummy) identifier. Using a value of 'bad' will cause test connection to fail; any other value will pass.
+4=Adapter Memory Limit (MB)
+4.description=Sets the maximum amount of memory vROps can allocate to the container running this adapter instance.
+5=CPU
+6=CPU Count
+7=User Time
+8=Nice Time
+9=System Time
+10=Idle Time
+11=Disk
+12=Partition
+13=Total Space
+14=Used Space
+15=Free Space
+16=Disk Utilization
+17=System
 """)
 
 def build_content_directory(path):
