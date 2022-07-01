@@ -70,7 +70,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
         "name": adapter_key,
         "description": "DESCRIPTION",
         "version": "1.0.0",
-        "vcops_minimum_version": "8.7.1",
+        "vcops_minimum_version": "8.7.2",
         "disk_space_required": 500,
         "run_scripts_on_all_nodes": "true",
         "eula_file": eula_file,
@@ -103,7 +103,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
     return manifest
 
 
-def create_describe(path, adapter_key):
+def create_describe(path, adapter_key, name):
     # TODO: This should be a template file, or dynamically generated
     describe_file = os.path.join(path, "conf", "describe.xml")
     with open(describe_file, "w") as describe_fd:
@@ -117,11 +117,39 @@ def create_describe(path, adapter_key):
         <ResourceKind key="{adapter_key}_adapter_instance" nameKey="2" type="7">
             <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
         </ResourceKind>
-        <ResourceKind key="CPU" nameKey="4"></ResourceKind>
-        <ResourceKind key="Disk" nameKey="5"></ResourceKind>
-        <ResourceKind key="System" nameKey="6"></ResourceKind>
+        <ResourceKind key="CPU" nameKey="4">
+            <ResourceAttribute key="user_time" nameKey="5" dataType="float" unit="seconds"/>
+            <ResourceAttribute key="nice_time" nameKey="6" dataType="float" keyAttribute="true" unit="seconds"/>
+            <ResourceAttribute key="system_time" nameKey="7" dataType="float" unit="seconds"/>
+            <ResourceAttribute key="idle_time" nameKey="8" dataType="float" unit="seconds"/>
+        </ResourceKind>
+        <ResourceKind key="Disk" nameKey="9">
+            <ResourceAttribute key="total_space" nameKey="10" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="used_space" nameKey="11" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="free_space" nameKey="12" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="percent_used_space" nameKey = "13" dataType="float" keyAttribute="true" unit="%"/>
+        </ResourceKind>
+        <ResourceKind key="System" nameKey="13">
+        </ResourceKind>
     </ResourceKinds>
 </AdapterKind>""")
+    describe_resources_file = os.path.join(path, "conf", "resources", "resources.properties")
+    with open(describe_resources_file, "w") as describe_resources_fd:
+        describe_resources_fd.write("version=1\n")
+        describe_resources_fd.write(f"1={name}\n")
+        describe_resources_fd.write(f"2={name} Adapter Instance\n")
+        describe_resources_fd.write("3=Identifier\n")
+        describe_resources_fd.write("4=CPU\n")
+        describe_resources_fd.write("5=User Time\n")
+        describe_resources_fd.write("6=Nice Time\n")
+        describe_resources_fd.write("7=System Time\n")
+        describe_resources_fd.write("8=Idle Time\n")
+        describe_resources_fd.write("9=Disk\n")
+        describe_resources_fd.write("10=Total Space\n")
+        describe_resources_fd.write("11=Used Space\n")
+        describe_resources_fd.write("12=Free Space\n")
+        describe_resources_fd.write("13=Disk Utilization\n")
+        describe_resources_fd.write("14=System\n")
 
 
 def build_content_directory(path):
@@ -147,7 +175,7 @@ def build_content_directory(path):
     return content_dir
 
 
-def build_project(path, adapter_key, description, vendor, eula_file, icon_file, language):
+def build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language):
     mkdir(path)
 
     project = Project(path)
@@ -155,12 +183,13 @@ def build_project(path, adapter_key, description, vendor, eula_file, icon_file, 
 
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
+    conf_resources_dir = mkdir(path, "conf", "resources")
 
-    create_manifest_localization_file(path, adapter_key, vendor, description)
+    create_manifest_localization_file(path, name, vendor, description)
     eula_file = create_eula_file(path, eula_file)
     icon_file = create_icon_file(path, icon_file)
     manifest = create_manifest_file(path, adapter_key, eula_file, icon_file)
-    create_describe(path, adapter_key)
+    create_describe(path, adapter_key, name)
 
     # copy describe.xsd into conf directory
     src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
@@ -220,7 +249,7 @@ def main():
                                            ("java", "Java", "Unavailable for beta release"),
                                            ("powershell", "PowerShell", "Unavailable for beta release")])
         # create project_directory
-        build_project(path, adapter_key, description, vendor, eula_file, icon_file, language)
+        build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
         print("")
         print("")
         print("project generation completed")
