@@ -31,6 +31,8 @@ setup(
         "templates==0.0.5",
         "flask==2.1.1",
         "openapi_core==0.14.2",
+        "GitPython==3.1.27",
+        "xmlschema==1.11.3"
     ],
     package_dir={
         "common": "tools/common",
