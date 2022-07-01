@@ -60,22 +60,7 @@ def cross_check_identifiers(collected_identifiers, resource_kind_element) -> Res
     return result
 
 
-def cross_check_collection_with_describe(project, request, response, verbose=True):
-    user_facing_log = logging.getLogger("user_facing")
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(logging_format.CustomFormatter())
-    user_facing_log.addHandler(stream_handler)
-    user_facing_log.info("Validating collection results against describe.xml")
-
-    try:
-        if verbose:
-            consoleHandler = logging.StreamHandler()
-            consoleHandler.setFormatter(logging_format.CustomFormatter())
-            logger.addHandler(consoleHandler)
-
-        logger.addHandler(logging.FileHandler(f"{project['path']}/logs/describe_validation.log"))
-    except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
+def cross_check_collection_with_describe(project, request, response):
     path = project["path"]
     results = json.loads(response.text)["result"]
     describe = get_describe(path)
@@ -111,15 +96,7 @@ def cross_check_collection_with_describe(project, request, response, verbose=Tru
             # identifiers validation
             result += cross_check_identifiers(resource["key"]["identifiers"], described_resource)
 
-    if len(result.errors) > 0:
-        user_facing_log.error(f"Found {len(result.errors)} errors when validating collection against describe.xml")
-    if len(result.warnings) > 0:
-        user_facing_log.warning(f"Found {len(result.warnings)} minor errors when validating collection against describe.xml")
-
-    if (len(result.errors) or len(result.warnings)) > 0:
-        user_facing_log.info(f"For detailed logs see '{project['path']}/logs/describe_validation.log'")
-    else:
-        user_facing_log.info("\u001b[32m Collection matches describe.xml \u001b[0m")
+    return result
 
 
 def validate_describe(path):

@@ -24,6 +24,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
+import common.logging_format
 from common.validation.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, cross_check_collection_with_describe
 from common.constant import DEFAULT_PORT
@@ -31,6 +32,7 @@ from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
+from common.validation.result import Result
 from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -38,6 +40,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
@@ -175,15 +178,27 @@ def wait(project, connection):
     input("Press enter to finish")
 
 
-def post(url, json, headers, project, validators):
+def post(url, json, headers, project, validators, verbose = False): #TODO: replace verbose with the argument passed by the user
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
 
-    # TODO: collect the validation results
+    result = Result()
     for validate in validators:
-        validate(project, request, response)
+        result += validate(project, request, response)
+
+    if not result.errors or result.warnings:
+        # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
+        #TODO: write all validation logs into a validation file
+        if len(result.errors) > 0:
+            logger.error(f"Found {len(result.errors)} errors when validating collection against describe.xml")
+        if len(result.warnings) > 0:
+            logger.warning(f"Found {len(result.warnings)} minor errors when validating collection against describe.xml")
+
+        logger.info(f"For detailed logs see '{project['path']}/logs/describe_validation.log'")
+    else:
+        logger.info("\u001b[32m Validation passed with no errors \u001b[0m")
 
     # TODO: write a file with all validation results
     # TODO: if there was errors in the validation log them to the user
@@ -191,6 +206,7 @@ def post(url, json, headers, project, validators):
 
 def validate_api_response(project, request, response):
     schema_file = get_absolute_project_directory("api", "vrops-collector-fwk2-openapi.json")
+    result = Result()
     with open(schema_file, "r") as schema:
         try:
             json_response = json.loads(response.text)
@@ -206,14 +222,15 @@ def validate_api_response(project, request, response):
                 logger.info("Validation failed: ")
                 for error in validation.errors:
                     if "schema_errors" in vars(error):
-                        logger.info(vars(error)["schema_errors"])
+                        result.with_error(f"schema error:{vars(error)['schema_errors']}")
                     else:
-                        logger.info(error)
+                        result.with_error(error)
         except JSONDecodeError as d:
             logger.error("Returned result is not valid json:")
             logger.error("Response:")
             logger.error(repr(response.text))
             logger.error(f"Error: {d}")
+    return result
 
 
 # Docker helpers ***************
