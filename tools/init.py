@@ -118,39 +118,43 @@ def create_describe(path, adapter_key, name):
             <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
         </ResourceKind>
         <ResourceKind key="CPU" nameKey="4">
-            <ResourceAttribute key="user_time" nameKey="5" dataType="float" unit="seconds"/>
-            <ResourceAttribute key="nice_time" nameKey="6" dataType="float" keyAttribute="true" unit="seconds"/>
-            <ResourceAttribute key="system_time" nameKey="7" dataType="float" unit="seconds"/>
-            <ResourceAttribute key="idle_time" nameKey="8" dataType="float" unit="seconds"/>
+            <ResourceAttribute key="cpu_count" nameKey="5" dataType="float" isProperty="true"/>
+            <ResourceAttribute key="user_time" nameKey="6" dataType="float" unit="sec"/>
+            <ResourceAttribute key="nice_time" nameKey="7" dataType="float" keyAttribute="true" unit="sec"/>
+            <ResourceAttribute key="system_time" nameKey="8" dataType="float" unit="sec"/>
+            <ResourceAttribute key="idle_time" nameKey="9" dataType="float" unit="sec"/>
         </ResourceKind>
-        <ResourceKind key="Disk" nameKey="9">
-            <ResourceAttribute key="total_space" nameKey="10" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="used_space" nameKey="11" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="free_space" nameKey="12" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="percent_used_space" nameKey = "13" dataType="float" keyAttribute="true" unit="%"/>
+        <ResourceKind key="Disk" nameKey="10">
+            <ResourceAttribute key="partition" nameKey="11" dataType="string" isProperty="true"/>
+            <ResourceAttribute key="total_space" nameKey="12" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="used_space" nameKey="13" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="free_space" nameKey="14" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="percent_used_space" nameKey = "15" dataType="float" keyAttribute="true" unit="percent"/>
         </ResourceKind>
-        <ResourceKind key="System" nameKey="13">
+        <ResourceKind key="System" nameKey="16">
         </ResourceKind>
     </ResourceKinds>
 </AdapterKind>""")
     describe_resources_file = os.path.join(path, "conf", "resources", "resources.properties")
     with open(describe_resources_file, "w") as describe_resources_fd:
-        describe_resources_fd.write("version=1\n")
-        describe_resources_fd.write(f"1={name}\n")
-        describe_resources_fd.write(f"2={name} Adapter Instance\n")
-        describe_resources_fd.write("3=Identifier\n")
-        describe_resources_fd.write("4=CPU\n")
-        describe_resources_fd.write("5=User Time\n")
-        describe_resources_fd.write("6=Nice Time\n")
-        describe_resources_fd.write("7=System Time\n")
-        describe_resources_fd.write("8=Idle Time\n")
-        describe_resources_fd.write("9=Disk\n")
-        describe_resources_fd.write("10=Total Space\n")
-        describe_resources_fd.write("11=Used Space\n")
-        describe_resources_fd.write("12=Free Space\n")
-        describe_resources_fd.write("13=Disk Utilization\n")
-        describe_resources_fd.write("14=System\n")
-
+        describe_resources_fd.write(f"""version=1
+1={name}
+2={name} Adapter Instance
+3=Identifier
+4=CPU
+5=CPU Count
+6=User Time
+7=Nice Time
+8=System Time
+9=Idle Time
+10=Disk
+11=Partition
+12=Total Space
+13=Used Space
+14=Free Space
+15=Disk Utilization
+16=System
+""")
 
 def build_content_directory(path):
     content_dir = mkdir(path, "content")
