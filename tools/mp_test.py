@@ -181,16 +181,12 @@ def wait(project, connection):
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
-        validation_file.write("ERRORS")
-        validation_file.write("\n")
         for error in result.errors:
-            validation_file.write(error)
+            validation_file.write(f"ERROR: {error}")
             validation_file.write("\n")
 
-        validation_file.write("WARNINGS")
-        validation_file.write("\n")
         for warning in result.warnings:
-            validation_file.write(warning)
+            validation_file.write(f"WARNING: {warning})
             validation_file.write("\n")
 
 
