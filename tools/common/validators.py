@@ -115,15 +115,21 @@ class ImageValidator(Validator):
             raise ValidationError(message=f"{e}. Image must be in PNG format and 256x256 pixels.")
 
 
-class ProjectValidator(Validator):
+class ProjectValidator(NotEmptyValidator):
+    def __init__(self):
+        super().__init__("Path")
+
     def validate(self, document: Document) -> None:
+        super().validate(document)
         if not self.is_project_dir(document.text):
             raise ValidationError(message="Path must be a valid Management Pack project directory.")
 
     @classmethod
     def is_project_dir(cls, path):
+        if path is None:
+            return False
         path = os.path.expanduser(path)
-        return path is not None and os.path.isdir(path) and os.path.isfile(os.path.join(path, "manifest.txt"))
+        return os.path.isdir(path) and os.path.isfile(os.path.join(path, "manifest.txt"))
 
 
 class ChainValidator(Validator):

@@ -6,6 +6,7 @@ import json
 import os
 import time
 import hashlib
+import traceback
 import xml.etree.ElementTree as ET
 from json import JSONDecodeError
 
@@ -474,7 +475,9 @@ def main():
     except ET.ParseError as describe_error:
         logger.error(f"Unable to parse describe.xml: {describe_error}")
     except BaseException as base_error:
+        print("Unexpected error")
         logger.error(base_error)
+        traceback.print_tb(base_error.__traceback__)
         exit(1)
 
 

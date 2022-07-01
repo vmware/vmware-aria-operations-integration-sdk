@@ -3,9 +3,9 @@ import shutil
 import zipfile
 
 from prompt_toolkit import print_formatted_text as print, prompt
-from prompt_toolkit.completion import PathCompleter
 
 from . import constant, repository
+from .ui import path_prompt
 from .validators import RepoValidator
 
 
@@ -46,14 +46,10 @@ def ask_for_repo_path():
     try:
         print(f"The path to the '{constant.REPO_NAME}' repository must be set in the '{constant.CONFIG_FILE}' file ")
         print(f"for this tool to function. It is not currently set.")
-        path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository: ",
-                      validator=RepoValidator(),
-                      validate_while_typing=False,
-                      completer=PathCompleter(expanduser=True),
-                      complete_in_thread=True)
+        path = path_prompt(f"Enter path to the '{constant.REPO_NAME}' repository: ", validator=RepoValidator())
         print()
         print()
-        return os.path.expanduser(path)
+        return path
     except KeyboardInterrupt:
         print()
         print(f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be")
