@@ -4,13 +4,14 @@ import os
 from setuptools import setup
 
 import tools.common.repository as repository
+from tools.common import constant as constant
 
 repo_path = os.getenv("VROPS_SDK_REPO_PATH")
 
 if repo_path is None:
     print("VROPS_SDK_REPO_PATH not found")
-    print("To install this package run 'install.sh'.")
-    print("Alternatively, set the environment variable 'VROPS_SDK_REPO_PATH' to the path of the 'vrops-python-sdk' repository and rerun this command.")
+    print("To install this package run 'install.sh' (Linux or macOS) or 'install.bat' (Windows).")
+    print(f"Alternatively, set the environment variable 'VROPS_SDK_REPO_PATH' to the path of the '{constant.REPO_NAME}' repository and rerun this command.")
     exit(1)
 else:
     repository.get_root_directory(default_path=lambda: repo_path)
@@ -19,7 +20,7 @@ setup(
     version="0.0.1",
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
-    python_requires=">=3.3",
+    python_requires=">=3.9",
     install_requires=[
         "docker==5.0.3",
         "Pillow==9.1.0",

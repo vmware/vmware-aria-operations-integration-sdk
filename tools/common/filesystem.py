@@ -3,8 +3,10 @@ import shutil
 import zipfile
 
 from prompt_toolkit import print_formatted_text as print, prompt
+from prompt_toolkit.completion import PathCompleter
+
 from . import constant, repository
-from .constant import REPOSITORY_LOCATION
+from .validators import RepoValidator
 
 
 def get_absolute_project_directory(*path: [str]):
@@ -42,25 +44,23 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        repo_path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")
-        while not os.path.exists(repo_path) and repo_path != "q":
-            print(f"{repo_path} is not a valid path")
-            repo_path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")
-
-        if repo_path == "q":
-            exit_and_prompt()
-        return repo_path
+        print(f"The path to the '{constant.REPO_NAME}' repository must be set in the '{constant.CONFIG_FILE}' file ")
+        print(f"for this tool to function. It is not currently set.")
+        path = prompt(f"Enter path to the '{constant.REPO_NAME}' repository: ",
+                      validator=RepoValidator(),
+                      validate_while_typing=False,
+                      completer=PathCompleter(expanduser=True),
+                      complete_in_thread=True)
+        print()
+        print()
+        return os.path.expanduser(path)
     except KeyboardInterrupt:
         print()
-        exit_and_prompt()
-
-
-def exit_and_prompt():
-    print(
-        f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be "
-        f"added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '"
-        f"{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
-    exit(1)
+        print(f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be")
+        print("added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '")
+        print("{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
+        print()
+        exit(1)
 
 
 def get_root_directory(default_path=ask_for_repo_path):
