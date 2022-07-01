@@ -1,11 +1,11 @@
 import json
 import logging
 import os
+import traceback
 from shutil import copy
 
-from prompt_toolkit import prompt
-from prompt_toolkit.completion.filesystem import PathCompleter
 from git import Repo
+from prompt_toolkit import prompt
 
 import common.constant as constant
 import templates.java as java
@@ -13,7 +13,7 @@ import templates.powershell as powershell
 from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir, rmdir
 from common.project import Project, record_project
-from common.ui import print_formatted as print
+from common.ui import print_formatted as print, path_prompt
 from common.ui import selection_prompt
 from common.validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
     ImageValidator
@@ -193,14 +193,10 @@ def main():
     try:
         get_root_directory()
 
-        path = prompt(
+        path = path_prompt(
             "Enter a path for the project directory where adapter code, metadata, and content will reside. \n" +
             "If the directory doesn't already exist, it will be created. \nPath: ",
-            validator=NewProjectDirectoryValidator("Path"),
-            validate_while_typing=False,
-            completer=PathCompleter(expanduser=True),
-            complete_in_thread=True)
-        path = os.path.expanduser(path)
+            validator=NewProjectDirectoryValidator("Path"))
 
         name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
         adapter_key = prompt("Management pack adapter key: ",
@@ -208,21 +204,13 @@ def main():
                              default=AdapterKeyValidator.default(name))
         description = prompt("Management pack description: ", validator=NotEmptyValidator("Description"))
         vendor = prompt("Management pack vendor: ", validator=NotEmptyValidator("Vendor"))
-        eula_file = prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
-                           validator=EulaValidator(),
-                           validate_while_typing=False,
-                           completer=PathCompleter(expanduser=True),
-                           complete_in_thread=True)
-        eula_file = os.path.expanduser(eula_file)
+        eula_file = path_prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
+                                validator=EulaValidator())
 
         if eula_file == "":
             print("A EULA can be added later by editing the default 'eula.txt' file.")
-        icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
-                           validator=ImageValidator(),
-                           validate_while_typing=False,
-                           completer=PathCompleter(expanduser=True),
-                           complete_in_thread=True)
-        icon_file = os.path.expanduser(icon_file)
+        icon_file = path_prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
+                                validator=ImageValidator())
         if icon_file == "":
             print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
                   "name and adding the icon file to the root project directory.")
@@ -240,7 +228,9 @@ def main():
         if type(error) is KeyboardInterrupt:
             logger.info("Init cancelled by user")
         else:
+            print("Unexpected error")
             logger.error(error)
+            traceback.print_tb(error.__traceback__)
         # In both cases, we want to clean up afterwards
         if os.path.exists(path):
             logger.debug("Deleting generated artifacts")
