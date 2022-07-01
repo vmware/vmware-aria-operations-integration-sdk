@@ -186,7 +186,7 @@ def write_validation_log(validation_file_path, result):
             validation_file.write("\n")
 
         for warning in result.warnings:
-            validation_file.write(f"WARNING: {warning})
+            validation_file.write(f"WARNING: {warning}")
             validation_file.write("\n")
 
 

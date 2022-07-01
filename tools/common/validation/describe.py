@@ -29,15 +29,16 @@ def cross_check_metric(resource_kind, resource_name, collected_metric, resource_
     # NOTE: this function will need modifications when we implement validation for groups and instanced groups
     children = resource_kind_element.findall(ns("ResourceAttribute"))
     result = Result()
-    for child in children:
-        if not collected_metric["key"] == child.get("key"):
-            result.with_warning(
-                message_format(
-                    resource_kind,
-                    resource_name,
-                    f"Collected metric with key {collected_metric['key']} was not found in describe.xml"
-                )
+
+    match = next(filter(lambda c: c.get("key") == collected_metric["key"], children), None)
+    if match is None:
+        result.with_warning(
+            message_format(
+                resource_kind,
+                resource_name,
+                f"Collected metric with key {collected_metric['key']} was not found in describe.xml"
             )
+        )
     return result
 
 
