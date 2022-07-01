@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 
-from prompt_toolkit import print_formatted_text
+import os
+
+from prompt_toolkit import print_formatted_text, prompt
 from prompt_toolkit.application import Application
+from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import IsDone
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
@@ -165,3 +168,20 @@ def multiselect_prompt(message, items):
     """
     items = list(map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items))
     return MultiSelectControl(message, items).run()
+
+
+def path_prompt(message, validator):
+    """
+    :param message: Question/prompt to display
+    :param validator: Validator that determines if entered path is valid
+    :return: absolute path that conforms to the validator
+    """
+    path = prompt(message,
+                  validator=validator,
+                  validate_while_typing=False,
+                  completer=PathCompleter(expanduser=True),
+                  complete_in_thread=True)
+    if path == "":
+        return ""
+    else:
+        return os.path.abspath(os.path.expanduser(path))

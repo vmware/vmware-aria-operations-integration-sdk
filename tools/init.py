@@ -1,11 +1,11 @@
 import json
 import logging
 import os
+import traceback
 from shutil import copy
 
-from prompt_toolkit import prompt
-from prompt_toolkit.completion.filesystem import PathCompleter
 from git import Repo
+from prompt_toolkit import prompt
 
 import common.constant as constant
 import templates.java as java
@@ -13,7 +13,7 @@ import templates.powershell as powershell
 from common.config import get_config_value
 from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir, rmdir
 from common.project import Project, record_project
-from common.ui import print_formatted as print
+from common.ui import print_formatted as print, path_prompt
 from common.ui import selection_prompt
 from common.validation.validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
     ImageValidator
@@ -70,7 +70,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
         "name": adapter_key,
         "description": "DESCRIPTION",
         "version": "1.0.0",
-        "vcops_minimum_version": "8.7.1",
+        "vcops_minimum_version": "8.7.2",
         "disk_space_required": 500,
         "run_scripts_on_all_nodes": "true",
         "eula_file": eula_file,
@@ -103,7 +103,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
     return manifest
 
 
-def create_describe(path, adapter_key):
+def create_describe(path, adapter_key, name):
     # TODO: This should be a template file, or dynamically generated
     describe_file = os.path.join(path, "conf", "describe.xml")
     with open(describe_file, "w") as describe_fd:
@@ -116,13 +116,52 @@ def create_describe(path, adapter_key):
     <ResourceKinds>
         <ResourceKind key="{adapter_key}_adapter_instance" nameKey="2" type="7">
             <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
+            <!-- The key 'container_memory_limit' is a special key that is read by the vROps collector to 
+            determine how much memory to allocate to the docker container running this adapter. It does not 
+            need to be read inside the adapter code. -->
+			<ResourceIdentifier dispOrder="2" key="container_memory_limit" nameKey="4" required="true" type="integer" identType="2" default="1024" />
         </ResourceKind>
-        <ResourceKind key="CPU" nameKey="4"></ResourceKind>
-        <ResourceKind key="Disk" nameKey="5"></ResourceKind>
-        <ResourceKind key="System" nameKey="6"></ResourceKind>
+        <ResourceKind key="CPU" nameKey="5">
+            <ResourceAttribute key="cpu_count" nameKey="6" dataType="float" isProperty="true"/>
+            <ResourceAttribute key="user_time" nameKey="7" dataType="float" unit="sec"/>
+            <ResourceAttribute key="nice_time" nameKey="8" dataType="float" keyAttribute="true" unit="sec"/>
+            <ResourceAttribute key="system_time" nameKey="9" dataType="float" unit="sec"/>
+            <ResourceAttribute key="idle_time" nameKey="10" dataType="float" unit="sec"/>
+        </ResourceKind>
+        <ResourceKind key="Disk" nameKey="11">
+            <ResourceAttribute key="partition" nameKey="12" dataType="string" isProperty="true"/>
+            <ResourceAttribute key="total_space" nameKey="13" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="used_space" nameKey="14" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="free_space" nameKey="15" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="percent_used_space" nameKey = "16" dataType="float" keyAttribute="true" unit="percent"/>
+        </ResourceKind>
+        <ResourceKind key="System" nameKey="17">
+        </ResourceKind>
     </ResourceKinds>
 </AdapterKind>""")
-
+    describe_resources_file = os.path.join(path, "conf", "resources", "resources.properties")
+    with open(describe_resources_file, "w") as describe_resources_fd:
+        describe_resources_fd.write(f"""version=1
+1={name}
+2={name} Adapter Instance
+3=ID
+3.description=Example (dummy) identifier. Using a value of 'bad' will cause test connection to fail; any other value will pass.
+4=Adapter Memory Limit (MB)
+4.description=Sets the maximum amount of memory vROps can allocate to the container running this adapter instance.
+5=CPU
+6=CPU Count
+7=User Time
+8=Nice Time
+9=System Time
+10=Idle Time
+11=Disk
+12=Partition
+13=Total Space
+14=Used Space
+15=Free Space
+16=Disk Utilization
+17=System
+""")
 
 def build_content_directory(path):
     content_dir = mkdir(path, "content")
@@ -147,7 +186,7 @@ def build_content_directory(path):
     return content_dir
 
 
-def build_project(path, adapter_key, description, vendor, eula_file, icon_file, language):
+def build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language):
     mkdir(path)
 
     project = Project(path)
@@ -155,12 +194,13 @@ def build_project(path, adapter_key, description, vendor, eula_file, icon_file, 
 
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
+    conf_resources_dir = mkdir(path, "conf", "resources")
 
-    create_manifest_localization_file(path, adapter_key, vendor, description)
+    create_manifest_localization_file(path, name, vendor, description)
     eula_file = create_eula_file(path, eula_file)
     icon_file = create_icon_file(path, icon_file)
     manifest = create_manifest_file(path, adapter_key, eula_file, icon_file)
-    create_describe(path, adapter_key)
+    create_describe(path, adapter_key, name)
 
     # copy describe.xsd into conf directory
     src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
@@ -193,14 +233,10 @@ def main():
     try:
         get_root_directory()
 
-        path = prompt(
+        path = path_prompt(
             "Enter a path for the project directory where adapter code, metadata, and content will reside. \n" +
             "If the directory doesn't already exist, it will be created. \nPath: ",
-            validator=NewProjectDirectoryValidator("Path"),
-            validate_while_typing=False,
-            completer=PathCompleter(expanduser=True),
-            complete_in_thread=True)
-        path = os.path.expanduser(path)
+            validator=NewProjectDirectoryValidator("Path"))
 
         name = prompt("Management pack display name: ", validator=NotEmptyValidator("Display name"))
         adapter_key = prompt("Management pack adapter key: ",
@@ -208,21 +244,13 @@ def main():
                              default=AdapterKeyValidator.default(name))
         description = prompt("Management pack description: ", validator=NotEmptyValidator("Description"))
         vendor = prompt("Management pack vendor: ", validator=NotEmptyValidator("Vendor"))
-        eula_file = prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
-                           validator=EulaValidator(),
-                           validate_while_typing=False,
-                           completer=PathCompleter(expanduser=True),
-                           complete_in_thread=True)
-        eula_file = os.path.expanduser(eula_file)
+        eula_file = path_prompt("Enter a path to a EULA text file, or leave blank for no EULA: ",
+                                validator=EulaValidator())
 
         if eula_file == "":
             print("A EULA can be added later by editing the default 'eula.txt' file.")
-        icon_file = prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
-                           validator=ImageValidator(),
-                           validate_while_typing=False,
-                           completer=PathCompleter(expanduser=True),
-                           complete_in_thread=True)
-        icon_file = os.path.expanduser(icon_file)
+        icon_file = path_prompt("Enter a path to the management pack icon file, or leave blank for no icon: ",
+                                validator=ImageValidator())
         if icon_file == "":
             print("An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the icon file "
                   "name and adding the icon file to the root project directory.")
@@ -232,7 +260,7 @@ def main():
                                            ("java", "Java", "Unavailable for beta release"),
                                            ("powershell", "PowerShell", "Unavailable for beta release")])
         # create project_directory
-        build_project(path, adapter_key, description, vendor, eula_file, icon_file, language)
+        build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
         print("")
         print("")
         print("project generation completed")
@@ -240,7 +268,9 @@ def main():
         if type(error) is KeyboardInterrupt:
             logger.info("Init cancelled by user")
         else:
+            print("Unexpected error")
             logger.error(error)
+            traceback.print_tb(error.__traceback__)
         # In both cases, we want to clean up afterwards
         if os.path.exists(path):
             logger.debug("Deleting generated artifacts")

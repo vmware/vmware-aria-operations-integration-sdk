@@ -1,10 +1,7 @@
 import os
 
-from prompt_toolkit import prompt
-from prompt_toolkit.completion import PathCompleter
-
 from common.config import get_config_value, set_config_value
-from common.ui import selection_prompt
+from common.ui import selection_prompt, path_prompt
 from common.validation.validators import ProjectValidator
 
 
@@ -40,12 +37,7 @@ def get_project(arguments):
     projects = get_config_value("projects", [])
     path = selection_prompt("Select a project: ", [(project["path"], project["path"]) for project in projects] + [("Other", "Other")])
     if path == "Other":
-        path = prompt("Enter the path to the project: ",
-                      validator=ProjectValidator(),
-                      validate_while_typing=False,
-                      completer=PathCompleter(expanduser=True),
-                      complete_in_thread=True)
-        path = os.path.expanduser(path)
+        path = path_prompt("Enter the path to the project: ", validator=ProjectValidator())
 
     return find_project_by_path(path)
 
