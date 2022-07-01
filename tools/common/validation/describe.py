@@ -27,7 +27,6 @@ def cross_check_metric(collected_metric, resource_kind_element) -> Result:
     for child in children:
         if not collected_metric["key"] == child.get("key"):
             result.with_warning(f"Collected metric with key {collected_metric['key']} was not found in describe.xml")
-
     return result
 
 
@@ -87,42 +86,37 @@ def cross_check_collection_with_describe(project, request, response, verbose=Tru
     describe_resources = {resource_kind.get("key"): resource_kind for resource_kind in resource_kinds}
 
     # check Resource kinds
-    errors, warnings = 0, 0
+    result = Result()
     for resource in results:
         resource_adapter_kind = resource["key"]["adapterKind"]
         resource_kind = resource["key"]["objectKind"]
 
         # adapter kind validation
         if adapter_kind != resource_adapter_kind:
-            warnings += 1
-            logger.warning(f"AdapterKind '{adapter_kind}' was expected for object with objectKind '{resource_kind}', "
+            result.with_warning(f"AdapterKind '{adapter_kind}' was expected for object with objectKind '{resource_kind}', "
                            f"but '{resource_adapter_kind}' was found instead")
 
         # resource kind validation
         if resource_kind not in describe_resources.keys():
-            warnings += 1
             # TODO: couple error messages with resource kind and key
-            logger.warning(f"No ResourceKind with key '{resource_kind}' was found in the describe.xml")
+            result.with_warning(f"No ResourceKind with key '{resource_kind}' was found in the describe.xml")
             logger.info(f"Skipping metric validation for '{resource_kind}'")
         else:
             # metric validation
             described_resource = describe_resources[resource_kind]
-            logger.info(f"Validating metrics for {resource_kind}")
+#            logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
-                result = cross_check_metric(metric, described_resource)
-                print(f"RESULT: {result} errors: {result.errors} warnings: {result.warnings} ")
+                result += cross_check_metric(metric, described_resource)
 
             # identifiers validation
-            # TODO: small wrapper class that helps count errors and warnings(optional)
-            result = cross_check_identifiers(resource["key"]["identifiers"], described_resource)
-            print(f"RESULT: {result} errors: {result.errors} warnings: {result.warnings} ")
+            result += cross_check_identifiers(resource["key"]["identifiers"], described_resource)
 
-    if errors > 0:
-        user_facing_log.error(f"Found {errors} errors when validating collection against describe.xml")
-    if warnings > 0:
-        user_facing_log.warning(f"Found {warnings} minor errors when validating collection against describe.xml")
+    if len(result.errors) > 0:
+        user_facing_log.error(f"Found {len(result.errors)} errors when validating collection against describe.xml")
+    if len(result.warnings) > 0:
+        user_facing_log.warning(f"Found {len(result.warnings)} minor errors when validating collection against describe.xml")
 
-    if (errors or warnings) > 0:
+    if (len(result.errors) or len(result.warnings)) > 0:
         user_facing_log.info(f"For detailed logs see '{project['path']}/logs/describe_validation.log'")
     else:
         user_facing_log.info("\u001b[32m Collection matches describe.xml \u001b[0m")
