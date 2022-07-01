@@ -178,7 +178,24 @@ def wait(project, connection):
     input("Press enter to finish")
 
 
-def post(url, json, headers, project, validators, verbose = False): #TODO: replace verbose with the argument passed by the user
+def write_validation_log(validation_file_path, result):
+    # TODO: create a test object to be able to write encapsulated test results
+    with open(validation_file_path, "w") as validation_file:
+        validation_file.write("ERRORS")
+        validation_file.write("\n")
+        for error in result.errors:
+            validation_file.write(error)
+            validation_file.write("\n")
+
+        validation_file.write("WARNINGS")
+        validation_file.write("\n")
+        for warning in result.warnings:
+            validation_file.write(warning)
+            validation_file.write("\n")
+
+
+def post(url, json, headers, project, validators,
+         verbose=False):  # TODO: replace verbose with the argument passed by the user
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
@@ -190,13 +207,15 @@ def post(url, json, headers, project, validators, verbose = False): #TODO: repla
 
     if not result.errors or result.warnings:
         # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
-        #TODO: write all validation logs into a validation file
+        # TODO: write all validation logs into a validation file
+        validation_file_path = os.path.join(project["path"], "logs", "validation.log")
+        write_validation_log(validation_file_path, result)
         if len(result.errors) > 0:
-            logger.error(f"Found {len(result.errors)} errors when validating collection against describe.xml")
+            logger.error(f"Found {len(result.errors)} errors when validating collection")
         if len(result.warnings) > 0:
-            logger.warning(f"Found {len(result.warnings)} minor errors when validating collection against describe.xml")
+            logger.warning(f"Found {len(result.warnings)} minor errors when validating collection")
 
-        logger.info(f"For detailed logs see '{project['path']}/logs/describe_validation.log'")
+        logger.info(f"For detailed logs see '{validation_file_path}'")
     else:
         logger.info("\u001b[32m Validation passed with no errors \u001b[0m")
 
