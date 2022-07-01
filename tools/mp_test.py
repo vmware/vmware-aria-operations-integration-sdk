@@ -194,8 +194,7 @@ def write_validation_log(validation_file_path, result):
             validation_file.write("\n")
 
 
-def post(url, json, headers, project, validators,
-         verbose=False):  # TODO: replace verbose with the argument passed by the user
+def post(url, json, headers, project, validators):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
@@ -207,7 +206,6 @@ def post(url, json, headers, project, validators,
 
     if not result.errors or result.warnings:
         # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
-        # TODO: write all validation logs into a validation file
         validation_file_path = os.path.join(project["path"], "logs", "validation.log")
         write_validation_log(validation_file_path, result)
         if len(result.errors) > 0:
@@ -218,9 +216,6 @@ def post(url, json, headers, project, validators,
         logger.info(f"For detailed logs see '{validation_file_path}'")
     else:
         logger.info("\u001b[32m Validation passed with no errors \u001b[0m")
-
-    # TODO: write a file with all validation results
-    # TODO: if there was errors in the validation log them to the user
 
 
 def validate_api_response(project, request, response):
