@@ -2,15 +2,15 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
 import argparse
+import hashlib
 import json
+import logging
 import os
 import time
-import hashlib
 import traceback
 import xml.etree.ElementTree as ET
 from json import JSONDecodeError
 
-import logging
 import openapi_core
 import requests
 import urllib3
@@ -26,13 +26,13 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 import common.logging_format
-from common.validation.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
-    get_identifiers, cross_check_collection_with_describe
 from common.constant import DEFAULT_PORT
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
+from common.validation.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
+    get_identifiers, cross_check_collection_with_describe
 from common.validation.result import Result
 from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
@@ -89,6 +89,7 @@ def run(arguments):
 
     connection = get_connection(project, arguments)
     method = get_method(arguments)
+    verbosity = arguments.verbosity
 
     docker_client = init()
 
@@ -121,7 +122,7 @@ def run(arguments):
         wait = args.setdefault("wait", 10)
         while times > 0:
             # Run connection test or collection test
-            method(project, connection)
+            method(project, connection, verbosity)
             times = times - 1
             if times > 0:
                 logger.info(f"{times} requests remaining. Waiting {wait} seconds until next request.")
@@ -144,31 +145,34 @@ def get_method(arguments):
 
 # REST calls ***************
 
-def post_collect(project, connection):
+def post_collect(project, connection, verbosity):
     post(url=f"http://localhost:{DEFAULT_PORT}/collect",
          json=get_request_body(project, connection),
          headers={"Accept": "application/json"},
          project=project,
-         validators=[validate_api_response, cross_check_collection_with_describe])
+         validators=[validate_api_response, cross_check_collection_with_describe],
+         verbosity=verbosity)
 
 
-def post_test(project, connection):
+def post_test(project, connection, verbosity):
     post(url=f"http://localhost:{DEFAULT_PORT}/test",
          json=get_request_body(project, connection),
          headers={"Accept": "application/json"},
          project=project,
-         validators=[validate_api_response])
+         validators=[validate_api_response],
+         verbosity=verbosity)
 
 
-def post_endpoint_urls(project, connection):
+def post_endpoint_urls(project, connection, verbosity):
     post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
          json=get_request_body(project, connection),
          headers={"Accept": "application/json"},
          project=project,
-         validators=[validate_api_response])
+         validators=[validate_api_response],
+         verbosity=verbosity)
 
 
-def get_version(project, connection):
+def get_version(project, connection, verbosity):
     response = requests.get(
         f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"})
@@ -182,16 +186,11 @@ def wait(project, connection):
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
-        for error in result.errors:
-            validation_file.write(f"ERROR: {error}")
-            validation_file.write("\n")
-
-        for warning in result.warnings:
-            validation_file.write(f"WARNING: {warning}")
-            validation_file.write("\n")
+        for (severity, message) in result.messages:
+            validation_file.write(f"{severity.name}: {message}\n")
 
 
-def post(url, json, headers, project, validators):
+def post(url, json, headers, project, validators, verbosity):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
@@ -201,15 +200,24 @@ def post(url, json, headers, project, validators):
     for validate in validators:
         result += validate(project, request, response)
 
-    if not result.errors or result.warnings:
-        # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
+    for severity, message in result.messages:
+        if severity.value <= verbosity:
+            if severity.value == 1:
+                logger.error(message)
+            elif severity.value == 2:
+                logger.warning(message)
+            else:
+                logger.info(message)
+
+    # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
+    if result.error_count > 0 and verbosity < 1:
+        logger.error(f"Found {result.error_count} errors when validating collection")
+    if result.warning_count > 0 and verbosity < 2:
+        logger.warning(f"Found {result.warning_count} warnings when validating collection")
+
+    if len(result.messages) > 0:
         validation_file_path = os.path.join(project["path"], "logs", "validation.log")
         write_validation_log(validation_file_path, result)
-        if len(result.errors) > 0:
-            logger.error(f"Found {len(result.errors)} errors when validating collection")
-        if len(result.warnings) > 0:
-            logger.warning(f"Found {len(result.warnings)} minor errors when validating collection")
-
         logger.info(f"For detailed logs see '{validation_file_path}'")
     else:
         logger.info("\u001b[32m Validation passed with no errors \u001b[0m")
@@ -450,6 +458,10 @@ def main():
     parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
                                              "or prompts if current directory is not a project.")
     parser.add_argument("-c", "--connection", help="Name of a connection in this project.")
+    parser.add_argument("-v", "--verbosity", help="Determine the amount of console logging when performing validation. "
+                                                  "0: No console logging; 3: Max console logging.",
+                        type=int, default=1,
+                        choices=range(0, 4))
 
     methods = parser.add_subparsers(required=False)
 

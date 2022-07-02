@@ -1,20 +1,31 @@
-class Result:
-    def __init__(self, errors=None, warnings=None):
+from enum import Enum
 
-        if warnings is None:
-            warnings = []
-        if errors is None:
-            errors = []
-        self.errors = errors
-        self.warnings = warnings
+
+class ResultLevel(Enum):
+    ERROR = 1
+    WARNING = 2
+    INFORMATION = 3
+
+
+class Result:
+    def __init__(self):
+        self.messages: list[(ResultLevel, str)] = []
+        self.warning_count: int = 0
+        self.error_count: int = 0
 
     def __iadd__(self, other):
-        self.errors = self.errors + other.errors
-        self.warnings = self.warnings + other.warnings
+        self.error_count = self.error_count + other.error_count
+        self.warning_count = self.warning_count + other.warning_count
+        self.messages = self.messages + other.messages
         return self
 
     def with_error(self, error):
-        self.errors.append(error)
+        self.error_count += 1
+        self.messages.append((ResultLevel.ERROR, error))
 
     def with_warning(self, warning):
-        self.warnings.append(warning)
+        self.warning_count += 1
+        self.messages.append((ResultLevel.WARNING, warning))
+
+    def with_information(self, information):
+        self.messages.append((ResultLevel.INFORMATION, information))
