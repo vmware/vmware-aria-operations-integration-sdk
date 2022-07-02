@@ -513,6 +513,8 @@ def main():
         exit(1)
     except ET.ParseError as describe_error:
         logger.error(f"Unable to parse describe.xml: {describe_error}")
+    except SystemExit as system_exit:
+        exit(system_exit.code)
     except BaseException as base_error:
         print("Unexpected error")
         logger.error(base_error)
