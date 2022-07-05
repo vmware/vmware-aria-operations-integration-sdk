@@ -11,6 +11,7 @@ from common.docker_wrapper import login, init, push_image, build_image, DockerWr
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 from common.ui import print_formatted as print
+from common import filesystem
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -178,14 +179,18 @@ def main():
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
 
+        log_file_path = os.path.join(project['path'], 'logs')
+        if not os.path.exists(log_file_path):
+            filesystem.mkdir(log_file_path)
+
         try:
-            logging.basicConfig(filename=f"{project['path']}/logs/build.log",
+            logging.basicConfig(filename=os.path.join(log_file_path, "build.log"),
                                 filemode="a",
                                 format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
                                 datefmt="%H:%M:%S",
                                 level=logging.DEBUG)
         except Exception:
-            logging.basicConfig(level=logging.CRITICAL + 1)
+            logger.warning(f"Unable to save logs to {log_file_path}")
 
         project_dir = project["path"]
         # We want to store pak files in the build dir
