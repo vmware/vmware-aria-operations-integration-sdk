@@ -2,7 +2,7 @@ import os
 
 from common.config import get_config_value, set_config_value
 from common.ui import selection_prompt, path_prompt
-from common.validators import ProjectValidator
+from common.validation.validators import ProjectValidator
 
 
 class Connection:

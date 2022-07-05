@@ -17,7 +17,7 @@ else:
     repository.get_root_directory(default_path=lambda: repo_path)
 
 setup(
-    version="0.0.1",
+    version="0.1.0",
     name="vrops-adapter-tools",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
     python_requires=">=3.9",
@@ -46,6 +46,7 @@ setup(
     ],
     packages=[
         "common",
+        "common.validation",
         "templates",
     ],
     entry_points={

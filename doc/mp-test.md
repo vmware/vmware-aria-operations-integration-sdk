@@ -35,6 +35,8 @@ optional arguments:
                         project.
   -c CONNECTION, --connection CONNECTION
                         Name of a connection in this project.
+  -v {0,1,2,3}, --verbosity {0,1,2,3}
+                        Determine the amount of console logging when performing validation. 0: No console logging; 3: Max console logging.
 ```
 
 In addition, when using `collect` there are additional optional arguments:

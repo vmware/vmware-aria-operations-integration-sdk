@@ -6,7 +6,7 @@ from prompt_toolkit import print_formatted_text as print, prompt
 
 from . import constant, repository
 from .ui import path_prompt
-from .validators import RepoValidator
+from .validation.validators import RepoValidator
 
 
 def get_absolute_project_directory(*path: [str]):
