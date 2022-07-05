@@ -1,43 +1,22 @@
 import argparse
 import json
+import logging
 import os
 import shutil
 import time
 import zipfile
 
-import docker
-
 from common.config import get_config_value
-from common.docker_wrapper import login, init, push_image, build_image
-from common.filesystem import zip_dir, mkdir, zip_file
+from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
+from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
+from common.ui import print_formatted as print
+from common import filesystem
 
-
-def get_digest(response) -> str:
-    """
-    Get the images digest by parsing the server response.
-    An alternate method of parsing the digest from an image would be to
-    parse the attributes of an image and then check if the image has repoDigests
-    attribute, then we could parse the repo digest (different from digest) to get the digest.
-
-
-    :param response: A Stream that of dictionaries with information about the image being pushed
-    :return: A string version of the SHA256 digest
-    """
-    for line in response:
-        if 'aux' in line:
-            try:
-                return line['aux']['Digest']
-            except KeyError:
-                print("ERROR digest was not found in response from registry")
-                exit(1)
-
-        elif 'errorDetail' in line:
-            print("ERROR when pushing image to docker registry")
-            print("repo: {repo}")
-            print(line["errorDetail"]["message"])
-            exit(1)
-    pass
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = logging.StreamHandler()
+logger.addHandler(consoleHandler)
 
 
 def build_subdirectories(directory: str):
@@ -54,14 +33,17 @@ def build_subdirectories(directory: str):
     for file in content_files:
         file_ext = os.path.splitext(file)[1].lower()
         if file_ext == ".properties":
-            print(f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
-                  f"into a subdirectory inside the {directory} directory, and move the properties"
-                  "file to a 'resources' directory that is also inside that subdirectory.")
-            print("")
-            print("The result should look like this: ")
-            print(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
-            print(f"{directory}/myContent/resources/myContent.properties")
-            print(f"For detailed information, consult the documentation in vROps Integration SDK -> Guilds -> Adding Content.")
+            logger.error(f"Found .properties file in {os.path.basename(directory)}")
+            logger.info(
+                f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
+                f"into a subdirectory inside the {directory} directory, and move the properties"
+                "file to a 'resources' directory that is also inside that subdirectory.")
+            logger.info("")
+            logger.info("The result should look like this: ")
+            logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            logger.info(f"{directory}/myContent/resources/myContent.properties")
+            logger.info(
+                f"For detailed information, consult the documentation in vROps Integration SDK -> Guides -> Adding Content.")
             exit(1)
 
     for file in content_files:
@@ -71,18 +53,8 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def main():
-    description = "Tool for building a pak file for a project."
-    parser = argparse.ArgumentParser(description=description)
-
+def build_pak_file(project_path, insecure_communication):
     docker_client = init()
-
-    # General options
-    parser.add_argument("-p", "--path", help="Path to root directory of project. Defaults to the current directory, "
-                                             "or prompts if current directory is not a project.")
-
-    project = get_project(parser.parse_args())
-    os.chdir(project["path"])
 
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
@@ -90,35 +62,55 @@ def main():
     repo = get_config_value("docker_repo", "tvs")
     registry_url = login()
 
-    tag = manifest["name"].lower() + ":" + manifest["version"] + "_" + str(time.time())
+    adapter_kinds = manifest["adapter_kinds"]
+    if len(adapter_kinds) == 0:
+        logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
+        exit(1)
+    if len(adapter_kinds) > 1:
+        logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
+                     "kinds are specified in manifest.txt (key='adapter_kinds').")
+        exit(1)
+    adapter_kind_key = adapter_kinds[0]
+
+    tag = adapter_kind_key.lower() + ":" + manifest["version"] + "_" + str(time.time())
     registry_tag = f"{registry_url}/{repo}/{tag}"
-    adapter, adapter_logs = build_image(docker_client, path=project["path"], tag=tag)
-    # TODO: handle BuildError
-    adapter.tag(registry_tag)
+    try:
+        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=tag)
+        adapter.tag(registry_tag)
 
-    digest = push_image(docker_client, registry_tag)
-    # TODO: handle exception by deleting all generated artifacts
+        digest = push_image(docker_client, registry_tag)
+    finally:
+        # We have to make sure the image was built, otherwise we can raise another exception
+        if docker_client.images.list(registry_tag):
+            docker_client.images.remove(registry_tag)
 
-    adapter_dir = manifest["name"] + "_adapter3"
+    adapter_dir = adapter_kind_key + "_adapter3"
     mkdir(adapter_dir)
     shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
 
-    with open(adapter_dir + ".conf", "w") as docker_conf:
-        docker_conf.write(f"KINDKEY={manifest['name']}\n")
-        # TODO: Need a way to determine this
-        docker_conf.write(f"API_VERSION=1.0.0\n")
-        # docker_conf.write(f"ImageTag={registry_tag}\n")
-        docker_conf.write(f"REGISTRY={registry_url}\n")
+    with open(adapter_dir + ".conf", "w") as adapter_conf:
+        adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
+        # TODO: Need a way to determine the api version
+        adapter_conf.write(f"API_VERSION=1.0.0\n")
+
+        if insecure_communication:
+            adapter_conf.write(f"API_PROTOCOL=http\n")
+            adapter_conf.write(f"API_PORT=8080\n")
+        else:
+            adapter_conf.write(f"API_PROTOCOL=https\n")
+            adapter_conf.write(f"API_PORT=443\n")
+
+        adapter_conf.write(f"REGISTRY={registry_url}\n")
         # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        docker_conf.write(f"REPOSITORY=/{repo}/{manifest['name'].lower()}\n")  # TODO: replace this with a more optimal
-        # solution, since this might be unique to harbor
-        docker_conf.write(f"DIGEST={digest}\n")
+        # TODO: replace this with a more optimal solution, since this might be unique to harbor
+        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")
+        adapter_conf.write(f"DIGEST={digest}\n")
 
     eula_file = manifest["eula_file"]
     icon_file = manifest["pak_icon"]
 
     with zipfile.ZipFile("adapter.zip", "w") as adapter:
-        zip_file(adapter, docker_conf.name)
+        zip_file(adapter, adapter_conf.name)
         zip_file(adapter, "manifest.txt")
         if eula_file:
             zip_file(adapter, eula_file)
@@ -128,17 +120,17 @@ def main():
         zip_dir(adapter, "resources")
         zip_dir(adapter, adapter_dir)
 
-    os.remove(docker_conf.name)
+    os.remove(adapter_conf.name)
     shutil.rmtree(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
-
 
     # Every config file in dashboards and reports should be in its own subdirectory
     build_subdirectories("content/dashboards")
     build_subdirectories("content/reports")
 
-    with zipfile.ZipFile(f"{name}.pak", "w") as pak:
+    pak_file = f"{name}.pak"
+    with zipfile.ZipFile(pak_file, "w") as pak:
         zip_file(pak, "manifest.txt")
 
         pak_validation_script = manifest["pak_validation_script"]["script"]
@@ -163,7 +155,97 @@ def main():
         zip_dir(pak, "content")
         zip_file(pak, "adapter.zip")
 
-    os.remove("adapter.zip")
+        os.remove("adapter.zip")
+
+        return pak_file
+
+
+def main():
+    try:
+        description = "Tool for building a pak file for a project."
+        parser = argparse.ArgumentParser(description=description)
+
+        # General options
+        parser.add_argument("-p", "--path",
+                            help="Path to root directory of project. Defaults to the current directory, "
+                                 "or prompts if current directory is not a project.")
+
+        parser.add_argument("-i", "--insecure-collector-communication",
+                            help="If this flag is present, communication between the vROps collector and the adapter "
+                                 "will be unencrypted. If using a custom server with this option, the server must be "
+                                 "configured to listen on port 8080.",
+                            action="store_true")
+        parsed_args = parser.parse_args()
+        project = get_project(parsed_args)
+        insecure_communication = parsed_args.insecure_collector_communication
+
+        log_file_path = os.path.join(project['path'], 'logs')
+        if not os.path.exists(log_file_path):
+            filesystem.mkdir(log_file_path)
+
+        try:
+            logging.basicConfig(filename=os.path.join(log_file_path, "build.log"),
+                                filemode="a",
+                                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                                datefmt="%H:%M:%S",
+                                level=logging.DEBUG)
+        except Exception:
+            logger.warning(f"Unable to save logs to {log_file_path}")
+
+        project_dir = project["path"]
+        # We want to store pak files in the build dir
+        build_dir = os.path.join(project_dir, 'build')
+        # Any artifacts for generating the pak file should be stored here
+        temp_dir = os.path.join(build_dir, 'tmp')
+
+        if not os.path.exists(build_dir):
+            mkdir(build_dir)
+
+        try:
+            # TODO: remove this copy and add logic to zip files from the source
+            shutil.copytree(
+                project["path"],
+                temp_dir,
+                ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
+                dirs_exist_ok=True
+            )
+
+            os.chdir(temp_dir)
+
+            pak_file = build_pak_file(project_dir, insecure_communication)
+
+            if os.path.exists(os.path.join(build_dir, pak_file)):
+                # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+                logger.debug("Deleting old pak file")
+                os.remove(os.path.join(build_dir, pak_file))
+
+            shutil.move(pak_file, build_dir)
+            print("Build succeeded", "fg:ansigreen")
+        finally:
+            # There is a small probability that the temp dir doesn't exist
+            if os.path.exists(temp_dir):
+                logger.debug(f"Deleting directory: '{temp_dir}'")
+                if os.getcwd() == temp_dir:
+                    # Change working directory to the build directory, otherwise we won't be able to delete the
+                    # directory in Windows based systems
+                    os.chdir(project_dir)
+                rmdir(temp_dir)
+    except DockerWrapperError as error:
+        logger.error("Unable to build pak file")
+        logger.error(error.message)
+        logger.info(error.recommendation)
+        exit(1)
+    except KeyboardInterrupt:
+        logger.debug("Ctrl-C pressed by user")
+        print("")
+        logger.info("Build cancelled")
+        exit(1)
+    except SystemExit as system_exit:
+        exit(system_exit.code)
+    except Exception as exception:
+        logger.error("Unexpected exception occurred while trying to build pak file")
+        logger.debug(exception)
+        exit(1)
 
 
 if __name__ == "__main__":

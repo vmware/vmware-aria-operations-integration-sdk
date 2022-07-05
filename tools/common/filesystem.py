@@ -1,8 +1,12 @@
-import json
 import os
+import shutil
 import zipfile
 
-from . import constant
+from prompt_toolkit import print_formatted_text as print, prompt
+
+from . import constant, repository
+from .ui import path_prompt
+from .validation.validators import RepoValidator
 
 
 def get_absolute_project_directory(*path: [str]):
@@ -15,6 +19,11 @@ def mkdir(basepath, *paths):
     if not os.path.exists(path):
         os.mkdir(path, 0o755)
     return path
+
+
+def rmdir(basepath, *paths):
+    path = os.path.join(basepath, *paths)
+    shutil.rmtree(path)
 
 
 def zip_file(_zip, file):
@@ -35,56 +44,20 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        while not os.path.exists(
-                repo_path := input(f"Enter path to the '{constant.REPO_NAME}' repository (type q to quit): ")) \
-                and repo_path != "q":
-            print(f"{repo_path} is not a valid path")
-
-        if repo_path == "q":
-            exit_and_prompt()
+        print(f"The path to the '{constant.REPO_NAME}' repository must be set in the '{constant.CONFIG_FILE}' file ")
+        print(f"for this tool to function. It is not currently set.")
+        path = path_prompt(f"Enter path to the '{constant.REPO_NAME}' repository: ", validator=RepoValidator())
+        print()
+        print()
+        return path
     except KeyboardInterrupt:
         print()
-        exit_and_prompt()
-
-    return repo_path
-
-
-def exit_and_prompt():
-    print(
-        f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be "
-        f"added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '"
-        f"{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
-    exit(1)
+        print(f"The path to the '{constant.REPO_NAME}' repository must be present for this tool to function. It can be")
+        print("added by manually editing the file '{constant.CONFIG_FILE}' and adding the path to key '")
+        print("{REPOSITORY_LOCATION}', or by running this tool again and entering the path at the prompt.")
+        print()
+        exit(1)
 
 
 def get_root_directory(default_path=ask_for_repo_path):
-    config_file_path = constant.CONFIG_DIRECTORY
-
-    # Check for config directory
-    if not os.path.isdir(config_file_path):
-        mkdir(config_file_path)
-
-    # Add the file to the path
-    config_file_path = constant.CONFIG_FILE
-    root_directory = ""
-
-    if not os.path.isfile(config_file_path):
-        root_directory = default_path()
-        with open(config_file_path, "w") as config:
-            config_json = {constant.REPOSITORY_LOCATION: root_directory}
-            json.dump(config_json, config, indent=4, sort_keys=True)
-    else:
-        with open(config_file_path, "r") as config:
-            config_json = json.load(config)
-
-        if "repository_location" in config_json and os.path.exists(config_json["repository_location"]):
-            root_directory = config_json["repository_location"]
-        else:
-            root_directory = default_path()
-
-        with open(config_file_path, "w") as config:
-            # Even if the value exist we have to make sure is still valid
-            config_json["repository_location"] = root_directory
-            json.dump(config_json, config, indent=4, sort_keys=True)
-
-    return root_directory
+    return repository.get_root_directory(default_path)

@@ -2,22 +2,21 @@ import subprocess
 import os
 import docker
 
-
 from common.config import get_config_value
-
 
 
 def login():
     docker_registry = get_config_value("registry_url", default="harbor-repo.vmware.com")
 
-    print(f"login into {docker_registry}")
+    print(f"Login into {docker_registry}")
     response = subprocess.run(["docker", "login", f"{docker_registry}"])
 
     # Since we are using a subprocess, we cannot be very specific about the type of failure we get
     if response.returncode != 0:
-        raise LoginFailure
+        raise LoginError
 
     return docker_registry
+
 
 def init():
     """ Tries to establish a connection with the docker daemon via unix socket.
@@ -35,19 +34,20 @@ def init():
         return client
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" in e.args[0]:
-            print("Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?")
+            raise InitError(message="Cannot connect to the Docker daemon at unix:///var/run/docker.sock.",
+                            recommendation="Check that the docker daemon is running")
         elif "PermissionError" in e.args[0]:
-            print(f"Cannot run docker commands. Make sure the user {os.getlogin()} has permisions to run docker")
+            raise InitError(message="Cannot run docker commands.",
+                            recommendation=f"Make sure the user {os.getlogin()} has permissions to run docker")
         else:
-            print(f"Unexpected error when establishing connection with Docker daemon: {e}")
+            raise InitError(f"ERROR: {e}")
 
-        raise InitError
 
 def push_image(client, image_tag):
     """
     Pushes the given image tag and returns the images digest.
 
-    If there is an error during while pushing the image, then it will gerenate a
+    If there is an error during while pushing the image, then it will generate a
     PushError, that the user can handle
 
     NOTE: An alternate method of parsing the digest from an image would be to
@@ -55,7 +55,7 @@ def push_image(client, image_tag):
     attribute, then we could parse the repo digest (different from digest) to get the digest.
 
 
-    :param client: the docker client that comunicates to the docker daemon
+    :param client: the docker client that communicates to the docker daemon
     :param image_tag: An image tag that identifies the image to be pushed
     :return: A string version of the SHA256 digest
     """
@@ -68,32 +68,40 @@ def push_image(client, image_tag):
             try:
                 image_digest = line['aux']['Digest']
             except KeyError:
-                print(f"Image Digest was not found in response from server")
-                raise PushError
+                raise PushError("Image digest was not found in response from server")
 
         elif 'errorDetail' in line:
-            print(f"{line['errorDetail']['message']}")
-            raise PushError
+            raise PushError(line['errorDetail']['message'])
 
     return image_digest
 
+
 def build_image(client, path, tag):
     try:
-        return  client.images.build(path=path, tag=tag, nocache=True, rm=True)
+        return client.images.build(path=path, tag=tag, nocache=True, rm=True)
     except docker.errors.BuildError as error:
-        print(f"An error ocurred while trying to build docker image at {path}")
-        print(error)
-        raise BuildError
+        raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
 
 
-class InitError(Exception):
-    """Raised when there is an error starting the docker client"""
+class DockerWrapperError(Exception):
+    def __init__(self, message="", recommendation=""):
+        self.message = message
+        self.recommendation = recommendation
+
+
+class LoginError(DockerWrapperError):
+    """Raised when there is an error logging into docker"""
     pass
 
-class PushError(Exception):
+
+class InitError(DockerWrapperError):
+    """Raised when there is an error starting the docker client"""
+
+
+class PushError(DockerWrapperError):
     """Raised when the registry server sends back an error"""
     pass
 
-class BuildError(Exception):
+
+class BuildError(DockerWrapperError):
     """Raised when and error occurs while building the Docker image"""
-    pass

@@ -2,7 +2,7 @@ References
 ==========
 Contents
 * Architecture
-  * vROps Collector -> Management Pack -> Adapter -> Server -> User Code
+  * vROps Collector &rarr; Management Pack &rarr; Adapter &rarr; Server &rarr; User Code
   * Docker Images
     * [Building docker images](docker.md)
     * How are the docker images used
@@ -23,18 +23,19 @@ Contents
   * describe.xml
   * commands.cfg
 
-* SDK Reference
-  * Object model
-    * Adapter Instance
-      * Identifiers
-      * Advanced Identifiers
-      * Credentials
-    * Resources
-      * Name
-      * Identifiers
-      * State
-      * Status
-      * Metrics
-      * Properties
-      * Events
-    * Relationships
+* vROps Integration Library
+  * [Python](python-integration-module.md)
+    * Object model
+      * Adapter Instance
+        * Identifiers
+        * Advanced Identifiers
+        * Credentials
+      * Resources
+        * Name
+        * Identifiers
+        * State
+        * Status
+        * Metrics
+        * Properties
+        * Events
+      * Relationships
