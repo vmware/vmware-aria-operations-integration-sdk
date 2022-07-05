@@ -153,37 +153,44 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection, verbosity):
-    post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-         json=get_request_body(project, connection),
-         headers={"Accept": "application/json"},
-         project=project,
-         validators=[validate_api_response, cross_check_collection_with_describe],
-         verbosity=verbosity)
+    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+                             json=get_request_body(project, connection),
+                             headers={"Accept": "application/json"})
+    process(request, response,
+            project=project,
+            validators=[validate_api_response, cross_check_collection_with_describe],
+            verbosity=verbosity)
 
 
 def post_test(project, connection, verbosity):
-    post(url=f"http://localhost:{DEFAULT_PORT}/test",
-         json=get_request_body(project, connection),
-         headers={"Accept": "application/json"},
-         project=project,
-         validators=[validate_api_response],
-         verbosity=verbosity)
+    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/test",
+                             json=get_request_body(project, connection),
+                             headers={"Accept": "application/json"})
+    process(request, response,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 def post_endpoint_urls(project, connection, verbosity):
-    post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
-         json=get_request_body(project, connection),
-         headers={"Accept": "application/json"},
-         project=project,
-         validators=[validate_api_response],
-         verbosity=verbosity)
+    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
+                             json=get_request_body(project, connection),
+                             headers={"Accept": "application/json"})
+    process(request, response,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 def get_version(project, connection, verbosity):
-    response = requests.get(
-        f"http://localhost:{DEFAULT_PORT}/apiVersion",
-        headers={"Accept": "application/json"})
-    logger.info(f"Adapter version: {response.text}")
+    request, response = get(
+        url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
+        headers={"Accept": "application/json"}
+    )
+    process(request, response,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 def wait(project, connection):
@@ -197,12 +204,23 @@ def write_validation_log(validation_file_path, result):
             validation_file.write(f"{severity.name}: {message}\n")
 
 
-def post(url, json, headers, project, validators, verbosity):
+def get(url, headers):
+    request = requests.models.Request(method="GET",
+                                      url=url,
+                                      headers=headers)
+    response = requests.get(url=url, headers=headers)
+    return request, response
+
+
+def post(url, json, headers):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
                                       headers=headers)
     response = requests.post(url=url, json=json, headers=headers)
+    return request, response
 
+
+def process(request, response, project, validators, verbosity):
     result = Result()
     for validate in validators:
         result += validate(project, request, response)
@@ -215,19 +233,17 @@ def post(url, json, headers, project, validators, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
+    validation_file_path = os.path.join(project["path"], "logs", "validation.log")
+    write_validation_log(validation_file_path, result)
 
-    # logger.addHandler(logging.FileHandler(f"{project['pathdd]}/logs/describe_validation.log"))
+    if len(result.messages) > 0:
+        logger.info(f"All validation logs written to '{validation_file_path}'")
     if result.error_count > 0 and verbosity < 1:
         logger.error(f"Found {result.error_count} errors when validating collection")
     if result.warning_count > 0 and verbosity < 2:
         logger.warning(f"Found {result.warning_count} warnings when validating collection")
-
-    if len(result.messages) > 0:
-        validation_file_path = os.path.join(project["path"], "logs", "validation.log")
-        write_validation_log(validation_file_path, result)
-        logger.info(f"For detailed logs see '{validation_file_path}'")
-    else:
-        logger.info("\u001b[32m Validation passed with no errors \u001b[0m")
+    if result.error_count + result.warning_count == 0:
+        logger.info("\u001b[32mValidation passed with no errors \u001b[0m")
 
 
 def validate_api_response(project, request, response):
@@ -248,7 +264,7 @@ def validate_api_response(project, request, response):
                 logger.info("Validation failed: ")
                 for error in validation.errors:
                     if "schema_errors" in vars(error):
-                        result.with_error(f"schema error:{vars(error)['schema_errors']}")
+                        result.with_error(f"schema error: {vars(error)['schema_errors']}")
                     else:
                         result.with_error(error)
         except JSONDecodeError as d:
