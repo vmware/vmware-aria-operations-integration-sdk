@@ -35,6 +35,7 @@ from common.validation.describe import validate_describe, get_describe, ns, get_
     get_identifiers, cross_check_collection_with_describe
 from common.validation.result import Result
 from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
+from common import filesystem
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -78,14 +79,20 @@ def unique_files_hash(path):
 def run(arguments):
     # User input
     project = get_project(arguments)
+
+    log_file_path = os.path.join(project['path'], 'logs')
+    if not os.path.exists(log_file_path):
+        filesystem.mkdir(log_file_path)
+
     try:
-        logging.basicConfig(filename=f"{project['path']}/logs/test.log",
+        logging.basicConfig(filename=os.path.join(log_file_path, "test.log"),
                             filemode="a",
                             format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
                             datefmt="%H:%M:%S",
                             level=logging.DEBUG)
     except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
+        logger.warning(f"Unable to save logs to {log_file_path}")
+
 
     connection = get_connection(project, arguments)
     method = get_method(arguments)
