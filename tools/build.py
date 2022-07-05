@@ -235,6 +235,8 @@ def main():
         print("")
         logger.info("Build cancelled")
         exit(1)
+    except SystemExit as system_exit:
+        exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
         logger.debug(exception)
