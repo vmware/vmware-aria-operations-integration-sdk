@@ -7,7 +7,7 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "[%(levelname)8s] %(message)s"
+    format = "%(levelname)8s: %(message)s"
 
     FORMATS = {
         logging.DEBUG: grey + format + reset,
