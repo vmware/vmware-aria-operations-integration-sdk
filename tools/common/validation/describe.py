@@ -95,7 +95,16 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
 
 def cross_check_collection_with_describe(project, request, response):
     path = project["path"]
-    results = json.loads(response.text)["result"]
+    results = json.loads(response.text)
+
+    # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response
+    if (type(results) is not dict) or ("result" not in results):
+        error = Result()
+        error.with_error("No collection result was found")
+        return error
+    else:
+        results = results["result"]
+
     describe = get_describe(path)
     adapter_kind = get_adapter_kind(describe)
     resource_kinds = get_resource_kinds(describe)
