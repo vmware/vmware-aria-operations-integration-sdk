@@ -1,22 +1,14 @@
 import json
 import logging
 import os
-import xml.etree.ElementTree as ET
 
 import xmlschema
 
+from common.describe import get_describe, get_adapter_kind, get_resource_kinds, ns
 from common.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-
-
-def get_describe(path):
-    return ET.parse(os.path.join(path, "conf", "describe.xml")).getroot()
-
-
-def ns(kind):
-    return "{http://schemas.vmware.com/vcops/schema}" + kind
 
 
 def message_format(resource, message):
@@ -156,33 +148,3 @@ def validate_describe(path):
     schema.validate(os.path.join(path, "conf", "describe.xml"))
 
 
-# describe getters
-def get_adapter_kind(describe):
-    # TODO: if we get more than one adapter kind then we should considered it an error
-    return describe.get("key")
-
-
-def get_adapter_instance(describe):
-    adapter_instance_kind = None
-
-    for resource_kind in get_resource_kinds(describe):
-        if resource_kind.get("type") == "7":
-            adapter_instance_kind = resource_kind
-
-    return adapter_instance_kind
-
-
-def get_resource_kinds(describe):
-    return describe.find(ns("ResourceKinds")).findall(ns("ResourceKind"))
-
-
-def get_identifiers(resource_kind):
-    return resource_kind.findall(ns("ResourceIdentifier"))
-
-
-def get_credential_kinds(describe):
-    credential_kinds = describe.find(ns("CredentialKinds"))
-    if credential_kinds is None:
-        return None
-    else:
-        return credential_kinds.findall(ns("CredentialKind"))
