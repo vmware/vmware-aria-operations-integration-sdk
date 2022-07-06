@@ -76,9 +76,9 @@ def push_image(client, image_tag):
     return image_digest
 
 
-def build_image(client, path, tag):
+def build_image(client, path, tag, nocache=True, labels={}):
     try:
-        return client.images.build(path=path, tag=tag, nocache=True, rm=True)
+        return client.images.build(path=path, tag=tag, nocache=nocache, rm=True, labels=labels)
     except docker.errors.BuildError as error:
         raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
 

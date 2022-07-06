@@ -296,12 +296,14 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
         dockerfile.write(
             "# Go to the vrops-integration-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
         dockerfile.write(f"FROM harbor-repo.vmware.com/tvs/vrops-adapter-open-sdk-server:{language}-{version}\n")
-        dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
             dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade")
+
+        # having the executable copied at the end allows the image to be built faster since
+        dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
 
 
 def create_commands_file(language: str, path: str, executable_directory_path: str):

@@ -45,37 +45,6 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
 
-
-def hash_file(file):
-    BUF_SIZE = 65536
-
-    sha256 = hashlib.sha256()
-
-    with open(file, 'rb') as f:
-
-        while True:
-            data = f.read(BUF_SIZE)
-
-            if not data:
-                break
-
-            sha256.update(data)
-    return sha256.hexdigest()
-
-
-def unique_files_hash(path):
-    # check if commands.cfg or adapter_requirements.txt changed
-    # TODO : get unique files from project when supporting other languages
-    unique_files = ["commands.cfg", "adapter_requirements.txt"]
-    unique_files.sort()  # We should ensure the files order is always the same
-
-    sha256 = hashlib.sha256()
-    for file in unique_files:
-        sha256.update(hash_file(os.path.join(path, file)).encode())
-
-    return sha256.hexdigest()
-
-
 def run(arguments):
     # User input
     project = get_project(arguments)
@@ -136,6 +105,7 @@ def run(arguments):
                 time.sleep(wait)
     finally:
         stop_container(container)
+        docker_client.images.prune(filters={"label":"mp-test"})
 
 
 def get_method(arguments):
@@ -280,19 +250,10 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
     with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
         manifest = json.load(manifest_file)
 
-    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"] + "-" + unique_files_hash(build_path)
+    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"]
 
-    test_images = [image.attrs["RepoTags"][0] for image in client.images.list(name=f"{manifest['name'].lower()}-test")]
-    if docker_image_tag not in test_images:
-        for image in test_images:
-            logger.info(f"Removing old test image {image} from docker")
-            client.images.remove(image)
-
-        logger.info("Building adapter image")
-        build_image(client, path=build_path, tag=docker_image_tag)
-    else:
-        logger.info("Reusing Image")
-        logger.debug(f"Reused image tag: {docker_image_tag}")
+    logger.info("Building adapter image")
+    build_image(client, path=build_path, tag=docker_image_tag, nocache=False, labels={"mp-test": f"{time.time()}"})
 
     return docker_image_tag
 
@@ -302,11 +263,7 @@ def run_image(client: DockerClient, image: Image, path: str) -> Container:
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
-                                 volumes={
-                                     f"{path}/logs": {"bind": "/var/log/", "mode": "rw"},
-                                     # TODO: use the right path based on src code structure (language dependent)
-                                     f"{path}/app": {"bind": "/home/vrops-adapter-user/src/app/app", "mode": "ro"}
-                                 })
+                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
 def stop_container(container: Container):
