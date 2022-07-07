@@ -33,9 +33,9 @@ from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
-from common.validation.describe_consistency import validate_describe, cross_check_collection_with_describe
+from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.result import Result
-from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
+from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
