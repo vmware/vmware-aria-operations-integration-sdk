@@ -18,19 +18,94 @@ def message_format(resource, message):
     return f"({resource_kind}: {resource_name}) > {message}"
 
 
-def cross_check_metric(resource, collected_metric, resource_kind_element) -> Result:
-    # NOTE: this function will need modifications when we implement validation for groups and instanced groups
-    children = resource_kind_element.findall(ns("ResourceAttribute"))
-    result = Result()
+def is_true(element, attr, default="false"):
+    # The only valid lexical values for boolean are ["true", "false", "1", "0"] (case-sensitive)
+    # https://www.w3.org/TR/xmlschema-2/#boolean
+    return element.get(attr, default) in ["true", "1"]
 
-    match = next(filter(lambda c: c.get("key") == collected_metric["key"], children), None)
+
+def cross_check_attribute(resource, collected_metric, attribute_type, key_, element) -> Result:
+    result = Result()
+    key, _, remaining_key = key_.partition("|")
+    if remaining_key != "":
+        child_type = "ResourceGroup"
+    else:
+        child_type = "ResourceAttribute"
+
+    children = element.findall(ns(child_type))
+    match = next(filter(lambda c: c.get("key") == key, children), None)
+
     if match is None:
         result.with_warning(
             message_format(
                 resource,
-                f"Collected metric with key '{collected_metric['key']}' was not found in describe.xml"
+                f"{attribute_type.capitalize()} '{collected_metric['key']}' is not defined in describe.xml. Could not "
+                f"find {child_type} '{key}'."
             )
         )
+        return result
+
+    if child_type == "ResourceGroup":
+        key, _, instance = key.partition(":")
+        instanced = (instance != "")
+
+        if is_true(match, "instanced") and is_true(match, "instanceRequired"):
+            if not instanced:
+                result.with_warning(
+                    message_format(
+                        resource,
+                        f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid key. It contains "
+                        f"non-instanced group '{key}', but that group is defined to require instances in describe.xml."
+                    )
+                )
+        if instanced and not is_true(match, "instanced"):
+            result.with_warning(
+                message_format(
+                    resource,
+                    f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid key. It contains "
+                    f"instanced group '{key}', but that group is not defined to allow instances in describe.xml."
+                )
+            )
+        result += cross_check_attribute(resource, collected_metric, attribute_type, remaining_key, match)
+        return result
+
+    # attribute validation cases
+    if is_true(match, "isProperty") != (attribute_type == "property"):
+        describe_attribute_type = "property" if is_true(match, "isProperty") else "metric"
+        result.with_warning(
+            message_format(
+                resource,
+                f"{attribute_type.capitalize()} '{collected_metric['key']}' has a mismatched type. It was returned as a"
+                f" {attribute_type}, but the attribute is defined as a {describe_attribute_type} in describe.xml."
+            )
+        )
+    # TODO: Can we modify the describeSchema.xsd file to disallow this case?
+    if (match.get("type", "float") == "string") and not is_true(match, "isProperty"):
+        result.with_error(
+            message_format(
+                resource,
+                f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type in describe.xml. "
+                f"Only properties can have type 'string'."
+            )
+        )
+
+    if ("stringValue" in collected_metric) and (match.get("type", "float") != "string"):
+        result.with_error(
+            message_format(
+                resource,
+                f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type. A string value "
+                f"was returned in the collection, but the attribute is defined as numeric in describe.xml."
+            )
+        )
+    if ("numberValue" in collected_metric) and (match.get("type", "float").lower() == "string"):
+        result.with_error(
+            message_format(
+                resource,
+                f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type. A numeric value "
+                f"was returned in the collection, but the attribute type is 'string' in describe.xml."
+            )
+        )
+
     return result
 
 
@@ -44,41 +119,46 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
             result.with_warning(
                 message_format(
                     resource,
-                    "Collected identifier with key '{identifier['key']}' for resource  was not found in describe.xml"
+                    f"Identifier '{identifier['key']}' is present on this resource, but is not defined in describe.xml."
                 )
             )
         else:
-            if identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get("identType") not in ["1", None]:
-                result.with_warning(
+            if identifier["isPartOfUniqueness"] and \
+                    described_identifiers[identifier["key"]].get("identType", "1") != "1":
+                result.with_error(
                     message_format(
                         resource,
-                        f"Collected identifier with key '{identifier['key']}' has isPartOfUniqueness set to true, but identType in describe.xml is not 1"
+                        f"Identifier '{identifier['key']}' uniqueness mismatch. 'isPartOfUniqueness' is set to true "
+                        f"in the collection, which is inconsistent with 'identType=\"2\" in describe.xml."
                     )
                 )
             elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
-                    "identType") != "2":
-                result.with_warning(
+                    "identType", "1") != "2":
+                result.with_error(
                     message_format(
                         resource,
-                        f"Collected identifier with key '{identifier['key']}' has isPartOfUniqueness set to false, but identType in describe.xml is not 2"
+                        f"Identifier '{identifier['key']}' uniqueness mismatch. 'isPartOfUniqueness' set to false in "
+                        f"the collection, which is inconsistent with 'identType=\"1\"' in describe.xml."
                     )
                 )
 
             described_identifiers.pop(identifier["key"])
 
     for described_identifier in described_identifiers.values():
-        if described_identifier.get("required") in ['true', 'True']:
+        if is_true(described_identifier, "required", default="true"):
             result.with_error(
                 message_format(
                     resource,
-                    f"Required '{described_identifier.get('key')}' was marked as required in describe.xml, but it was not found in collection."
+                    f"Identifier '{described_identifier.get('key')}' is required in describe.xml, but it was not "
+                    f"found on this resource."
                 )
             )
         else:
             result.with_information(
                 message_format(
                     resource,
-                    f"'{described_identifier.get('key')}' was declared in describe.xml, but it was not found in collection"
+                    f"Identifier '{described_identifier.get('key')}' is optional in describe.xml, and was not found "
+                    f"on this resource."
                 )
             )
 
@@ -92,7 +172,7 @@ def cross_check_collection_with_describe(project, request, response):
     # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response
     if (type(results) is not dict) or ("result" not in results):
         error = Result()
-        error.with_error("No collection result was found")
+        error.with_error("No collection result was found.")
         return error
     else:
         results = results["result"]
@@ -115,7 +195,7 @@ def cross_check_collection_with_describe(project, request, response):
             result.with_warning(
                 message_format(
                     resource,
-                    f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead"
+                    f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. "
                 )
             )
 
@@ -124,16 +204,18 @@ def cross_check_collection_with_describe(project, request, response):
             result.with_warning(
                 message_format(
                     resource,
-                    f"No ResourceKind with key '{resource_kind}' was found in the describe.xml"
+                    f"ResourceKind '{resource_kind}' was not found in describe.xml. "
                 )
             )
-            logger.debug(f"Skipping metric validation for '{resource_kind}'")
+            logger.debug(f"Skipping metric validation for '{resource_kind}'. ")
         else:
             # metric validation
             resource_kind_element = describe_resource_kinds[resource_kind]
             #            logger.info(f"Validating metrics for {resource_kind}")
             for metric in resource["metrics"]:
-                result += cross_check_metric(resource, metric, resource_kind_element)
+                result += cross_check_attribute(resource, metric, "metric", metric["key"], resource_kind_element)
+            for prop in resource["properties"]:
+                result += cross_check_attribute(resource, prop, "property", prop["key"], resource_kind_element)
 
             # identifiers validation
             result += cross_check_identifiers(resource, resource_kind_element)
@@ -146,5 +228,3 @@ def validate_describe(path):
     # Ensure the describe.xml file is valid NOTE: describeSchema should also enforce duplicates don't exist
     schema = xmlschema.XMLSchema(os.path.join(path, "conf", "describeSchema.xsd"))
     schema.validate(os.path.join(path, "conf", "describe.xml"))
-
-
