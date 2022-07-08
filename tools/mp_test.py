@@ -26,16 +26,16 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 import common.logging_format
+from common import filesystem
 from common.constant import DEFAULT_PORT
+from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.ui import selection_prompt, print_formatted as print
-from common.validation.describe import validate_describe, get_describe, ns, get_adapter_instance, get_credential_kinds, \
-    get_identifiers, cross_check_collection_with_describe
+from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.result import Result
-from common.validation.validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
-from common import filesystem
+from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -61,7 +61,6 @@ def run(arguments):
                             level=logging.DEBUG)
     except Exception:
         logger.warning(f"Unable to save logs to {log_file_path}")
-
 
     connection = get_connection(project, arguments)
     method = get_method(arguments)
