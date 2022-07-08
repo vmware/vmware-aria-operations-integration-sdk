@@ -295,7 +295,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
         dockerfile.write(
             "# Go to the vrops-integration-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
-        dockerfile.write(f"FROM harbor-repo.vmware.com/tvs/vrops-adapter-open-sdk-server:{language}-{version}\n")
+        dockerfile.write(f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:
