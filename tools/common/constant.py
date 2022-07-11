@@ -8,7 +8,7 @@ if platform == "win32":
 else:
     CONFIG_DIRECTORY = path.join(environ.get("HOME"), ".vrops-sdk")
 
-CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
+GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_PORT = 8080
 REPO_NAME = "vrops-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"

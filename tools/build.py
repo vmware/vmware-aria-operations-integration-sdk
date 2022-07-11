@@ -59,8 +59,13 @@ def build_pak_file(project_path, insecure_communication):
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    repo = get_config_value("docker_repo", "tvs")
-    registry_url = login()
+    repo = get_config_value("docker_repo",
+                            default="tvs",
+                            config_file=os.path.join(project_path, "config.json"))
+    registry_url = get_config_value("registry_url",
+                                    default="harbor-repo.vmware.com",
+                                    config_file=os.path.join(project_path, "config.json"))
+    login(registry_url)
 
     adapter_kinds = manifest["adapter_kinds"]
     if len(adapter_kinds) == 0:
