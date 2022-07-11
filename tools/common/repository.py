@@ -12,7 +12,7 @@ def get_root_directory(default_path):
         os.mkdir(config_file_path, 0o755)
 
     # Add the file to the path
-    config_file_path = constant.CONFIG_FILE
+    config_file_path = constant.GLOBAL_CONFIG_FILE
     root_directory = ""
 
     if not os.path.isfile(config_file_path):
