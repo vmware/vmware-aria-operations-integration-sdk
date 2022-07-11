@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import time
+import traceback
 import zipfile
 
 from common.config import get_config_value
@@ -249,7 +250,7 @@ def main():
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
-        print(exception)
+        traceback.print_tb(exception.__traceback__)
         exit(1)
 
 

@@ -223,8 +223,9 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     repo = Repo.init(path)
     git_ignore = os.path.join(path, ".gitignore")
     with open(git_ignore, "w") as git_ignore_fd:
-        git_ignore_fd.write("logs")
-        git_ignore_fd.write("build")
+        git_ignore_fd.write("logs\n")
+        git_ignore_fd.write("build\n")
+        git_ignore_fd.write("config.json\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
     repo.index.commit("Initial commit.")
