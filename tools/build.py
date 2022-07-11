@@ -184,7 +184,7 @@ def main():
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
 
-        log_file_path = os.path.join(project['path'], 'logs')
+        log_file_path = os.path.join(project.path, 'logs')
         if not os.path.exists(log_file_path):
             filesystem.mkdir(log_file_path)
 
@@ -197,7 +197,7 @@ def main():
         except Exception:
             logger.warning(f"Unable to save logs to {log_file_path}")
 
-        project_dir = project["path"]
+        project_dir = project.path
         # We want to store pak files in the build dir
         build_dir = os.path.join(project_dir, 'build')
         # Any artifacts for generating the pak file should be stored here
@@ -209,7 +209,7 @@ def main():
         try:
             # TODO: remove this copy and add logic to zip files from the source
             shutil.copytree(
-                project["path"],
+                project.path,
                 temp_dir,
                 ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
                 dirs_exist_ok=True
@@ -249,7 +249,7 @@ def main():
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
-        logger.debug(exception)
+        print(exception)
         exit(1)
 
 
