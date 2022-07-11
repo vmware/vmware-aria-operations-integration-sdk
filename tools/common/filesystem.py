@@ -44,7 +44,7 @@ def files_in_directory(directory):
 
 def ask_for_repo_path():
     try:
-        print(f"The path to the '{constant.REPO_NAME}' repository must be set in the '{constant.CONFIG_FILE}' file ")
+        print(f"The path to the '{constant.REPO_NAME}' repository must be set in the '{constant.GLOBAL_CONFIG_FILE}' file ")
         print(f"for this tool to function. It is not currently set.")
         path = path_prompt(f"Enter path to the '{constant.REPO_NAME}' repository: ", validator=RepoValidator())
         print()

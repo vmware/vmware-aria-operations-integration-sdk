@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import time
+import traceback
 import zipfile
 
 from common.config import get_config_value
@@ -59,8 +60,13 @@ def build_pak_file(project_path, insecure_communication):
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    repo = get_config_value("docker_repo", "tvs")
-    registry_url = login()
+    repo = get_config_value("docker_repo",
+                            default="tvs",
+                            config_file=os.path.join(project_path, "config.json"))
+    registry_url = get_config_value("registry_url",
+                                    default="harbor-repo.vmware.com",
+                                    config_file=os.path.join(project_path, "config.json"))
+    login(registry_url)
 
     adapter_kinds = manifest["adapter_kinds"]
     if len(adapter_kinds) == 0:
@@ -179,7 +185,7 @@ def main():
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
 
-        log_file_path = os.path.join(project['path'], 'logs')
+        log_file_path = os.path.join(project.path, 'logs')
         if not os.path.exists(log_file_path):
             filesystem.mkdir(log_file_path)
 
@@ -192,7 +198,7 @@ def main():
         except Exception:
             logger.warning(f"Unable to save logs to {log_file_path}")
 
-        project_dir = project["path"]
+        project_dir = project.path
         # We want to store pak files in the build dir
         build_dir = os.path.join(project_dir, 'build')
         # Any artifacts for generating the pak file should be stored here
@@ -204,7 +210,7 @@ def main():
         try:
             # TODO: remove this copy and add logic to zip files from the source
             shutil.copytree(
-                project["path"],
+                project.path,
                 temp_dir,
                 ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
                 dirs_exist_ok=True
@@ -244,7 +250,7 @@ def main():
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
-        logger.debug(exception)
+        traceback.print_tb(exception.__traceback__)
         exit(1)
 
 
