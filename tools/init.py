@@ -7,6 +7,7 @@ from shutil import copy
 from git import Repo
 from prompt_toolkit import prompt
 
+import common.constant
 import common.constant as constant
 import templates.java as java
 import templates.powershell as powershell
@@ -15,7 +16,8 @@ from common.filesystem import get_absolute_project_directory, get_root_directory
 from common.project import Project, record_project
 from common.ui import print_formatted as print, path_prompt
 from common.ui import selection_prompt
-from common.validation.input_validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, EulaValidator, \
+from common.validation.input_validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, \
+    EulaValidator, \
     ImageValidator
 
 logger = logging.getLogger(__name__)
@@ -163,6 +165,7 @@ def create_describe(path, adapter_key, name):
 17=System
 """)
 
+
 def build_content_directory(path):
     content_dir = mkdir(path, "content")
     mkdir(content_dir, "policies")
@@ -186,11 +189,11 @@ def build_content_directory(path):
     return content_dir
 
 
-def build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language):
+def create_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language):
     mkdir(path)
 
     project = Project(path)
-    record_project(project.__dict__)
+    record_project(project)
 
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
@@ -220,8 +223,9 @@ def build_project(path, name, adapter_key, description, vendor, eula_file, icon_
     repo = Repo.init(path)
     git_ignore = os.path.join(path, ".gitignore")
     with open(git_ignore, "w") as git_ignore_fd:
-        git_ignore_fd.write("logs")
-        git_ignore_fd.write("build")
+        git_ignore_fd.write("logs\n")
+        git_ignore_fd.write("build\n")
+        git_ignore_fd.write("config.json\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
     repo.index.commit("Initial commit.")
@@ -262,7 +266,7 @@ def main():
                                            ("java", "Java", "Unavailable for beta release"),
                                            ("powershell", "PowerShell", "Unavailable for beta release")])
         # create project_directory
-        build_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
+        create_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
         print("")
         print("")
         print("project generation completed")
@@ -294,8 +298,10 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
         dockerfile.write(
             "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
         dockerfile.write(
-            "# Go to the vrops-integration-sdk repo, and run the build_images.py script located at tool/build_images.py\n")
-        dockerfile.write(f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
+            f"# Go to the {common.constant.REPO_NAME} repository, and run the build_images.py script located at "
+            f"tools/build_images.py\n")
+        dockerfile.write(
+            f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:

@@ -57,8 +57,9 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 def main():
     client = init()
-    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com")
-    repo = get_config_value("docker_repo", "tvs")
+    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
+    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=version_file_path)
+    repo = get_config_value("docker_repo", default="tvs", config_file=version_file_path)
 
     base_image, secondary_images = get_latest_vrops_container_versions()
 
@@ -72,9 +73,9 @@ def main():
 
     # Update the versions of the images
     if base_image in images_to_build:
-        set_config_value("base_image", base_image, constant.VERSION_FILE)
+        set_config_value("base_image", base_image, version_file_path)
     if any(i in images_to_build for i in secondary_images):
-        set_config_value("secondary_images", secondary_images, constant.VERSION_FILE)
+        set_config_value("secondary_images", secondary_images, version_file_path)
 
     push_to_registry: bool = selection_prompt(
         message=f"Push images to {registry_url}/{repo}?",
@@ -82,8 +83,10 @@ def main():
                (False, "No")])
 
     if push_to_registry:
-        registry_url = login()
-        repo = get_config_value("docker_repo", "tvs")
+        version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
+        registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=version_file_path)
+        login(registry_url)
+        repo = get_config_value("docker_repo", default="tvs", config_file=version_file_path)
 
     for image in images_to_build:
         try:

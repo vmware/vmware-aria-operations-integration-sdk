@@ -166,7 +166,7 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
 
 
 def cross_check_collection_with_describe(project, request, response):
-    path = project["path"]
+    path = project.path
     results = json.loads(response.text)
 
     # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response

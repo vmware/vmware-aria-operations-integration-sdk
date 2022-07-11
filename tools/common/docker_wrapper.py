@@ -2,11 +2,8 @@ import subprocess
 import os
 import docker
 
-from common.config import get_config_value
 
-
-def login():
-    docker_registry = get_config_value("registry_url", default="harbor-repo.vmware.com")
+def login(docker_registry):
 
     print(f"Login into {docker_registry}")
     response = subprocess.run(["docker", "login", f"{docker_registry}"])

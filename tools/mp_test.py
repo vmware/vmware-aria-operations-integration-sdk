@@ -49,7 +49,7 @@ def run(arguments):
     # User input
     project = get_project(arguments)
 
-    log_file_path = os.path.join(project['path'], 'logs')
+    log_file_path = os.path.join(project.path, 'logs')
     if not os.path.exists(log_file_path):
         filesystem.mkdir(log_file_path)
 
@@ -68,9 +68,9 @@ def run(arguments):
 
     docker_client = init()
 
-    image = get_container_image(docker_client, project['path'])
+    image = get_container_image(docker_client, project.path)
     logger.info("Starting adapter HTTP server")
-    container = run_image(docker_client, image, project["path"])
+    container = run_image(docker_client, image, project.path)
 
     try:
         # Need time for the server to start
@@ -202,7 +202,7 @@ def process(request, response, project, validators, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
-    validation_file_path = os.path.join(project["path"], "logs", "validation.log")
+    validation_file_path = os.path.join(project.path, "logs", "validation.log")
     write_validation_log(validation_file_path, result)
 
     if len(result.messages) > 0:
@@ -273,23 +273,22 @@ def stop_container(container: Container):
 # Helpers for creating the json payload ***************
 
 def get_connection(project, arguments):
-    connection_names = [(connection["name"], connection["name"]) for connection in project["connections"]]
+    connection_names = [(connection.name, connection.name) for connection in project.connections]
     # We should ensure the describe is valid before parsing through it.
-    validate_describe(project["path"])
-    describe = get_describe(project["path"])
-    project.setdefault("connections", [])
+    validate_describe(project.path)
+    describe = get_describe(project.path)
 
     if (arguments.connection, arguments.connection) not in connection_names:
-        connection = selection_prompt("Choose a connection: ",
+        connection_name = selection_prompt("Choose a connection: ",
                                       connection_names + [("new_connection", "New Connection")])
     else:
-        connection = arguments.connection
+        connection_name = arguments.connection
 
-    if connection != "new_connection":
-        for _connection in project["connections"]:
-            if _connection["name"] == connection:
-                return _connection
-        logger.error(f"Cannot find connection corresponding to {connection}.")
+    if connection_name != "new_connection":
+        for connection in project.connections:
+            if connection.name == connection_name:
+                return connection
+        logger.error(f"Cannot find connection with name '{connection_name}'.")
         exit(1)
 
     adapter_instance_kind = get_adapter_instance(describe)
@@ -366,50 +365,50 @@ def get_connection(project, arguments):
                 "password": is_password
             }
 
-    connection_names = [connection["name"] for connection in (project["connections"] or [])]
+    connection_names = [connection.name for connection in (project.connections or [])]
     connection_names.append("New Connection")
 
     name = prompt(message="Enter a name for this connection: ",
                   validator=UniquenessValidator("Connection name", connection_names),
                   validate_while_typing=False)
-    new_connection = Connection(name, identifiers, credentials).__dict__
-    project["connections"].append(new_connection)
+    new_connection = Connection(name, identifiers, credentials)
+    project.connections.append(new_connection)
     record_project(project)
     return new_connection
 
 
 def get_request_body(project, connection):
-    describe = get_describe(project["path"])
+    describe = get_describe(project.path)
     adapter_instance = get_adapter_instance(describe)
 
     identifiers = []
-    if "identifiers" in connection and connection["identifiers"] is not None:
-        for key in connection["identifiers"]:
+    if connection.identifiers is not None:
+        for key in connection.identifiers:
             identifiers.append({
                 "key": key,
-                "value": connection["identifiers"][key]["value"],
-                "isPartOfUniqueness": connection["identifiers"][key]["part_of_uniqueness"]
+                "value": connection.identifiers[key]["value"],
+                "isPartOfUniqueness": connection.identifiers[key]["part_of_uniqueness"]
             })
 
     credential_config = {}
 
-    if "credential" in connection and connection["credential"]:
+    if connection.credential:
         fields = []
-        for key in connection["credential"]:
+        for key in connection.credential:
             if key != "credential_kind_key":
                 fields.append({
                     "key": key,
-                    "value": connection["credential"][key]["value"],
-                    "isPassword": connection["credential"][key]["password"]
+                    "value": connection.credential[key]["value"],
+                    "isPassword": connection.credential[key]["password"]
                 })
         credential_config = {
-            "credentialKey": connection["credential"]["credential_kind_key"],
+            "credentialKey": connection.credential["credential_kind_key"],
             "credentialFields": fields,
         }
 
     request_body = {
         "adapterKey": {
-            "name": connection["name"],
+            "name": connection.name,
             "adapterKind": describe.get("key"),
             "objectKind": adapter_instance.get("key"),
             "identifiers": identifiers,
