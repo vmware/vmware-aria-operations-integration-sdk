@@ -7,12 +7,16 @@ import time
 import traceback
 import zipfile
 
-from common.config import get_config_value
+
+from prompt_toolkit import prompt
+from common.config import get_config_value, set_config_value
 from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 from common.ui import print_formatted as print
+from common.ui import selection_prompt
 from common import filesystem
+from common.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -60,12 +64,25 @@ def build_pak_file(project_path, insecure_communication):
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    repo = get_config_value("docker_repo",
-                            default="tvs",
-                            config_file=os.path.join(project_path, "config.json"))
+    # We should ask the user for this before we populate them with default values
+    # Default values are only accessible for authorize memebers, so we might want to add a message about it
+    config_file = os.path.join(project_path, "config.json")
     registry_url = get_config_value("registry_url",
-                                    default="harbor-repo.vmware.com",
-                                    config_file=os.path.join(project_path, "config.json"))
+                                    config_file=config_file)
+
+    repo = get_config_value("docker_repo",
+                            config_file=config_file)
+
+    if repo is None or registry_url is None:
+        registry_url = selection_prompt("Add  a compatible registry where the Dockerfile can be uploaded and Dowloaded by vROps",
+                         items=[("harbor.io","Harbor"),
+                                ("docker.io","DockerHub"),
+                                ("harbor-repo.vmware.com","Internal Habor") ])
+
+        repo = prompt("Repository name: " if registry_url is not "docker.io" else "Docker hub username: ", validator=NotEmptyValidator("Repository"))
+        set_config_value(key= "docker_repo", value= repo, config_file= config_file)
+        set_config_value(key= "registry_url", value= registry_url, config_file= config_file)
+
     login(registry_url)
 
     adapter_kinds = manifest["adapter_kinds"]
