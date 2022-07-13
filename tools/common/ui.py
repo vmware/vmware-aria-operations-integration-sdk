@@ -16,16 +16,21 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Frame, TextArea
 
 style = Style.from_dict({
+    # Prompts
     "disabled": "fg:ansidarkgray italic",
     "selected": "reverse",
     "message": "",
     "answer": "fg:ansidarkgreen",
+    "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",  # 'bottom-toolbar' is 'reverse' by default
+
+    # Log message defaults
     "debug": "fg:ansidarkgray",
     "info": "",
     "warning": "fg:ansiyellow",
     "error": "fg:ansired",
     "critical": "fg:ansired bold",
-    "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",  # 'bottom-toolbar' is 'reverse' by default
+
+    # Misc messages in UI
     "information": "bg:ansiblue fg:ansiblack",
     "important": "bg:ansidarkred fg:ansiblack",
     "success": "fg:ansigreen",
