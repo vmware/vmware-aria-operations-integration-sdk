@@ -2,7 +2,6 @@ __author__ = 'VMware, Inc.'
 __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 
 import argparse
-import hashlib
 import json
 import logging
 import os
@@ -34,16 +33,17 @@ from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
 from common.ui import selection_prompt, print_formatted as print, prompt
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
-from common.validation.result import Result
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
+from common.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = logging.StreamHandler()
+consoleHandler = common.logging_format.PTKHandler()
 consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
+
 
 def run(arguments):
     # User input
@@ -213,7 +213,8 @@ def process(request, response, project, validators, verbosity):
     if result.warning_count > 0 and verbosity < 2:
         logger.warning(f"Found {result.warning_count} warnings when validating collection")
     if result.error_count + result.warning_count == 0:
-        logger.info("\u001b[32mValidation passed with no errors \u001b[0m")
+        # logger.info("\u001b[32mValidation passed with no errors \u001b[0m")
+        logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
 def validate_api_response(project, request, response):
@@ -282,7 +283,7 @@ def get_connection(project, arguments):
 
     if (arguments.connection, arguments.connection) not in connection_names:
         connection_name = selection_prompt("Choose a connection: ",
-                                      connection_names + [("new_connection", "New Connection")])
+                                           connection_names + [("new_connection", "New Connection")])
     else:
         connection_name = arguments.connection
 
@@ -301,7 +302,7 @@ def get_connection(project, arguments):
 
     print("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
 environment. As such, the following connection parameters and credential fields are derived from the
-'conf/describe.xml' file and are specific to each Management Pack.""", "class:info", frame=True)
+'conf/describe.xml' file and are specific to each Management Pack.""", "class:information", frame=True)
 
     identifiers = {}
     for identifier in sorted(get_identifiers(adapter_instance_kind), key=lambda i: int(i.get("dispOrder") or "100")):
@@ -309,7 +310,7 @@ environment. As such, the following connection parameters and credential fields 
 
         identifiers[identifier.get("key")] = {
             "value": value,
-            "required": is_true(identifier, "required", "true"),
+            "required": is_true(identifier, "required", default="true"),
             "part_of_uniqueness": identifier.get("identType", "1") == "1"
         }
 
@@ -323,8 +324,7 @@ environment. As such, the following connection parameters and credential fields 
     if len(valid_credential_kind_keys) > 1:
         credential_type = selection_prompt("Select the credential kind for this connection: ",
                                            [(kind.get("key"), resources.get(kind.get("nameKey"), kind.get("key")))
-                                            for kind in list(credential_kinds.values())],
-                                           description="")
+                                            for kind in list(credential_kinds.values())])
 
     # Get credential Kind element
     credential_kind = credential_kinds.get(credential_type)
@@ -338,7 +338,7 @@ environment. As such, the following connection parameters and credential fields 
 
             credentials[credential_field.get("key")] = {
                 "value": value,
-                "required": is_true(credential_field, "required", "true"),
+                "required": is_true(credential_field, "required", default="true"),
                 "password": is_true(credential_field, "password")
             }
 
@@ -347,7 +347,9 @@ environment. As such, the following connection parameters and credential fields 
 
     name = prompt(message="Enter a name for this connection: ",
                   validator=UniquenessValidator("Connection name", connection_names),
-                  validate_while_typing=False)
+                  validate_while_typing=False,
+                  description="The connection name is used to identify this connection (parameters and credential) in\n"
+                              "command line arguments or in the interactive prompt.")
     new_connection = Connection(name, identifiers, credentials)
     project.connections.append(new_connection)
     record_project(project)
@@ -356,7 +358,7 @@ environment. As such, the following connection parameters and credential fields 
 
 def input_parameter(parameter_type, parameter, resources):
     key = parameter.get("key")
-    is_required = is_true(parameter, "required", "true")
+    is_required = is_true(parameter, "required", default="true")
     is_password = is_true(parameter, "password")
     postfix = ": " if is_required else " (Optional): "
     default = parameter.get("default", "")
@@ -375,8 +377,10 @@ def input_parameter(parameter_type, parameter, resources):
                        default=default,
                        is_password=is_password,
                        validator=ChainValidator(
-                           [ConditionalValidator(NotEmptyValidator(f"{parameter_type.capitalize()} '{label}'"), is_required),
-                            ConditionalValidator(IntegerValidator(f"{parameter_type.capitalize()} '{label}'"), is_integer)]),
+                           [ConditionalValidator(NotEmptyValidator(f"{parameter_type.capitalize()} '{label}'"),
+                                                 is_required),
+                            ConditionalValidator(IntegerValidator(f"{parameter_type.capitalize()} '{label}'"),
+                                                 is_integer)]),
                        description=description)
     return value
 

@@ -20,10 +20,15 @@ style = Style.from_dict({
     "selected": "reverse",
     "message": "",
     "answer": "fg:ansidarkgreen",
-    "info": "bg:ansiblue fg:ansiblack",
-    "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",
+    "debug": "fg:ansidarkgray",
+    "info": "",
+    "warning": "fg:ansiyellow",
+    "error": "fg:ansired",
+    "critical": "fg:ansired bold",
+    "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",  # 'bottom-toolbar' is 'reverse' by default
+    "information": "bg:ansiblue fg:ansiblack",
     "important": "bg:ansidarkred fg:ansiblack",
-    "success": "fg:ansigreen"
+    "success": "fg:ansigreen",
 })
 
 
