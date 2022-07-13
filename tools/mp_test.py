@@ -21,18 +21,18 @@ from docker.models.images import Image
 from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.validators import ResponseValidator
-from prompt_toolkit import prompt
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 import common.logging_format
 from common import filesystem
 from common.constant import DEFAULT_PORT
-from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers
+from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
-from common.ui import selection_prompt, print_formatted as print
+from common.propertiesfile import load_properties
+from common.ui import selection_prompt, print_formatted as print, prompt
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.result import Result
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
@@ -79,11 +79,12 @@ def run(arguments):
         max_wait_time = 20
         while not started:
             try:
-                version = requests.get(
+                version = json.loads(requests.get(
                     f"http://localhost:{DEFAULT_PORT}/apiVersion",
-                    headers={"Accept": "application/json"})
+                    headers={"Accept": "application/json"}).text)
                 started = True
-                logger.info(f"HTTP Server started with adapter version {version.text.strip()}.")
+                logger.info(f"HTTP Server started with api version "
+                            f"{version['major']}.{version['minor']}.{version['maintenance']}")
             except (RequestException, ConnectionError) as e:
                 elapsed_time = time.perf_counter() - start_time
                 if elapsed_time > max_wait_time:
@@ -104,7 +105,7 @@ def run(arguments):
                 time.sleep(wait)
     finally:
         stop_container(container)
-        docker_client.images.prune(filters={"label":"mp-test"})
+        docker_client.images.prune(filters={"label": "mp-test"})
 
 
 def get_method(arguments):
@@ -277,6 +278,7 @@ def get_connection(project, arguments):
     # We should ensure the describe is valid before parsing through it.
     validate_describe(project.path)
     describe = get_describe(project.path)
+    resources = load_properties(os.path.join(project.path, "conf", "resources", "resources.properties"))
 
     if (arguments.connection, arguments.connection) not in connection_names:
         connection_name = selection_prompt("Choose a connection: ",
@@ -297,72 +299,47 @@ def get_connection(project, arguments):
         logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
-    credential_kinds = get_credential_kinds(describe)
-    valid_credential_kind_keys = (adapter_instance_kind.get("credentialKind") or "").split(",")
-
-    print("""
-    Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
-    envrironment. As such, the following connection parameters and credential fields are derived from the
-    'conf/describe.xml' file and are specific to each Management Pack.
-    """, "fg:ansidarkgray")
-
-    # TODO: Parse resources.properties and use nameKey labels (if they exist) for UI purposes.
-    #       If we do this we can also use the <nameKey>.description text here too for additional explanation.
+    print("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
+environment. As such, the following connection parameters and credential fields are derived from the
+'conf/describe.xml' file and are specific to each Management Pack.""", "class:info", frame=True)
 
     identifiers = {}
     for identifier in sorted(get_identifiers(adapter_instance_kind), key=lambda i: int(i.get("dispOrder") or "100")):
-        key = identifier.get("key")
-        is_required = (identifier.get("required") or "true").lower() == "true"
-        postfix = "': " if is_required else "' (Optional): "
-        default = identifier.get("default") or ""
-        is_integer = (identifier.get("type") or "string") == "integer"
-        is_enum = (identifier.get("enum") or "false").lower() == "true"
+        value = input_parameter("connection parameter", identifier, resources)
 
-        if is_enum:
-            enum_values = [(enum_value.get("value"), enum_value.get("value")) for enum_value in
-                           identifier.findall(ns("enum"))]
-            value = selection_prompt("Enter connection parameter '" + key + postfix, enum_values)
-        else:
-            value = prompt(message="Enter connection parameter '" + key + postfix,
-                           default=default,
-                           validator=ChainValidator(
-                               [ConditionalValidator(NotEmptyValidator(f"Parameter '{key}'"), is_required),
-                                ConditionalValidator(IntegerValidator(f"Parameter '{key}'"), is_integer)]))
-
-        identifiers[key] = {
+        identifiers[identifier.get("key")] = {
             "value": value,
-            "required": is_required,
-            "part_of_uniqueness": identifier.get("identType") == "1"
+            "required": is_true(identifier, "required", "true"),
+            "part_of_uniqueness": identifier.get("identType", "1") == "1"
         }
+
+    valid_credential_kind_keys = (adapter_instance_kind.get("credentialKind") or "").split(",")
+    credential_kinds = {credential_kind.get("key"): credential_kind
+                        for credential_kind in get_credential_kinds(describe)
+                        if credential_kind.get("key") in valid_credential_kind_keys}
 
     credential_type = valid_credential_kind_keys[0]
 
     if len(valid_credential_kind_keys) > 1:
         credential_type = selection_prompt("Select the credential kind for this connection: ",
-                                           [(kind_key, kind_key) for kind_key in valid_credential_kind_keys])
+                                           [(kind.get("key"), resources.get(kind.get("nameKey"), kind.get("key")))
+                                            for kind in list(credential_kinds.values())],
+                                           description="")
 
     # Get credential Kind element
-    credential_kind = [credential_kind for credential_kind in credential_kinds if
-                       credential_kind.get("key") == credential_type]
+    credential_kind = credential_kinds.get(credential_type)
     credentials = {}
-    if len(credential_kind) == 1:
-        credential_fields = credential_kind[0].findall(ns("CredentialField"))
+    if credential_kind is not None:
+        credential_fields = credential_kind.findall(ns("CredentialField"))
 
         credentials["credential_kind_key"] = credential_type
         for credential_field in credential_fields:
-            key = credential_field.get("key")
-            is_required = (credential_field.get("required") or "true").lower() == "true"
-            is_password = (credential_field.get("password") or "false").lower() == "true"
-            postfix = "': " if is_required else "' (Optional): "
+            value = input_parameter("credential field", credential_field, resources)
 
-            value = prompt(message="Enter credential field '" + key + postfix,
-                           is_password=is_password,
-                           validator=ConditionalValidator(NotEmptyValidator(f"Credential field '{key}'"), is_required))
-
-            credentials[key] = {
+            credentials[credential_field.get("key")] = {
                 "value": value,
-                "required": is_required,
-                "password": is_password
+                "required": is_true(credential_field, "required", "true"),
+                "password": is_true(credential_field, "password")
             }
 
     connection_names = [connection.name for connection in (project.connections or [])]
@@ -375,6 +352,33 @@ def get_connection(project, arguments):
     project.connections.append(new_connection)
     record_project(project)
     return new_connection
+
+
+def input_parameter(parameter_type, parameter, resources):
+    key = parameter.get("key")
+    is_required = is_true(parameter, "required", "true")
+    is_password = is_true(parameter, "password")
+    postfix = ": " if is_required else " (Optional): "
+    default = parameter.get("default", "")
+    is_integer = parameter.get("type", "string") == "integer"
+    is_enum = is_true(parameter, "enum")
+    name_key = parameter.get("nameKey")
+    label = resources.get(name_key, key)
+    description = resources.get(f"{name_key}.description", "")
+
+    if is_enum:
+        enum_values = [(enum_value.get("value"), resources.get(enum_value.get("nameKey"), enum_value.get("value")))
+                       for enum_value in parameter.findall(ns("enum"))]
+        value = selection_prompt(f"Enter {parameter_type} '{label}'{postfix}", enum_values, description)
+    else:
+        value = prompt(message=f"Enter {parameter_type} '{label}'{postfix}",
+                       default=default,
+                       is_password=is_password,
+                       validator=ChainValidator(
+                           [ConditionalValidator(NotEmptyValidator(f"{parameter_type.capitalize()} '{label}'"), is_required),
+                            ConditionalValidator(IntegerValidator(f"{parameter_type.capitalize()} '{label}'"), is_integer)]),
+                       description=description)
+    return value
 
 
 def get_request_body(project, connection):

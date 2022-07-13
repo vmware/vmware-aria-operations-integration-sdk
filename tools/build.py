@@ -226,7 +226,7 @@ def main():
                 os.remove(os.path.join(build_dir, pak_file))
 
             shutil.move(pak_file, build_dir)
-            print("Build succeeded", "fg:ansigreen")
+            print("Build succeeded", "class:success")
         finally:
             # There is a small probability that the temp dir doesn't exist
             if os.path.exists(temp_dir):

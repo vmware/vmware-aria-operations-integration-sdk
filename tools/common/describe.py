@@ -40,3 +40,9 @@ def get_credential_kinds(describe):
         return None
     else:
         return credential_kinds.findall(ns("CredentialKind"))
+
+
+def is_true(element, attr, default="false"):
+    # The only valid lexical values for boolean are ["true", "false", "1", "0"] (case-sensitive)
+    # https://www.w3.org/TR/xmlschema-2/#boolean
+    return element.get(attr, default) in ["true", "1"]
