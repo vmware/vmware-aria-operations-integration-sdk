@@ -13,7 +13,6 @@ from common.docker_wrapper import login, init, push_image, build_image, DockerWr
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 from common.ui import print_formatted as print
-from common.ui import selection_prompt
 from common import filesystem
 from common.validation.input_validators import NotEmptyValidator
 
@@ -78,23 +77,20 @@ def build_pak_file(project_path, insecure_communication):
     adapter_kind_key = adapter_kinds[0]
 
     registry_host = get_config_value("docker_registry_host", config_file=config_file)
-    registry_port = get_config_value("docker_registry_port", config_file=config_file)
     repo_path = get_config_value("docker_repo_path", config_file=config_file)
     repo_name = get_config_value("docker_repo_name", config_file=config_file)
 
     if registry_host is None:
         print("mp-build would like to configure a docker registry to push the conatiner image related to this project")
         registry_host = prompt("Enter the registry host: ", default="docker.io", validator=NotEmptyValidator("Host"))
-        registry_port = prompt("Enter port: ", default="443", validator=NotEmptyValidator("Port"))
         repo_path = prompt("Enter enter repository path: ", validator=NotEmptyValidator("Path"))
         repo_name = prompt("Enter enter repository name: ", default=adapter_kind_key.lower(), validator= NotEmptyValidator("Name"))
 
-        # TODO: add special case where there is no registry path
 
+        # TODO: add special case where there is no registry path
         set_config_value(key="docker_registry_host", value=registry_host, config_file=config_file)
-        set_config_value(key="docker_registry_port", value=registry_port, config_file=config_file)
         set_config_value(key="docker_repo_path", value=repo_path, config_file=config_file)
-        set_config_value(key="docker_repo_name", value=repo_path, config_file=config_file)
+        set_config_value(key="docker_repo_name", value=repo_name, config_file=config_file)
 
     login(registry_host)
 
@@ -102,13 +98,11 @@ def build_pak_file(project_path, insecure_communication):
 
     conf_repo_field = f"{repo_path}/{repo_name}"
 
-    if registry_host == "docker.io":
-        # https://github.com/moby/moby/issues/40619
-        conf_registry_field = registry_host
-    else:
-        conf_registry_field = f"registry_host:{registry_port}"
+    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+    conf_registry_field = registry_host
 
-    registry_tag = f"{conf_registry_field}{conf_repo_field}"
+    registry_tag = f"{conf_registry_field}/{conf_repo_field}:{tag}"
+    logger.debug(f"registry tag: {registry_tag}")
 
     try:
         adapter, adapter_logs = build_image(docker_client, path=project_path, tag=f"{repo_name}:{tag}")
