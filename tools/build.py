@@ -131,8 +131,6 @@ def build_pak_file(project_path, insecure_communication):
             adapter_conf.write(f"API_PORT=443\n")
 
         adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
-        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        # TODO: replace this with a more optimal solution, since this might be unique to harbor
         adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
         adapter_conf.write(f"DIGEST={digest}\n")
 
