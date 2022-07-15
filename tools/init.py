@@ -334,9 +334,10 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
         if "python" in language:
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
-            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade")
+            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
 
-        # having the executable copied at the end allows the image to be built faster since
+        # having the executable copied at the end allows the image to be built faster since previous
+        # the previous intermediate image is cached
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
 
 
