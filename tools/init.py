@@ -192,7 +192,6 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     mkdir(path)
 
     project = Project(path)
-    record_project(project)
 
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
@@ -203,6 +202,11 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     icon_file = create_icon_file(path, icon_file)
     manifest = create_manifest_file(path, adapter_key, eula_file, icon_file)
     create_describe(path, adapter_key, name)
+
+    # This has to happen after the manifest.txt file is created, because this function only records a project if
+    # it is an Integration SDK project. Currently, the method for determining this is to look for the manifest.txt
+    # file. See `common/validation/input_validators.py`, class `ProjectValidator`
+    record_project(project)
 
     # copy describe.xsd into conf directory
     src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
@@ -330,9 +334,10 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
         if "python" in language:
             dockerfile.write(f"COPY adapter_requirements.txt .\n")
-            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade")
+            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
 
-        # having the executable copied at the end allows the image to be built faster since
+        # having the executable copied at the end allows the image to be built faster since previous
+        # the previous intermediate image is cached
         dockerfile.write(f"COPY {executable_directory_path} {executable_directory_path}\n")
 
 
