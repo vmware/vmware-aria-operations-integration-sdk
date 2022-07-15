@@ -67,7 +67,7 @@ An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to th
 ```
 
 #### Language
-The _language_ for the Management Pack determines the language that the template source and build files 
+The _language_ for the Management Pack determines the language for the template source and build files.
 ```
 Select a language for the adapter.
  ❯ Python

@@ -4,7 +4,7 @@ import os
 
 import xmlschema
 
-from common.describe import get_describe, get_adapter_kind, get_resource_kinds, ns
+from common.describe import get_describe, get_adapter_kind, get_resource_kinds, ns, is_true
 from common.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -16,12 +16,6 @@ def message_format(resource, message):
     # NOTE: Names aren’t guaranteed to be unique, so we should think of a way to further help the user identify the resource
     resource_name = resource["key"]["name"]
     return f"({resource_kind}: {resource_name}) > {message}"
-
-
-def is_true(element, attr, default="false"):
-    # The only valid lexical values for boolean are ["true", "false", "1", "0"] (case-sensitive)
-    # https://www.w3.org/TR/xmlschema-2/#boolean
-    return element.get(attr, default) in ["true", "1"]
 
 
 def cross_check_attribute(resource, collected_metric, attribute_type, key_, element) -> Result:

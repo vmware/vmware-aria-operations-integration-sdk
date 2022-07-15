@@ -219,9 +219,19 @@ version=1
 > Note: `NameKey` integers do not have to be in order or contiguous.
 
 To supply an additional translation, create an additional file with the form `resources_<locale>.properties`, with the same set of keys as the original file but mapping to translated values.
-A locale specifier can have two parts, a two-letter language ID and a two-letter country code. For example, "en_US" and "en_UK" specify American English and British English. 
-The country code is optional in the resource file name. If you choose to specify the country code, it is separated from the language ID by another underscore. Do not specify a country code without a language ID.
-The locale specifier uses the ISO 639-1 standard language code and ISO 3166-1 standard country code.
+A locale specifier can have two parts, a two-letter language ID and an optional two-letter country code.
+The currently supported locales are:
+
+| Locale |       Language        |
+|:------:|:---------------------:|
+|   de   |        German         |
+|   es   |        Spanish        |
+|   fr   |        French         |
+|   ja   |       Japanese        |
+|   ko   |        Korean         |
+| zh-CN  | Chinese (Simplified)  |
+| zh-TW  | Chinese (Traditional) |
+
 For example, to translate into French, add a resources file with the 'French' language code to the `resources` directory:
 ```
 conf
@@ -241,3 +251,16 @@ version=1
 183=<...>
 ...
 ```
+Configuration Fields can include descriptions. A description can be used to provide a more detailed explanation of what the configuration field does or controls, and will show up in the UI as a tooltip that appears when a user clicks an info button to the right of the field.
+To add a description, use the `nameKey` value appended with `.description`. For example:
+```
+version=1
+1=<...>
+...
+10=<...>
+11=vROps Host
+11.description=vROps Cluster Host
+12=<...>
+...
+```
+![img.png](configuration_field_description.png)
