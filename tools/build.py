@@ -7,12 +7,13 @@ import time
 import traceback
 import zipfile
 
-from common.config import get_config_value
+from common.config import get_config_value, set_config_value
 from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
-from common.ui import print_formatted as print
+from common.ui import print_formatted as print, prompt
 from common import filesystem
+from common.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -41,7 +42,8 @@ def build_subdirectories(directory: str):
                 "file to a 'resources' directory that is also inside that subdirectory.")
             logger.info("")
             logger.info("The result should look like this: ")
-            logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            logger.info(
+                f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             logger.info(f"{directory}/myContent/resources/myContent.properties")
             logger.info(
                 f"For detailed information, consult the documentation in vROps Integration SDK -> Guides -> Adding Content.")
@@ -60,13 +62,9 @@ def build_pak_file(project_path, insecure_communication):
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    repo = get_config_value("docker_repo",
-                            default="tvs",
-                            config_file=os.path.join(project_path, "config.json"))
-    registry_url = get_config_value("registry_url",
-                                    default="harbor-repo.vmware.com",
-                                    config_file=os.path.join(project_path, "config.json"))
-    login(registry_url)
+    # We should ask the user for this before we populate them with default values
+    # Default values are only accessible for authorize memebers, so we might want to add a message about it
+    config_file = os.path.join(project_path, "config.json")
 
     adapter_kinds = manifest["adapter_kinds"]
     if len(adapter_kinds) == 0:
@@ -78,10 +76,54 @@ def build_pak_file(project_path, insecure_communication):
         exit(1)
     adapter_kind_key = adapter_kinds[0]
 
-    tag = adapter_kind_key.lower() + ":" + manifest["version"] + "_" + str(time.time())
-    registry_tag = f"{registry_url}/{repo}/{tag}"
+    registry_host = get_config_value("docker_registry_host", config_file=config_file)
+    # TODO: registry_port = get_config_value("docker_registry_port", config_file=config_file)
+    repo_path = get_config_value("docker_repo_path", config_file=config_file)
+    repo_name = get_config_value("docker_repo_name", config_file=config_file)
+
+    if registry_host is None:
+        print("mp-build would like to configure a docker registry to push the container image related to this project",
+              "class:information")
+        registry_host = prompt("Enter the registry host: ",
+                               default="projects.registry.vmware.com",
+                               validator=NotEmptyValidator("Host"),
+                               description="The host is the first part of an image tag used by docker to locate a redistry\n"
+                                           "For example, my.company-host.com:443/registry/path/repository host would be\n"
+                                           "my.company-host.com"
+                               )
+        # TODO: registry_port = prompt("Enter the port for the registry host", default="443", validator=NotEmptyValidator("Port"))
+        repo_path = prompt("Enter enter repository path: ",
+                           validator=NotEmptyValidator("Path"),
+                           description="The path is the inside the host where the repository is located(usually a posix filesystem path)\n"
+                                       "For example,  my.company-host.com:443/registry/path/repository path would be\n"
+                                       "/registry/path/")  # NOTE: should registry/path also be acceptable?
+
+        repo_name = prompt("Enter enter repository name: ",
+                           default=adapter_kind_key.lower(),
+                           validator=NotEmptyValidator("Name"),
+                           description="The name of the repository refers to the name related to the docker image in this project\n"
+                                       "For example, my.company-host.com:443/registry/path/repository name would be repository")
+
+        # TODO: add special case where there is no registry path
+        set_config_value(key="docker_registry_host", value=registry_host, config_file=config_file)
+        # TODO: set_config_value(key="docker_registry_port", value=registry_port, config_file=config_file)
+        set_config_value(key="docker_repo_path", value=repo_path, config_file=config_file)
+        set_config_value(key="docker_repo_name", value=repo_name, config_file=config_file)
+
+    login(registry_host)
+
+    tag = manifest["version"] + "_" + str(time.time())
+
+    conf_repo_field = f"{repo_path}/{repo_name}"
+
+    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+    conf_registry_field = registry_host
+
+    registry_tag = f"{conf_registry_field}/{conf_repo_field}:{tag}"
+    logger.debug(f"registry tag: {registry_tag}")
+
     try:
-        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=tag)
+        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=f"{repo_name}:{tag}")
         adapter.tag(registry_tag)
 
         digest = push_image(docker_client, registry_tag)
@@ -106,10 +148,8 @@ def build_pak_file(project_path, insecure_communication):
             adapter_conf.write(f"API_PROTOCOL=https\n")
             adapter_conf.write(f"API_PORT=443\n")
 
-        adapter_conf.write(f"REGISTRY={registry_url}\n")
-        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        # TODO: replace this with a more optimal solution, since this might be unique to harbor
-        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")
+        adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
+        adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
         adapter_conf.write(f"DIGEST={digest}\n")
 
     eula_file = manifest["eula_file"]
