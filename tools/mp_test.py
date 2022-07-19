@@ -70,7 +70,13 @@ def run(arguments):
 
     image = get_container_image(docker_client, project.path)
     logger.info("Starting adapter HTTP server")
-    container = run_image(docker_client, image, project.path)
+
+    memory_limit = connection.identifiers.get("container_memory_limit", None)
+    if memory_limit:
+        # Docker parameters expect a string with units: 'm' is 'MB'
+        memory_limit = f"{memory_limit}m"
+
+    container = run_image(docker_client, image, project.path, memory_limit)
 
     try:
         # Need time for the server to start
@@ -259,11 +265,12 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
     return docker_image_tag
 
 
-def run_image(client: DockerClient, image: Image, path: str) -> Container:
+def run_image(client: DockerClient, image: Image, path: str, container_memory_limit: str) -> Container:
     # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled by the try/except block in the 'main' function
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
+                                 mem_limit=container_memory_limit,
                                  volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
