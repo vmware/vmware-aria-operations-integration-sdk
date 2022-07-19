@@ -56,6 +56,49 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
+def get_registry_components(docker_registry: str) -> (str, str):
+    components = docker_registry.split('/')
+    host = components[0]
+    path = "/".join(components[1:])
+    return host, path
+
+
+def is_valid_registry(client, docker_registry) -> bool:
+    # TODO: Check if the registry is a valid registry
+    pass
+
+
+def get_docker_registry(adapter_kind_key, docker_client, config_file):
+    docker_registry = get_config_value("docker_registry", config_file=config_file)
+
+    original_value = docker_registry
+    if docker_registry is None:
+        print("mp-build would like to configure a docker registry to push the container image related to this project",
+              "class:information")
+        docker_registry = prompt("Enter the tag for the Docker registry: ",
+                                 default=f"harbor-repo.vmware.com/vrops_integration_sdk_mps/{adapter_kind_key.lower()}",
+                                 validator=NotEmptyValidator("Host"),
+                                 description="The tag of a docker registry is conformed of three parts: domain, port, and path. For example:\n"
+                                             "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vrops-integration-sdk-adapter-server
+                                             "domain: projects.registry.vmware.com\n"
+                                             "port: 443\n"
+                                             "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"
+                                             "If no domain spesified, then docker will use the default domain (Docker Hub)\n"
+                                             "Port number is optional, unless the host does not communicate throught port 443"
+                                 )
+
+    # TODO: validate registry
+    if not is_valid_registry(docker_client, docker_registry):
+        # TODO: let user know that the registry is invalid and maybe let them re enter the registry entry maybe while
+        # TODO: use docker client here
+        pass
+
+    if original_value != docker_registry:
+        set_config_value(key="docker_registry", value=docker_registry, config_file=config_file)
+
+    return docker_registry
+
+
 def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
@@ -63,7 +106,7 @@ def build_pak_file(project_path, insecure_communication):
         manifest = json.load(manifest_file)
 
     # We should ask the user for this before we populate them with default values
-    # Default values are only accessible for authorize memebers, so we might want to add a message about it
+    # Default values are only accessible for authorize members, so we might want to add a message about it
     config_file = os.path.join(project_path, "config.json")
 
     adapter_kinds = manifest["adapter_kinds"]
@@ -76,55 +119,20 @@ def build_pak_file(project_path, insecure_communication):
         exit(1)
     adapter_kind_key = adapter_kinds[0]
 
-    registry_host = get_config_value("docker_registry_host", config_file=config_file)
-    # TODO: registry_port = get_config_value("docker_registry_port", config_file=config_file)
-    repo_path = get_config_value("docker_repo_path", config_file=config_file)
-    repo_name = get_config_value("docker_repo_name", config_file=config_file)
-
-    if registry_host is None:
-        print("mp-build would like to configure a docker registry to push the container image related to this project",
-              "class:information")
-        registry_host = prompt("Enter the registry host: ",
-                               default="projects.registry.vmware.com",
-                               validator=NotEmptyValidator("Host"),
-                               description="The host is the first part of an image tag used by docker to locate a redistry\n"
-                                           "For example, my.company-host.com:443/registry/path/repository host would be\n"
-                                           "my.company-host.com"
-                               )
-        # TODO: registry_port = prompt("Enter the port for the registry host", default="443", validator=NotEmptyValidator("Port"))
-        repo_path = prompt("Enter enter repository path: ",
-                           validator=NotEmptyValidator("Path"),
-                           description="The path is the inside the host where the repository is located(usually a posix filesystem path)\n"
-                                       "For example,  my.company-host.com:443/registry/path/repository path would be\n"
-                                       "/registry/path/")  # NOTE: should registry/path also be acceptable?
-
-        repo_name = prompt("Enter enter repository name: ",
-                           default=adapter_kind_key.lower(),
-                           validator=NotEmptyValidator("Name"),
-                           description="The name of the repository refers to the name related to the docker image in this project\n"
-                                       "For example, my.company-host.com:443/registry/path/repository name would be repository")
-
-        # TODO: add special case where there is no registry path
-        set_config_value(key="docker_registry_host", value=registry_host, config_file=config_file)
-        # TODO: set_config_value(key="docker_registry_port", value=registry_port, config_file=config_file)
-        set_config_value(key="docker_repo_path", value=repo_path, config_file=config_file)
-        set_config_value(key="docker_repo_name", value=repo_name, config_file=config_file)
-
-    login(registry_host)
+    docker_registry = get_docker_registry(adapter_kind_key, docker_client, config_file)
+    login(docker_registry)
 
     tag = manifest["version"] + "_" + str(time.time())
 
-    conf_repo_field = f"{repo_path}/{repo_name}"
+    conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
 
     # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
-    conf_registry_field = registry_host
 
-    registry_tag = f"{conf_registry_field}/{conf_repo_field}:{tag}"
+    registry_tag = f"{docker_registry}:{tag}"
     logger.debug(f"registry tag: {registry_tag}")
 
     try:
-        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=f"{repo_name}:{tag}")
-        adapter.tag(registry_tag)
+        build_image(docker_client, path=project_path, tag=f"{registry_tag}")
 
         digest = push_image(docker_client, registry_tag)
     finally:
