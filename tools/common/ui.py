@@ -2,10 +2,11 @@ from __future__ import unicode_literals
 
 import os
 
-from prompt_toolkit import prompt as tkprompt
+from prompt_toolkit import prompt as tkprompt, print_formatted_text
 from prompt_toolkit.application import Application
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import IsDone, Filter, Condition
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, FormattedTextControl
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
@@ -13,7 +14,7 @@ from prompt_toolkit.layout.dimension import LayoutDimension, Dimension
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Frame, TextArea
+from prompt_toolkit.widgets import Frame, TextArea, Label
 
 style = Style.from_dict({
     # Prompts
@@ -37,11 +38,16 @@ style = Style.from_dict({
 })
 
 
+FULL_WIDTH = "FULL_WIDTH"
+
+
 def print_formatted(text, style_class="", frame=False):
-    if frame:
+    if frame == FULL_WIDTH:
+        print_container(TextArea(text=text, wrap_lines=True, style=style_class), style=style)
+    elif frame:
         print_container(Frame(TextArea(text=text, wrap_lines=True), style=style_class), style=style)
     else:
-        print_container(TextArea(text=text, style=style_class, wrap_lines=True), style=style)
+        print_formatted_text(FormattedText([(style_class, text)]), style=style)
 
 
 class ListControlBase(FormattedTextControl):
