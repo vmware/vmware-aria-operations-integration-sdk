@@ -41,7 +41,7 @@ style = Style.from_dict({
 FULL_WIDTH = "FULL_WIDTH"
 
 
-def print_formatted(text, style_class="", frame=False):
+def print_formatted(text="", style_class="", frame=False):
     if frame == FULL_WIDTH:
         print_container(TextArea(text=text, wrap_lines=True, style=style_class), style=style)
     elif frame:
