@@ -8,6 +8,7 @@ import os
 import time
 import traceback
 import xml.etree.ElementTree as ET
+from datetime import datetime
 from json import JSONDecodeError
 
 import openapi_core
@@ -31,7 +32,7 @@ from common.docker_wrapper import init, build_image, DockerWrapperError
 from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.ui import selection_prompt, print_formatted as print, prompt
+from common.ui import selection_prompt, print_formatted as print_formatted, prompt
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 from common.validation.result import Result
@@ -43,6 +44,41 @@ logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = common.logging_format.PTKHandler()
 consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
+
+
+def long_run(project, connection, verbosity, collection_time, collection_interval):
+    logger.debug("starting long run")
+    if collection_time < collection_interval:
+        times = 1
+    else:
+        times = collection_time // collection_interval
+
+    logger.debug(f"number of collections to run: {times}")
+
+    collections_directory_path = os.path.join(project.path, "collections")
+    if not os.path.exists(collections_directory_path):
+        logger.debug(f"Creating collections directory at: {collections_directory_path}")
+        filesystem.mkdir(collections_directory_path)
+
+    # TODO: restructure collection code
+    # NOTE: we don't want to run validation on every collection
+    while times > 0:
+        logger.info(f"Running collection No. {times}")
+        times -= 1
+        request, response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+                                 json=get_request_body(project, connection),
+                                 headers={"Accept": "application/json"})
+        now = datetime.now().strftime("%d-%m-%Y-%H:%M:%S")
+        logger.debug(f"request: {request}")
+        logger.debug(f"response: {response}")
+        with open(os.path.join(collections_directory_path, f"{now}.json"), "w", encoding="utf-8") as collection_result:
+            json.dump(json.loads(response.text), collection_result, ensure_ascii=False, indent=4)
+
+        next_collection = time.time() + collection_interval
+        while time.time() < next_collection:
+            remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
+            print(f"Time until next collection: {remaining}", end="\r")
+            time.sleep(.2)
 
 
 def run(arguments):
@@ -94,15 +130,11 @@ def run(arguments):
                 time.sleep(0.5)
 
         args = vars(arguments)
-        times = args.setdefault("times", 1)
-        wait = args.setdefault("wait", 10)
-        while times > 0:
-            # Run connection test or collection test
+        # TODO: find a nicer way to write the logic for the long run
+        if "long_run" in args and args["long_run"]:
+            long_run(project, connection, verbosity, args["collection_time"], args["collection_intervals"])
+        else:
             method(project, connection, verbosity)
-            times = times - 1
-            if times > 0:
-                logger.info(f"{times} requests remaining. Waiting {wait} seconds until next request.")
-                time.sleep(wait)
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
@@ -163,7 +195,7 @@ def get_version(project, connection, verbosity):
             verbosity=verbosity)
 
 
-def wait(project, connection):
+def wait(project, connection, verbosity):
     input("Press enter to finish")
 
 
@@ -300,7 +332,7 @@ def get_connection(project, arguments):
         logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
-    print("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
+    print_formatted("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
 environment. As such, the following connection parameters and credential fields are derived from the
 'conf/describe.xml' file and are specific to each Management Pack.""", "class:information", frame=True)
 
@@ -459,9 +491,17 @@ def main():
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
-    collect_method.add_argument("-n", "--times", help="Run the given method 'n' times.", type=int, default=1)
-    collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
+
+    collect_method.add_argument("-t", "--collection-time", help="Run the collection method for 't' seconds.",
+                                type=int, default=600)
+    collect_method.add_argument("-w", "--collection-intervals",
+                                help="Amount of time to wait between collections (in seconds).",
                                 type=int, default=10)
+
+    # TODO: Re-structure this parameter
+    collect_method.add_argument("-l", "--long-run",
+                                help="triggers a long run",
+                                type=bool, default=False)
     collect_method.set_defaults(func=post_collect)
 
     # URL Endpoints method
@@ -485,7 +525,7 @@ def main():
         run(parser.parse_args())
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        print("")
+        print_formatted("")
         logger.info("Testing cancelled")
         exit(1)
     except DockerWrapperError as docker_error:
@@ -502,7 +542,7 @@ def main():
     except SystemExit as system_exit:
         exit(system_exit.code)
     except BaseException as base_error:
-        print("Unexpected error")
+        print_formatted("Unexpected error")
         logger.error(base_error)
         traceback.print_tb(base_error.__traceback__)
         exit(1)
