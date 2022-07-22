@@ -56,8 +56,18 @@ def read_collection_files(collection_directory_path, start_time, end_time):
         logger.debug(f"analysing: {f}")
 
 
-def long_run(project, connection, verbosity, collection_time, collection_interval):
+def get_sec(time_str):
+    """Get seconds from time."""
+    h, m, s = time_str.split(':')
+    return int(h) * 3600 + int(m) * 60 + int(s)
+
+
+def long_run(project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
+    cli_args = kwargs.get("cli_args")
+    collection_time = get_sec(cli_args["collection_time"])
+    collection_interval = get_sec(cli_args["collection_intervals"])
+
     logger.debug("starting long run")
     if collection_time < collection_interval:
         times = 1
@@ -74,24 +84,27 @@ def long_run(project, connection, verbosity, collection_time, collection_interva
     # TODO: restructure collection code
     # NOTE: we don't want to run validation on every collection
     start_time = datetime.now()
-    while times > 0:
-        logger.info(f"Running collection No. {times}")
-        times -= 1
-        request, response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                                 json=get_request_body(project, connection),
-                                 headers={"Accept": "application/json"})
+
+    for collection_no in range(1, times + 1):
+        logger.info(f"Running collection No. {collection_no} of {times}")
+        request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+                                               json=get_request_body(project, connection),
+                                               headers={"Accept": "application/json"})
         now = datetime.now().strftime(constant.DATE_FORMAT)
         logger.debug(f"request: {request}")
         logger.debug(f"response: {response}")
+        logger.debug(f"elapsed time: {elapsed_time}")
         with open(os.path.join(collections_directory_path, f"{now}.json"), "w", encoding="utf-8") as collection_result:
             json.dump(json.loads(response.text), collection_result, ensure_ascii=False, indent=4)
 
         next_collection = time.time() + collection_interval
-        while time.time() < next_collection:
+        while time.time() < next_collection and times != collection_no:
             remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
             print(f"Time until next collection: {remaining}", end="\r")
             time.sleep(.2)
 
+        # Clears the last statement print statement
+        print("                                       ", end="\r")
     end_time = datetime.now()
     read_collection_files(collections_directory_path, start_time, end_time)
     # TODO: Read all collections ad generate statistics
@@ -146,13 +159,9 @@ def run(arguments):
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
-        args = vars(arguments)
-        # TODO: find a nicer way to write the logic for the long run
-        if "long_run" in args and args["long_run"]:
-            # TODO: Add suffixes to the parameters to determine hours minutes seconds to run
-            long_run(project, connection, verbosity, args["collection_time"], args["collection_intervals"])
-        else:
-            method(project, connection, verbosity)
+        print(f"arguments: {arguments}")
+
+        method(project=project, connection=connection, verbosity=verbosity, cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
@@ -166,45 +175,46 @@ def get_method(arguments):
         "Choose a method to test:",
         [(post_test, "Test Connection"),
          (post_collect, "Collect"),
+         (long_run, "Long Run Collection"),
          (post_endpoint_urls, "Endpoint URLs"),
          (get_version, "Version")])
 
 
 # REST calls ***************
 
-def post_collect(project, connection, verbosity):
+def post_collect(project, connection, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe],
-            verbosity=verbosity)
+            verbosity=kwargs.get("verbosity"))
 
     logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
 
 
-def post_test(project, connection, verbosity):
+def post_test(project, connection, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/test",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=verbosity)
+            verbosity=kwargs.get("verbosity"))
 
 
-def post_endpoint_urls(project, connection, verbosity):
+def post_endpoint_urls(project, connection, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=verbosity)
+            verbosity=kwargs.get("verbosity"))
 
 
-def get_version(project, connection, verbosity):
+def get_version(project, **kwargs):
     request, response, elapsed_time = get(
         url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"}
@@ -212,10 +222,10 @@ def get_version(project, connection, verbosity):
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=verbosity)
+            verbosity=kwargs.get("verbosity"))
 
 
-def wait(project, connection, verbosity):
+def wait(**kwargs):
     input("Press enter to finish")
 
 
@@ -238,7 +248,6 @@ def post(url, json, headers):
 
 
 def process(request, response, elapsed_time, project, validators, verbosity):
-
     json_response = json.loads(response.text)
     logger.info(json.dumps(json_response, sort_keys=True, indent=3))
     logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
@@ -488,18 +497,22 @@ def main():
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
-
-    collect_method.add_argument("-t", "--collection-time", help="Run the collection method for 't' seconds.",
-                                type=int, default=600)
-    collect_method.add_argument("-w", "--collection-intervals",
-                                help="Amount of time to wait between collections (in seconds).",
-                                type=int, default=10)
-
-    # TODO: Re-structure this parameter
-    collect_method.add_argument("-l", "--long-run",
-                                help="triggers a long run",
-                                type=bool, default=False)
     collect_method.set_defaults(func=post_collect)
+
+    # Long run method
+    long_run_method = methods.add_parser("long-run",
+                                         help="Simulate a long run collection and return data statistics about the"
+                                              "overall collection")
+    long_run_method.set_defaults(func=long_run)
+
+    long_run_method.add_argument("-t", "--collection-time",
+                                 help="Simulate a long run for H hours M minutes and S seconds."
+                                      "format follows H:M:S",
+                                 type=str, default="6:0:0")
+
+    long_run_method.add_argument("-i", "--collection-intervals",
+                                 help="Amount of time to wait between collections.",
+                                 type=str, default="0:5:0")
 
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
