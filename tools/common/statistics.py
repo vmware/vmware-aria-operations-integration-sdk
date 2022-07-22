@@ -2,9 +2,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from statistics import median, stdev
 
+from common.describe import is_true
+
 
 @dataclass(frozen=True)
-class ObjectKind:
+class ObjectType:
     adapterKind: str
     objectKind: str
 
@@ -12,7 +14,7 @@ class ObjectKind:
         return f"{self.adapterKind}::{self.objectKind}"
 
 
-def _get_type(json) -> ObjectKind:
+def _get_type(json) -> ObjectType:
     if not json:
         return None
     if "adapterKind" not in json:
@@ -22,20 +24,72 @@ def _get_type(json) -> ObjectKind:
     adapter_type = object_key.get("adapterKind")
     object_type = object_key.get("objectKind")
     if adapter_type and object_type:
-        return ObjectKind(adapter_type, object_type)
+        return ObjectType(adapter_type, object_type)
     return None
+
+
+@dataclass(frozen=True)
+class Identifier:
+    key: str
+    value: str
+
+    def __repr__(self):
+        return f"{self.key}: {self.value}"
+
+
+def _get_identifier(json) -> Identifier:
+    if not json:
+        return None
+    if json.get("isPartOfUniqueness"):
+        key = json.get("key")
+        value = json.get("value")
+        return Identifier(key, value)
+    return None
+
+
+def _get_identifiers(json) -> [Identifier]:
+    if not json:
+        return []
+    identifiers = json.get("identifiers", [])
+    identifiers = [_get_identifier(identifier) for identifier in identifiers]
+    return [identifier for identifier in identifiers if identifier is not None].sort(key=lambda identifier: identifier.key)
+
+
+@dataclass(frozen=True)
+class ObjectId:
+    name: str
+    objectKind: ObjectType
+    identifiers: [Identifier]
+
+    def __repr__(self):
+        return f"{self.name} ({self.objectKind})"
+
+
+def _get_object(json) -> ObjectId:
+    if not json:
+        return None
+    name = json.get("name")
+    object_type = _get_type(json)
+    identifiers = _get_identifiers(json)
+    return ObjectId(name, object_type, identifiers)
 
 
 class Stats:
     def __init__(self, array):
+        self.datapoints = len(array)
         self.count = sum(array)
         self.median = median(array)
+        self.min = min(array)
+        self.max = max(array)
         self.stddev = float("NaN")
         if len(array) > 2:
             self.stddev = stdev(array)
 
     def __repr__(self):
-        return f"{self.count:0.2f}/{self.median:0.2f}/{self.stddev:0.2f}"
+        if self.datapoints <= 1 or self.count == 0:
+            return f"{self.count}"
+        else:
+            return f"{self.count} ({self.min}/{self.median}/{self.max})"
 
 
 class ObjectStatistics:

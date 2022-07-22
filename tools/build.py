@@ -8,7 +8,7 @@ import traceback
 import zipfile
 
 from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
+from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError, LoginError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
 from common.ui import print_formatted as print, prompt
@@ -63,35 +63,46 @@ def get_registry_components(docker_registry: str) -> (str, str):
     return host, path
 
 
-def is_valid_registry(client, docker_registry) -> bool:
-    # TODO: Check if the registry is a valid registry
-    pass
+def is_valid_registry(docker_registry) -> bool:
+    try:
+        login(docker_registry)
+    except LoginError:
+        return False
+
+    return True
 
 
-def get_docker_registry(adapter_kind_key, docker_client, config_file):
+def registry_prompt(default):
+    return prompt("Enter the tag for the Docker registry: ",
+                  default=default,
+                  validator=NotEmptyValidator("Host"),
+                  description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
+                              "three parts: domain, port, and path. For example:\n"
+                              "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vrops-integration-sdk-adapter-server
+                              "domain: projects.registry.vmware.com\n"
+                              "port: 443\n"
+                              "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"
+                              "Domain is optional, and defaults to Docker Hub (docker.io)\n"
+                              "Port number is optional, and defaults to 443."
+                  )
+
+
+def get_docker_registry(adapter_kind_key, config_file):
     docker_registry = get_config_value("docker_registry", config_file=config_file)
 
     original_value = docker_registry
     if docker_registry is None:
-        print("mp-build would like to configure a docker registry to push the container image related to this project",
+        print("mp-build needs to configure a Docker registry to store the adapter container image.",
               "class:information")
-        docker_registry = prompt("Enter the tag for the Docker registry: ",
-                                 default=f"harbor-repo.vmware.com/vrops_integration_sdk_mps/{adapter_kind_key.lower()}",
-                                 validator=NotEmptyValidator("Host"),
-                                 description="The tag of a docker registry is conformed of three parts: domain, port, and path. For example:\n"
-                                             "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vrops-integration-sdk-adapter-server
-                                             "domain: projects.registry.vmware.com\n"
-                                             "port: 443\n"
-                                             "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"
-                                             "If no domain spesified, then docker will use the default domain (Docker Hub)\n"
-                                             "Port number is optional, unless the host does not communicate throught port 443"
-                                 )
+        docker_registry = registry_prompt(
+            default=f"harbor-repo.vmware.com/vrops_integration_sdk_mps/{adapter_kind_key.lower()}")
 
-    # TODO: validate registry
-    if not is_valid_registry(docker_client, docker_registry):
-        # TODO: let user know that the registry is invalid and maybe let them re enter the registry entry maybe while
-        # TODO: use docker client here
-        pass
+    first_time = True
+    while not is_valid_registry(docker_registry):
+        if first_time:
+            print("Press Ctrl + C to cancel build", "class:information")
+            first_time = False
+        docker_registry = registry_prompt(default=docker_registry)
 
     if original_value != docker_registry:
         set_config_value(key="docker_registry", value=docker_registry, config_file=config_file)
@@ -119,8 +130,7 @@ def build_pak_file(project_path, insecure_communication):
         exit(1)
     adapter_kind_key = adapter_kinds[0]
 
-    docker_registry = get_docker_registry(adapter_kind_key, docker_client, config_file)
-    login(docker_registry)
+    docker_registry = get_docker_registry(adapter_kind_key, config_file)
 
     tag = manifest["version"] + "_" + str(time.time())
 

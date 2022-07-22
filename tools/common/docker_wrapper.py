@@ -88,7 +88,6 @@ class DockerWrapperError(Exception):
 
 class LoginError(DockerWrapperError):
     """Raised when there is an error logging into docker"""
-    pass
 
 
 class InitError(DockerWrapperError):
@@ -97,7 +96,6 @@ class InitError(DockerWrapperError):
 
 class PushError(DockerWrapperError):
     """Raised when the registry server sends back an error"""
-    pass
 
 
 class BuildError(DockerWrapperError):
