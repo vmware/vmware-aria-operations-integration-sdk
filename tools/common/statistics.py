@@ -38,30 +38,62 @@ class Stats:
         return f"{self.count:0.2f}/{self.median:0.2f}/{self.stddev:0.2f}"
 
 
+class ObjectStatistics:
+    def __init__(self, json):
+        self.key = json.get("key")  # TODO: Make this a comparable class rather than just raw json
+        self.events = [event.get("message") for event in json.get("events", [])]
+        self.metrics = [metric.get("key") for metric in json.get("metrics", [])]
+        self.properties = [property.get("key") for property in json.get("properties", [])]
+
+    def get_event_count(self):
+        return len(self.events)
+
+    def get_metric_count(self):
+        return len(self.metrics)
+
+    def get_property_count(self):
+        return len(self.properties)
+
+
 class ObjectTypeStatistics:
     def __init__(self):
         self.object_type = None
-        self.object_count = 0
-        self.event_counts = []
-        self.metric_counts = []
-        self.property_counts = []
+        self.objects = []
 
-    def add_obj(self, object_json):
+    def add_object(self, object_json):
         if self.object_type is None:
             self.object_type = _get_type(object_json)
         elif self.object_type != _get_type(object_json):
             return
-        self.object_count += 1
-        self.event_counts.append(len(object_json.get("events", [])))
-        self.metric_counts.append(len(object_json.get("metrics", [])))
-        self.property_counts.append(len(object_json.get("properties", [])))
+        self.objects.append(ObjectStatistics(object_json))
+
+    def get_object_count(self):
+        return len(self.objects)
+
+    def get_event_count(self):
+        return sum(obj.get_event_count() for obj in self.objects)
+
+    def get_metric_count(self):
+        return sum(obj.get_metric_count() for obj in self.objects)
+
+    def get_property_count(self):
+        return sum(obj.get_property_count() for obj in self.objects)
+
+    def get_event_counts(self):
+        return [obj.get_event_count() for obj in self.objects]
+
+    def get_metric_counts(self):
+        return [obj.get_metric_count() for obj in self.objects]
+
+    def get_property_counts(self):
+        return [obj.get_property_count() for obj in self.objects]
 
     def get_summary(self):
         return {
-            "objects": self.object_count,
-            "events": Stats(self.event_counts),
-            "metrics": Stats(self.metric_counts),
-            "properties": Stats(self.property_counts)
+            "objects": self.get_object_count(),
+            "events": Stats(self.get_event_counts()),
+            "metrics": Stats(self.get_metric_counts()),
+            "properties": Stats(self.get_property_counts())
         }
 
 
@@ -77,7 +109,7 @@ class CollectionStatistics:
             object_type = _get_type(obj)
             if object_type:
                 stats = self.obj_statistics[object_type]
-                stats.add_obj(obj)
+                stats.add_object(obj)
         for rel in json.get("relationships", []):
             parent = rel.get("parent", None)
             parent_type = _get_type(parent)
@@ -95,7 +127,8 @@ class CollectionStatistics:
 
         for stats in list(self.obj_statistics.values()):
             summary = stats.get_summary()
-            data.append([stats.object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"]])
+            data.append(
+                [stats.object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"]])
         obj_table = str(Table(headers, data))
 
         headers = ["Parent Type", "Child Type", "Count"]
