@@ -263,4 +263,4 @@ version=1
 12=<...>
 ...
 ```
-![img.png](configuration_field_description.png)
+![Example of a tooltip description on a Configuration Field](configuration_field_description.png)
