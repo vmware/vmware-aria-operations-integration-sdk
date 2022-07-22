@@ -9,9 +9,7 @@ import time
 import traceback
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from json import JSONDecodeError
 
-import openapi_core
 import requests
 import urllib3
 from docker import DockerClient
@@ -19,8 +17,6 @@ from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
-from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
-from openapi_core.validation.response.validators import ResponseValidator
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
@@ -29,10 +25,12 @@ from common import filesystem
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from common.docker_wrapper import init, build_image, DockerWrapperError
-from common.filesystem import get_absolute_project_directory
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
+from common.statistics import CollectionStatistics
+from common.timer import timed
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt
+from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
 from common.validation.result import Result
@@ -155,41 +153,43 @@ def get_method(arguments):
 # REST calls ***************
 
 def post_collect(project, connection, verbosity):
-    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                             json=get_request_body(project, connection),
-                             headers={"Accept": "application/json"})
-    process(request, response,
+    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+                                           json=get_request_body(project, connection),
+                                           headers={"Accept": "application/json"})
+    process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe],
             verbosity=verbosity)
 
+    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
+
 
 def post_test(project, connection, verbosity):
-    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/test",
-                             json=get_request_body(project, connection),
-                             headers={"Accept": "application/json"})
-    process(request, response,
+    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/test",
+                                           json=get_request_body(project, connection),
+                                           headers={"Accept": "application/json"})
+    process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
             verbosity=verbosity)
 
 
 def post_endpoint_urls(project, connection, verbosity):
-    request, response = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
-                             json=get_request_body(project, connection),
-                             headers={"Accept": "application/json"})
-    process(request, response,
+    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
+                                           json=get_request_body(project, connection),
+                                           headers={"Accept": "application/json"})
+    process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
             verbosity=verbosity)
 
 
 def get_version(project, connection, verbosity):
-    request, response = get(
+    request, response, elapsed_time = get(
         url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"}
     )
-    process(request, response,
+    process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
             verbosity=verbosity)
@@ -199,13 +199,7 @@ def wait(project, connection, verbosity):
     input("Press enter to finish")
 
 
-def write_validation_log(validation_file_path, result):
-    # TODO: create a test object to be able to write encapsulated test results
-    with open(validation_file_path, "w") as validation_file:
-        for (severity, message) in result.messages:
-            validation_file.write(f"{severity.name}: {message}\n")
-
-
+@timed
 def get(url, headers):
     request = requests.models.Request(method="GET",
                                       url=url,
@@ -214,6 +208,7 @@ def get(url, headers):
     return request, response
 
 
+@timed
 def post(url, json, headers):
     request = requests.models.Request(method="POST", url=url,
                                       json=json,
@@ -222,7 +217,12 @@ def post(url, json, headers):
     return request, response
 
 
-def process(request, response, project, validators, verbosity):
+def process(request, response, elapsed_time, project, validators, verbosity):
+
+    json_response = json.loads(response.text)
+    logger.info(json.dumps(json_response, sort_keys=True, indent=3))
+    logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
+
     result = Result()
     for validate in validators:
         result += validate(project, request, response)
@@ -241,41 +241,18 @@ def process(request, response, project, validators, verbosity):
     if len(result.messages) > 0:
         logger.info(f"All validation logs written to '{validation_file_path}'")
     if result.error_count > 0 and verbosity < 1:
-        logger.error(f"Found {result.error_count} errors when validating collection")
+        logger.error(f"Found {result.error_count} errors when validating response")
     if result.warning_count > 0 and verbosity < 2:
-        logger.warning(f"Found {result.warning_count} warnings when validating collection")
+        logger.warning(f"Found {result.warning_count} warnings when validating response")
     if result.error_count + result.warning_count == 0:
-        # logger.info("\u001b[32mValidation passed with no errors \u001b[0m")
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
-def validate_api_response(project, request, response):
-    schema_file = get_absolute_project_directory("api", "vrops-collector-fwk2-openapi.json")
-    result = Result()
-    with open(schema_file, "r") as schema:
-        try:
-            json_response = json.loads(response.text)
-            logger.info(json.dumps(json_response, sort_keys=True, indent=3))
-
-            json_schema = json.load(schema)
-            spec = openapi_core.create_spec(json_schema, validate_spec=True)
-            validator = ResponseValidator(spec)
-            openapi_request = RequestsOpenAPIRequest(request)
-            openapi_response = RequestsOpenAPIResponse(response)
-            validation = validator.validate(openapi_request, openapi_response)
-            if validation.errors is not None and len(validation.errors) > 0:
-                logger.info("Validation failed: ")
-                for error in validation.errors:
-                    if "schema_errors" in vars(error):
-                        result.with_error(f"schema error: {vars(error)['schema_errors']}")
-                    else:
-                        result.with_error(error)
-        except JSONDecodeError as d:
-            logger.error("Returned result is not valid json:")
-            logger.error("Response:")
-            logger.error(repr(response.text))
-            logger.error(f"Error: {d}")
-    return result
+def write_validation_log(validation_file_path, result):
+    # TODO: create a test object to be able to write encapsulated test results
+    with open(validation_file_path, "w") as validation_file:
+        for (severity, message) in result.messages:
+            validation_file.write(f"{severity.name}: {message}\n")
 
 
 # Docker helpers ***************
