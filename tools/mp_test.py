@@ -21,7 +21,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 import common.logging_format
-from common import filesystem
+from common import filesystem, constant
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from common.docker_wrapper import init, build_image, DockerWrapperError
@@ -44,7 +44,20 @@ consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
+def read_collection_files(collection_directory_path, start_time, end_time):
+    entries = os.listdir(collection_directory_path)
+    collection_files = filter(lambda e: e.lower().endswith(".json"), entries)
+    collections_to_analyse = \
+        filter(lambda _file: start_time >= datetime.strptime(_file.split(".json")[0], constant.DATE_FORMAT) <= end_time,
+               collection_files)
+
+    for f in collections_to_analyse:
+        # TODO get collection object from Kyle's function
+        logger.debug(f"analysing: {f}")
+
+
 def long_run(project, connection, verbosity, collection_time, collection_interval):
+    # TODO: Add flag to specify collection period statistics
     logger.debug("starting long run")
     if collection_time < collection_interval:
         times = 1
@@ -60,13 +73,14 @@ def long_run(project, connection, verbosity, collection_time, collection_interva
 
     # TODO: restructure collection code
     # NOTE: we don't want to run validation on every collection
+    start_time = datetime.now()
     while times > 0:
         logger.info(f"Running collection No. {times}")
         times -= 1
         request, response = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
                                  json=get_request_body(project, connection),
                                  headers={"Accept": "application/json"})
-        now = datetime.now().strftime("%d-%m-%Y-%H:%M:%S")
+        now = datetime.now().strftime(constant.DATE_FORMAT)
         logger.debug(f"request: {request}")
         logger.debug(f"response: {response}")
         with open(os.path.join(collections_directory_path, f"{now}.json"), "w", encoding="utf-8") as collection_result:
@@ -77,6 +91,11 @@ def long_run(project, connection, verbosity, collection_time, collection_interva
             remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
             print(f"Time until next collection: {remaining}", end="\r")
             time.sleep(.2)
+
+    end_time = datetime.now()
+    read_collection_files(collections_directory_path, start_time, end_time)
+    # TODO: Read all collections ad generate statistics
+    # TODO: Generate statistics
 
 
 def run(arguments):
@@ -130,6 +149,7 @@ def run(arguments):
         args = vars(arguments)
         # TODO: find a nicer way to write the logic for the long run
         if "long_run" in args and args["long_run"]:
+            # TODO: Add suffixes to the parameters to determine hours minutes seconds to run
             long_run(project, connection, verbosity, args["collection_time"], args["collection_intervals"])
         else:
             method(project, connection, verbosity)

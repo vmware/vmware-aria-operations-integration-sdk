@@ -12,3 +12,4 @@ GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_PORT = 8080
 REPO_NAME = "vrops-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
+DATE_FORMAT = "%d-%m-%Y-%H:%M:%S"
