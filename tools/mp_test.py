@@ -12,9 +12,10 @@ from datetime import datetime
 
 import requests
 import urllib3
+from common.containeraized_adapter_rest_api import post, get
+from common.timer import timed
 from docker import DockerClient
 from docker.errors import ContainerError, APIError
-from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
 from prompt_toolkit.validation import ConditionalValidator
@@ -24,11 +25,11 @@ import common.logging_format
 from common import filesystem, constant
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
-from common.docker_wrapper import init, build_image, DockerWrapperError
+from docker.models.containers import Container
+from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
 from common.statistics import CollectionStatistics
-from common.timer import timed
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
@@ -44,6 +45,7 @@ consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
+# NOTE: This funstion is no longer needed for the long run funstion, but could be used for parsing collections
 def read_collection_files(collection_directory_path, start_time, end_time):
     entries = os.listdir(collection_directory_path)
     collection_files = filter(lambda e: e.lower().endswith(".json"), entries)
@@ -62,6 +64,35 @@ def get_sec(time_str):
     return int(h) * 3600 + int(m) * 60 + int(s)
 
 
+@timed
+def run_collections(project, connection, times, collection_interval):
+    collection_statistics = []
+    for collection_no in range(1, times + 1):
+        logger.info(f"Running collection No. {collection_no} of {times}")
+        request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
+                                               json=get_request_body(project, connection),
+                                               headers={"Accept": "application/json"})
+        json_response = json.loads(response.text)
+        collection_statistics.append(CollectionStatistics(json_response, elapsed_time))
+
+        next_collection = time.time() + collection_interval
+        while time.time() < next_collection and times != collection_no:
+            remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
+            print(f"Time until next collection: {remaining}", end="\r")
+            time.sleep(.2)
+
+        # Clears the last statement print statement
+        print("                                       ", end="\r")
+
+    return collection_statistics
+
+
+def generate_long_run_statistics(collection_statistics: [CollectionStatistics]):
+    for statistic in collection_statistics:
+        print(f"obj_statistics: {statistic.obj_statistics}")
+        print(f"obj_statistics.values: {statistic.obj_statistics.values()}")
+
+
 def long_run(project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
@@ -74,41 +105,9 @@ def long_run(project, connection, **kwargs):
     else:
         times = collection_time // collection_interval
 
-    logger.debug(f"number of collections to run: {times}")
-
-    collections_directory_path = os.path.join(project.path, "collections")
-    if not os.path.exists(collections_directory_path):
-        logger.debug(f"Creating collections directory at: {collections_directory_path}")
-        filesystem.mkdir(collections_directory_path)
-
-    # TODO: restructure collection code
-    # NOTE: we don't want to run validation on every collection
-    start_time = datetime.now()
-
-    for collection_no in range(1, times + 1):
-        logger.info(f"Running collection No. {collection_no} of {times}")
-        request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                                               json=get_request_body(project, connection),
-                                               headers={"Accept": "application/json"})
-        now = datetime.now().strftime(constant.DATE_FORMAT)
-        logger.debug(f"request: {request}")
-        logger.debug(f"response: {response}")
-        logger.debug(f"elapsed time: {elapsed_time}")
-        with open(os.path.join(collections_directory_path, f"{now}.json"), "w", encoding="utf-8") as collection_result:
-            json.dump(json.loads(response.text), collection_result, ensure_ascii=False, indent=4)
-
-        next_collection = time.time() + collection_interval
-        while time.time() < next_collection and times != collection_no:
-            remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
-            print(f"Time until next collection: {remaining}", end="\r")
-            time.sleep(.2)
-
-        # Clears the last statement print statement
-        print("                                       ", end="\r")
-    end_time = datetime.now()
-    read_collection_files(collections_directory_path, start_time, end_time)
-    # TODO: Read all collections ad generate statistics
-    # TODO: Generate statistics
+    collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
+    logger.debug(f"Long collection duration: {elapsed_time}")
+    generate_long_run_statistics(collection_statistics)
 
 
 def run(arguments):
@@ -182,6 +181,7 @@ def get_method(arguments):
 
 # REST calls ***************
 
+# Belongs here but could be transformed into an better item
 def post_collect(project, connection, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
                                            json=get_request_body(project, connection),
@@ -227,24 +227,6 @@ def get_version(project, **kwargs):
 
 def wait(**kwargs):
     input("Press enter to finish")
-
-
-@timed
-def get(url, headers):
-    request = requests.models.Request(method="GET",
-                                      url=url,
-                                      headers=headers)
-    response = requests.get(url=url, headers=headers)
-    return request, response
-
-
-@timed
-def post(url, json, headers):
-    request = requests.models.Request(method="POST", url=url,
-                                      json=json,
-                                      headers=headers)
-    response = requests.post(url=url, json=json, headers=headers)
-    return request, response
 
 
 def process(request, response, elapsed_time, project, validators, verbosity):
@@ -303,11 +285,6 @@ def run_image(client: DockerClient, image: Image, path: str) -> Container:
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
                                  volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
-
-
-def stop_container(container: Container):
-    container.kill()
-    container.remove()
 
 
 # Helpers for creating the json payload ***************
