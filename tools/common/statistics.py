@@ -61,6 +61,9 @@ class ObjectId:
     objectKind: ObjectType
     identifiers: [Identifier]
 
+    def __str__(self):
+        return f"{self.name} ({self.objectKind})"
+
     def __repr__(self):
         ids = " :: ".join(map(str, self.identifiers))
         return f"{self.name} ({self.objectKind} - {ids})"
