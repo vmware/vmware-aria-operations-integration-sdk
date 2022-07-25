@@ -22,7 +22,8 @@ from requests import RequestException
 
 import common.logging_format
 from common import filesystem
-from common.constant import DEFAULT_PORT
+from common.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
+    COLLECT_ENDPOINT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
@@ -103,7 +104,7 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
     # TODO: generate data point
 
 
-def long_run(project, connection, **kwargs):
+def run_long_collect(project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     collection_time = get_sec(cli_args["collection_time"])
@@ -118,6 +119,46 @@ def long_run(project, connection, **kwargs):
     collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     generate_long_run_statistics(collection_statistics)
+
+
+def run_collect(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response, cross_check_collection_with_describe],
+            verbosity=verbosity)
+
+    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
+
+
+def run_connect(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, CONNECT_ENDPOINT)
+
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_get_endpoint_urls(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, ENDPOINTS_URLS_ENDPOINT)
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_get_server_version(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_get_to_adapter(project, connection, API_VERSION_ENDPOINT)
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_wait(**kwargs):
+    input("Press enter to finish")
 
 
 def run(arguments):
@@ -180,61 +221,24 @@ def get_method(arguments):
 
     return selection_prompt(
         "Choose a method to test:",
-        [(post_test, "Test Connection"),
-         (post_collect, "Collect"),
-         (long_run, "Long Run Collection"),
-         (post_endpoint_urls, "Endpoint URLs"),
-         (get_version, "Version")])
+        [(run_connect, "Test Connection"),
+         (run_collect, "Collect"),
+         (run_long_collect, "Long Run Collection"),
+         (run_get_endpoint_urls, "Endpoint URLs"),
+         (run_get_server_version, "Version")])
 
 
 # REST calls ***************
-
-# Belongs here but could be transformed into an better item
-def post_collect(project, connection,verbosity, **kwargs):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe],
-            verbosity= verbosity)
-
-    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
+def send_post_to_adapter(project, connection, endpoint):
+    return post(url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+                json=get_request_body(project, connection),
+                headers={"Accept": "application/json"})
 
 
-def post_test(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/test",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def post_endpoint_urls(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def get_version(project, verbosity, **kwargs):
-    request, response, elapsed_time = get(
-        url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
-        headers={"Accept": "application/json"}
-    )
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def wait(**kwargs):
-    input("Press enter to finish")
+def send_get_to_adapter(project, connection, endpoint):
+    return get(url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+               json=get_request_body(project, connection),
+               headers={"Accept": "application/json"})
 
 
 def process(request, response, elapsed_time, project, validators, verbosity):
@@ -477,18 +481,18 @@ def main():
     # Test method
     test_method = methods.add_parser("connect",
                                      help="Simulate the 'test connection' method being called by the vROps collector.")
-    test_method.set_defaults(func=post_test)
+    test_method.set_defaults(func=run_connect)
 
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
-    collect_method.set_defaults(func=post_collect)
+    collect_method.set_defaults(func=run_collect)
 
     # Long run method
     long_run_method = methods.add_parser("long-run",
                                          help="Simulate a long run collection and return data statistics about the"
                                               "overall collection")
-    long_run_method.set_defaults(func=long_run)
+    long_run_method.set_defaults(func=run_long_collect)
 
     long_run_method.add_argument("-t", "--collection-time",
                                  help="Simulate a long run for H hours M minutes and S seconds."
@@ -502,19 +506,19 @@ def main():
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
                                     help="Simulate the 'endpoint_urls' method being called by the vROps collector.")
-    url_method.set_defaults(func=post_endpoint_urls)
+    url_method.set_defaults(func=run_get_endpoint_urls)
 
     # Version method
     url_method = methods.add_parser("version",
                                     help="Simulate the 'version' method being called by the vROps collector.")
-    url_method.set_defaults(func=get_version)
+    url_method.set_defaults(func=run_get_server_version)
 
     # wait
     url_method = methods.add_parser("wait",
                                     help="Simulate the adapter running on a vROps collector and wait for user input "
                                          "to stop. Useful for calling REST methods via an external tool, such as "
                                          "Insomnia or Postman.")
-    url_method.set_defaults(func=wait)
+    url_method.set_defaults(func=run_wait)
 
     try:
         run(parser.parse_args())
@@ -541,7 +545,6 @@ def main():
         logger.error(base_error)
         traceback.print_tb(base_error.__traceback__)
         exit(1)
-
 
 
 if __name__ == '__main__':
