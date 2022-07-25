@@ -8,7 +8,6 @@ import os
 import time
 import traceback
 import xml.etree.ElementTree as ET
-from datetime import datetime
 
 import requests
 import urllib3
@@ -22,7 +21,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 import common.logging_format
-from common import filesystem, constant
+from common import filesystem
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from docker.models.containers import Container
@@ -43,19 +42,6 @@ logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = common.logging_format.PTKHandler()
 consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
-
-
-# NOTE: This funstion is no longer needed for the long run funstion, but could be used for parsing collections
-def read_collection_files(collection_directory_path, start_time, end_time):
-    entries = os.listdir(collection_directory_path)
-    collection_files = filter(lambda e: e.lower().endswith(".json"), entries)
-    collections_to_analyse = \
-        filter(lambda _file: start_time >= datetime.strptime(_file.split(".json")[0], constant.DATE_FORMAT) <= end_time,
-               collection_files)
-
-    for f in collections_to_analyse:
-        # TODO get collection object from Kyle's function
-        logger.debug(f"analysing: {f}")
 
 
 def get_sec(time_str):
