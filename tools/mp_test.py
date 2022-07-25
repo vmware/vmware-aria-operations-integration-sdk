@@ -29,7 +29,7 @@ from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics
+from common.statistics import CollectionStatistics, Stats
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
@@ -74,6 +74,7 @@ def run_collections(project, connection, times, collection_interval):
                                                headers={"Accept": "application/json"})
         json_response = json.loads(response.text)
         collection_statistics.append(CollectionStatistics(json_response, elapsed_time))
+        # TODO: get docker stats
 
         next_collection = time.time() + collection_interval
         while time.time() < next_collection and times != collection_no:
@@ -88,9 +89,39 @@ def run_collections(project, connection, times, collection_interval):
 
 
 def generate_long_run_statistics(collection_statistics: [CollectionStatistics]):
+    object_collection_history = {}
+    # TODO: wrap this logic into a class
     for statistic in collection_statistics:
-        print(f"obj_statistics: {statistic.obj_statistics}")
-        print(f"obj_statistics.values: {statistic.obj_statistics.values()}")
+        for obj_statistics in statistic.obj_statistics.values():
+            if obj_statistics.object_type not in object_collection_history:
+                object_collection_history[obj_statistics.object_type] = {
+                    "object_count": [obj_statistics.get_object_count()],
+                    "metric_count": [obj_statistics.get_metric_count()],
+                    "property_count": [obj_statistics.get_property_count()],
+                    "event_count": [obj_statistics.get_event_count()],
+                }
+            else:
+                object_collection_history[obj_statistics.object_type]["object_count"].append(
+                    obj_statistics.get_object_count())
+                object_collection_history[obj_statistics.object_type]["metric_count"].append(
+                    obj_statistics.get_metric_count())
+                object_collection_history[obj_statistics.object_type]["property_count"].append(
+                    obj_statistics.get_property_count())
+                object_collection_history[obj_statistics.object_type]["event_count"].append(
+                    obj_statistics.get_event_count())
+
+    # Create statistic
+    statistics = []
+    headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties", "Avg Events"]
+    data = []
+    for key, value in object_collection_history.items():
+        # statistics.append([Stats(value)])
+        data_point = {
+            "objects": Stats(value["object_count"]),
+            "events": Stats(value["metric_count"]),
+            "metrics": Stats(value["property_count"]),
+            "properties": Stats(value["event_count"])
+        }
 
 
 def long_run(project, connection, **kwargs):
@@ -157,8 +188,6 @@ def run(arguments):
                     exit(1)
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
-
-        print(f"arguments: {arguments}")
 
         method(project=project, connection=connection, verbosity=verbosity, cli_args=vars(arguments))
     finally:
