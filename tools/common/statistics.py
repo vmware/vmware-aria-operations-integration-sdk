@@ -102,7 +102,8 @@ class ObjectStatistics:
         self.events = set(event.get("message") for event in json.get("events", []))
         self.metrics = set(metric.get("key") for metric in json.get("metrics", []))
         self.properties = set(property.get("key") for property in json.get("properties", []))
-        self.string_properties = {property.get("key"): property.get("stringValue") for property in json.get("properties", []) if "stringValue" in property}
+        self.string_properties = {property.get("key"): property.get("stringValue") for property in
+                                  json.get("properties", []) if "stringValue" in property}
         self.parents = set()
         self.children = set()
 
@@ -189,32 +190,36 @@ class ObjectTypeStatistics:
 
 class LongCollectionStatistics:
     def __init__(self):
-        self.object_collection_history = {}
-        self.num_collections = 0
-        self.collections_intervals = []
+        self.collection_statistics = []
 
-    def add(self, json, elapsed_time):
-        # TODO: get CPU and memory usage
-        self.num_collections += 1
-        self.collections_intervals.append(elapsed_time)
-        collection_stats = CollectionStatistics(json, elapsed_time)
-        for obj_statistics in collection_stats.obj_type_statistics.values():
-            if obj_statistics.object_type not in self.object_collection_history:
-                self.object_collection_history[obj_statistics.object_type] = {
-                    "object_count": [obj_statistics.get_object_count()],
-                    "metric_count": [obj_statistics.get_metric_count()],
-                    "property_count": [obj_statistics.get_property_count()],
-                    "event_count": [obj_statistics.get_event_count()],
-                }
-            else:
-                self.object_collection_history[obj_statistics.object_type]["object_count"].append(
-                    obj_statistics.get_object_count())
-                self.object_collection_history[obj_statistics.object_type]["metric_count"].append(
-                    obj_statistics.get_metric_count())
-                self.object_collection_history[obj_statistics.object_type]["property_count"].append(
-                    obj_statistics.get_property_count())
-                self.object_collection_history[obj_statistics.object_type]["event_count"].append(
-                    obj_statistics.get_event_count())
+    def add(self, collection_statistic):
+        self.collection_statistics.append(collection_statistic)
+
+    def get_collection_statistics(self):
+        object_collection_history = {}
+        collection_intervals = []
+        for collection_stat in self.collection_statistics:
+            collection_intervals.append(collection_stat.duration)
+            for obj_statistics in collection_stat.obj_type_statistics.values():
+                if obj_statistics.object_type not in object_collection_history:
+                    object_collection_history[obj_statistics.object_type] = {
+                        "object_count": [obj_statistics.get_object_count()],
+                        "metric_count": [obj_statistics.get_metric_count()],
+                        "property_count": [obj_statistics.get_property_count()],
+                        "event_count": [obj_statistics.get_event_count()],
+                    }
+                else:
+                    object_collection_history[obj_statistics.object_type]["object_count"].append(
+                        obj_statistics.get_object_count())
+                    object_collection_history[obj_statistics.object_type]["metric_count"].append(
+                        obj_statistics.get_metric_count())
+                    object_collection_history[obj_statistics.object_type]["property_count"].append(
+                        obj_statistics.get_property_count())
+                    object_collection_history[obj_statistics.object_type]["event_count"].append(
+                        obj_statistics.get_event_count())
+        return {"num_collections": len(self.collection_statistics),
+                "intervals": collection_intervals,
+                "stats": object_collection_history}
 
 
 class CollectionStatistics:
@@ -250,7 +255,8 @@ class CollectionStatistics:
         for stats in list(self.obj_type_statistics.values()):
             summary = stats.get_summary()
             data.append(
-                [stats.object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"], summary["parents"], summary["children"]])
+                [stats.object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
+                 summary["parents"], summary["children"]])
         obj_table = str(Table(headers, data))
 
         headers = ["Parent Type", "Child Type", "Count"]

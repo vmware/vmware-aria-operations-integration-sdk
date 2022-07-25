@@ -46,8 +46,20 @@ logger.addHandler(consoleHandler)
 
 def get_sec(time_str):
     """Get seconds from time."""
-    h, m, s = time_str.split(':')
-    return int(h) * 3600 + int(m) * 60 + int(s)
+    try:
+        unit = time_str[-1]
+        if unit == "s":
+            return int(time_str[0:-1])
+        elif unit == "m":
+            return int(time_str[0:-1]) * 60
+        elif unit == "h":
+            return int(time_str[0:-1]) * 3600
+        else:  # no unit specified, default to minutes
+            return int(time_str) * 60
+    except ValueError:
+        logger.error("Invalid time value provided. Enter the time amount followed by h,m, or s. If no unit is "
+                     "provided, then the default unit would be in minutes")
+        exit(1)
 
 
 @timed
@@ -59,10 +71,13 @@ def run_collections(project, connection, times, collection_interval):
                                                json=get_request_body(project, connection),
                                                headers={"Accept": "application/json"})
         json_response = json.loads(response.text)
-        collection_statistics.add(json_response, elapsed_time)
+        collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
         # TODO: get docker stats
 
-        next_collection = time.time() + collection_interval
+        next_collection = time.time() + collection_interval - elapsed_time
+        if elapsed_time > collection_interval:
+            # TODO: add this to the list of statistics?
+            logger.warning("Collection took longer than the given collection interval")
         while time.time() < next_collection and times != collection_no:
             remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
             print(f"Time until next collection: {remaining}", end="\r")
@@ -79,19 +94,13 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
     statistics = []
     headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties", "Avg Events"]
     data = []
-    print(f"total number of collections: {collection_statistics.num_collections}")
-    print(f"collections intervals: {collection_statistics.collections_intervals}")
-    for key, value in collection_statistics.object_collection_history.items():
+
+    for key, value in collection_statistics.get_collection_statistics().items():
         # statistics.append([Stats(value)])
         print(f"key: {key}")
         print(f"value: {value}")
 
-        data_point = {
-            "objects": Stats(value["object_count"]),
-            "events": Stats(value["metric_count"]),
-            "metrics": Stats(value["property_count"]),
-            "properties": Stats(value["event_count"])
-        }
+    # TODO: generate data point
 
 
 def long_run(project, connection, **kwargs):
@@ -181,39 +190,39 @@ def get_method(arguments):
 # REST calls ***************
 
 # Belongs here but could be transformed into an better item
-def post_collect(project, connection, **kwargs):
+def post_collect(project, connection,verbosity, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe],
-            verbosity=kwargs.get("verbosity"))
+            verbosity= verbosity)
 
     logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
 
 
-def post_test(project, connection, **kwargs):
+def post_test(project, connection, verbosity, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/test",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=kwargs.get("verbosity"))
+            verbosity=verbosity)
 
 
-def post_endpoint_urls(project, connection, **kwargs):
+def post_endpoint_urls(project, connection, verbosity, **kwargs):
     request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
                                            json=get_request_body(project, connection),
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=kwargs.get("verbosity"))
+            verbosity=verbosity)
 
 
-def get_version(project, **kwargs):
+def get_version(project, verbosity, **kwargs):
     request, response, elapsed_time = get(
         url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
         headers={"Accept": "application/json"}
@@ -221,7 +230,7 @@ def get_version(project, **kwargs):
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
-            verbosity=kwargs.get("verbosity"))
+            verbosity=verbosity)
 
 
 def wait(**kwargs):
@@ -532,6 +541,7 @@ def main():
         logger.error(base_error)
         traceback.print_tb(base_error.__traceback__)
         exit(1)
+
 
 
 if __name__ == '__main__':
