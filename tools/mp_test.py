@@ -29,7 +29,7 @@ from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, Stats
+from common.statistics import CollectionStatistics, Stats, LongCollectionStatistics
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
@@ -66,14 +66,14 @@ def get_sec(time_str):
 
 @timed
 def run_collections(project, connection, times, collection_interval):
-    collection_statistics = []
+    collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
         request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
                                                json=get_request_body(project, connection),
                                                headers={"Accept": "application/json"})
         json_response = json.loads(response.text)
-        collection_statistics.append(CollectionStatistics(json_response, elapsed_time))
+        collection_statistics.add(json_response, elapsed_time)
         # TODO: get docker stats
 
         next_collection = time.time() + collection_interval
@@ -88,34 +88,18 @@ def run_collections(project, connection, times, collection_interval):
     return collection_statistics
 
 
-def generate_long_run_statistics(collection_statistics: [CollectionStatistics]):
-    object_collection_history = {}
-    # TODO: wrap this logic into a class
-    for statistic in collection_statistics:
-        for obj_statistics in statistic.obj_statistics.values():
-            if obj_statistics.object_type not in object_collection_history:
-                object_collection_history[obj_statistics.object_type] = {
-                    "object_count": [obj_statistics.get_object_count()],
-                    "metric_count": [obj_statistics.get_metric_count()],
-                    "property_count": [obj_statistics.get_property_count()],
-                    "event_count": [obj_statistics.get_event_count()],
-                }
-            else:
-                object_collection_history[obj_statistics.object_type]["object_count"].append(
-                    obj_statistics.get_object_count())
-                object_collection_history[obj_statistics.object_type]["metric_count"].append(
-                    obj_statistics.get_metric_count())
-                object_collection_history[obj_statistics.object_type]["property_count"].append(
-                    obj_statistics.get_property_count())
-                object_collection_history[obj_statistics.object_type]["event_count"].append(
-                    obj_statistics.get_event_count())
-
-    # Create statistic
+def generate_long_run_statistics(collection_statistics: LongCollectionStatistics):
+    # TODO: Create statistic by processing the data inside the LongCollectionStatistics Object
     statistics = []
     headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties", "Avg Events"]
     data = []
-    for key, value in object_collection_history.items():
+    print(f"total number of collections: {collection_statistics.num_collections}")
+    print(f"collections intervals: {collection_statistics.collections_intervals}")
+    for key, value in collection_statistics.object_collection_history.items():
         # statistics.append([Stats(value)])
+        print(f"key: {key}")
+        print(f"value: {value}")
+
         data_point = {
             "objects": Stats(value["object_count"]),
             "events": Stats(value["metric_count"]),

@@ -52,7 +52,8 @@ def _get_identifiers(json) -> [Identifier]:
         return []
     identifiers = json.get("identifiers", [])
     identifiers = [_get_identifier(identifier) for identifier in identifiers]
-    return [identifier for identifier in identifiers if identifier is not None].sort(key=lambda identifier: identifier.key)
+    return [identifier for identifier in identifiers if identifier is not None].sort(
+        key=lambda identifier: identifier.key)
 
 
 @dataclass(frozen=True)
@@ -149,6 +150,36 @@ class ObjectTypeStatistics:
             "metrics": Stats(self.get_metric_counts()),
             "properties": Stats(self.get_property_counts())
         }
+
+
+class LongCollectionStatistics:
+    def __init__(self):
+        self.object_collection_history = {}
+        self.num_collections = 0
+        self.collections_intervals = []
+
+    def add(self, json, elapsed_time):
+        # TODO: get CPU and memory usage
+        self.num_collections += 1
+        self.collections_intervals.append(elapsed_time)
+        collection_stats = CollectionStatistics(json, elapsed_time)
+        for obj_statistics in collection_stats.obj_statistics.values():
+            if obj_statistics.object_type not in self.object_collection_history:
+                self.object_collection_history[obj_statistics.object_type] = {
+                    "object_count": [obj_statistics.get_object_count()],
+                    "metric_count": [obj_statistics.get_metric_count()],
+                    "property_count": [obj_statistics.get_property_count()],
+                    "event_count": [obj_statistics.get_event_count()],
+                }
+            else:
+                self.object_collection_history[obj_statistics.object_type]["object_count"].append(
+                    obj_statistics.get_object_count())
+                self.object_collection_history[obj_statistics.object_type]["metric_count"].append(
+                    obj_statistics.get_metric_count())
+                self.object_collection_history[obj_statistics.object_type]["property_count"].append(
+                    obj_statistics.get_property_count())
+                self.object_collection_history[obj_statistics.object_type]["event_count"].append(
+                    obj_statistics.get_event_count())
 
 
 class CollectionStatistics:
