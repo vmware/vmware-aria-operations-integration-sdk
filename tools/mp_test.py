@@ -68,9 +68,7 @@ def run_collections(project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
-        request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                                               json=get_request_body(project, connection),
-                                               headers={"Accept": "application/json"})
+        request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
         json_response = json.loads(response.text)
         collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
         # TODO: get docker stats
