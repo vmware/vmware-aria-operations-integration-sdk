@@ -32,6 +32,7 @@ from common.ui import selection_prompt, print_formatted as print, prompt
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
+from common.validation.relationship_validator import validate_relationships
 from common.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -126,7 +127,7 @@ def post_collect(project, connection, verbosity):
                                            headers={"Accept": "application/json"})
     process(request, response, elapsed_time,
             project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe],
+            validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
     logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
