@@ -102,15 +102,15 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
 def run_long_collect(project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
-    collection_time = get_sec(cli_args["duration"])
+    duration = get_sec(cli_args["duration"])
     collection_interval = get_sec(cli_args["collection_intervals"])
 
     logger.debug("starting long run")
-    if collection_time < collection_interval:
+    if duration < collection_interval:
         times = 1
     else:
         # Remove decimal points by casting number to integer, which behaves as a floor function
-        times = int(collection_time / collection_interval)
+        times = int(duration / collection_interval)
 
     collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")

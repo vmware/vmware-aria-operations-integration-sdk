@@ -263,12 +263,14 @@ def prompt(message, *args, description="", **kwargs) -> str:
 
 def countdown(duration, message=""):
     end_time = time.time() + duration
+    remaining = ""
+    try:
+        while time.time() < end_time:
 
-    while time.time() < end_time:
-        remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
+            remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
+            print(f"{message}{remaining}", end="\r")
+            time.sleep(.2)
 
-        print(f"{message}{remaining}", end="\r")
-        time.sleep(.2)
-
-    # Clears the last statement print statement
-    print(re.sub(".", " ", message + "%H:%M:%S"), end="\r")
+    finally:
+        # Clears the last statement print statement
+        print(re.sub(".", " ", message + f"{remaining}"), end="\r")
