@@ -11,9 +11,10 @@ import xml.etree.ElementTree as ET
 
 import requests
 import urllib3
+from common.containeraized_adapter_rest_api import post, get, send_get_to_adapter, send_post_to_adapter
+from common.timer import timed
 from docker import DockerClient
 from docker.errors import ContainerError, APIError
-from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
 from prompt_toolkit.validation import ConditionalValidator
@@ -21,14 +22,15 @@ from requests import RequestException
 
 import common.logging_format
 from common import filesystem
-from common.constant import DEFAULT_PORT
+from common.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
+    COLLECT_ENDPOINT
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
-from common.docker_wrapper import init, build_image, DockerWrapperError
+from docker.models.containers import Container
+from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics
-from common.timer import timed
-from common.ui import selection_prompt, print_formatted as print, prompt
+from common.statistics import CollectionStatistics, Stats, LongCollectionStatistics
+from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
@@ -42,6 +44,118 @@ logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = common.logging_format.PTKHandler()
 consoleHandler.setFormatter(common.logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
+
+
+def get_sec(time_str):
+    """Get seconds from time."""
+    try:
+        unit = time_str[-1]
+        if unit == "s":
+            return float(time_str[0:-1])
+        elif unit == "m":
+            return float(time_str[0:-1]) * 60
+        elif unit == "h":
+            return float(time_str[0:-1]) * 3600
+        else:  # no unit specified, default to minutes
+            return float(time_str) * 60
+    except ValueError:
+        logger.error("Invalid time. Time should be a numeric value in minutes, or a numeric value "
+                     "followed by the unit 'h', 'm', or 's'.")
+        exit(1)
+
+
+@timed
+def run_collections(project, connection, times, collection_interval):
+    collection_statistics = LongCollectionStatistics()
+    for collection_no in range(1, times + 1):
+        logger.info(f"Running collection No. {collection_no} of {times}")
+        request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+        json_response = json.loads(response.text)
+        collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
+        # TODO: get docker stats
+
+        next_collection = time.time() + collection_interval - elapsed_time
+        if elapsed_time > collection_interval:
+            # TODO: add this to the list of statistics?
+            logger.warning("Collection took longer than the given collection interval")
+
+        time_until_next_collection = next_collection - time.time()
+        if time_until_next_collection > 0 and times != collection_no:
+            countdown(time_until_next_collection, "Time until next collection: ")
+
+    return collection_statistics
+
+
+def generate_long_run_statistics(collection_statistics: LongCollectionStatistics):
+    # TODO: Create statistic by processing the data inside the LongCollectionStatistics Object
+    statistics = []
+    headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties", "Avg Events"]
+    data = []
+
+    for key, value in collection_statistics.get_collection_statistics().items():
+        # statistics.append([Stats(value)])
+        print(f"key: {key}")
+        print(f"value: {value}")
+
+    # TODO: generate data point
+
+
+def run_long_collect(project, connection, **kwargs):
+    # TODO: Add flag to specify collection period statistics
+    cli_args = kwargs.get("cli_args")
+    duration = get_sec(cli_args["duration"])
+    collection_interval = get_sec(cli_args["collection_interval"])
+
+    logger.debug("starting long run")
+    if duration < collection_interval:
+        times = 1
+    else:
+        # Remove decimal points by casting number to integer, which behaves as a floor function
+        times = int(duration / collection_interval)
+
+    collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
+    logger.debug(f"Long collection duration: {elapsed_time}")
+    generate_long_run_statistics(collection_statistics)
+
+
+def run_collect(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response, cross_check_collection_with_describe],
+            verbosity=verbosity)
+
+    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
+
+
+def run_connect(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, CONNECT_ENDPOINT)
+
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_get_endpoint_urls(project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = send_post_to_adapter(project, connection, ENDPOINTS_URLS_ENDPOINT)
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_get_server_version(project, verbosity, **kwargs):
+    request, response, elapsed_time = send_get_to_adapter(API_VERSION_ENDPOINT)
+    process(request, response, elapsed_time,
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
+
+
+def run_wait(**kwargs):
+    input("Press enter to finish")
 
 
 def run(arguments):
@@ -92,16 +206,7 @@ def run(arguments):
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
-        args = vars(arguments)
-        times = args.setdefault("times", 1)
-        wait = args.setdefault("wait", 10)
-        while times > 0:
-            # Run connection test or collection test
-            method(project, connection, verbosity)
-            times = times - 1
-            if times > 0:
-                logger.info(f"{times} requests remaining. Waiting {wait} seconds until next request.")
-                time.sleep(wait)
+        method(project=project, connection=connection, verbosity=verbosity, cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
@@ -113,81 +218,14 @@ def get_method(arguments):
 
     return selection_prompt(
         "Choose a method to test:",
-        [(post_test, "Test Connection"),
-         (post_collect, "Collect"),
-         (post_endpoint_urls, "Endpoint URLs"),
-         (get_version, "Version")])
-
-
-# REST calls ***************
-
-def post_collect(project, connection, verbosity):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/collect",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
-            verbosity=verbosity)
-
-    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
-
-
-def post_test(project, connection, verbosity):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/test",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def post_endpoint_urls(project, connection, verbosity):
-    request, response, elapsed_time = post(url=f"http://localhost:{DEFAULT_PORT}/endpointURLs",
-                                           json=get_request_body(project, connection),
-                                           headers={"Accept": "application/json"})
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def get_version(project, connection, verbosity):
-    request, response, elapsed_time = get(
-        url=f"http://localhost:{DEFAULT_PORT}/apiVersion",
-        headers={"Accept": "application/json"}
-    )
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
-
-
-def wait(project, connection, verbosity):
-    input("Press enter to finish")
-
-
-@timed
-def get(url, headers):
-    request = requests.models.Request(method="GET",
-                                      url=url,
-                                      headers=headers)
-    response = requests.get(url=url, headers=headers)
-    return request, response
-
-
-@timed
-def post(url, json, headers):
-    request = requests.models.Request(method="POST", url=url,
-                                      json=json,
-                                      headers=headers)
-    response = requests.post(url=url, json=json, headers=headers)
-    return request, response
+        [(run_connect, "Test Connection"),
+         (run_collect, "Collect"),
+         (run_long_collect, "Long Run Collection"),
+         (run_get_endpoint_urls, "Endpoint URLs"),
+         (run_get_server_version, "Version")])
 
 
 def process(request, response, elapsed_time, project, validators, verbosity):
-
     json_response = json.loads(response.text)
     logger.info(json.dumps(json_response, sort_keys=True, indent=3))
     logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
@@ -238,16 +276,12 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
 
 
 def run_image(client: DockerClient, image: Image, path: str) -> Container:
-    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled by the try/except block in the 'main' function
+    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled
+    # by the try/except block in the 'main' function
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
                                  volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
-
-
-def stop_container(container: Container):
-    container.kill()
-    container.remove()
 
 
 # Helpers for creating the json payload ***************
@@ -278,7 +312,7 @@ def get_connection(project, arguments):
         logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
-    print("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
+    print_formatted("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
 environment. As such, the following connection parameters and credential fields are derived from the
 'conf/describe.xml' file and are specific to each Management Pack.""", "class:information", frame=True)
 
@@ -363,57 +397,6 @@ def input_parameter(parameter_type, parameter, resources):
     return value
 
 
-def get_request_body(project, connection):
-    describe = get_describe(project.path)
-    adapter_instance = get_adapter_instance(describe)
-
-    identifiers = []
-    if connection.identifiers is not None:
-        for key in connection.identifiers:
-            identifiers.append({
-                "key": key,
-                "value": connection.identifiers[key]["value"],
-                "isPartOfUniqueness": connection.identifiers[key]["part_of_uniqueness"]
-            })
-
-    credential_config = {}
-
-    if connection.credential:
-        fields = []
-        for key in connection.credential:
-            if key != "credential_kind_key":
-                fields.append({
-                    "key": key,
-                    "value": connection.credential[key]["value"],
-                    "isPassword": connection.credential[key]["password"]
-                })
-        credential_config = {
-            "credentialKey": connection.credential["credential_kind_key"],
-            "credentialFields": fields,
-        }
-
-    request_body = {
-        "adapterKey": {
-            "name": connection.name,
-            "adapterKind": describe.get("key"),
-            "objectKind": adapter_instance.get("key"),
-            "identifiers": identifiers,
-        },
-        "clusterConnectionInfo": {
-            "userName": "string",
-            "password": "string",
-            "hostName": "string"
-        },
-        "certificateConfig": {
-            "certificates": []
-        }
-    }
-    if credential_config:
-        request_body["credentialConfig"] = credential_config
-
-    return request_body
-
-
 def main():
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
@@ -432,38 +415,49 @@ def main():
     # Test method
     test_method = methods.add_parser("connect",
                                      help="Simulate the 'test connection' method being called by the vROps collector.")
-    test_method.set_defaults(func=post_test)
+    test_method.set_defaults(func=run_connect)
 
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
-    collect_method.add_argument("-n", "--times", help="Run the given method 'n' times.", type=int, default=1)
-    collect_method.add_argument("-w", "--wait", help="Amount of time to wait between collections (in seconds).",
-                                type=int, default=10)
-    collect_method.set_defaults(func=post_collect)
+    collect_method.set_defaults(func=run_collect)
+
+    # Long run method
+    long_run_method = methods.add_parser("long-run",
+                                         help="Simulate a long run collection and return data statistics about the "
+                                              "overall collection.")
+    long_run_method.set_defaults(func=run_long_collect)
+
+    long_run_method.add_argument("-d", "--duration",
+                                 help="Duration of the long run in h hours, m minutes, or s seconds.",
+                                 type=str, default="6h")
+
+    long_run_method.add_argument("-i", "--collection-interval",
+                                 help="Amount of time to wait between collections.",
+                                 type=str, default="5m")
 
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
                                     help="Simulate the 'endpoint_urls' method being called by the vROps collector.")
-    url_method.set_defaults(func=post_endpoint_urls)
+    url_method.set_defaults(func=run_get_endpoint_urls)
 
     # Version method
     url_method = methods.add_parser("version",
                                     help="Simulate the 'version' method being called by the vROps collector.")
-    url_method.set_defaults(func=get_version)
+    url_method.set_defaults(func=run_get_server_version)
 
     # wait
     url_method = methods.add_parser("wait",
                                     help="Simulate the adapter running on a vROps collector and wait for user input "
                                          "to stop. Useful for calling REST methods via an external tool, such as "
                                          "Insomnia or Postman.")
-    url_method.set_defaults(func=wait)
+    url_method.set_defaults(func=run_wait)
 
     try:
         run(parser.parse_args())
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
-        print("")
+        print_formatted("")
         logger.info("Testing cancelled")
         exit(1)
     except DockerWrapperError as docker_error:
@@ -480,7 +474,7 @@ def main():
     except SystemExit as system_exit:
         exit(system_exit.code)
     except BaseException as base_error:
-        print("Unexpected error")
+        print_formatted("Unexpected error")
         logger.error(base_error)
         traceback.print_tb(base_error.__traceback__)
         exit(1)
