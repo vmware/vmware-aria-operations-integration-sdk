@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 import os
+import re
+import time
 
 from prompt_toolkit import prompt as tkprompt, print_formatted_text
 from prompt_toolkit.application import Application
@@ -36,7 +38,6 @@ style = Style.from_dict({
     "important": "bg:ansidarkred fg:ansiblack",
     "success": "fg:ansigreen",
 })
-
 
 FULL_WIDTH = "FULL_WIDTH"
 
@@ -258,3 +259,16 @@ def prompt(message, *args, description="", **kwargs) -> str:
                     bottom_toolbar=description,
                     lexer=SimpleLexer('class:answer'),
                     style=style)
+
+
+def countdown(duration, message=""):
+    end_time = time.time() + duration
+
+    while time.time() < end_time:
+        remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
+
+        print(f"{message}{remaining}", end="\r")
+        time.sleep(.2)
+
+    # Clears the last statement print statement
+    print(re.sub(".", " ", message + "%H:%M:%S"), end="\r")

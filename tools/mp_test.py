@@ -30,7 +30,7 @@ from common.docker_wrapper import init, build_image, DockerWrapperError, stop_co
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
 from common.statistics import CollectionStatistics, Stats, LongCollectionStatistics
-from common.ui import selection_prompt, print_formatted as print_formatted, prompt
+from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
@@ -77,13 +77,10 @@ def run_collections(project, connection, times, collection_interval):
         if elapsed_time > collection_interval:
             # TODO: add this to the list of statistics?
             logger.warning("Collection took longer than the given collection interval")
-        while time.time() < next_collection and times != collection_no:
-            remaining = time.strftime("%H:%M:%S", time.gmtime(next_collection - time.time()))
-            print(f"Time until next collection: {remaining}", end="\r")
-            time.sleep(.2)
 
-        # Clears the last statement print statement
-        print("                                       ", end="\r")
+        time_until_next_collection = next_collection - time.time()
+        if time_until_next_collection > 0 and times != collection_no:
+            countdown(time_until_next_collection, "Time until next collection: ")
 
     return collection_statistics
 
