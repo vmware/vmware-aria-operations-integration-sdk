@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 import urllib3
-from common.containeraized_adapter_rest_api import post, get
+from common.containeraized_adapter_rest_api import post, get, send_get_to_adapter, send_post_to_adapter
 from common.timer import timed
 from docker import DockerClient
 from docker.errors import ContainerError, APIError
@@ -50,16 +50,16 @@ def get_sec(time_str):
     try:
         unit = time_str[-1]
         if unit == "s":
-            return int(time_str[0:-1])
+            return float(time_str[0:-1])
         elif unit == "m":
-            return int(time_str[0:-1]) * 60
+            return float(time_str[0:-1]) * 60
         elif unit == "h":
-            return int(time_str[0:-1]) * 3600
+            return float(time_str[0:-1]) * 3600
         else:  # no unit specified, default to minutes
-            return int(time_str) * 60
+            return float(time_str) * 60
     except ValueError:
-        logger.error("Invalid time value provided. Enter the time amount followed by h,m, or s. If no unit is "
-                     "provided, then the default unit would be in minutes")
+        logger.error("Invalid time. Time should be a numeric value in minutes, or a numeric value "
+                     "followed by the unit 'h', 'm', or 's'.")
         exit(1)
 
 
@@ -105,14 +105,15 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
 def run_long_collect(project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
-    collection_time = get_sec(cli_args["collection_time"])
+    collection_time = get_sec(cli_args["duration"])
     collection_interval = get_sec(cli_args["collection_intervals"])
 
     logger.debug("starting long run")
     if collection_time < collection_interval:
         times = 1
     else:
-        times = collection_time // collection_interval
+        # Remove decimal points by casting number to integer, which behaves as a floor function
+        times = int(collection_time / collection_interval)
 
     collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
@@ -147,8 +148,8 @@ def run_get_endpoint_urls(project, connection, verbosity, **kwargs):
             verbosity=verbosity)
 
 
-def run_get_server_version(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = send_get_to_adapter(project, connection, API_VERSION_ENDPOINT)
+def run_get_server_version(project, verbosity, **kwargs):
+    request, response, elapsed_time = send_get_to_adapter(API_VERSION_ENDPOINT)
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response],
@@ -226,19 +227,6 @@ def get_method(arguments):
          (run_get_server_version, "Version")])
 
 
-# REST calls ***************
-def send_post_to_adapter(project, connection, endpoint):
-    return post(url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-                json=get_request_body(project, connection),
-                headers={"Accept": "application/json"})
-
-
-def send_get_to_adapter(project, connection, endpoint):
-    return get(url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-               json=get_request_body(project, connection),
-               headers={"Accept": "application/json"})
-
-
 def process(request, response, elapsed_time, project, validators, verbosity):
     json_response = json.loads(response.text)
     logger.info(json.dumps(json_response, sort_keys=True, indent=3))
@@ -290,7 +278,8 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
 
 
 def run_image(client: DockerClient, image: Image, path: str) -> Container:
-    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled by the try/except block in the 'main' function
+    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled
+    # by the try/except block in the 'main' function
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
@@ -410,57 +399,6 @@ def input_parameter(parameter_type, parameter, resources):
     return value
 
 
-def get_request_body(project, connection):
-    describe = get_describe(project.path)
-    adapter_instance = get_adapter_instance(describe)
-
-    identifiers = []
-    if connection.identifiers is not None:
-        for key in connection.identifiers:
-            identifiers.append({
-                "key": key,
-                "value": connection.identifiers[key]["value"],
-                "isPartOfUniqueness": connection.identifiers[key]["part_of_uniqueness"]
-            })
-
-    credential_config = {}
-
-    if connection.credential:
-        fields = []
-        for key in connection.credential:
-            if key != "credential_kind_key":
-                fields.append({
-                    "key": key,
-                    "value": connection.credential[key]["value"],
-                    "isPassword": connection.credential[key]["password"]
-                })
-        credential_config = {
-            "credentialKey": connection.credential["credential_kind_key"],
-            "credentialFields": fields,
-        }
-
-    request_body = {
-        "adapterKey": {
-            "name": connection.name,
-            "adapterKind": describe.get("key"),
-            "objectKind": adapter_instance.get("key"),
-            "identifiers": identifiers,
-        },
-        "clusterConnectionInfo": {
-            "userName": "string",
-            "password": "string",
-            "hostName": "string"
-        },
-        "certificateConfig": {
-            "certificates": []
-        }
-    }
-    if credential_config:
-        request_body["credentialConfig"] = credential_config
-
-    return request_body
-
-
 def main():
     description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
@@ -492,14 +430,13 @@ def main():
                                               "overall collection")
     long_run_method.set_defaults(func=run_long_collect)
 
-    long_run_method.add_argument("-t", "--collection-time",
-                                 help="Simulate a long run for H hours M minutes and S seconds."
-                                      "format follows H:M:S",
-                                 type=str, default="6:0:0")
+    long_run_method.add_argument("-d", "--duration",
+                                 help="Simulate a long run for h hours m minutes or s seconds.",
+                                 type=str, default="6h")
 
     long_run_method.add_argument("-i", "--collection-intervals",
                                  help="Amount of time to wait between collections.",
-                                 type=str, default="0:5:0")
+                                 type=str, default="5m")
 
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
