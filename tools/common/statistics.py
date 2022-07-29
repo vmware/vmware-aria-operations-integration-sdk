@@ -147,6 +147,30 @@ class LongCollectionStatistics:
                 "intervals": collection_interval,
                 "stats": object_collection_history}
 
+class ContainerStats:
+    def __init__(self, start, end):
+        self.get_cpu_usage_unix(start, end)
+        self.get_memory_usage(start, end)
+
+    #  https://github.com/docker/docker/blob/28a7577a029780e4533faf3d057ec9f6c7a10948/api/client/stats.go#L309
+    def get_cpu_usage_unix(self, start, end):
+        previous_cpu = start["cpu_stats"]["cpu_usage"]['total_usage']
+        previous_system = start["cpu_stats"]['system_cpu_usage']
+        current_cpu = end["cpu_stats"]["cpu_usage"]['total_usage']
+        current_system = end["cpu_stats"]['system_cpu_usage']
+        online_cpus = end["cpu_stats"]['online_cpus']
+
+        self.cpu_percent = 0.0
+
+        cpu_delta = current_cpu - previous_cpu
+        system_delta = current_system - previous_system
+
+        if system_delta > 0.0 and cpu_delta > 0.0:
+            self.cpu_percent = (cpu_delta / system_delta) * online_cpus * 100
+
+    def get_memory_usage(self, start, end):
+        pass
+
 
 class CollectionStatistics:
     def __init__(self, json, duration):

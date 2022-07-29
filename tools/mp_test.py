@@ -29,12 +29,11 @@ from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, Stats, LongCollectionStatistics
+from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
 from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
-from common.validation.relationship_validator import validate_relationships
 from common.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -65,14 +64,21 @@ def get_sec(time_str):
 
 
 @timed
-def run_collections(project, connection, times, collection_interval):
+def run_collections(project, connection, container, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
+
+        # The docker container stats could be generated as a decorator function
+        start = container.stats(stream=False)
         request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+        end = container.stats(stream=False)
+
+        container_stat = ContainerStats(start, end)
+        print(f"Container CPU Usage: {container_stat.cpu_percent}%")
+
         json_response = json.loads(response.text)
         collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
-        # TODO: get docker stats
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
@@ -100,7 +106,7 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
     # TODO: generate data point
 
 
-def run_long_collect(project, connection, **kwargs):
+def run_long_collect(project, connection, container, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
@@ -113,7 +119,7 @@ def run_long_collect(project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
+    collection_statistics, elapsed_time = run_collections(project, connection, container, times, collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     generate_long_run_statistics(collection_statistics)
 
@@ -206,7 +212,11 @@ def run(arguments):
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
-        method(project=project, connection=connection, verbosity=verbosity, cli_args=vars(arguments))
+        method(project=project,
+               connection=connection,
+               verbosity=verbosity,
+               cli_args=vars(arguments),
+               container=container)
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})

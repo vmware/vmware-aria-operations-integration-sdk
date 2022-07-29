@@ -6,7 +6,6 @@ from docker.models.containers import Container
 
 
 def login(docker_registry):
-
     print(f"Login into {docker_registry}")
     response = subprocess.run(["docker", "login", f"{docker_registry}"])
 
@@ -85,6 +84,7 @@ def build_image(client, path, tag, nocache=True, labels={}):
 def stop_container(container: Container):
     container.kill()
     container.remove()
+
 
 class DockerWrapperError(Exception):
     def __init__(self, message="", recommendation=""):
