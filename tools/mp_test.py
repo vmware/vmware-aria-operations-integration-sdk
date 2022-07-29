@@ -70,12 +70,14 @@ def run_collections(project, connection, container, times, collection_interval):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
         # The docker container stats could be generated as a decorator function
-        start = container.stats(stream=False)
+        container_stats = ContainerStats(container)
+        start = container_stats.get_stats()
         request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
-        end = container.stats(stream=False)
+        end = container_stats.get_stats()
 
-        container_stat = ContainerStats(start, end)
-        print(f"Container CPU Usage: {container_stat.cpu_percent}%")
+        print(f"Container stats: ")
+        print(next(start))
+        print(next(end))
 
         json_response = json.loads(response.text)
         collection_statistics.add(CollectionStatistics(json_response, elapsed_time))

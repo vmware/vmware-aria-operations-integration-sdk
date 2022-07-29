@@ -1,6 +1,10 @@
 from collections import defaultdict
 from statistics import median, stdev
 
+import docker
+
+from common.docker_wrapper import calculate_blkio_bytes, calculate_network_bytes, calculate_cpu_percent2, \
+    calculate_cpu_percent
 from common.model import _get_object_id, ObjectId
 
 
@@ -147,10 +151,12 @@ class LongCollectionStatistics:
                 "intervals": collection_interval,
                 "stats": object_collection_history}
 
+
 class ContainerStats:
-    def __init__(self, start, end):
-        self.get_cpu_usage_unix(start, end)
-        self.get_memory_usage(start, end)
+    def __init__(self, container):
+        self.container = container
+        self.cpu_percent = 0.0
+        self.memory_usage = 0.0
 
     #  https://github.com/docker/docker/blob/28a7577a029780e4533faf3d057ec9f6c7a10948/api/client/stats.go#L309
     def get_cpu_usage_unix(self, start, end):
@@ -168,8 +174,35 @@ class ContainerStats:
         if system_delta > 0.0 and cpu_delta > 0.0:
             self.cpu_percent = (cpu_delta / system_delta) * online_cpus * 100
 
-    def get_memory_usage(self, start, end):
-        pass
+        yield self.cpu_percent
+
+    def get_stats(self):
+        cpu_total = 0.0
+        cpu_system = 0.0
+        cpu_percent = 0.0
+        for stats in self.container.stats(decode=True, stream=True):
+            blk_read, blk_write = calculate_blkio_bytes(stats)
+            net_r, net_w = calculate_network_bytes(stats)
+            mem_current = stats["memory_stats"]["usage"]
+            mem_total = stats["memory_stats"]["limit"]
+
+            try:
+                cpu_percent, cpu_system, cpu_total = calculate_cpu_percent2(stats, cpu_total, cpu_system)
+            except KeyError as e:
+                # logger.error("error while getting new CPU stats: %r, falling back")
+                cpu_percent = calculate_cpu_percent(stats)
+
+            r = {
+                "cpu_percent": cpu_percent,
+                "mem_current": mem_current,
+                "mem_total": stats["memory_stats"]["limit"],
+                "mem_percent": (mem_current / mem_total) * 100.0,
+                "blk_read": blk_read,
+                "blk_write": blk_write,
+                "net_rx": net_r,
+                "net_tx": net_w,
+            }
+            yield r
 
 
 class CollectionStatistics:
