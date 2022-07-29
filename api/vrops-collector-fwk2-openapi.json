@@ -3,8 +3,14 @@
   "info": {
     "title": "Adapter API",
     "version": "1.0.0",
-    "contact": {},
-    "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development."
+    "contact": {
+      "name": "VMware, Inc"
+    },
+    "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
   },
   "servers": [
     {

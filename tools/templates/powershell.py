@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import os
 
 def build_template(path: str, root_directory: str):

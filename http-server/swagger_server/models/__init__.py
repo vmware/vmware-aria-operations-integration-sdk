@@ -1,5 +1,8 @@
 # coding: utf-8
 
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 # flake8: noqa
 from __future__ import absolute_import
 # import models into model package
