@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, get_adapter_instance
 from common.timer import timed
