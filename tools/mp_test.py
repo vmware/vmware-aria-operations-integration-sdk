@@ -126,7 +126,7 @@ def run_collect(project, connection, verbosity, **kwargs):
 
     process(request, response, elapsed_time,
             project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe],
+            validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
     logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
