@@ -5,6 +5,7 @@ __copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
 #  SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import asyncio
 import json
 import logging
 import os
@@ -12,9 +13,10 @@ import time
 import traceback
 import xml.etree.ElementTree as ET
 
+import httpx
 import requests
 import urllib3
-from common.containeraized_adapter_rest_api import post, get, send_get_to_adapter, send_post_to_adapter
+from common.containeraized_adapter_rest_api import send_get_to_adapter, send_post_to_adapter
 from common.timer import timed
 from docker import DockerClient
 from docker.errors import ContainerError, APIError
@@ -68,11 +70,11 @@ def get_sec(time_str):
 
 
 @timed
-def run_collections(project, connection, times, collection_interval):
+async def run_collections(client, project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
-        request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
         json_response = json.loads(response.text)
         collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
         # TODO: get docker stats
@@ -103,7 +105,7 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
     # TODO: generate data point
 
 
-def run_long_collect(project, connection, **kwargs):
+async def run_long_collect(client, project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
@@ -116,13 +118,14 @@ def run_long_collect(project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    collection_statistics, elapsed_time = run_collections(project, connection, times, collection_interval)
+    collection_statistics, elapsed_time = await run_collections(client, project, connection, times, collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     generate_long_run_statistics(collection_statistics)
 
 
-def run_collect(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = send_post_to_adapter(project, connection, COLLECT_ENDPOINT)
+async def run_collect(client, project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+
 
     process(request, response, elapsed_time,
             project=project,
@@ -132,36 +135,36 @@ def run_collect(project, connection, verbosity, **kwargs):
     logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
 
 
-def run_connect(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = send_post_to_adapter(project, connection, CONNECT_ENDPOINT)
+async def run_connect(client, project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
 
     process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+                  project=project,
+                  validators=[validate_api_response],
+                  verbosity=verbosity)
 
 
-def run_get_endpoint_urls(project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = send_post_to_adapter(project, connection, ENDPOINTS_URLS_ENDPOINT)
+async def run_get_endpoint_urls(client, project, connection, verbosity, **kwargs):
+    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
     process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+                  project=project,
+                  validators=[validate_api_response],
+                  verbosity=verbosity)
 
 
-def run_get_server_version(project, verbosity, **kwargs):
-    request, response, elapsed_time = send_get_to_adapter(API_VERSION_ENDPOINT)
+async def run_get_server_version(client, project, verbosity, **kwargs):
+    request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
     process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+                  project=project,
+                  validators=[validate_api_response],
+                  verbosity=verbosity)
 
 
 def run_wait(**kwargs):
     input("Press enter to finish")
 
 
-def run(arguments):
+async def run(arguments):
     # User input
     project = get_project(arguments)
 
@@ -209,7 +212,10 @@ def run(arguments):
                 logger.info("Waiting for HTTP server to start...")
                 time.sleep(0.5)
 
-        method(project=project, connection=connection, verbosity=verbosity, cli_args=vars(arguments))
+        # async event loop
+        async with httpx.AsyncClient() as client:
+            await method(client=client, project=project, connection=connection, verbosity=verbosity,
+                         cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
@@ -457,7 +463,7 @@ def main():
     url_method.set_defaults(func=run_wait)
 
     try:
-        run(parser.parse_args())
+        asyncio.run(run(parser.parse_args()))
     except KeyboardInterrupt:
         logger.debug("Ctrl C pressed by user")
         print_formatted("")
