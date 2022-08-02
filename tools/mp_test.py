@@ -72,16 +72,24 @@ def get_sec(time_str):
 @timed
 async def run_collections(client, container, project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
-    container = ContainerStatsFactory(container)
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
         future = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        container_stats = container.get_stats()
-        print(f"container stats async: {container.get_stats()}")
+        cpu_init = container.stats(stream=False)
+        container_factory = ContainerStatsFactory(container)
+        previous_cpu = cpu_init["cpu_stats"]["cpu_usage"]['total_usage']
+        previous_system = cpu_init["cpu_stats"]['system_cpu_usage']
+
         request, response, elapsed_time = await future
-        print(f"container stats sync: {container.get_stats()}")
+
+        cpu_end = container.stats(stream=False)
+        current_cpu = cpu_end["cpu_stats"]["cpu_usage"]['total_usage']
+        current_system = cpu_end["cpu_stats"]['system_cpu_usage']
+        online_cpus = cpu_end["cpu_stats"]['online_cpus']
+
+        print(f"container usage: %{container_factory.get_stats()}")
         json_response = json.loads(response.text)
-        collection_statistics.add(CollectionStatistics(json_response, container_stats, elapsed_time))
+        collection_statistics.add(CollectionStatistics(json=json_response, container_stats=container_factory.get_stats(), duration=elapsed_time))
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:

@@ -180,35 +180,35 @@ class ContainerStats:
 class ContainerStatsFactory:
     def __init__(self, container):
         self.container = container
-        self.cpu_percent = 0.0
-        self.memory_usage = 0.0
+        self.initial_stats = container.stats(stream=False)
 
     def get_stats(self):
         cpu_total = 0.0
         cpu_system = 0.0
         cpu_percent = 0.0
-        for stats in self.container.stats(decode=True, stream=True):
-            blk_read, blk_write = calculate_blkio_bytes(stats)
-            net_r, net_w = calculate_network_bytes(stats)
-            mem_current = stats["memory_stats"]["usage"]
-            mem_total = stats["memory_stats"]["limit"]
 
-            try:
-                cpu_percent, cpu_system, cpu_total = calculate_cpu_percent2(stats, cpu_total, cpu_system)
-            except KeyError as e:
-                # logger.error("error while getting new CPU stats: %r, falling back")
-                cpu_percent = calculate_cpu_percent(stats)
+        current_stats = self.container.stats(stream=False)
+        blk_read, blk_write = calculate_blkio_bytes(current_stats)
+        net_r, net_w = calculate_network_bytes(current_stats)
+        mem_current = current_stats["memory_stats"]["usage"]
+        mem_total = current_stats["memory_stats"]["limit"]
 
-            return ContainerStats(
-                cpu_percent=cpu_percent,
-                mem_current=mem_current,
-                mem_total=stats["memory_stats"]["limit"],
-                mem_percent=(mem_current / mem_total) * 100.0,
-                blk_read=blk_read,
-                blk_write=blk_write,
-                net_rx=net_r,
-                net_tx=net_w,
-            )
+        try:
+            cpu_percent, cpu_system, cpu_total = calculate_cpu_percent2(self.initial_stats, current_stats)
+        except KeyError as e:
+            # logger.error("error while getting new CPU stats: %r, falling back")
+            cpu_percent = calculate_cpu_percent(current_stats)
+
+        return ContainerStats(
+            cpu_percent=cpu_percent,
+            mem_current=mem_current,
+            mem_total= current_stats["memory_stats"]["limit"],
+            mem_percent=(mem_current / mem_total) * 100.0,
+            blk_read=blk_read,
+            blk_write=blk_write,
+            net_rx=net_r,
+            net_tx=net_w,
+        )
 
 
 class CollectionStatistics:
