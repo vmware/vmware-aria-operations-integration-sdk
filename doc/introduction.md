@@ -19,8 +19,13 @@ This SDK contains three main tools for developing Management Packs.
 * `mp-test` Creates a containerized adapter from the project, runs the container locally using docker, and simulates the vROps environment and API calls. The various entry points of the adapter can be called, and the output is validated against the vROps API and the current metadata. This tool enables rapid development by reducing the cycle time compared to installing and running on vROps for validation.
 * `mp-build` Creates a containerized adapter from the project, and bundles the adapter along with any metadata and content into a Management Pack. The resulting `pak` file can be installed on a vROps box (vROps cloud is not supported). After the Management Pack has been validated on vROps, the `pak` file is also used for distribution.
 ### Languages
-The current release supports Python as the primary language. At the heart of each adapter is a Docker image containing an HTTP server. The SDK includes a base image containing a server implemented in Python which calls out to user-supplied adapter code. In addition, there are extended base images for Java and PowerShell that include the same Python HTTP server but also include Java/PowerShell runtimes. The Python server is able to call an executable written in any language.
-Currently, Java and PowerShell projects are not supported by the `mp-init` tool. However, the `mp-test` and `mp-build` tools are language-agnostic, and depend only on the correct project file structure and a working Dockerfile that implements the [collector framework](../api/vrops-collector-fwk2-openapi.json).
+The current release supports Python as the primary language. At the heart of each adapter is a Docker image containing
+an HTTP server. The SDK includes a base image containing a server implemented in Python which calls out to user-supplied
+adapter code. In addition, there are extended base images for Java and PowerShell that include the same Python HTTP
+server but also include Java/PowerShell runtimes. The Python server is able to call an executable written in any
+language. Currently, Java and PowerShell projects are not supported by the `mp-init` tool. However, the `mp-test`
+and `mp-build` tools are language-agnostic, and depend only on the correct project file structure and a working
+Dockerfile that implements the [collector framework](../tools/api/vrops-collector-fwk2-openapi.json).
 ### Libraries
 The SDK includes a Python library that simplifies communication with vROps, and provides a model for easily creating objects, adding properties, metrics, and events to objects, and creating relationships between objects.
 

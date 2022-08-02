@@ -39,14 +39,16 @@ In addition, at least one Cloud Proxy (also version 8.7.2 or later) must be set 
 > Note: This version of vROps is currently in a pre-release state. Please contact the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel if you require assistance obtaining appropriate vROps installation media.
 
 #### Dependencies
-* Docker 20.10.0 or later. Updating to the latest stable version is recommended.
-  For instructions on installing Docker, go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
-  choose the OS you need and follow the instructions provided.
-* Python3 3.9.0 or later. Earlier versions of Python3 may also work, but updating to the latest stable version is recommended. Python2 is not supported.
-  For instructions on installing Python, go to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
-  choose the OS you need and follow the instructions provided.
-* Pip. If Python3 is installed, pip is most likely also installed.
-  For instructions on installing Pip, go to [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions provided.
+* Docker 20.10.0 or later. Updating to the latest stable version is recommended. For instructions on installing Docker,
+  go to [Docker's installation documentation](https://docs.docker.com/engine/install/), choose the OS you need and
+  follow the instructions provided.
+* Python3 3.9.0 or later. Earlier versions of Python3 may also work, but updating to the latest stable version is
+  recommended. Python 3.6 and earlier (including Python2) are not supported. For instructions on installing Python, go
+  to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download), choose the OS you need
+  and follow the instructions provided.
+* Pip. If Python3 is installed, pip is most likely also installed. For instructions on installing Pip, go
+  to [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions
+  provided.
 * Git 2.35.0 or later. Updating to the latest stable version is recommended. 
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
@@ -180,8 +182,9 @@ The test tool also asks for the method to test. There are four options:
 * Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that vROps can ask the end user to import into the vROps TrustStore.
 * Version - This returns the API version the adapter implements. The implementation of this method is not generally handled by the developer.
 
-For more information on these endpoints, see the [Swagger API documentation](api/vrops-collector-fwk2-openapi.json). 
-Each response is validated against the API.
+For more information on these endpoints, see
+the [Swagger API documentation](tools/api/vrops-collector-fwk2-openapi.json). Each response is validated against the
+API.
 
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).
 

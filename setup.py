@@ -3,22 +3,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
-import os
-
 from setuptools import setup
-
-import tools.common.repository as repository
-from tools.common import constant as constant
-
-repo_path = os.getenv("VROPS_SDK_REPO_PATH")
-
-if repo_path is None:
-    print("VROPS_SDK_REPO_PATH not found")
-    print("To install this package run 'install.sh' (Linux or macOS) or 'install.bat' (Windows).")
-    print(f"Alternatively, set the environment variable 'VROPS_SDK_REPO_PATH' to the path of the '{constant.REPO_NAME}' repository and rerun this command.")
-    exit(1)
-else:
-    repository.get_root_directory(default_path=lambda: repo_path)
 
 setup(
     version="0.1.0",
@@ -38,9 +23,11 @@ setup(
         "GitPython==3.1.27",
         "xmlschema==1.11.3"
     ],
+    include_package_data=True,
     package_dir={
         "common": "tools/common",
         "templates": "tools/templates",
+        "api": "tools/api",
         "": "tools"
     },
     py_modules=[

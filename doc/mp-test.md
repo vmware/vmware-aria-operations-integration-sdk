@@ -128,7 +128,8 @@ The result is simply a JSON representation of the return value of the method tha
 ### Validation
 After the result is received, the tool does some automatic validation of the results. If any issues are detected, the tool will write `Validation Failed:` to the console below the JSON result, followed by a list of the errors.
 The tool performs the following validation:
-* Ensure that the result JSON conforms to the [vROps Collector API Spec](../api/vrops-collector-fwk2-openapi.json).
+* Ensure that the result JSON conforms to the [vROps Collector API Spec](../tools/api/vrops-collector-fwk2-openapi.json)
+  .
 
 ### Logs
 Logs from the server (`server.log`) and adapter (by default, `adapter.log`, but this can be changed) are written to the `logs` directory. This is useful for debugging issues or exceptions during execution.

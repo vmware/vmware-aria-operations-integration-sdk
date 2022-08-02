@@ -125,7 +125,10 @@ password = adapter_instance.get_credential_value("password")
 ```
 > Note: `AdapterInstance.from_input()` can only be called once per collection, test connection, or getEndpointURL invocation.
 
-For other languages, or using Python without the vROps Integration module, json representing the adapter instance is sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the filename of the named pipe. The adapter instance json is described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
+For other languages, or using Python without the vROps Integration module, json representing the adapter instance is
+sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the filename of the named
+pipe. The adapter instance json is described in
+the [vROps Collector Framework OpenAPI Document](../tools/api/vrops-collector-fwk2-openapi.json).
 
 ## Adding an Object Type
 An object type is a class of objects (resources) that share the same set of metrics, properties, and identifiers. For example an adapter might have a 'Database' object kind, and when an adapter instance is created and connects to an application, several 'database' objects are created representing distinct databases in the application. To create a new object type, add a `ResourceKind` element inside `AdapterKind/ResourceKinds` in the `conf/describe.xml` file.
@@ -174,7 +177,8 @@ result.send_result()
 > 
 > Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.
 
-For other languages, or using Python without the vROps Integration module, objects must be returned as json, described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
+For other languages, or using Python without the vROps Integration module, objects must be returned as json, described
+in the [vROps Collector Framework OpenAPI Document](../tools/api/vrops-collector-fwk2-openapi.json).
 
 ## Adding an Attribute
 An attribute is a class of metrics or properties similar to how an object type is a class of objects. Attributes can be either a metric or property.
@@ -220,7 +224,9 @@ database1.with_metric("session_count", 5)
 > 
 > Result of the above code. Since the numbers and strings are hard-coded, these values will never change. For a real adapter, the values will be the result of querying the target for up-to-date information. Note that there are a number of automatically generated metrics and properties. The metric groups 'Badge', 'vRealize Operations Generated', and 'vRealize Operations Manager Generated Properties' (and the metrics and properties inside) are present on every object.
 
-For other languages, or using Python without the vROps Integration module, metrics and properties are returned as json inside of objects, described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
+For other languages, or using Python without the vROps Integration module, metrics and properties are returned as json
+inside of objects, described in
+the [vROps Collector Framework OpenAPI Document](../tools/api/vrops-collector-fwk2-openapi.json).
 
 ## Creating an Event
 Events do not need to be declared in the `describe.xml` file, and can simply be added to an object at runtime.
@@ -236,7 +242,8 @@ database1.with_event(
 > 
 > Result of the above code. Note that the criticality is affecting the health of the db1 object it is attached to.
 
-For other languages, or using Python without the vROps Integration module, events are returned as json inside of objects, described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
+For other languages, or using Python without the vROps Integration module, events are returned as json inside of
+objects, described in the [vROps Collector Framework OpenAPI Document](../tools/api/vrops-collector-fwk2-openapi.json).
 
 ## Creating a Relationship
 Relationships do not need to be declared in the `describe.xml` file, and can simply be added between objects at runtime. Relationships are always between a _parent_ and _child_, and if object1 is a parent of object2, that implies object2 is a child of object1.
@@ -257,4 +264,6 @@ database2.add_parent(instance)
 > 
 > Result of the above code. The db1 and db2 objects are both children of the 'instance' object. The health of a child object can impact the health of a parent object.
 
-For other languages, or using Python without the vROps Integration module, relationships are returned as json inside a collect result object, described in the [vROps Collector Framework OpenAPI Document](../api/vrops-collector-fwk2-openapi.json).
+For other languages, or using Python without the vROps Integration module, relationships are returned as json inside a
+collect result object, described in
+the [vROps Collector Framework OpenAPI Document](../tools/api/vrops-collector-fwk2-openapi.json).

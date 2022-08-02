@@ -13,7 +13,7 @@ Python 3.5.2+
 ## Regenerate the server
 To regenerate the server, from the repository root directory, update the swagger api json file in `/api` and run the following command:
 ```
-docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli-v3 generate -i local/api/vrops-collector-fwk2-openapi.json -l python-flask -o local/http-server
+docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli-v3 generate -i local/tools/api/vrops-collector-fwk2-openapi.json -l python-flask -o local/http-server
 ```
 
 ## Usage
