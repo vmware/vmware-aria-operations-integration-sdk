@@ -74,22 +74,13 @@ async def run_collections(client, container, project, connection, times, collect
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
-        future = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        cpu_init = container.stats(stream=False)
-        container_factory = ContainerStatsFactory(container)
-        previous_cpu = cpu_init["cpu_stats"]["cpu_usage"]['total_usage']
-        previous_system = cpu_init["cpu_stats"]['system_cpu_usage']
+        future = send_post_to_adapter(client, container, project, connection, COLLECT_ENDPOINT)
 
-        request, response, elapsed_time = await future
+        request, response, elapsed_time, container_stats = await future
 
-        cpu_end = container.stats(stream=False)
-        current_cpu = cpu_end["cpu_stats"]["cpu_usage"]['total_usage']
-        current_system = cpu_end["cpu_stats"]['system_cpu_usage']
-        online_cpus = cpu_end["cpu_stats"]['online_cpus']
-
-        print(f"container usage: %{container_factory.get_stats()}")
         json_response = json.loads(response.text)
-        collection_statistics.add(CollectionStatistics(json=json_response, container_stats=container_factory.get_stats(), duration=elapsed_time))
+        collection_statistics.add(
+            CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
@@ -137,17 +128,16 @@ async def run_long_collect(client, container, project, connection, **kwargs):
 
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):
-    container = ContainerStatsFactory(container)
-    future =  send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-    stats = container.get_stats()
-    request, response, elapsed_time = await future
+    future = send_post_to_adapter(client=client, container=container, project=project,
+                                  connection=connection, endpoint=COLLECT_ENDPOINT)
+    request, response, elapsed_time, container_stats = await future
 
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
-    logger.info(CollectionStatistics(json.loads(response.text),stats, elapsed_time))
+    logger.info(CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
 
 
 async def run_connect(client, project, connection, verbosity, **kwargs):
