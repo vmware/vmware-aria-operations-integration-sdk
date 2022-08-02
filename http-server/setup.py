@@ -1,5 +1,8 @@
 # coding: utf-8
 
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 from setuptools import setup, find_packages
 from tools.common.config import get_config_value
 

@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import json
 from json import JSONDecodeError
 
@@ -5,6 +8,7 @@ import openapi_core
 from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.validators import ResponseValidator
+from openapi_core.validation.response.datatypes import OpenAPIResponse
 
 from common.filesystem import get_absolute_project_directory
 from common.validation.result import Result

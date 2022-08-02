@@ -1,3 +1,7 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
+import asyncio
 import functools
 import time
 
@@ -18,10 +22,18 @@ def timed(func):
     # Otherwise, return a tuple of the return value and elapsed time
     # example: returned_value, elapsed_time = timed_function()
 
+    async def _process(func, *args, **params):
+        if asyncio.iscoroutinefunction(func):
+            return await func(*args, **params)
+        else:
+            return func(*args, **params)
+
     @functools.wraps(func)
-    def timed_fn(*args, **kwargs):
+    async def timed_fn(*args, **kwargs):
         start = time.perf_counter()
-        value = func(*args, **kwargs)
+
+        value = await _process(func, *args, **kwargs)
+
         end = time.perf_counter()
         elapsed_time = end - start
         if value is None:

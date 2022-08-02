@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="xs3p.xsl"?>
+<!--
+  ~ Copyright 2022 VMware, Inc.
+  ~ SPDX-License-Identifier: Apache-2.0
+  -->
+
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
 	targetNamespace="http://schemas.vmware.com/vcops/schema"
 	xmlns:describe="http://schemas.vmware.com/vcops/schema" version="6.0.0" >
