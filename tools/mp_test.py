@@ -34,7 +34,7 @@ from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats
+from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats, ContainerStatsFactory
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
@@ -70,13 +70,18 @@ def get_sec(time_str):
 
 
 @timed
-async def run_collections(client, project, connection, times, collection_interval):
+async def run_collections(client, container, project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
+    container = ContainerStatsFactory(container)
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
-        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        future = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        container_stats = container.get_stats()
+        print(f"container stats async: {container.get_stats()}")
+        request, response, elapsed_time = await future
+        print(f"container stats sync: {container.get_stats()}")
         json_response = json.loads(response.text)
-        collection_statistics.add(CollectionStatistics(json_response, elapsed_time))
+        collection_statistics.add(CollectionStatistics(json_response, container_stats, elapsed_time))
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
@@ -104,7 +109,7 @@ def generate_long_run_statistics(collection_statistics: LongCollectionStatistics
     # TODO: generate data point
 
 
-async def run_long_collect(client, project, connection, **kwargs):
+async def run_long_collect(client, container, project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
@@ -117,46 +122,49 @@ async def run_long_collect(client, project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    collection_statistics, elapsed_time = await run_collections(client, project, connection, times, collection_interval)
+    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, times,
+                                                                collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     generate_long_run_statistics(collection_statistics)
 
 
-async def run_collect(client, project, connection, verbosity, **kwargs):
-    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-
+async def run_collect(client, container, project, connection, verbosity, **kwargs):
+    container = ContainerStatsFactory(container)
+    future =  send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+    stats = container.get_stats()
+    request, response, elapsed_time = await future
 
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
-    logger.info(CollectionStatistics(json.loads(response.text), elapsed_time))
+    logger.info(CollectionStatistics(json.loads(response.text),stats, elapsed_time))
 
 
 async def run_connect(client, project, connection, verbosity, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
 
     process(request, response, elapsed_time,
-                  project=project,
-                  validators=[validate_api_response],
-                  verbosity=verbosity)
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 async def run_get_endpoint_urls(client, project, connection, verbosity, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
     process(request, response, elapsed_time,
-                  project=project,
-                  validators=[validate_api_response],
-                  verbosity=verbosity)
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 async def run_get_server_version(client, project, verbosity, **kwargs):
     request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
     process(request, response, elapsed_time,
-                  project=project,
-                  validators=[validate_api_response],
-                  verbosity=verbosity)
+            project=project,
+            validators=[validate_api_response],
+            verbosity=verbosity)
 
 
 def run_wait(**kwargs):
@@ -213,7 +221,11 @@ async def run(arguments):
 
         # async event loop
         async with httpx.AsyncClient() as client:
-            await method(client=client, project=project, connection=connection, verbosity=verbosity,
+            await method(client=client,
+                         container=container,
+                         project=project,
+                         connection=connection,
+                         verbosity=verbosity,
                          cli_args=vars(arguments))
     finally:
         stop_container(container)

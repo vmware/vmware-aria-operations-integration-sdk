@@ -173,7 +173,7 @@ class ListControlBase(FormattedTextControl):
             layout=self._get_layout(),
             key_bindings=self._bindings(),
             style=style
-        ).run()
+        ).run(in_thread=True)
 
 
 class SelectControl(ListControlBase):
@@ -258,7 +258,9 @@ def prompt(message, *args, description="", **kwargs) -> str:
     :return: User input
     """
     description = [("", description)] if description else None
-    return tkprompt(message, *args, **kwargs,
+    return tkprompt(message,
+                    complete_in_thread=True,
+                    *args, **kwargs,
                     bottom_toolbar=description,
                     lexer=SimpleLexer('class:answer'),
                     style=style)

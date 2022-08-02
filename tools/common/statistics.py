@@ -156,28 +156,32 @@ class LongCollectionStatistics:
 
 
 class ContainerStats:
+    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_read, blk_write, net_rx, net_tx):
+        self.cpu_percent = cpu_percent
+        self.mem_current = mem_current
+        self.mem_total = mem_total
+        self.mem_percent = mem_percent
+        self.blk_read = blk_read
+        self.blk_write = blk_write
+        self.net_rx = net_rx
+        self.net_tx = net_tx
+
+    def __str__(self):
+        return f"cpu percent: {self.cpu_percent}\n" \
+               f"mem_current:{self.mem_current}\n" \
+               f"mem_total:{self.mem_total}\n" \
+               f"mem_percent:{self.mem_percent}\n" \
+               f"blk_read:{self.blk_read}\n" \
+               f"blk_writ:{self.blk_write}\n" \
+               f"net_rx: {self.net_rx}\n" \
+               f"net_tx: {self.net_tx}"
+
+
+class ContainerStatsFactory:
     def __init__(self, container):
         self.container = container
         self.cpu_percent = 0.0
         self.memory_usage = 0.0
-
-    #  https://github.com/docker/docker/blob/28a7577a029780e4533faf3d057ec9f6c7a10948/api/client/stats.go#L309
-    def get_cpu_usage_unix(self, start, end):
-        previous_cpu = start["cpu_stats"]["cpu_usage"]['total_usage']
-        previous_system = start["cpu_stats"]['system_cpu_usage']
-        current_cpu = end["cpu_stats"]["cpu_usage"]['total_usage']
-        current_system = end["cpu_stats"]['system_cpu_usage']
-        online_cpus = end["cpu_stats"]['online_cpus']
-
-        self.cpu_percent = 0.0
-
-        cpu_delta = current_cpu - previous_cpu
-        system_delta = current_system - previous_system
-
-        if system_delta > 0.0 and cpu_delta > 0.0:
-            self.cpu_percent = (cpu_delta / system_delta) * online_cpus * 100
-
-        yield self.cpu_percent
 
     def get_stats(self):
         cpu_total = 0.0
@@ -195,25 +199,25 @@ class ContainerStats:
                 # logger.error("error while getting new CPU stats: %r, falling back")
                 cpu_percent = calculate_cpu_percent(stats)
 
-            r = {
-                "cpu_percent": cpu_percent,
-                "mem_current": mem_current,
-                "mem_total": stats["memory_stats"]["limit"],
-                "mem_percent": (mem_current / mem_total) * 100.0,
-                "blk_read": blk_read,
-                "blk_write": blk_write,
-                "net_rx": net_r,
-                "net_tx": net_w,
-            }
-            yield r
+            return ContainerStats(
+                cpu_percent=cpu_percent,
+                mem_current=mem_current,
+                mem_total=stats["memory_stats"]["limit"],
+                mem_percent=(mem_current / mem_total) * 100.0,
+                blk_read=blk_read,
+                blk_write=blk_write,
+                net_rx=net_r,
+                net_tx=net_w,
+            )
 
 
 class CollectionStatistics:
-    def __init__(self, json, duration):
+    def __init__(self, json, container_stats, duration):
         self.duration = duration
         self.obj_type_statistics = defaultdict(lambda: ObjectTypeStatistics())
         self.obj_statistics = {}
         self.rel_statistics = defaultdict(lambda: 0)
+        self.container_stats = container_stats
         self.get_counts(json)
 
     def get_counts(self, json):

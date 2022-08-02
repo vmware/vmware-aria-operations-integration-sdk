@@ -26,7 +26,7 @@ async def post(client, url, json, headers):
     request = Request(method="POST", url=url,
                       json=json,
                       headers=headers)
-    response = await client.post(url=url, json=json, headers=headers)
+    response = await client.post(url=url, json=json, headers=headers, timeout=None)
     return request, response
 
 
