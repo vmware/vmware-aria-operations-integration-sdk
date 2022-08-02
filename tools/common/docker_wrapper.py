@@ -118,52 +118,6 @@ def calculate_cpu_percent2(previous_stats, current_stats):
     return cpu_percent, cpu_system, cpu_total
 
 
-def calculate_blkio_bytes(d):
-    """
-    :param d:
-    :return: (read_bytes, wrote_bytes), ints
-    """
-    bytes_stats = graceful_chain_get(d, "blkio_stats", "io_service_bytes_recursive")
-    if not bytes_stats:
-        return 0, 0
-    r = 0
-    w = 0
-    for s in bytes_stats:
-        if s["op"] == "Read":
-            r += s["value"]
-        elif s["op"] == "Write":
-            w += s["value"]
-    return r, w
-
-
-def calculate_network_bytes(d):
-    """
-    :param d:
-    :return: (received_bytes, transceived_bytes), ints
-    """
-    networks = graceful_chain_get(d, "networks")
-    if not networks:
-        return 0, 0
-    r = 0
-    t = 0
-    for if_name, data in networks.items():
-        # logger.debug("getting stats for interface %r", if_name)
-        r += data["rx_bytes"]
-        t += data["tx_bytes"]
-    return r, t
-
-
-def graceful_chain_get(d, *args, default=None):
-    t = d
-    for a in args:
-        try:
-            t = t[a]
-        except (KeyError, ValueError, TypeError, AttributeError):
-            # logger.debug("can't get %r from %s", a, t)
-            return default
-    return t
-
-
 class DockerWrapperError(Exception):
     def __init__(self, message="", recommendation=""):
         self.message = message

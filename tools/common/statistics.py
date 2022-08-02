@@ -156,25 +156,17 @@ class LongCollectionStatistics:
 
 
 class ContainerStats:
-    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_read, blk_write, net_rx, net_tx):
+    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent):
         self.cpu_percent = cpu_percent
         self.mem_current = mem_current
         self.mem_total = mem_total
         self.mem_percent = mem_percent
-        self.blk_read = blk_read
-        self.blk_write = blk_write
-        self.net_rx = net_rx
-        self.net_tx = net_tx
 
     def __str__(self):
         return f"cpu percent: {self.cpu_percent}\n" \
                f"mem_current:{self.mem_current}\n" \
                f"mem_total:{self.mem_total}\n" \
-               f"mem_percent:{self.mem_percent}\n" \
-               f"blk_read:{self.blk_read}\n" \
-               f"blk_writ:{self.blk_write}\n" \
-               f"net_rx: {self.net_rx}\n" \
-               f"net_tx: {self.net_tx}"
+               f"mem_percent:{self.mem_percent}\n"
 
 
 class ContainerStatsFactory:
@@ -188,26 +180,20 @@ class ContainerStatsFactory:
         cpu_percent = 0.0
 
         current_stats = self.container.stats(stream=False)
-        blk_read, blk_write = calculate_blkio_bytes(current_stats)
-        net_r, net_w = calculate_network_bytes(current_stats)
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
         try:
+            # TODO: calculate CPU usage for Windows
             cpu_percent, cpu_system, cpu_total = calculate_cpu_percent2(self.initial_stats, current_stats)
         except KeyError as e:
-            # logger.error("error while getting new CPU stats: %r, falling back")
             cpu_percent = calculate_cpu_percent(current_stats)
 
         return ContainerStats(
             cpu_percent=cpu_percent,
             mem_current=mem_current,
-            mem_total= current_stats["memory_stats"]["limit"],
+            mem_total=current_stats["memory_stats"]["limit"],
             mem_percent=(mem_current / mem_total) * 100.0,
-            blk_read=blk_read,
-            blk_write=blk_write,
-            net_rx=net_r,
-            net_tx=net_w,
         )
 
 
