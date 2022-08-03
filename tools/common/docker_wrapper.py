@@ -89,20 +89,25 @@ def stop_container(container: Container):
     container.remove()
 
 
-# Taken directly from docker:
-#   https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go#L168
-# precpu_stats in 1.13+ is completely broken, doesn't contain any values
+# This code is transcribed from docker's code
+# https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go
+# #L168
 def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
-    cpu_percent = 0.0
-    cpu_total = float(current_stats["cpu_stats"]["cpu_usage"]["total_usage"])
-    cpu_delta = cpu_total - float(previous_stats["cpu_stats"]["cpu_usage"]["total_usage"])
-    cpu_system = float(current_stats["cpu_stats"]["system_cpu_usage"])
-    system_delta = cpu_system - float(previous_stats["cpu_stats"]["system_cpu_usage"])
-    online_cpus = current_stats["cpu_stats"].get("online_cpus", len(
-        current_stats["cpu_stats"]["cpu_usage"].get("percpu_usage", [None])))
+    previous_cpu = previous_stats["cpu_stats"]["cpu_usage"]['total_usage']
+    previous_system = previous_stats["cpu_stats"]['system_cpu_usage']
 
-    if system_delta > 0.0:
-        cpu_percent = (cpu_delta / system_delta) * online_cpus * 100.0
+    current_cpu = current_stats["cpu_stats"]["cpu_usage"]['total_usage']
+    current_system = current_stats["cpu_stats"]['system_cpu_usage']
+
+    online_cpus = current_stats["cpu_stats"]['online_cpus']
+
+    cpu_percent = 0.0
+    cpu_delta = current_cpu - previous_cpu
+    system_delta = current_system - previous_system
+
+    if system_delta > 0.0 and cpu_delta > 0.0:
+        cpu_percent = (cpu_delta / system_delta) * online_cpus * 100
+
     return cpu_percent
 
 
