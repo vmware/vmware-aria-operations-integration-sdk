@@ -89,23 +89,23 @@ def stop_container(container: Container):
     container.remove()
 
 
-def calculate_cpu_percent(d):
-    cpu_count = len(d["cpu_stats"]["cpu_usage"]["percpu_usage"])
+def calculate_cpu_percent_unix(data):
+    cpu_count = len(data["cpu_stats"]["cpu_usage"]["percpu_usage"])
 
     cpu_percent = 0.0
-    cpu_delta = float(d["cpu_stats"]["cpu_usage"]["total_usage"]) - \
-                float(d["precpu_stats"]["cpu_usage"]["total_usage"])
-    system_delta = float(d["cpu_stats"]["system_cpu_usage"]) - \
-                   float(d["precpu_stats"]["system_cpu_usage"])
+    cpu_delta = float(data["cpu_stats"]["cpu_usage"]["total_usage"]) - \
+                float(data["precpu_stats"]["cpu_usage"]["total_usage"])
+    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - \
+                   float(data["precpu_stats"]["system_cpu_usage"])
     if system_delta > 0.0:
         cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
     return cpu_percent
 
 
-# again taken directly from docker:
+# Taken directly from docker:
 #   https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go#L168
 # precpu_stats in 1.13+ is completely broken, doesn't contain any values
-def calculate_cpu_percent2(previous_stats, current_stats):
+def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
     cpu_percent = 0.0
     cpu_total = float(current_stats["cpu_stats"]["cpu_usage"]["total_usage"])
     cpu_delta = cpu_total - float(previous_stats["cpu_stats"]["cpu_usage"]["total_usage"])
@@ -115,7 +115,7 @@ def calculate_cpu_percent2(previous_stats, current_stats):
 
     if system_delta > 0.0:
         cpu_percent = (cpu_delta / system_delta) * online_cpus * 100.0
-    return cpu_percent, cpu_system, cpu_total
+    return cpu_percent
 
 
 class DockerWrapperError(Exception):

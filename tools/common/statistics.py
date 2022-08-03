@@ -4,7 +4,7 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-from common.docker_wrapper import calculate_cpu_percent2, calculate_cpu_percent
+from common.docker_wrapper import calculate_cpu_percent_latest_unix, calculate_cpu_percent_unix
 from common.model import _get_object_id, ObjectId
 
 
@@ -159,12 +159,6 @@ class ContainerStats:
         self.mem_total = mem_total
         self.mem_percent = mem_percent
 
-    def __str__(self):
-        return f"cpu percent: {self.cpu_percent}\n" \
-               f"mem_current:{self.mem_current}\n" \
-               f"mem_total:{self.mem_total}\n" \
-               f"mem_percent:{self.mem_percent}\n"
-
 
 class ContainerStatsFactory:
     def __init__(self, container):
@@ -172,24 +166,20 @@ class ContainerStatsFactory:
         self.initial_stats = container.stats(stream=False)
 
     def get_stats(self):
-        cpu_total = 0.0
-        cpu_system = 0.0
-        cpu_percent = 0.0
-
         current_stats = self.container.stats(stream=False)
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
         try:
             # TODO: calculate CPU usage for Windows
-            cpu_percent, cpu_system, cpu_total = calculate_cpu_percent2(self.initial_stats, current_stats)
+            cpu_percent = calculate_cpu_percent_latest_unix(self.initial_stats, current_stats)
         except KeyError as e:
-            cpu_percent = calculate_cpu_percent(current_stats)
+            cpu_percent = calculate_cpu_percent_unix(current_stats)
 
         return ContainerStats(
             cpu_percent=cpu_percent,
             mem_current=mem_current,
-            mem_total=current_stats["memory_stats"]["limit"],
+            mem_total=current_stats["memory_stats"]["limit"] / (2 ** 30),  # bytes -> GiB
             mem_percent=(mem_current / mem_total) * 100.0,
         )
 
@@ -238,8 +228,10 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        headers = ["Avg CPU %", "Avg Memory %"]
-        data = [[self.container_stats.cpu_percent, self.container_stats.mem_percent]]
+        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit"]
+        data = [[f"{self.container_stats.cpu_percent:.2f}",
+                 f"{self.container_stats.mem_percent:.2f}",
+                 f"{self.container_stats.mem_total:.2f}GiB"]]
         table = Table(headers, data)
         container_table = str(table)
 
