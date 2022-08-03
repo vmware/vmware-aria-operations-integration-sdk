@@ -1,0 +1,5 @@
+include vrealize_operations_integration_sdk/adapter_template/describeSchema.xsd
+include vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json
+include vrealize_operations_integration_sdk/container_versions.json
+
+exclude vrealize_operations_integration_sdk/build_images.py
