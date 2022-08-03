@@ -90,8 +90,7 @@ def stop_container(container: Container):
 
 
 # This code is transcribed from docker's code
-# https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go
-# #L168
+# https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go#L168
 def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
     previous_cpu = previous_stats["cpu_stats"]["cpu_usage"]['total_usage']
     previous_system = previous_stats["cpu_stats"]['system_cpu_usage']
