@@ -4,8 +4,8 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-from common.docker_wrapper import calculate_cpu_percent_latest_unix, calculate_cpu_percent_unix, calculate_blkio_bytes, \
-    calculate_network_bytes
+from common.docker_wrapper import calculate_cpu_percent_latest_unix
+from sen.util import calculate_blkio_bytes, calculate_network_bytes
 from common.model import _get_object_id, ObjectId
 
 
@@ -170,7 +170,7 @@ class ContainerStatsFactory:
         self.container = container
         self.initial_stats = container.stats(stream=False)
 
-    # this code is reused from sen's docker backend
+    # this code is reused from sen's docker backend with some slight modifications
     # https://github.com/TomasTomecek/sen/blob/62a6d26fcbf40e32f8c39a9754143f3ec1c83bb9/sen/docker_backend.py#L684
     def get_stats(self):
         current_stats = self.container.stats(stream=False)
@@ -179,11 +179,7 @@ class ContainerStatsFactory:
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
-        try:
-            # TODO: calculate CPU usage for Windows
-            cpu_percent = calculate_cpu_percent_latest_unix(self.initial_stats, current_stats)
-        except KeyError as e:
-            cpu_percent = calculate_cpu_percent_unix(current_stats)
+        cpu_percent = calculate_cpu_percent_latest_unix(self.initial_stats, current_stats)
 
         return ContainerStats(
             cpu_percent=cpu_percent,

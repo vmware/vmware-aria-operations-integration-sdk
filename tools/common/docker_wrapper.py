@@ -89,19 +89,6 @@ def stop_container(container: Container):
     container.remove()
 
 
-def calculate_cpu_percent_unix(data):
-    cpu_count = len(data["cpu_stats"]["cpu_usage"]["percpu_usage"])
-
-    cpu_percent = 0.0
-    cpu_delta = float(data["cpu_stats"]["cpu_usage"]["total_usage"]) - \
-                float(data["precpu_stats"]["cpu_usage"]["total_usage"])
-    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - \
-                   float(data["precpu_stats"]["system_cpu_usage"])
-    if system_delta > 0.0:
-        cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
-    return cpu_percent
-
-
 # Taken directly from docker:
 #   https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go#L168
 # precpu_stats in 1.13+ is completely broken, doesn't contain any values
@@ -117,50 +104,6 @@ def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
     if system_delta > 0.0:
         cpu_percent = (cpu_delta / system_delta) * online_cpus * 100.0
     return cpu_percent
-
-
-def calculate_network_bytes(d):
-    """
-    :param d:
-    :return: (received_bytes, transceived_bytes), ints
-    """
-    networks = graceful_chain_get(d, "networks")
-    if not networks:
-        return 0, 0
-    r = 0
-    t = 0
-    for if_name, data in networks.items():
-        r += data["rx_bytes"]
-        t += data["tx_bytes"]
-    return r, t
-
-
-def calculate_blkio_bytes(d):
-    """
-    :param d:
-    :return: (read_bytes, wrote_bytes), ints
-    """
-    bytes_stats = graceful_chain_get(d, "blkio_stats", "io_service_bytes_recursive")
-    if not bytes_stats:
-        return 0, 0
-    r = 0
-    w = 0
-    for s in bytes_stats:
-        if s["op"] == "Read":
-            r += s["value"]
-        elif s["op"] == "Write":
-            w += s["value"]
-    return r, w
-
-
-def graceful_chain_get(d, *args, default=None):
-    t = d
-    for a in args:
-        try:
-            t = t[a]
-        except (KeyError, ValueError, TypeError, AttributeError):
-            return default
-    return t
 
 
 class DockerWrapperError(Exception):
