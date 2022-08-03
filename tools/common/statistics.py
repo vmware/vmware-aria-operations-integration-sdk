@@ -180,6 +180,7 @@ class ContainerStatsFactory:
         mem_total = current_stats["memory_stats"]["limit"]
 
         cpu_percent = calculate_cpu_percent_latest_unix(self.initial_stats, current_stats)
+        # TODO: calculate cpu percent for Windows
 
         return ContainerStats(
             cpu_percent=cpu_percent,
