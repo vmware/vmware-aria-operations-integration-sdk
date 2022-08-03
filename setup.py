@@ -11,6 +11,7 @@ setup(
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
     python_requires=">=3.9",
     install_requires=[
+        "nest_asyncio==1.5.5",
         "docker==5.0.3",
         "Pillow==9.1.0",
         "prompt_toolkit==3.0.29",
