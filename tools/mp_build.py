@@ -10,13 +10,14 @@ import time
 import traceback
 import zipfile
 
-from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError, LoginError
-from common.filesystem import zip_dir, mkdir, zip_file, rmdir
-from common.project import get_project
-from common.ui import print_formatted as print, prompt
-from common import filesystem
-from common.validation.input_validators import NotEmptyValidator
+import filesystem
+from config import get_config_value, set_config_value
+from docker_wrapper import login, init, push_image, build_image, \
+    DockerWrapperError, LoginError
+from filesystem import zip_dir, mkdir, zip_file, rmdir
+from project import get_project
+from ui import print_formatted as print, prompt
+from validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

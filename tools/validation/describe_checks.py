@@ -7,8 +7,9 @@ import os
 
 import xmlschema
 
-from common.describe import get_describe, get_adapter_kind, get_resource_kinds, ns, is_true
-from common.validation.result import Result
+from describe import get_describe, get_adapter_kind, get_resource_kinds, ns, \
+    is_true
+from validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

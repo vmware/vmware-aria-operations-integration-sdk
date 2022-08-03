@@ -5,7 +5,7 @@ import json
 import os
 from typing import Union
 
-import common.constant as constant
+import tools as constant
 
 
 # Given a config key, return the value associated with it, or if no value exists,

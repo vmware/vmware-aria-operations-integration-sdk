@@ -2,9 +2,9 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
-from statistics import median, stdev
 
-from common.model import _get_object_id, ObjectId
+from model import _get_object_id, ObjectId
+from statistics import median, stdev
 
 
 class Stats:

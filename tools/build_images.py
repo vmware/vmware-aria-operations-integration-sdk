@@ -5,10 +5,11 @@ import os
 
 import docker
 
-from common import docker_wrapper, constant
-from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image, BuildError, PushError
-from common.ui import selection_prompt, multiselect_prompt, print_formatted as print
+import constant
+import docker_wrapper
+from config import get_config_value, set_config_value
+from docker_wrapper import login, init, push_image, BuildError, PushError
+from ui import selection_prompt, multiselect_prompt, print_formatted as print
 
 
 def update_version(update_type: str, current_version: str) -> str:

@@ -10,7 +10,7 @@ import time
 from prompt_toolkit import prompt as tkprompt, print_formatted_text
 from prompt_toolkit.application import Application
 from prompt_toolkit.completion import PathCompleter
-from prompt_toolkit.filters import IsDone, Filter, Condition
+from prompt_toolkit.filters import IsDone, Condition
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, FormattedTextControl
@@ -19,7 +19,7 @@ from prompt_toolkit.layout.dimension import LayoutDimension, Dimension
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Frame, TextArea, Label
+from prompt_toolkit.widgets import Frame, TextArea
 
 style = Style.from_dict({
     # Prompts

@@ -10,18 +10,17 @@ from shutil import copy
 
 from git import Repo
 
-import common.constant
-import common.constant as constant
-import templates.java as java
-import templates.powershell as powershell
-from common.config import get_config_value
-from common.filesystem import mkdir, rmdir
-from common.project import Project, record_project
-from common.ui import print_formatted as print, path_prompt, prompt
-from common.ui import selection_prompt
-from common.validation.input_validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, \
+import adapter_template.java as java
+import adapter_template.powershell as powershell
+from constant import VERSION_FILE, REPO_NAME
+from filesystem import mkdir, rmdir
+from project import Project, record_project
+from tools import adapter_template
+from ui import print_formatted as print, path_prompt, prompt
+from ui import selection_prompt
+from validation.input_validators import NewProjectDirectoryValidator, \
+    NotEmptyValidator, AdapterKeyValidator, \
     EulaValidator, ImageValidator
-from . import templates
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -213,7 +212,7 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     record_project(project)
 
     # copy describe.xsd into conf directory
-    with resources.path(templates, "describeSchema.xsd") as src:
+    with resources.path(adapter_template, "describeSchema.xsd") as src:
         dest = os.path.join(path, "conf")
         copy(src, dest)
 
@@ -316,9 +315,10 @@ def main():
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     logger.info("generating Dockerfile")
     images = []
-    with resources.path(__package__, constant.VERSION_FILE) as config_file:
-        images = [get_config_value("base_image", config_file)] + \
-                 get_config_value("secondary_images", config_file)
+    with resources.path(__package__, VERSION_FILE) as config_file:
+        with open(config_file, "r") as config:
+            config_json = json.load(config)
+            images = [config_json["base_image"]] + config_json["secondary_images"]
     version = next(iter(filter(
         lambda image: image["language"].lower() == language,
         images
@@ -329,7 +329,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
         dockerfile.write(
             "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
         dockerfile.write(
-            f"# Go to the {common.constant.REPO_NAME} repository, and run the build_images.py script located at "
+            f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
             f"tools/build_images.py\n")
         dockerfile.write(
             f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
@@ -383,7 +383,7 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
             requirements.write("vrops-integration==0.0.*\n")
 
         # copy adapter.py into app directory
-        with resources.path(templates, "adapter.py") as src:
+        with resources.path(adapter_template, "adapter.py") as src:
             dest = os.path.join(path, project_directory)
             copy(src, dest)
 

@@ -16,38 +16,45 @@ import xml.etree.ElementTree as ET
 import httpx
 import requests
 import urllib3
-from common.containeraized_adapter_rest_api import send_get_to_adapter, send_post_to_adapter
-from common.timer import timed
 from docker import DockerClient
 from docker.errors import ContainerError, APIError
+from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
-import common.logging_format
-from common import filesystem
-from common.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
+import filesystem
+import logging_format
+from constant import DEFAULT_PORT, API_VERSION_ENDPOINT, \
+    ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
     COLLECT_ENDPOINT
-from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
-from docker.models.containers import Container
-from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
-from common.project import get_project, Connection, record_project
-from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, Stats, LongCollectionStatistics
-from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
-from common.validation.api_response_validation import validate_api_response
-from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
-from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
-from common.validation.relationship_validator import validate_relationships
-from common.validation.result import Result
+from containeraized_adapter_rest_api import send_get_to_adapter, \
+    send_post_to_adapter
+from describe import get_describe, ns, get_adapter_instance, \
+    get_credential_kinds, get_identifiers, is_true
+from docker_wrapper import init, build_image, DockerWrapperError, \
+    stop_container
+from project import get_project, Connection, record_project
+from propertiesfile import load_properties
+from statistics import CollectionStatistics, LongCollectionStatistics
+from timer import timed
+from ui import selection_prompt, print_formatted as print_formatted, prompt, \
+    countdown
+from validation import validate_api_response
+from validation import validate_describe, \
+    cross_check_collection_with_describe
+from validation.input_validators import NotEmptyValidator, \
+    UniquenessValidator, ChainValidator, IntegerValidator
+from validation.relationship_validator import validate_relationships
+from validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = common.logging_format.PTKHandler()
-consoleHandler.setFormatter(common.logging_format.CustomFormatter())
+consoleHandler = logging_format.PTKHandler()
+consoleHandler.setFormatter(logging_format.CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
