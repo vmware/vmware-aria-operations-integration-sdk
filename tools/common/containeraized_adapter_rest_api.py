@@ -3,7 +3,6 @@
 
 from common.constant import DEFAULT_PORT
 from common.describe import get_describe, get_adapter_instance
-from common.statistics import ContainerStatsFactory
 from common.timer import timed
 from requests.models import Request
 
@@ -32,13 +31,11 @@ async def post(client, url, json, headers):
 
 
 async def send_post_to_adapter(client, container, project, connection, endpoint):
-    container_stats_factory = ContainerStatsFactory(container)
     response = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
                           json=get_request_body(project, connection),
                           headers={"Accept": "application/json"})
 
-    container_stats = container_stats_factory.get_stats()
-    return *response, container_stats
+    return response
 
 
 async def send_get_to_adapter(client, endpoint):

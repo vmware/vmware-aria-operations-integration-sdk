@@ -154,44 +154,26 @@ class LongCollectionStatistics:
 
 
 class ContainerStats:
-    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_read, blk_write, net_r, net_w):
-        self.cpu_percent = cpu_percent
-        self.mem_current = mem_current
-        self.mem_total = mem_total
-        self.mem_percent = mem_percent
-        self.blk_read = blk_read
-        self.blk_write = blk_write
-        self.net_r = net_r
-        self.net_w = net_w
+    def __init__(self, initial_stats, current_stats):
+        self.get_stats(initial_stats, current_stats)
 
-
-class ContainerStatsFactory:
-    def __init__(self, container):
-        self.container = container
-        self.initial_stats = container.stats(stream=False)
-
-    # this code is reused from sen's docker backend with some slight modifications
-    # https://github.com/TomasTomecek/sen/blob/62a6d26fcbf40e32f8c39a9754143f3ec1c83bb9/sen/docker_backend.py#L684
-    def get_stats(self):
-        current_stats = self.container.stats(stream=False)
+    def get_stats(self, initial_stats, current_stats):
         blk_read, blk_write = calculate_blkio_bytes(current_stats)
         net_r, net_w = calculate_network_bytes(current_stats)
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
-        cpu_percent = calculate_cpu_percent_latest_unix(self.initial_stats, current_stats)
+        cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
         # TODO: calculate cpu percent for Windows
 
-        return ContainerStats(
-            cpu_percent=cpu_percent,
-            mem_current=mem_current,
-            mem_total=current_stats["memory_stats"]["limit"],  # bytes -> GiB
-            mem_percent=(mem_current / mem_total) * 100.0,
-            blk_read=blk_read,
-            blk_write=blk_write,
-            net_r=net_r,
-            net_w=net_w
-        )
+        self.cpu_percent_usage = cpu_percent_usage
+        self.current_memory_usage = mem_current
+        self.total_memory = current_stats["memory_stats"]["limit"]
+        self.memory_percent_usage = (mem_current / mem_total) * 100.0
+        self.block_read = blk_read
+        self.block_write = blk_write
+        self.network_read = net_r
+        self.network_write = net_w
 
 
 def convert_bytes(bytes_number):
@@ -253,11 +235,11 @@ class CollectionStatistics:
         rel_table = str(Table(headers, data))
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Net I/O", "Block I/O"]
-        data = [[f"{self.container_stats.cpu_percent:.2f}",
-                 f"{self.container_stats.mem_percent:.2f}",
-                 convert_bytes(self.container_stats.mem_total),
-                 (convert_bytes(self.container_stats.net_w), convert_bytes(self.container_stats.net_r)),
-                 (convert_bytes(self.container_stats.blk_read), convert_bytes(self.container_stats.blk_read))]]
+        data = [[f"{self.container_stats.cpu_percent_usage:.2f}%",
+                 f"{self.container_stats.memory_percent_usage:.2f}%",
+                 convert_bytes(self.container_stats.total_memory),
+                 (convert_bytes(self.container_stats.network_write), convert_bytes(self.container_stats.network_read)),
+                 (convert_bytes(self.container_stats.block_read), convert_bytes(self.container_stats.block_read))]]
         table = Table(headers, data)
         container_table = str(table)
 

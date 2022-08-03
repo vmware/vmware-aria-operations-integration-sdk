@@ -34,7 +34,7 @@ from docker.models.containers import Container
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
 from common.project import get_project, Connection, record_project
 from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats, ContainerStatsFactory
+from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats
 from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
 from common.validation.api_response_validation import validate_api_response
 from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
@@ -74,9 +74,12 @@ async def run_collections(client, container, project, connection, times, collect
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
-        future = send_post_to_adapter(client, container, project, connection, COLLECT_ENDPOINT)
 
-        request, response, elapsed_time, container_stats = await future
+        initial_container_stats = container.stats(stream=False)
+        request, response, elapsed_time, container_stats = await send_post_to_adapter(client, container, project,
+                                                                                      connection, COLLECT_ENDPOINT)
+
+        container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
 
         json_response = json.loads(response.text)
         collection_statistics.add(
@@ -128,16 +131,18 @@ async def run_long_collect(client, container, project, connection, **kwargs):
 
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):
-    future = send_post_to_adapter(client=client, container=container, project=project,
-                                  connection=connection, endpoint=COLLECT_ENDPOINT)
-    request, response, elapsed_time, container_stats = await future
+    initial_container_stats = container.stats(stream=False)
+    request, response, elapsed_time = await send_post_to_adapter(client=client, container=container, project=project,
+                                                                 connection=connection, endpoint=COLLECT_ENDPOINT)
+    container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
 
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
-    logger.info(CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
+    logger.info(
+        CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
 
 
 async def run_connect(client, project, connection, verbosity, **kwargs):
