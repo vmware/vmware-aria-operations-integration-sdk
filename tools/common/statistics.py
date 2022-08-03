@@ -4,10 +4,7 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-import docker
-
-from common.docker_wrapper import calculate_blkio_bytes, calculate_network_bytes, calculate_cpu_percent2, \
-    calculate_cpu_percent
+from common.docker_wrapper import calculate_cpu_percent2, calculate_cpu_percent
 from common.model import _get_object_id, ObjectId
 
 
@@ -241,8 +238,13 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
+        headers = ["Avg CPU %", "Avg Memory %"]
+        data = [[self.container_stats.cpu_percent, self.container_stats.mem_percent]]
+        table = Table(headers, data)
+        container_table = str(table)
+
         duration = f"Collection completed in {self.duration:0.2f} seconds.\n"
-        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + duration
+        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + container_table + "\n" + duration
 
 
 class Table:
