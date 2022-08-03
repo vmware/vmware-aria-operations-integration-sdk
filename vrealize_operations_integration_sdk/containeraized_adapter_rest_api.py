@@ -4,9 +4,9 @@
 import httpx
 from requests.models import Request
 
-from constant import DEFAULT_PORT
-from describe import get_describe, get_adapter_instance
-from timer import timed
+from .constant import DEFAULT_PORT
+from .describe import get_describe, get_adapter_instance
+from .timer import timed
 
 
 @timed

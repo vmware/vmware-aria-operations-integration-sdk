@@ -183,8 +183,8 @@ The test tool also asks for the method to test. There are four options:
 * Version - This returns the API version the adapter implements. The implementation of this method is not generally handled by the developer.
 
 For more information on these endpoints, see
-the [Swagger API documentation](tools/api/vrops-collector-fwk2-openapi.json). Each response is validated against the
-API.
+the [Swagger API documentation](vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json). Each
+response is validated against the API.
 
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).
 

@@ -7,7 +7,7 @@ from PIL import Image, UnidentifiedImageError
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import Validator, ValidationError
 
-from tools import constant
+from .. import constant
 
 
 class NotEmptyValidator(Validator):

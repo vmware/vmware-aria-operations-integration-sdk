@@ -5,8 +5,8 @@ import json
 from collections import defaultdict
 from json import JSONDecodeError
 
-from model import _get_object_id
-from validation.result import Result
+from .result import Result
+from ..model import _get_object_id
 
 
 class Cycle:

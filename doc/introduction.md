@@ -25,7 +25,8 @@ adapter code. In addition, there are extended base images for Java and PowerShel
 server but also include Java/PowerShell runtimes. The Python server is able to call an executable written in any
 language. Currently, Java and PowerShell projects are not supported by the `mp-init` tool. However, the `mp-test`
 and `mp-build` tools are language-agnostic, and depend only on the correct project file structure and a working
-Dockerfile that implements the [collector framework](../tools/api/vrops-collector-fwk2-openapi.json).
+Dockerfile that implements
+the [collector framework](../vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json).
 ### Libraries
 The SDK includes a Python library that simplifies communication with vROps, and provides a model for easily creating objects, adding properties, metrics, and events to objects, and creating relationships between objects.
 

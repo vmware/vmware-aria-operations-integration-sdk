@@ -10,15 +10,14 @@ from shutil import copy
 
 from git import Repo
 
-import adapter_template.java as java
-import adapter_template.powershell as powershell
-from constant import VERSION_FILE, REPO_NAME
-from filesystem import mkdir, rmdir
-from project import Project, record_project
-from tools import adapter_template
-from ui import print_formatted as print, path_prompt, prompt
-from ui import selection_prompt
-from validation.input_validators import NewProjectDirectoryValidator, \
+from . import adapter_template
+from .adapter_template import java, powershell
+from .constant import VERSION_FILE, REPO_NAME
+from .filesystem import mkdir, rmdir
+from .project import Project, record_project
+from .ui import print_formatted as print, path_prompt, prompt
+from .ui import selection_prompt
+from .validation.input_validators import NewProjectDirectoryValidator, \
     NotEmptyValidator, AdapterKeyValidator, \
     EulaValidator, ImageValidator
 

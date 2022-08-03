@@ -23,16 +23,16 @@ setup(
         "httpx==0.23.0"
     ],
     include_package_data=True,
-    package_dir={
-        "vrealize_operations_integration_sdk": "tools"
-    },
     packages=[
-        "vrealize_operations_integration_sdk"
+        "vrealize_operations_integration_sdk",
+        "vrealize_operations_integration_sdk.adapter_template",
+        "vrealize_operations_integration_sdk.api",
+        "vrealize_operations_integration_sdk.validation"
     ],
     entry_points={
         "console_scripts": [
-            "mp-init=vrealize_operations_integration_sdk.init:main",
-            "mp-build=vrealize_operations_integration_sdk.build:main",
+            "mp-init=vrealize_operations_integration_sdk.mp_init:main",
+            "mp-build=vrealize_operations_integration_sdk.mp_build:main",
             "mp-test=vrealize_operations_integration_sdk.mp_test:main"
         ]
     }

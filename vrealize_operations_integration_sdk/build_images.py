@@ -5,11 +5,10 @@ import os
 
 import docker
 
-import constant
-import docker_wrapper
-from config import get_config_value, set_config_value
-from docker_wrapper import login, init, push_image, BuildError, PushError
-from ui import selection_prompt, multiselect_prompt, print_formatted as print
+from .config import get_config_value, set_config_value
+from .constant import VERSION_FILE
+from .docker_wrapper import login, init, push_image, BuildError, PushError
+from .ui import selection_prompt, multiselect_prompt, print_formatted as print
 
 
 def update_version(update_type: str, current_version: str) -> str:
@@ -63,8 +62,8 @@ def main():
     client = init()
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
-    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=constant.VERSION_FILE)
-    repo = get_config_value("docker_repo", default="tvs", config_file=constant.VERSION_FILE)
+    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=VERSION_FILE)
+    repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     base_image, secondary_images = get_latest_vrops_container_versions()
 
@@ -78,9 +77,9 @@ def main():
 
     # Update the versions of the images
     if base_image in images_to_build:
-        set_config_value("base_image", base_image, constant.VERSION_FILE)
+        set_config_value("base_image", base_image, VERSION_FILE)
     if any(i in images_to_build for i in secondary_images):
-        set_config_value("secondary_images", secondary_images, constant.VERSION_FILE)
+        set_config_value("secondary_images", secondary_images, VERSION_FILE)
 
     push_to_registry: bool = selection_prompt(
         message=f"Push images to {registry_url}/{repo}?",
@@ -89,9 +88,9 @@ def main():
 
     if push_to_registry:
         registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com",
-                                        config_file=constant.VERSION_FILE)
+                                        config_file=VERSION_FILE)
         login(registry_url)
-        repo = get_config_value("docker_repo", default="tvs", config_file=constant.VERSION_FILE)
+        repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     for image in images_to_build:
         try:
@@ -113,8 +112,8 @@ def main():
 def get_latest_vrops_container_versions() -> (dict, [dict]):
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
-    base_image: dict = get_config_value("base_image", config_file=constant.VERSION_FILE)
-    secondary_images: [dict] = get_config_value("secondary_images", config_file=constant.VERSION_FILE)
+    base_image: dict = get_config_value("base_image", config_file=VERSION_FILE)
+    secondary_images: [dict] = get_config_value("secondary_images", config_file=VERSION_FILE)
 
     # TODO: validate each key, if the key doesn't exist, or doesn't have a value, ask user
 

@@ -4,10 +4,10 @@
 import json
 import os
 
-from config import get_config_value, set_config_value
-from propertiesfile import load_properties
-from ui import selection_prompt, path_prompt
-from validation.input_validators import ProjectValidator
+from .config import get_config_value, set_config_value
+from .propertiesfile import load_properties
+from .ui import selection_prompt, path_prompt
+from .validation.input_validators import ProjectValidator
 
 
 class Connection:
