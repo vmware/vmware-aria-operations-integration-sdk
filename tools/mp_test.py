@@ -27,7 +27,7 @@ from requests import RequestException
 import common.logging_format
 from common import filesystem
 from common.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
-    COLLECT_ENDPOINT
+    COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from common.containeraized_adapter_rest_api import send_get_to_adapter, send_post_to_adapter
 from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
 from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
@@ -189,11 +189,7 @@ async def run(arguments):
     image = get_container_image(docker_client, project.path)
     logger.info("Starting adapter HTTP server")
 
-    memory_limit = connection.identifiers.get("container_memory_limit", None)
-    if memory_limit:
-        # Docker parameters expect a string with units: 'm' is 'MB'
-        memory_limit = f"{memory_limit}m"
-
+    memory_limit = int(connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT))
     container = run_image(docker_client, image, project.path, memory_limit)
 
     try:
@@ -289,13 +285,21 @@ def get_container_image(client: DockerClient, build_path: str) -> Image:
     return docker_image_tag
 
 
-def run_image(client: DockerClient, image: Image, path: str, container_memory_limit: str) -> Container:
-    # Note: errors from running image (eg. if there is a process using port 8080 it will cause an error) are handled
+def run_image(client: DockerClient, image: Image, path: str,
+              container_memory_limit: int = DEFAULT_MEMORY_LIMIT) -> Container:
+    # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
     # by the try/except block in the 'main' function
+
+    memory_limit = DEFAULT_MEMORY_LIMIT
+    if container_memory_limit:
+        memory_limit = container_memory_limit
+
+    # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
-                                 mem_limit=container_memory_limit,
+                                 mem_limit=f"{memory_limit}m",
+                                 memswap_limit=f"{memory_limit + 512}m",
                                  volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
