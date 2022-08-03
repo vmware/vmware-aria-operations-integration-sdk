@@ -177,7 +177,7 @@ class ContainerStats:
 
 
 def convert_bytes(bytes_number):
-    tags = ["Byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+    tags = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
 
     i = 0
     double_bytes = bytes_number
