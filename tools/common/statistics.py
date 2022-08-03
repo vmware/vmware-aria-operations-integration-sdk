@@ -4,7 +4,8 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-from common.docker_wrapper import calculate_cpu_percent_latest_unix, calculate_cpu_percent_unix
+from common.docker_wrapper import calculate_cpu_percent_latest_unix, calculate_cpu_percent_unix, calculate_blkio_bytes, \
+    calculate_network_bytes
 from common.model import _get_object_id, ObjectId
 
 
@@ -153,11 +154,13 @@ class LongCollectionStatistics:
 
 
 class ContainerStats:
-    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent):
+    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_io, net_rw):
         self.cpu_percent = cpu_percent
         self.mem_current = mem_current
         self.mem_total = mem_total
         self.mem_percent = mem_percent
+        self.blk_io= blk_io,
+        self.net_rw = net_rw,
 
 
 class ContainerStatsFactory:
@@ -165,8 +168,12 @@ class ContainerStatsFactory:
         self.container = container
         self.initial_stats = container.stats(stream=False)
 
+    # this code is reused from sen's docker backend
+    # https://github.com/TomasTomecek/sen/blob/62a6d26fcbf40e32f8c39a9754143f3ec1c83bb9/sen/docker_backend.py#L684
     def get_stats(self):
         current_stats = self.container.stats(stream=False)
+        blk_io = calculate_blkio_bytes(current_stats)
+        net_rw = calculate_network_bytes(current_stats)
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
@@ -179,8 +186,10 @@ class ContainerStatsFactory:
         return ContainerStats(
             cpu_percent=cpu_percent,
             mem_current=mem_current,
-            mem_total=current_stats["memory_stats"]["limit"] / (2 ** 30),  # bytes -> GiB
+            mem_total=current_stats["memory_stats"]["limit"],  # bytes -> GiB
             mem_percent=(mem_current / mem_total) * 100.0,
+            blk_io=blk_io,
+            net_rw=net_rw,
         )
 
 
@@ -228,10 +237,12 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit"]
+        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Net I/O", "Block I/O"]
         data = [[f"{self.container_stats.cpu_percent:.2f}",
                  f"{self.container_stats.mem_percent:.2f}",
-                 f"{self.container_stats.mem_total:.2f}GiB"]]
+                 f"{self.container_stats.mem_total:.2f}",
+                 f"{self.container_stats.net_rw}",
+                 f"{self.container_stats.blk_io}"]]
         table = Table(headers, data)
         container_table = str(table)
 

@@ -111,11 +111,56 @@ def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
     cpu_delta = cpu_total - float(previous_stats["cpu_stats"]["cpu_usage"]["total_usage"])
     cpu_system = float(current_stats["cpu_stats"]["system_cpu_usage"])
     system_delta = cpu_system - float(previous_stats["cpu_stats"]["system_cpu_usage"])
-    online_cpus = current_stats["cpu_stats"].get("online_cpus", len(current_stats["cpu_stats"]["cpu_usage"].get("percpu_usage", [None])))
+    online_cpus = current_stats["cpu_stats"].get("online_cpus", len(
+        current_stats["cpu_stats"]["cpu_usage"].get("percpu_usage", [None])))
 
     if system_delta > 0.0:
         cpu_percent = (cpu_delta / system_delta) * online_cpus * 100.0
     return cpu_percent
+
+
+def calculate_network_bytes(d):
+    """
+    :param d:
+    :return: (received_bytes, transceived_bytes), ints
+    """
+    networks = graceful_chain_get(d, "networks")
+    if not networks:
+        return 0, 0
+    r = 0
+    t = 0
+    for if_name, data in networks.items():
+        r += data["rx_bytes"]
+        t += data["tx_bytes"]
+    return r, t
+
+
+def calculate_blkio_bytes(d):
+    """
+    :param d:
+    :return: (read_bytes, wrote_bytes), ints
+    """
+    bytes_stats = graceful_chain_get(d, "blkio_stats", "io_service_bytes_recursive")
+    if not bytes_stats:
+        return 0, 0
+    r = 0
+    w = 0
+    for s in bytes_stats:
+        if s["op"] == "Read":
+            r += s["value"]
+        elif s["op"] == "Write":
+            w += s["value"]
+    return r, w
+
+
+def graceful_chain_get(d, *args, default=None):
+    t = d
+    for a in args:
+        try:
+            t = t[a]
+        except (KeyError, ValueError, TypeError, AttributeError):
+            return default
+    return t
 
 
 class DockerWrapperError(Exception):
