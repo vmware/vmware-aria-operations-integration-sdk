@@ -154,13 +154,15 @@ class LongCollectionStatistics:
 
 
 class ContainerStats:
-    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_io, net_rw):
+    def __init__(self, cpu_percent, mem_current, mem_total, mem_percent, blk_read, blk_write, net_r, net_w):
         self.cpu_percent = cpu_percent
         self.mem_current = mem_current
         self.mem_total = mem_total
         self.mem_percent = mem_percent
-        self.blk_io= blk_io,
-        self.net_rw = net_rw,
+        self.blk_read = blk_read
+        self.blk_write = blk_write
+        self.net_r = net_r
+        self.net_w = net_w
 
 
 class ContainerStatsFactory:
@@ -172,8 +174,8 @@ class ContainerStatsFactory:
     # https://github.com/TomasTomecek/sen/blob/62a6d26fcbf40e32f8c39a9754143f3ec1c83bb9/sen/docker_backend.py#L684
     def get_stats(self):
         current_stats = self.container.stats(stream=False)
-        blk_io = calculate_blkio_bytes(current_stats)
-        net_rw = calculate_network_bytes(current_stats)
+        blk_read, blk_write = calculate_blkio_bytes(current_stats)
+        net_r, net_w = calculate_network_bytes(current_stats)
         mem_current = current_stats["memory_stats"]["usage"]
         mem_total = current_stats["memory_stats"]["limit"]
 
@@ -188,9 +190,25 @@ class ContainerStatsFactory:
             mem_current=mem_current,
             mem_total=current_stats["memory_stats"]["limit"],  # bytes -> GiB
             mem_percent=(mem_current / mem_total) * 100.0,
-            blk_io=blk_io,
-            net_rw=net_rw,
+            blk_read=blk_read,
+            blk_write=blk_write,
+            net_r=net_r,
+            net_w=net_w
         )
+
+
+def convert_bytes(bytes_number):
+    tags = ["Byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+
+    i = 0
+    double_bytes = bytes_number
+
+    while i < len(tags) and bytes_number >= 1024:
+        double_bytes = bytes_number / 1024.0
+        i = i + 1
+        bytes_number = bytes_number / 1024
+
+    return str(round(double_bytes, 2)) + " " + tags[i]
 
 
 class CollectionStatistics:
@@ -240,9 +258,9 @@ class CollectionStatistics:
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Net I/O", "Block I/O"]
         data = [[f"{self.container_stats.cpu_percent:.2f}",
                  f"{self.container_stats.mem_percent:.2f}",
-                 f"{self.container_stats.mem_total:.2f}",
-                 f"{self.container_stats.net_rw}",
-                 f"{self.container_stats.blk_io}"]]
+                 convert_bytes(self.container_stats.mem_total),
+                 (convert_bytes(self.container_stats.net_w), convert_bytes(self.container_stats.net_r)),
+                 (convert_bytes(self.container_stats.blk_read), convert_bytes(self.container_stats.blk_read))]]
         table = Table(headers, data)
         container_table = str(table)
 
