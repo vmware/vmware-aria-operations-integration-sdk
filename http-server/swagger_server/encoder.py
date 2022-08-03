@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 from connexion.apps.flask_app import FlaskJSONEncoder
 import six
 

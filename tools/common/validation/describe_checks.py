@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import json
 import logging
 import os
@@ -83,7 +86,7 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
             )
         )
 
-    if ("stringValue" in collected_metric) and (match.get("type", "float") != "string"):
+    if ("stringValue" in collected_metric) and (match.get("dataType", "float") != "string"):
         result.with_error(
             message_format(
                 resource,

@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import argparse
 import json
 import logging
@@ -7,12 +10,13 @@ import time
 import traceback
 import zipfile
 
-from common.config import get_config_value
-from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError
+from common.config import get_config_value, set_config_value
+from common.docker_wrapper import login, init, push_image, build_image, DockerWrapperError, LoginError
 from common.filesystem import zip_dir, mkdir, zip_file, rmdir
 from common.project import get_project
-from common.ui import print_formatted as print
+from common.ui import print_formatted as print, prompt
 from common import filesystem
+from common.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -41,7 +45,8 @@ def build_subdirectories(directory: str):
                 "file to a 'resources' directory that is also inside that subdirectory.")
             logger.info("")
             logger.info("The result should look like this: ")
-            logger.info(f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+            logger.info(
+                f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             logger.info(f"{directory}/myContent/resources/myContent.properties")
             logger.info(
                 f"For detailed information, consult the documentation in vROps Integration SDK -> Guides -> Adding Content.")
@@ -54,19 +59,69 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
+def get_registry_components(docker_registry: str) -> (str, str):
+    components = docker_registry.split('/')
+    host = components[0]
+    path = "/".join(components[1:])
+    return host, path
+
+
+def is_valid_registry(docker_registry) -> bool:
+    try:
+        login(docker_registry)
+    except LoginError:
+        return False
+
+    return True
+
+
+def registry_prompt(default):
+    return prompt("Enter the tag for the Docker registry: ",
+                  default=default,
+                  validator=NotEmptyValidator("Host"),
+                  description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
+                              "three parts: domain, port, and path. For example:\n"
+                              "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vrops-integration-sdk-adapter-server
+                              "domain: projects.registry.vmware.com\n"
+                              "port: 443\n"
+                              "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"
+                              "Domain is optional, and defaults to Docker Hub (docker.io)\n"
+                              "Port number is optional, and defaults to 443."
+                  )
+
+
+def get_docker_registry(adapter_kind_key, config_file):
+    docker_registry = get_config_value("docker_registry", config_file=config_file)
+
+    original_value = docker_registry
+    if docker_registry is None:
+        print("mp-build needs to configure a Docker registry to store the adapter container image.",
+              "class:information")
+        docker_registry = registry_prompt(
+            default=f"harbor-repo.vmware.com/vrops_integration_sdk_mps/{adapter_kind_key.lower()}")
+
+    first_time = True
+    while not is_valid_registry(docker_registry):
+        if first_time:
+            print("Press Ctrl + C to cancel build", "class:information")
+            first_time = False
+        docker_registry = registry_prompt(default=docker_registry)
+
+    if original_value != docker_registry:
+        set_config_value(key="docker_registry", value=docker_registry, config_file=config_file)
+
+    return docker_registry
+
+
 def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
     with open("manifest.txt") as manifest_file:
         manifest = json.load(manifest_file)
 
-    repo = get_config_value("docker_repo",
-                            default="tvs",
-                            config_file=os.path.join(project_path, "config.json"))
-    registry_url = get_config_value("registry_url",
-                                    default="harbor-repo.vmware.com",
-                                    config_file=os.path.join(project_path, "config.json"))
-    login(registry_url)
+    # We should ask the user for this before we populate them with default values
+    # Default values are only accessible for authorize members, so we might want to add a message about it
+    config_file = os.path.join(project_path, "config.json")
 
     adapter_kinds = manifest["adapter_kinds"]
     if len(adapter_kinds) == 0:
@@ -78,11 +133,19 @@ def build_pak_file(project_path, insecure_communication):
         exit(1)
     adapter_kind_key = adapter_kinds[0]
 
-    tag = adapter_kind_key.lower() + ":" + manifest["version"] + "_" + str(time.time())
-    registry_tag = f"{registry_url}/{repo}/{tag}"
+    docker_registry = get_docker_registry(adapter_kind_key, config_file)
+
+    tag = manifest["version"] + "_" + str(time.time())
+
+    conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
+
+    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+
+    registry_tag = f"{docker_registry}:{tag}"
+    logger.debug(f"registry tag: {registry_tag}")
+
     try:
-        adapter, adapter_logs = build_image(docker_client, path=project_path, tag=tag)
-        adapter.tag(registry_tag)
+        build_image(docker_client, path=project_path, tag=f"{registry_tag}")
 
         digest = push_image(docker_client, registry_tag)
     finally:
@@ -106,10 +169,8 @@ def build_pak_file(project_path, insecure_communication):
             adapter_conf.write(f"API_PROTOCOL=https\n")
             adapter_conf.write(f"API_PORT=443\n")
 
-        adapter_conf.write(f"REGISTRY={registry_url}\n")
-        # TODO switch to this repository by default? /vrops_internal_repo/dockerized/aggregator/sandbox
-        # TODO: replace this with a more optimal solution, since this might be unique to harbor
-        adapter_conf.write(f"REPOSITORY=/{repo}/{adapter_kind_key.lower()}\n")
+        adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
+        adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
         adapter_conf.write(f"DIGEST={digest}\n")
 
     eula_file = manifest["eula_file"]

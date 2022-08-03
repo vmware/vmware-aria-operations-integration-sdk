@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 from os import path, environ
 from sys import platform
 
@@ -12,3 +15,7 @@ GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_PORT = 8080
 REPO_NAME = "vrops-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
+COLLECT_ENDPOINT = "collect"
+CONNECT_ENDPOINT = "test"
+ENDPOINTS_URLS_ENDPOINT = "endpointURLs"
+API_VERSION_ENDPOINT = "apiVersion"

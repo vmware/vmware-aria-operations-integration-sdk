@@ -1,6 +1,11 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import subprocess
 import os
 import docker
+
+from docker.models.containers import Container
 
 
 def login(docker_registry):
@@ -80,6 +85,10 @@ def build_image(client, path, tag, nocache=True, labels={}):
         raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
 
 
+def stop_container(container: Container):
+    container.kill()
+    container.remove()
+
 class DockerWrapperError(Exception):
     def __init__(self, message="", recommendation=""):
         self.message = message
@@ -88,7 +97,6 @@ class DockerWrapperError(Exception):
 
 class LoginError(DockerWrapperError):
     """Raised when there is an error logging into docker"""
-    pass
 
 
 class InitError(DockerWrapperError):
@@ -97,7 +105,6 @@ class InitError(DockerWrapperError):
 
 class PushError(DockerWrapperError):
     """Raised when the registry server sends back an error"""
-    pass
 
 
 class BuildError(DockerWrapperError):

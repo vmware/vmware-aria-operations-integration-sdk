@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import os
 
 from setuptools import setup

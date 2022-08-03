@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 VIRTUAL_ENV_FILE_NAME="vrops_mp_sdk_venv"
 
 DEPENDENCIES_MET=1

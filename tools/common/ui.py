@@ -1,11 +1,17 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 from __future__ import unicode_literals
 
 import os
+import re
+import time
 
-from prompt_toolkit import prompt as tkprompt
+from prompt_toolkit import prompt as tkprompt, print_formatted_text
 from prompt_toolkit.application import Application
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import IsDone, Filter, Condition
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import Layout, FormattedTextControl
 from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
@@ -13,7 +19,7 @@ from prompt_toolkit.layout.dimension import LayoutDimension, Dimension
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Frame, TextArea
+from prompt_toolkit.widgets import Frame, TextArea, Label
 
 style = Style.from_dict({
     # Prompts
@@ -36,12 +42,16 @@ style = Style.from_dict({
     "success": "fg:ansigreen",
 })
 
+FULL_WIDTH = "FULL_WIDTH"
 
-def print_formatted(text, style_class="", frame=False):
-    if frame:
+
+def print_formatted(text="", style_class="", frame=False):
+    if frame == FULL_WIDTH:
+        print_container(TextArea(text=text, wrap_lines=True, style=style_class), style=style)
+    elif frame:
         print_container(Frame(TextArea(text=text, wrap_lines=True), style=style_class), style=style)
     else:
-        print_container(TextArea(text=text, style=style_class, wrap_lines=True), style=style)
+        print_formatted_text(FormattedText([(style_class, text)]), style=style)
 
 
 class ListControlBase(FormattedTextControl):
@@ -252,3 +262,18 @@ def prompt(message, *args, description="", **kwargs) -> str:
                     bottom_toolbar=description,
                     lexer=SimpleLexer('class:answer'),
                     style=style)
+
+
+def countdown(duration, message=""):
+    end_time = time.time() + duration
+    remaining = ""
+    try:
+        while time.time() < end_time:
+
+            remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
+            print(f"{message}{remaining}", end="\r")
+            time.sleep(.2)
+
+    finally:
+        # Clears the last statement print statement
+        print(re.sub(".", " ", message + f"{remaining}"), end="\r")

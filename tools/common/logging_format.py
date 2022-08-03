@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import logging
 from logging import Handler
 from .ui import print_formatted as print
@@ -6,7 +9,7 @@ from .ui import print_formatted as print
 # Use the same formatting classes as defined in ui.py, to use prompt_toolkit for coloring output.
 # Requires the PTKHandler to make use of it.
 class CustomFormatter(logging.Formatter):
-    format_message = "%(levelname)8s: %(message)s"
+    format_message = "%(message)s"
 
     FORMATS = {
         logging.DEBUG: "class:debug",

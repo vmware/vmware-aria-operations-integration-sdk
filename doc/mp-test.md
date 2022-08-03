@@ -16,30 +16,35 @@ If the test tool runs error-free on each endpoint, then the Management Pack shou
 
 ### Command-line Arguments
 ```
-usage: mp_test.py [-h] [-p PATH] [-c CONNECTION] {connect,collect,endpoint_urls,version,wait} ...
+usage: mp-test [-h] [-p PATH] [-c CONNECTION] [-v {0,1,2,3}]
+               {connect,collect,long-run,endpoint_urls,version,wait} ...
 
 Tool for running adapter test and collect methods outside of a vROps Cloud Proxy.
 
 positional arguments:
-  {connect,collect,endpoint_urls,version,wait}
+  {connect,collect,long-run,endpoint_urls,version,wait}
     connect             Simulate the 'test connection' method being called by the vROps collector.
     collect             Simulate the 'collect' method being called by the vROps collector.
+    long-run            Simulate a long run collection and return data statistics about the overall collection.
     endpoint_urls       Simulate the 'endpoint_urls' method being called by the vROps collector.
     version             Simulate the 'version' method being called by the vROps collector.
-    wait                Simulate the adapter running on a vROps collector and wait for user input to stop. Useful for calling REST methods
-                        via an external tool, such as Insomnia or Postman.
+    wait                Simulate the adapter running on a vROps collector and wait for user input to stop.
+                        Useful for calling REST methods via an external tool, such as Insomnia or Postman.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p PATH, --path PATH  Path to root directory of project. Defaults to the current directory, or prompts if current directory is not a
-                        project.
+  -p PATH, --path PATH  Path to root directory of project. Defaults to the current directory, or prompts if
+                        current directory is not a project.
   -c CONNECTION, --connection CONNECTION
                         Name of a connection in this project.
   -v {0,1,2,3}, --verbosity {0,1,2,3}
-                        Determine the amount of console logging when performing validation. 0: No console logging; 3: Max console logging.
+                        Determine the amount of console logging when performing validation. 0: No console
+                        logging; 3: Max console logging.
 ```
 
-In addition, when using `collect` there are additional optional arguments:
+In addition, when using `collect` and `long-run` there are additional optional arguments:
+
+`mp-test collect`
 ```
 usage: mp_test.py collect [-h] [-n TIMES] [-w WAIT]
 
@@ -48,6 +53,20 @@ optional arguments:
   -n TIMES, --times TIMES
                         Run the given method 'n' times.
   -w WAIT, --wait WAIT  Amount of time to wait between collections (in seconds).
+```
+
+`mp-test long-run`
+
+```
+usage: mp-test long-run [-h] [-d DURATION] [-i COLLECTION_INTERVAL]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DURATION, --duration DURATION
+                        Duration of the long run in h hours, m minutes, or s seconds. 
+  -i COLLECTION_INTERVAL, --collection-interval COLLECTION_INTERVAL
+                        Amount of time to wait between collections.
+
 ```
 ### Interactive Prompts
 
@@ -89,12 +108,13 @@ A connection provides the inputs the adapter needs to connect to the target it w
     ```
 #### Method
 Adapters must implement four endpoints: `Test Connection`, `Collect`, `Endpoint URLs`, and `Version`. Each invocation of the test tool can test one of these methods. The method must be specified, and can be set in a number of ways.
-* If one of the positional command line arguments was specified (`connect`, `collect`, `endpoint_urls`, `version`, or `wait`), that method will be used. 
+* If one of the positional command line arguments was specified (`connect`, `collect`, `long-run`, `endpoint_urls`, `version`, or `wait`), that method will be used. 
 * If no command line argument for the method was provided, the tool will prompt the user to select one:
     ```
     Choose a method to test:
      ❯ Test Connection
        Collect
+       Long Run Collection
        Endpoint URLs
        Version
     ```
