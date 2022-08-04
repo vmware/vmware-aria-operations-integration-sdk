@@ -191,9 +191,18 @@ async def run(arguments):
 
     memory_limit = connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
     if type(memory_limit) is dict:
-        memory_limit = memory_limit["value"]
+        memory_limit = memory_limit.get("value", DEFAULT_MEMORY_LIMIT)
 
-    memory_limit = int(memory_limit)
+    try:
+        memory_limit = int(memory_limit)
+        if memory_limit < 6:
+            logger.warning(f"'container_memory_limit' of {memory_limit} MB is below the 6MB docker limit.")
+            logger.warning(f"Using minimum value: 6 MB")
+            memory_limit = 6
+    except ValueError as e:
+        logger.warning(f"Cannot set 'container_memory_limit': {e}")
+        logger.warning(f"Using default value: {DEFAULT_MEMORY_LIMIT} MB")
+        memory_limit = DEFAULT_MEMORY_LIMIT
 
     container = run_image(docker_client, image, project.path, memory_limit)
 
