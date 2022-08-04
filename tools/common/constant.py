@@ -12,6 +12,7 @@ else:
     CONFIG_DIRECTORY = path.join(environ.get("HOME"), ".vrops-sdk")
 
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
+DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
 REPO_NAME = "vrops-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
