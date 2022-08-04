@@ -76,7 +76,7 @@ async def run_collections(client, container, project, connection, times, collect
         logger.info(f"Running collection No. {collection_no} of {times}")
 
         initial_container_stats = container.stats(stream=False)
-        request, response, elapsed_time, container_stats = await send_post_to_adapter(client, container, project,
+        request, response, elapsed_time = await send_post_to_adapter(client, project,
                                                                                       connection, COLLECT_ENDPOINT)
 
         container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
@@ -132,7 +132,7 @@ async def run_long_collect(client, container, project, connection, **kwargs):
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):
     initial_container_stats = container.stats(stream=False)
-    request, response, elapsed_time = await send_post_to_adapter(client=client, container=container, project=project,
+    request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
                                                                  connection=connection, endpoint=COLLECT_ENDPOINT)
     container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
 
