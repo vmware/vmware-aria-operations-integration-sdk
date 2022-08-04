@@ -5,12 +5,8 @@
 
 from setuptools import setup, find_packages
 
-from tools.config import get_config_value
-
 NAME = "swagger_server"
-
-# If The version is not present in the config file, we shouldn't ask the user for one.
-VERSION = get_config_value(f'{NAME}_version', '-1.0.0')
+VERSION = "1.0.0"
 # To install the library, run the following
 #
 # python setup.py install
