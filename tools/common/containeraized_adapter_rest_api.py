@@ -30,7 +30,7 @@ async def post(client, url, json, headers):
     return request, response
 
 
-async def send_post_to_adapter(client, container, project, connection, endpoint):
+async def send_post_to_adapter(client, project, connection, endpoint):
     response = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
                           json=get_request_body(project, connection),
                           headers={"Accept": "application/json"})
