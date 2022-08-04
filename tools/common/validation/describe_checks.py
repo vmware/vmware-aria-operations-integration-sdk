@@ -29,6 +29,8 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
     else:
         child_type = "ResourceAttribute"
 
+    key, _, instance = key.partition(":")
+    instanced = (instance != "")
     children = element.findall(ns(child_type))
     match = next(filter(lambda c: c.get("key") == key, children), None)
 
@@ -43,8 +45,6 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
         return result
 
     if child_type == "ResourceGroup":
-        key, _, instance = key.partition(":")
-        instanced = (instance != "")
 
         if is_true(match, "instanced") and is_true(match, "instanceRequired"):
             if not instanced:
