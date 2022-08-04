@@ -295,6 +295,7 @@ def run_image(client: DockerClient, image: Image, path: str,
         memory_limit = container_memory_limit
 
     # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
+    # vROps sets the swap memory limit to the memory limit + 512MB, so we will also
     return client.containers.run(image,
                                  detach=True,
                                  ports={"8080/tcp": DEFAULT_PORT},
