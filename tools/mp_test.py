@@ -189,7 +189,12 @@ async def run(arguments):
     image = get_container_image(docker_client, project.path)
     logger.info("Starting adapter HTTP server")
 
-    memory_limit = int(connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT))
+    memory_limit = connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
+    if type(memory_limit) is dict:
+        memory_limit = memory_limit["value"]
+
+    memory_limit = int(memory_limit)
+
     container = run_image(docker_client, image, project.path, memory_limit)
 
     try:
