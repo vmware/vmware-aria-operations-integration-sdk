@@ -17,10 +17,10 @@ class Connection:
         self.credential = credential
 
     @classmethod
-    def extract(cls, json):
-        name = json["name"]
-        identifiers = json["identifiers"]
-        credential = json["credential"]
+    def extract(cls, json_connection):
+        name = json_connection["name"]
+        identifiers = json_connection["identifiers"]
+        credential = json_connection["credential"]
         return Connection(name, identifiers, credential)
 
 
@@ -35,17 +35,23 @@ class Project:
     def name(self):
         return get_project_name(self.path)
 
-    def record(self, config_file):
-        set_config_value("path", self.path, config_file)
+    def record(self):
+        config_file = os.path.join(self.path, "config.json")
         set_config_value("connections", [conn.__dict__ for conn in self.connections], config_file)
         set_config_value("docker_port", self.docker_port, config_file)
 
     @classmethod
-    def extract(cls, json):
-        path = json["path"]
-        connections = [Connection.extract(connection) for connection in json.get("connections", [])]
-        docker_port = json.get("docker_port", 8080)
-        return Project(path, connections, docker_port)
+    def extract(cls, path):
+        local_config_file = os.path.join(path, "config.json")
+        if not os.path.isfile(local_config_file):
+            with open(local_config_file, "w") as config:
+                json.dump({}, config, indent=4, sort_keys=True)
+
+        with open(local_config_file, "r") as config:
+            json_config = json.load(config)
+            connections = [Connection.extract(connection) for connection in json_config.get("connections", [])]
+            docker_port = json_config.get("docker_port", 8080)
+            return Project(path, connections, docker_port)
 
 
 def get_project_name(path):
@@ -80,20 +86,12 @@ def get_project(arguments):
 
 def record_project(project):
     _add_and_update_project_paths(project.path)
-
-    local_config_file = os.path.join(project.path, "config.json")
-    project.record(local_config_file)
+    project.record()
     return project
 
 
 def read_project(path):
-    local_config_file = os.path.join(path, "config.json")
-    if not os.path.isfile(local_config_file):
-        with open(local_config_file, "w") as config:
-            json.dump({"path": path}, config, indent=4, sort_keys=True)
-
-    with open(local_config_file, "r") as config:
-        return Project.extract(json.load(config))
+    return Project.extract(path)
 
 
 def _find_project_by_path(path):
