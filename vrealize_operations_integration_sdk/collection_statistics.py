@@ -151,12 +151,27 @@ class LongCollectionStatistics:
                 "stats": object_collection_history}
 
 
+def convert_bytes(bytes_number):
+    tags = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+
+    i = 0
+    double_bytes = bytes_number
+
+    while i < len(tags) and bytes_number >= 1024:
+        double_bytes = bytes_number / 1024.0
+        i = i + 1
+        bytes_number = bytes_number / 1024
+
+    return str(round(double_bytes, 2)) + " " + tags[i]
+
+
 class CollectionStatistics:
-    def __init__(self, json, duration):
+    def __init__(self, json, container_stats, duration):
         self.duration = duration
         self.obj_type_statistics = defaultdict(lambda: ObjectTypeStatistics())
         self.obj_statistics = {}
         self.rel_statistics = defaultdict(lambda: 0)
+        self.container_stats = container_stats
         self.get_counts(json)
 
     def get_counts(self, json):
@@ -194,8 +209,17 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
+        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+        data = [[f"{self.container_stats.cpu_percent_usage:.2f} %",
+                 f"{self.container_stats.memory_percent_usage:.2f} %",
+                 convert_bytes(self.container_stats.total_memory),
+                 f"{convert_bytes(self.container_stats.network_read)} / {convert_bytes(self.container_stats.network_write)}",
+                 f"{convert_bytes(self.container_stats.block_read)} / {convert_bytes(self.container_stats.block_write)}"]]
+        table = Table(headers, data)
+        container_table = str(table)
+
         duration = f"Collection completed in {self.duration:0.2f} seconds.\n"
-        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + duration
+        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + container_table + "\n" + duration
 
 
 class Table:

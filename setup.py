@@ -14,6 +14,7 @@ setup(
         "nest_asyncio==1.5.5",
         "docker==5.0.3",
         "Pillow==9.1.0",
+        "sen==0.6.2",
         "prompt_toolkit==3.0.29",
         "requests==2.27.1",
         "urllib3==1.26.9",
