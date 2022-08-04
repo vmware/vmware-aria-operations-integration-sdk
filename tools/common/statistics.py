@@ -158,22 +158,13 @@ class ContainerStats:
         self.get_stats(initial_stats, current_stats)
 
     def get_stats(self, initial_stats, current_stats):
-        blk_read, blk_write = calculate_blkio_bytes(current_stats)
-        net_r, net_w = calculate_network_bytes(current_stats)
-        mem_current = current_stats["memory_stats"]["usage"]
-        mem_total = current_stats["memory_stats"]["limit"]
-
-        cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
+        self.block_read, self.block_write  = calculate_blkio_bytes(current_stats)
+        self.network_read, self.network_write = calculate_network_bytes(current_stats)
+        self.current_memory_usage = current_stats["memory_stats"]["usage"]
         # TODO: calculate cpu percent for Windows
-
-        self.cpu_percent_usage = cpu_percent_usage
-        self.current_memory_usage = mem_current
+        self.cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
         self.total_memory = current_stats["memory_stats"]["limit"]
-        self.memory_percent_usage = (mem_current / mem_total) * 100.0
-        self.block_read = blk_read
-        self.block_write = blk_write
-        self.network_read = net_r
-        self.network_write = net_w
+        self.memory_percent_usage = (self.current_memory_usage / current_stats["memory_stats"]["limit"]) * 100.0
 
 
 def convert_bytes(bytes_number):
@@ -234,12 +225,12 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Net I/O", "Block I/O"]
-        data = [[f"{self.container_stats.cpu_percent_usage:.2f}%",
-                 f"{self.container_stats.memory_percent_usage:.2f}%",
+        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+        data = [[f"{self.container_stats.cpu_percent_usage:.2f} %",
+                 f"{self.container_stats.memory_percent_usage:.2f} %",
                  convert_bytes(self.container_stats.total_memory),
-                 (convert_bytes(self.container_stats.network_write), convert_bytes(self.container_stats.network_read)),
-                 (convert_bytes(self.container_stats.block_read), convert_bytes(self.container_stats.block_read))]]
+                 f"{convert_bytes(self.container_stats.network_read)} / {convert_bytes(self.container_stats.network_write)}",
+                 f"{convert_bytes(self.container_stats.block_read)} / {convert_bytes(self.container_stats.block_write)}"]]
         table = Table(headers, data)
         container_table = str(table)
 
