@@ -86,7 +86,7 @@ async def run_collections(client, container, project, connection, times, collect
 
         initial_container_stats = container.stats(stream=False)
         request, response, elapsed_time = await send_post_to_adapter(client, project,
-                                                                                      connection, COLLECT_ENDPOINT)
+                                                                     connection, COLLECT_ENDPOINT)
 
         container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
 
@@ -106,20 +106,6 @@ async def run_collections(client, container, project, connection, times, collect
     return collection_statistics
 
 
-def generate_long_run_statistics(collection_statistics: LongCollectionStatistics):
-    # TODO: Create statistic by processing the data inside the LongCollectionStatistics Object
-    statistics = []
-    headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties", "Avg Events"]
-    data = []
-
-    for key, value in collection_statistics.get_collection_statistics().items():
-        # statistics.append([Stats(value)])
-        print(f"key: {key}")
-        print(f"value: {value}")
-
-    # TODO: generate data point
-
-
 async def run_long_collect(client, container, project, connection, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
@@ -136,7 +122,7 @@ async def run_long_collect(client, container, project, connection, **kwargs):
     collection_statistics, elapsed_time = await run_collections(client, container, project, connection, times,
                                                                 collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
-    generate_long_run_statistics(collection_statistics)
+    logger.info(collection_statistics)
 
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):

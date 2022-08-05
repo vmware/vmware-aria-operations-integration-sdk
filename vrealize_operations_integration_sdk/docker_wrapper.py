@@ -8,6 +8,8 @@ import docker
 from docker.models.containers import Container
 from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
+from vrealize_operations_integration_sdk.collection_statistics import convert_bytes
+
 
 def login(docker_registry):
     print(f"Login into {docker_registry}")
@@ -99,6 +101,18 @@ class ContainerStats:
         self.cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
         self.total_memory = current_stats["memory_stats"]["limit"]
         self.memory_percent_usage = (self.current_memory_usage / self.total_memory) * 100.0
+
+    def get_stats(self):
+        """
+        Returns an array with the statistics about the container:
+
+        :return: ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+        """
+        return [f"{self.cpu_percent_usage:.2f} %",
+                f"{self.memory_percent_usage:.2f} %",
+                convert_bytes(self.total_memory),
+                f"{convert_bytes(self.network_read)} / {convert_bytes(self.network_write)}",
+                f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}"]
 
 
 # This code is transcribed from docker's code

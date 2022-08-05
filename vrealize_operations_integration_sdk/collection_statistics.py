@@ -117,6 +117,15 @@ class ObjectTypeStatistics:
         }
 
 
+def get_average(inputs: list):
+    return sum(inputs) / len(inputs)
+
+
+def get_growth_rate(inputs: list):
+    # Adding one to the formula allows us to account for cases where zero is the initial or final value
+    return (((inputs[0] + 1) / (inputs[-1] + 1)) ** (1 / len(inputs))) - 1
+
+
 class LongCollectionStatistics:
     def __init__(self):
         self.collection_statistics = []
@@ -124,11 +133,14 @@ class LongCollectionStatistics:
     def add(self, collection_statistic):
         self.collection_statistics.append(collection_statistic)
 
-    def get_collection_statistics(self):
+    def __repr__(self):
         object_collection_history = {}
-        collection_interval = []
+        collection_durations = []
+        headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties",
+                   "Avg Events", "Avg Parents", "Avg Children"]
+
         for collection_stat in self.collection_statistics:
-            collection_interval.append(collection_stat.duration)
+            collection_durations.append(collection_stat.duration)
             for obj_statistics in collection_stat.obj_type_statistics.values():
                 if obj_statistics.object_type not in object_collection_history:
                     object_collection_history[obj_statistics.object_type] = {
@@ -136,6 +148,8 @@ class LongCollectionStatistics:
                         "metric_count": [obj_statistics.get_metric_count()],
                         "property_count": [obj_statistics.get_property_count()],
                         "event_count": [obj_statistics.get_event_count()],
+                        "parent_count": [obj_statistics.get_parent_count()],
+                        "children_count": [obj_statistics.get_children_count()],
                     }
                 else:
                     object_collection_history[obj_statistics.object_type]["object_count"].append(
@@ -146,9 +160,34 @@ class LongCollectionStatistics:
                         obj_statistics.get_property_count())
                     object_collection_history[obj_statistics.object_type]["event_count"].append(
                         obj_statistics.get_event_count())
-        return {"num_collections": len(self.collection_statistics),
-                "intervals": collection_interval,
-                "stats": object_collection_history}
+                    object_collection_history[obj_statistics.object_type]["parent_count"].append(
+                        obj_statistics.get_parent_count())
+                    object_collection_history[obj_statistics.object_type]["children_count"].append(
+                        obj_statistics.get_children_count())
+
+        data = []
+        for key, values in object_collection_history.items():
+            data.append([key, *[get_average(l) for l in values.values()]])
+
+        obj_table = str(Table(headers, data))
+
+        headers = ["Object Type", "Resource Growth", "Metrics Growth", "Property Growth",
+                   "Events Growth", "Parent Growth", "Children Growth"]
+        data = []
+        for key, values in object_collection_history.items():
+            data.append([key, *[get_growth_rate(l) for l in values.values()]])
+
+        growth_table = str(Table(headers, data))
+
+        headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
+                   "Block I/O"]
+        data = []
+        for number, collection_stat in enumerate(self.collection_statistics):
+            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_stats()])
+
+        collection_table = str(Table(headers, data))
+
+        return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
 
 
 def convert_bytes(bytes_number):
@@ -210,11 +249,7 @@ class CollectionStatistics:
         rel_table = str(Table(headers, data))
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [[f"{self.container_stats.cpu_percent_usage:.2f} %",
-                 f"{self.container_stats.memory_percent_usage:.2f} %",
-                 convert_bytes(self.container_stats.total_memory),
-                 f"{convert_bytes(self.container_stats.network_read)} / {convert_bytes(self.container_stats.network_write)}",
-                 f"{convert_bytes(self.container_stats.block_read)} / {convert_bytes(self.container_stats.block_write)}"]]
+        data = [self.container_stats.get_stats()]
         table = Table(headers, data)
         container_table = str(table)
 
