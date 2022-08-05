@@ -25,23 +25,29 @@ from flask import json
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
-from . import filesystem
-from .collection_statistics import CollectionStatistics, LongCollectionStatistics
-from .constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
-    COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
-from .containeraized_adapter_rest_api import send_get_to_adapter, send_post_to_adapter
-from .describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
-from .docker_wrapper import init, build_image, DockerWrapperError, stop_container, ContainerStats
-from .logging_format import PTKHandler, CustomFormatter
-from .project import get_project, Connection, record_project
-from .propertiesfile import load_properties
-from .timer import timed
-from .ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
-from .validation.api_response_validation import validate_api_response
-from .validation.describe_checks import cross_check_collection_with_describe, validate_describe
-from .validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
-from .validation.relationship_validator import validate_relationships
-from .validation.result import Result
+from vrealize_operations_integration_sdk import filesystem
+from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
+from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+    CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
+from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
+    send_post_to_adapter
+from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
+    get_identifiers, is_true
+from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
+    ContainerStats
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
+from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.timer import timed
+from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
+    countdown
+from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
+from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe, \
+    validate_describe
+from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
+    ChainValidator, IntegerValidator
+from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
+from vrealize_operations_integration_sdk.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

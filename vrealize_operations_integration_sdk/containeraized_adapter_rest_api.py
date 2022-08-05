@@ -4,9 +4,9 @@
 import httpx
 from requests.models import Request
 
-from .constant import DEFAULT_PORT
-from .describe import get_describe, get_adapter_instance
-from .timer import timed
+from vrealize_operations_integration_sdk.constant import DEFAULT_PORT
+from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_instance
+from vrealize_operations_integration_sdk.timer import timed
 
 
 @timed

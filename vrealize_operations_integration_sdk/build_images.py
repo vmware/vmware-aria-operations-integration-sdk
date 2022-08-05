@@ -5,10 +5,10 @@ import os
 
 import docker
 
-from .config import get_config_value, set_config_value
-from .constant import VERSION_FILE
-from .docker_wrapper import login, init, push_image, BuildError, PushError
-from .ui import selection_prompt, multiselect_prompt, print_formatted as print
+from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
+from vrealize_operations_integration_sdk.constant import VERSION_FILE
+from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
+from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
 
 def update_version(update_type: str, current_version: str) -> str:

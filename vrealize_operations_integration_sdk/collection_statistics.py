@@ -4,7 +4,7 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-from .model import _get_object_id, ObjectId
+from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 
 
 class Stats:

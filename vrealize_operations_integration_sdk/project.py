@@ -4,10 +4,10 @@
 import json
 import os
 
-from .config import get_config_value, set_config_value
-from .propertiesfile import load_properties
-from .ui import selection_prompt, path_prompt
-from .validation.input_validators import ProjectValidator
+from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
+from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.ui import selection_prompt, path_prompt
+from vrealize_operations_integration_sdk.validation.input_validators import ProjectValidator
 
 
 class Connection:

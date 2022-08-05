@@ -10,16 +10,15 @@ from shutil import copy
 
 from git import Repo
 
-from . import adapter_template
-from .adapter_template import java, powershell
-from .constant import VERSION_FILE, REPO_NAME
-from .filesystem import mkdir, rmdir
-from .project import Project, record_project
-from .ui import print_formatted as print, path_prompt, prompt
-from .ui import selection_prompt
-from .validation.input_validators import NewProjectDirectoryValidator, \
-    NotEmptyValidator, AdapterKeyValidator, \
-    EulaValidator, ImageValidator
+from vrealize_operations_integration_sdk import adapter_template
+from vrealize_operations_integration_sdk.adapter_template import java, powershell
+from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME
+from vrealize_operations_integration_sdk.filesystem import mkdir, rmdir
+from vrealize_operations_integration_sdk.project import Project, record_project
+from vrealize_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
+from vrealize_operations_integration_sdk.ui import selection_prompt
+from vrealize_operations_integration_sdk.validation.input_validators import NewProjectDirectoryValidator, \
+    NotEmptyValidator, AdapterKeyValidator, EulaValidator, ImageValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

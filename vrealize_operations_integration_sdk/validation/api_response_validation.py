@@ -10,8 +10,8 @@ from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response.validators import ResponseValidator
 
-from .result import Result
-from .. import api
+from vrealize_operations_integration_sdk import api
+from vrealize_operations_integration_sdk.validation.result import Result
 
 
 def validate_api_response(project, request, response):

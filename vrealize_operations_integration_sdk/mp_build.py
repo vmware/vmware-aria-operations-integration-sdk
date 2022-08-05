@@ -10,13 +10,13 @@ import time
 import traceback
 import zipfile
 
-from .config import get_config_value, set_config_value
-from .docker_wrapper import login, init, push_image, build_image, \
+from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
+from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
-from .filesystem import zip_dir, mkdir, zip_file, rmdir
-from .project import get_project
-from .ui import print_formatted as print, prompt
-from .validation.input_validators import NotEmptyValidator
+from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir
+from vrealize_operations_integration_sdk.project import get_project
+from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt
+from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
