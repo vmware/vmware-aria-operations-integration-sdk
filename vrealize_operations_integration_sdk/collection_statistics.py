@@ -179,7 +179,15 @@ class LongCollectionStatistics:
 
         growth_table = str(Table(headers, data))
 
-        return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table
+        headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
+                   "Block I/O"]
+        data = []
+        for number, collection_stat in enumerate(self.collection_statistics):
+            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_stats()])
+
+        collection_table = str(Table(headers, data))
+
+        return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
 
 
 def convert_bytes(bytes_number):
@@ -241,11 +249,7 @@ class CollectionStatistics:
         rel_table = str(Table(headers, data))
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [[f"{self.container_stats.cpu_percent_usage:.2f} %",
-                 f"{self.container_stats.memory_percent_usage:.2f} %",
-                 convert_bytes(self.container_stats.total_memory),
-                 f"{convert_bytes(self.container_stats.network_read)} / {convert_bytes(self.container_stats.network_write)}",
-                 f"{convert_bytes(self.container_stats.block_read)} / {convert_bytes(self.container_stats.block_write)}"]]
+        data = [self.container_stats.get_stats()]
         table = Table(headers, data)
         container_table = str(table)
 
