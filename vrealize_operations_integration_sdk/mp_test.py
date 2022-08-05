@@ -14,6 +14,7 @@ import traceback
 import xml.etree.ElementTree as ET
 
 import httpx
+import nest_asyncio
 import requests
 import urllib3
 from docker import DockerClient
@@ -24,31 +25,39 @@ from flask import json
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
-import common.logging_format
-from common import filesystem
-from common.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, CONNECT_ENDPOINT, \
-    COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
-from common.containeraized_adapter_rest_api import send_get_to_adapter, send_post_to_adapter
-from common.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, get_identifiers, is_true
-from common.docker_wrapper import init, build_image, DockerWrapperError, stop_container
-from common.project import get_project, Connection, record_project
-from common.propertiesfile import load_properties
-from common.statistics import CollectionStatistics, LongCollectionStatistics, ContainerStats
-from common.timer import timed
-from common.ui import selection_prompt, print_formatted as print_formatted, prompt, countdown
-from common.validation.api_response_validation import validate_api_response
-from common.validation.describe_checks import validate_describe, cross_check_collection_with_describe
-from common.validation.input_validators import NotEmptyValidator, UniquenessValidator, ChainValidator, IntegerValidator
-from common.validation.relationship_validator import validate_relationships
-from common.validation.result import Result
+from vrealize_operations_integration_sdk import filesystem
+from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
+from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+    CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
+from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
+    send_post_to_adapter
+from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
+    get_identifiers, is_true
+from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
+    ContainerStats
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
+from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.timer import timed
+from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
+    countdown
+from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
+from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe, \
+    validate_describe
+from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
+    ChainValidator, IntegerValidator
+from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
+from vrealize_operations_integration_sdk.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = common.logging_format.PTKHandler()
-consoleHandler.setFormatter(common.logging_format.CustomFormatter())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
+
+nest_asyncio.apply()
 
 
 def get_sec(time_str):

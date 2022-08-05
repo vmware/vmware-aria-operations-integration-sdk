@@ -1,11 +1,12 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
-import subprocess
 import os
-import docker
+import subprocess
 
+import docker
 from docker.models.containers import Container
+from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
 
 def login(docker_registry):
@@ -87,6 +88,17 @@ def build_image(client, path, tag, nocache=True, labels={}):
 def stop_container(container: Container):
     container.kill()
     container.remove()
+
+
+class ContainerStats:
+    def __init__(self, initial_stats, current_stats):
+        self.block_read, self.block_write = calculate_blkio_bytes(current_stats)
+        self.network_read, self.network_write = calculate_network_bytes(current_stats)
+        self.current_memory_usage = current_stats["memory_stats"]["usage"]
+        # TODO: calculate cpu percent for Windows
+        self.cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
+        self.total_memory = current_stats["memory_stats"]["limit"]
+        self.memory_percent_usage = (self.current_memory_usage / self.total_memory) * 100.0
 
 
 # This code is transcribed from docker's code

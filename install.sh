@@ -20,7 +20,7 @@ LT_BLUE=$(tput setaf 153)
 BRIGHT=$(tput bold)
 DEFAULT=$(tput sgr0)
 
-function test_dependency() {
+test_dependency() {
   NAME=${1}
   EXECUTABLE=${2}
   MIN_VERSION=${3}

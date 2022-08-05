@@ -7,8 +7,9 @@ import os
 
 import xmlschema
 
-from common.describe import get_describe, get_adapter_kind, get_resource_kinds, ns, is_true
-from common.validation.result import Result
+from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_kind, get_resource_kinds, ns, \
+    is_true
+from vrealize_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

@@ -1,14 +1,14 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
+import os
+
 import docker
 
-import common.constant as constant
-from common import docker_wrapper
-from common.config import get_config_value, set_config_value
-from common.docker_wrapper import login, init, push_image, BuildError, PushError
-from common.filesystem import get_absolute_project_directory
-from common.ui import selection_prompt, multiselect_prompt, print_formatted as print
+from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
+from vrealize_operations_integration_sdk.constant import VERSION_FILE
+from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
+from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
 
 def update_version(update_type: str, current_version: str) -> str:
@@ -60,9 +60,10 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
 
 def main():
     client = init()
-    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=version_file_path)
-    repo = get_config_value("docker_repo", default="tvs", config_file=version_file_path)
+    # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
+    # as such we assume relative paths will work
+    registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=VERSION_FILE)
+    repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     base_image, secondary_images = get_latest_vrops_container_versions()
 
@@ -76,9 +77,9 @@ def main():
 
     # Update the versions of the images
     if base_image in images_to_build:
-        set_config_value("base_image", base_image, version_file_path)
+        set_config_value("base_image", base_image, VERSION_FILE)
     if any(i in images_to_build for i in secondary_images):
-        set_config_value("secondary_images", secondary_images, version_file_path)
+        set_config_value("secondary_images", secondary_images, VERSION_FILE)
 
     push_to_registry: bool = selection_prompt(
         message=f"Push images to {registry_url}/{repo}?",
@@ -86,10 +87,10 @@ def main():
                (False, "No")])
 
     if push_to_registry:
-        version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-        registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=version_file_path)
+        registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com",
+                                        config_file=VERSION_FILE)
         login(registry_url)
-        repo = get_config_value("docker_repo", default="tvs", config_file=version_file_path)
+        repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     for image in images_to_build:
         try:
@@ -109,9 +110,10 @@ def main():
 
 
 def get_latest_vrops_container_versions() -> (dict, [dict]):
-    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-    base_image: dict = get_config_value("base_image", config_file=version_file_path)
-    secondary_images: [dict] = get_config_value("secondary_images", config_file=version_file_path)
+    # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
+    # as such we assume relative paths will work
+    base_image: dict = get_config_value("base_image", config_file=VERSION_FILE)
+    secondary_images: [dict] = get_config_value("secondary_images", config_file=VERSION_FILE)
 
     # TODO: validate each key, if the key doesn't exist, or doesn't have a value, ask user
 
@@ -119,7 +121,9 @@ def get_latest_vrops_container_versions() -> (dict, [dict]):
 
 
 def build_image(client: docker.client, language: str, version: str, path: str):
-    build_path = get_absolute_project_directory(path)
+    # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
+    # as such we assume relative paths will work
+    build_path = os.path.join(os.path.realpath(".."), path)
 
     # TODO use Low level API to show user build progress
     print(f"building {language} image:vrops-adapter-open-sdk-server:{language}-{version}...")

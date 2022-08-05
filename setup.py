@@ -3,61 +3,39 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
-import os
-
 from setuptools import setup
 
-import tools.common.repository as repository
-from tools.common import constant as constant
-
-repo_path = os.getenv("VROPS_SDK_REPO_PATH")
-
-if repo_path is None:
-    print("VROPS_SDK_REPO_PATH not found")
-    print("To install this package run 'install.sh' (Linux or macOS) or 'install.bat' (Windows).")
-    print(f"Alternatively, set the environment variable 'VROPS_SDK_REPO_PATH' to the path of the '{constant.REPO_NAME}' repository and rerun this command.")
-    exit(1)
-else:
-    repository.get_root_directory(default_path=lambda: repo_path)
-
 setup(
-    version="0.1.0",
-    name="vrops-adapter-tools",
+    version="0.2.0",
+    name="vrealize_operations_integration_sdk",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
     python_requires=">=3.9",
     install_requires=[
+        "nest_asyncio==1.5.5",
         "docker==5.0.3",
         "Pillow==9.1.0",
+        "sen==0.6.2",
         "prompt_toolkit==3.0.29",
         "requests==2.27.1",
         "urllib3==1.26.9",
-        "common==0.1.2",
-        "templates==0.0.5",
         "flask==2.1.1",
         "openapi_core==0.14.2",
         "GitPython==3.1.27",
-        "xmlschema==1.11.3"
+        "xmlschema==1.11.3",
+        "httpx==0.23.0"
     ],
-    package_dir={
-        "common": "tools/common",
-        "templates": "tools/templates",
-        "": "tools"
-    },
-    py_modules=[
-        "init",
-        "build",
-        "mp_test"
-    ],
+    include_package_data=True,
     packages=[
-        "common",
-        "common.validation",
-        "templates",
+        "vrealize_operations_integration_sdk",
+        "vrealize_operations_integration_sdk.adapter_template",
+        "vrealize_operations_integration_sdk.api",
+        "vrealize_operations_integration_sdk.validation"
     ],
     entry_points={
         "console_scripts": [
-            "mp-init=init:main",
-            "mp-build=build:main",
-            "mp-test=mp_test:main"
+            "mp-init=vrealize_operations_integration_sdk.mp_init:main",
+            "mp-build=vrealize_operations_integration_sdk.mp_build:main",
+            "mp-test=vrealize_operations_integration_sdk.mp_test:main"
         ]
     }
 )

@@ -14,7 +14,7 @@ else:
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
-REPO_NAME = "vrops-integration-sdk"
+REPO_NAME = "vrealize-operations-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
 COLLECT_ENDPOINT = "collect"
 CONNECT_ENDPOINT = "test"

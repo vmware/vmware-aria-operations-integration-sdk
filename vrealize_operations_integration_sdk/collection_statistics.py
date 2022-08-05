@@ -4,9 +4,7 @@
 from collections import defaultdict
 from statistics import median, stdev
 
-from common.docker_wrapper import calculate_cpu_percent_latest_unix
-from sen.util import calculate_blkio_bytes, calculate_network_bytes
-from common.model import _get_object_id, ObjectId
+from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 
 
 class Stats:
@@ -151,20 +149,6 @@ class LongCollectionStatistics:
         return {"num_collections": len(self.collection_statistics),
                 "intervals": collection_interval,
                 "stats": object_collection_history}
-
-
-class ContainerStats:
-    def __init__(self, initial_stats, current_stats):
-        self.get_stats(initial_stats, current_stats)
-
-    def get_stats(self, initial_stats, current_stats):
-        self.block_read, self.block_write  = calculate_blkio_bytes(current_stats)
-        self.network_read, self.network_write = calculate_network_bytes(current_stats)
-        self.current_memory_usage = current_stats["memory_stats"]["usage"]
-        # TODO: calculate cpu percent for Windows
-        self.cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
-        self.total_memory = current_stats["memory_stats"]["limit"]
-        self.memory_percent_usage = (self.current_memory_usage / current_stats["memory_stats"]["limit"]) * 100.0
 
 
 def convert_bytes(bytes_number):

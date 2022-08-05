@@ -5,22 +5,20 @@ import json
 import logging
 import os
 import traceback
+from importlib import resources
 from shutil import copy
 
 from git import Repo
 
-import common.constant
-import common.constant as constant
-import templates.java as java
-import templates.powershell as powershell
-from common.config import get_config_value
-from common.filesystem import get_absolute_project_directory, get_root_directory, mkdir, rmdir
-from common.project import Project, record_project
-from common.ui import print_formatted as print, path_prompt, prompt
-from common.ui import selection_prompt
-from common.validation.input_validators import NewProjectDirectoryValidator, NotEmptyValidator, AdapterKeyValidator, \
-    EulaValidator, \
-    ImageValidator
+from vrealize_operations_integration_sdk import adapter_template
+from vrealize_operations_integration_sdk.adapter_template import java, powershell
+from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME
+from vrealize_operations_integration_sdk.filesystem import mkdir, rmdir
+from vrealize_operations_integration_sdk.project import Project, record_project
+from vrealize_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
+from vrealize_operations_integration_sdk.ui import selection_prompt
+from vrealize_operations_integration_sdk.validation.input_validators import NewProjectDirectoryValidator, \
+    NotEmptyValidator, AdapterKeyValidator, EulaValidator, ImageValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -212,9 +210,9 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     record_project(project)
 
     # copy describe.xsd into conf directory
-    src = get_absolute_project_directory("tools", "templates", "describeSchema.xsd")
-    dest = os.path.join(path, "conf")
-    copy(src, dest)
+    with resources.path(adapter_template, "describeSchema.xsd") as src:
+        dest = os.path.join(path, "conf")
+        copy(src, dest)
 
     # create project structure
     executable_directory_path = build_project_structure(path, manifest["name"], language)
@@ -243,8 +241,6 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
 def main():
     path = ""
     try:
-        get_root_directory()
-
         path = path_prompt(
             "Enter a directory to create the project in. This is the directory where adapter code, metadata, and \n"
             "content will reside. If the directory doesn't already exist, it will be created. \nPath: ",
@@ -316,9 +312,11 @@ def main():
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
     logger.info("generating Dockerfile")
-    version_file_path = get_absolute_project_directory(constant.VERSION_FILE)
-    images = [get_config_value("base_image", config_file=version_file_path)] + \
-             get_config_value("secondary_images", config_file=version_file_path)
+    images = []
+    with resources.path(__package__, VERSION_FILE) as config_file:
+        with open(config_file, "r") as config:
+            config_json = json.load(config)
+            images = [config_json["base_image"]] + config_json["secondary_images"]
     version = next(iter(filter(
         lambda image: image["language"].lower() == language,
         images
@@ -329,7 +327,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
         dockerfile.write(
             "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
         dockerfile.write(
-            f"# Go to the {common.constant.REPO_NAME} repository, and run the build_images.py script located at "
+            f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
             f"tools/build_images.py\n")
         dockerfile.write(
             f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
@@ -382,12 +380,10 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
             requirements.write("psutil==5.9.0\n")
             requirements.write("vrops-integration==0.0.*\n")
 
-        # get the path to templates.py
-        src = get_absolute_project_directory("tools", "templates", "adapter.py")
-        dest = os.path.join(path, project_directory)
-
         # copy adapter.py into app directory
-        copy(src, dest)
+        with resources.path(adapter_template, "adapter.py") as src:
+            dest = os.path.join(path, project_directory)
+            copy(src, dest)
 
         with open(os.path.join(path, project_directory, "constants.py"), "w") as constants:
             constants.write(f'ADAPTER_KIND = "{adapter_kind}"')
