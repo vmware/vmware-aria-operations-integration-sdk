@@ -70,6 +70,13 @@ class ObjectTypeStatistics:
             return
         self.objects.append(obj)
 
+    def get_unique_objects(self):
+        unique_objects = []
+        for _object in self.objects:
+            unique_objects.append("|".join([_object.key.name, *[v.value for v in _object.key.identifiers]]))
+
+        return set(unique_objects)
+
     def get_object_count(self):
         return len(self.objects)
 
@@ -139,6 +146,7 @@ class LongCollectionStatistics:
         headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties",
                    "Avg Events", "Avg Parents", "Avg Children"]
 
+        # TODO: move this to a separate function
         for collection_stat in self.collection_statistics:
             collection_durations.append(collection_stat.duration)
             for obj_statistics in collection_stat.obj_type_statistics.values():
@@ -165,7 +173,21 @@ class LongCollectionStatistics:
                     object_collection_history[obj_statistics.object_type]["children_count"].append(
                         obj_statistics.get_children_count())
 
+        # TODO create table for object type growth
+        db = {}
+        for collection_statistic in self.collection_statistics:
+            for key, object_type_stat in collection_statistic.obj_type_statistics.items():
+                if key not in db:
+                    db[key] = object_type_stat.get_unique_objects()
+                else:
+                    db[key] = db[key] | object_type_stat.get_unique_objects()
+
+        print(f"db: {db}")
+        for key, items in db.items():
+            print(f"key: {key} size: {len(items)}")
+
         data = []
+
         for key, values in object_collection_history.items():
             data.append([key, *[get_average(l) for l in values.values()]])
 
@@ -230,6 +252,11 @@ class CollectionStatistics:
                     self.rel_statistics[key] += 1
                     self.obj_statistics[parent].add_child(child)
                     self.obj_statistics[child].add_parent(parent)
+
+    def get_unique_objects(self):
+        union = defaultdict()
+        for _object in self.obj_statistics:
+            union[_object.key] = _object.key
 
     def __repr__(self):
         headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Parents", "Children"]
