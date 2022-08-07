@@ -77,6 +77,13 @@ class ObjectTypeStatistics:
 
         return set(unique_objects)
 
+    def get_unique_metrics(self):
+        unique_metrics = []
+        for _object in self.objects:
+            unique_metrics.append("|".join([_object.key.name, *[m for m in _object.metircs]]))
+
+        return set(unique_metrics)
+
     def get_object_count(self):
         return len(self.objects)
 
@@ -180,32 +187,47 @@ class LongCollectionStatistics:
                     object_collection_history[obj_statistics.object_type]["children_count"].append(
                         obj_statistics.get_children_count())
 
-        # TODO create table for object type growth
         db = {}
         db_size = {}
+        # TODO: calculate metric growth
+        # TODO: calculate propety growth
         for collection_statistic in self.collection_statistics:
             for key, object_type_stat in collection_statistic.obj_type_statistics.items():
                 if key not in db:
-                    db[key] = object_type_stat.get_unique_objects()
-                    db_size[key] = [len(db[key])]
-                else:
-                    db[key] = db[key] | object_type_stat.get_unique_objects()
-                    db_size[key].append(len(db[key]))
+                    db[key] = {}
+                    db[key]["objects"] = object_type_stat.get_unique_objects()
 
-        headers = ["Object Type", "Resource Growth"]
+                    # TODO: create unique metrics function
+                    metrics = set.union(set(), *[o.metrics for o in object_type_stat.objects])
+                    db[key]["metrics"] = metrics
+
+                    # Calculate the current size of the given stat
+                    db_size[key] = {}
+                    db_size[key]["objects"] = [len(db[key]["objects"])]
+                    db_size[key]["metrics"] = [len(db[key]["metrics"])]
+                else:
+                    db[key]["objects"] = db[key]["objects"] | object_type_stat.get_unique_objects()
+
+                    metrics = set.union(set(), *[o.metrics for o in object_type_stat.objects])
+                    db[key]["metrics"] = db[key]["metrics"] | metrics
+
+                    db_size[key]["objects"].append(len(db[key]["objects"]))
+
+        headers = ["Object Type", "Resource Growth", "Metric Growth"]
         data = []
         for key, values in db_size.items():
-            data.append([key, f"{get_growth_rate(values):.2f} %"])
+            data.append([key, f"{get_growth_rate(values['objects']):.2f} %", f"{get_growth_rate(values['metrics']):.2f} %"])
 
         growth_table = str(Table(headers, data))
 
+        headers = ["Object Type", "Avg Object Count", "Avg Metric Count", "Avg Property Count",
+                   "Avg Event Count", "Avg Parent Count", "Avg Child Count"]
         data = []
 
         for key, values in object_collection_history.items():
             data.append([key, *[get_average(l) for l in values.values()]])
 
         obj_table = str(Table(headers, data))
-
 
         headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
                    "Block I/O"]
