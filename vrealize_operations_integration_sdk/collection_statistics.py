@@ -129,8 +129,15 @@ def get_average(inputs: list):
 
 
 def get_growth_rate(inputs: list):
+    present = inputs[-1]
+    past = inputs[0]
+
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
-    return (((inputs[0] + 1) / (inputs[-1] + 1)) ** (1 / len(inputs))) - 1
+    if not (present and past):
+        present += 1
+        past += 1
+
+    return (((present / past) ** (1 / len(inputs))) - 1) * 100
 
 
 class LongCollectionStatistics:
@@ -175,16 +182,22 @@ class LongCollectionStatistics:
 
         # TODO create table for object type growth
         db = {}
+        db_size = {}
         for collection_statistic in self.collection_statistics:
             for key, object_type_stat in collection_statistic.obj_type_statistics.items():
                 if key not in db:
                     db[key] = object_type_stat.get_unique_objects()
+                    db_size[key] = [len(db[key])]
                 else:
                     db[key] = db[key] | object_type_stat.get_unique_objects()
+                    db_size[key].append(len(db[key]))
 
-        print(f"db: {db}")
-        for key, items in db.items():
-            print(f"key: {key} size: {len(items)}")
+        headers = ["Object Type", "Resource Growth"]
+        data = []
+        for key, values in db_size.items():
+            data.append([key, f"{get_growth_rate(values):.2f} %"])
+
+        growth_table = str(Table(headers, data))
 
         data = []
 
@@ -193,13 +206,6 @@ class LongCollectionStatistics:
 
         obj_table = str(Table(headers, data))
 
-        headers = ["Object Type", "Resource Growth", "Metrics Growth", "Property Growth",
-                   "Events Growth", "Parent Growth", "Children Growth"]
-        data = []
-        for key, values in object_collection_history.items():
-            data.append([key, *[get_growth_rate(l) for l in values.values()]])
-
-        growth_table = str(Table(headers, data))
 
         headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
                    "Block I/O"]
