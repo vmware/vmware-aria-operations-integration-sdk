@@ -66,6 +66,7 @@ class RunningCount:
         self.events_collection = set()
         self.parents_collection = set()
         self.children_collection = set()
+        self.string_property_values_collection =  set()
 
         self.objects_data_points = list()
         self.metrics_data_points = list()
@@ -73,6 +74,7 @@ class RunningCount:
         self.events_data_points = list()
         self.parents_data_points = list()
         self.children_data_points = list()
+        self.string_property_values_data_points = list()
 
     def add(self, _object):
         self.objects_collection.update(_object.get_unique_objects())
@@ -92,6 +94,9 @@ class RunningCount:
 
         self.children_collection.update(_object.get_unique_children())
         self.children_data_points.append(len(self.children_collection))
+
+        self.string_property_values_collection.update(_object.get_unique_string_property_values())
+        self.string_property_values_data_points.append(len(self.string_property_values_collection))
 
 
 class ObjectTypeStatistics:
@@ -124,8 +129,16 @@ class ObjectTypeStatistics:
         unique_properties = set()
         for _object in self.objects:
             unique_properties.update(_object.properties)
+            unique_properties.update(_object.string_properties)
 
         return unique_properties
+
+    def get_unique_string_property_values(self):
+        unique_string_property_values = set()
+        for _object in self.objects:
+            unique_string_property_values.update(_object.string_properties.values())
+
+        return unique_string_property_values
 
     def get_unique_events(self):
         unique_events = set()
@@ -261,13 +274,13 @@ class LongCollectionStatistics:
                 else:
                     running_counts[key].add(object_type_stat)
 
-        headers = ["Object Type", "Resource Growth", "Metric Growth", "Property Growth", "Event Growth",
+        headers = ["Object Type", "Resource Growth", "Metric Growth", "Property Growth", "Property Values Growth", "Event Growth",
                    "Parent Growth", "Children Growth"]
         data = []
         for key, values in running_counts.items():
             data.append(
                 [key, f"{get_growth_rate(values.objects_data_points):.2f} %", f"{get_growth_rate(values.metrics_data_points):.2f} %",
-                 f"{get_growth_rate(values.properties_data_points):.2f} %", f"{get_growth_rate(values.events_data_points):.2f} %",
+                 f"{get_growth_rate(values.properties_data_points):.2f} %", f"{get_growth_rate(values.string_property_values_data_points):.2f} %", f"{get_growth_rate(values.events_data_points):.2f} %",
                  f"{get_growth_rate(values.parents_data_points):.2f} %", f"{get_growth_rate(values.children_data_points):.2f} %"])
 
         growth_table = str(Table(headers, data))
