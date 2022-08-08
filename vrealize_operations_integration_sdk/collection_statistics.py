@@ -58,6 +58,42 @@ class ObjectStatistics:
         return len(self.children)
 
 
+class RunningCount:
+    def __init__(self):
+        self.objects_collection = set()
+        self.metrics_collection = set()
+        self.properties_collection = set()
+        self.events_collection = set()
+        self.parents_collection = set()
+        self.children_collection = set()
+
+        self.objects_data_points = list()
+        self.metrics_data_points = list()
+        self.properties_data_points = list()
+        self.events_data_points = list()
+        self.parents_data_points = list()
+        self.children_data_points = list()
+
+    def add(self, _object):
+        self.objects_collection.update(_object.get_unique_objects())
+        self.objects_data_points.append(len(self.objects_collection))
+
+        self.metrics_collection.update(_object.get_unique_metrics())
+        self.metrics_data_points.append(len(self.metrics_collection))
+
+        self.properties_collection.update(_object.get_unique_properties())
+        self.properties_data_points.append(len(self.properties_collection))
+
+        self.events_collection.update(_object.get_unique_events())
+        self.events_data_points.append(len(self.events_collection))
+
+        self.parents_collection.update(_object.get_unique_parents())
+        self.parents_data_points.append(len(self.parents_collection))
+
+        self.children_collection.update(_object.get_unique_children())
+        self.children_data_points.append(len(self.children_collection))
+
+
 class ObjectTypeStatistics:
     def __init__(self):
         self.object_type = None
@@ -71,18 +107,46 @@ class ObjectTypeStatistics:
         self.objects.append(obj)
 
     def get_unique_objects(self):
-        unique_objects = []
+        unique_objects = set()
         for _object in self.objects:
-            unique_objects.append("|".join([_object.key.name, *[v.value for v in _object.key.identifiers]]))
+            unique_objects.add(_object.key)
 
-        return set(unique_objects)
+        return unique_objects
 
     def get_unique_metrics(self):
-        unique_metrics = []
+        unique_metrics = set()
         for _object in self.objects:
-            unique_metrics.append("|".join([_object.key.name, *[m for m in _object.metircs]]))
+            unique_metrics.update(_object.metrics)
 
-        return set(unique_metrics)
+        return unique_metrics
+
+    def get_unique_properties(self):
+        unique_properties = set()
+        for _object in self.objects:
+            unique_properties.update(_object.properties)
+
+        return unique_properties
+
+    def get_unique_events(self):
+        unique_events = set()
+        for _object in self.objects:
+            unique_events.update(_object.events)
+
+        return unique_events
+
+    def get_unique_parents(self):
+        unique_parents = set()
+        for _object in self.objects:
+            unique_parents.update(_object.parents)
+
+        return unique_parents
+
+    def get_unique_children(self):
+        unique_children = set()
+        for _object in self.objects:
+            unique_children.update(_object.children)
+
+        return unique_children
 
     def get_object_count(self):
         return len(self.objects)
@@ -187,36 +251,24 @@ class LongCollectionStatistics:
                     object_collection_history[obj_statistics.object_type]["children_count"].append(
                         obj_statistics.get_children_count())
 
-        db = {}
-        db_size = {}
-        # TODO: calculate metric growth
-        # TODO: calculate propety growth
+        running_counts = {}
         for collection_statistic in self.collection_statistics:
             for key, object_type_stat in collection_statistic.obj_type_statistics.items():
-                if key not in db:
-                    db[key] = {}
-                    db[key]["objects"] = object_type_stat.get_unique_objects()
+                if key not in running_counts:
+                    running_counts[key] = RunningCount()
+                    running_counts[key].add(object_type_stat)
 
-                    # TODO: create unique metrics function
-                    metrics = set.union(set(), *[o.metrics for o in object_type_stat.objects])
-                    db[key]["metrics"] = metrics
-
-                    # Calculate the current size of the given stat
-                    db_size[key] = {}
-                    db_size[key]["objects"] = [len(db[key]["objects"])]
-                    db_size[key]["metrics"] = [len(db[key]["metrics"])]
                 else:
-                    db[key]["objects"] = db[key]["objects"] | object_type_stat.get_unique_objects()
+                    running_counts[key].add(object_type_stat)
 
-                    metrics = set.union(set(), *[o.metrics for o in object_type_stat.objects])
-                    db[key]["metrics"] = db[key]["metrics"] | metrics
-
-                    db_size[key]["objects"].append(len(db[key]["objects"]))
-
-        headers = ["Object Type", "Resource Growth", "Metric Growth"]
+        headers = ["Object Type", "Resource Growth", "Metric Growth", "Property Growth", "Event Growth",
+                   "Parent Growth", "Children Growth"]
         data = []
-        for key, values in db_size.items():
-            data.append([key, f"{get_growth_rate(values['objects']):.2f} %", f"{get_growth_rate(values['metrics']):.2f} %"])
+        for key, values in running_counts.items():
+            data.append(
+                [key, f"{get_growth_rate(values.objects_data_points):.2f} %", f"{get_growth_rate(values.metrics_data_points):.2f} %",
+                 f"{get_growth_rate(values.properties_data_points):.2f} %", f"{get_growth_rate(values.events_data_points):.2f} %",
+                 f"{get_growth_rate(values.parents_data_points):.2f} %", f"{get_growth_rate(values.children_data_points):.2f} %"])
 
         growth_table = str(Table(headers, data))
 
