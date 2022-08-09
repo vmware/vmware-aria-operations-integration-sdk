@@ -58,76 +58,54 @@ class ObjectStatistics:
         return len(self.children)
 
 
+class HelperClassThatNeedsABetterName:
+    def __init__(self):
+        self.running_collection = set()
+        self.data_points = list()
+        self.counts = list()
+
+    def add(self, unique_items, total_items):
+        self.running_collection.update(unique_items)
+        self.data_points.append(len(self.running_collection))
+        self.counts.append(total_items)
+
+
 class LongObjectTypeStatistics:
     def __init__(self):
-        self.objects_collection = set()
-        self.metrics_collection = set()
-        self.properties_collection = set()
-        self.events_collection = set()
-        self.parents_collection = set()
-        self.children_collection = set()
-        self.string_property_values_collection = set()
-
-        self.objects_data_points = list()
-        self.metrics_data_points = list()
-        self.properties_data_points = list()
-        self.events_data_points = list()
-        self.parents_data_points = list()
-        self.children_data_points = list()
-        self.string_property_values_data_points = list()
-
-        self.object_count_history = list()
-        self.metric_count_history = list()
-        self.property_count_history = list()
-        self.event_count_history = list()
-        self.parent_count_history = list()
-        self.children_count_history = list()
+        self.objects_stats = HelperClassThatNeedsABetterName()
+        self.metrics_stats = HelperClassThatNeedsABetterName()
+        self.properties_stats = HelperClassThatNeedsABetterName()
+        self.events_stats = HelperClassThatNeedsABetterName()
+        self.parents_stats = HelperClassThatNeedsABetterName()
+        self.children_stats = HelperClassThatNeedsABetterName()
+        self.string_property_values_stats = HelperClassThatNeedsABetterName()
 
     def add(self, _object):
-        self.objects_collection.update(_object.get_unique_objects())
-        self.objects_data_points.append(len(self.objects_collection))
-
-        self.metrics_collection.update(_object.get_unique_metrics())
-        self.metrics_data_points.append(len(self.metrics_collection))
-
-        self.properties_collection.update(_object.get_unique_properties())
-        self.properties_data_points.append(len(self.properties_collection))
-
-        self.events_collection.update(_object.get_unique_events())
-        self.events_data_points.append(len(self.events_collection))
-
-        self.parents_collection.update(_object.get_unique_parents())
-        self.parents_data_points.append(len(self.parents_collection))
-
-        self.children_collection.update(_object.get_unique_children())
-        self.children_data_points.append(len(self.children_collection))
-
-        self.string_property_values_collection.update(_object.get_unique_string_property_values())
-        self.string_property_values_data_points.append(len(self.string_property_values_collection))
-
-        self.object_count_history.append(_object.get_object_count())
-        self.metric_count_history.append(_object.get_metric_count())
-        self.property_count_history.append(_object.get_property_count())
-        self.event_count_history.append(_object.get_event_count())
-        self.parent_count_history.append(_object.get_parent_count())
-        self.children_count_history.append(_object.get_children_count())
+        self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
+        self.metrics_stats.add(_object.get_unique_metrics(),_object.get_metric_count())
+        self.properties_stats.add(_object.get_unique_properties(), _object.get_property_count())
+        self.events_stats.add(_object.get_unique_events(), _object.get_event_count())
+        self.parents_stats.add(_object.get_unique_parents(), _object.get_parent_count())
+        self.children_stats.add(_object.get_unique_children(), _object.get_children_count())
+        self.string_property_values_stats.add(_object.get_unique_string_property_values(), 0)
 
     def get_growth_rates(self):
-        return [f"{get_growth_rate(self.objects_data_points):.2f} %",
-                f"{get_growth_rate(self.metrics_data_points):.2f} %",
-                f"{get_growth_rate(self.properties_data_points):.2f} %",
-                f"{get_growth_rate(self.string_property_values_data_points):.2f} %",
-                f"{get_growth_rate(self.events_data_points):.2f} %",
-                f"{get_growth_rate(self.parents_data_points):.2f} %",
-                f"{get_growth_rate(self.children_data_points):.2f} %"]
+        return [f"{get_growth_rate(self.objects_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.metrics_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.properties_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.string_property_values_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.events_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.parents_stats.data_points):.2f} %",
+                f"{get_growth_rate(self.children_stats.data_points):.2f} %"]
 
     def get_averages(self):
-        return [f"{get_average(self.object_count_history):.2f} %",
-                f"{get_average(self.metric_count_history):.2f} %",
-                f"{get_average(self.property_count_history):.2f} %",
-                f"{get_average(self.event_count_history):.2f} %",
-                f"{get_average(self.parent_count_history):.2f} %",
-                f"{get_average(self.children_count_history):.2f} %"]
+        return [f"{get_average(self.objects_stats.counts):.2f} %",
+                f"{get_average(self.metrics_stats.counts):.2f} %",
+                f"{get_average(self.properties_stats.counts):.2f} %",
+                f"{get_average(self.events_stats.counts):.2f} %",
+                f"{get_average(self.parents_stats.counts):.2f} %",
+                f"{get_average(self.children_stats.counts):.2f} %"]
+
 
 class ObjectTypeStatistics:
     def __init__(self):
@@ -265,7 +243,7 @@ class LongCollectionStatistics:
 
     def __repr__(self):
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
-                   "Event Growth","Parent Growth", "Children Growth"]
+                   "Event Growth", "Parent Growth", "Children Growth"]
         data = []
         for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
             data.append(
