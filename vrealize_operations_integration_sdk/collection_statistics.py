@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 from statistics import median, stdev
+from typing import DefaultDict
 
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 
@@ -58,7 +59,7 @@ class ObjectStatistics:
         return len(self.children)
 
 
-class RunningCount:
+class LongObjectTypeStatistics:
     def __init__(self):
         self.objects_collection = set()
         self.metrics_collection = set()
@@ -66,7 +67,7 @@ class RunningCount:
         self.events_collection = set()
         self.parents_collection = set()
         self.children_collection = set()
-        self.string_property_values_collection =  set()
+        self.string_property_values_collection = set()
 
         self.objects_data_points = list()
         self.metrics_data_points = list()
@@ -97,6 +98,15 @@ class RunningCount:
 
         self.string_property_values_collection.update(_object.get_unique_string_property_values())
         self.string_property_values_data_points.append(len(self.string_property_values_collection))
+
+    def get_growth_rates(self):
+        return [f"{get_growth_rate(self.objects_data_points):.2f} %",
+                f"{get_growth_rate(self.metrics_data_points):.2f} %",
+                f"{get_growth_rate(self.properties_data_points):.2f} %",
+                f"{get_growth_rate(self.string_property_values_data_points):.2f} %",
+                f"{get_growth_rate(self.events_data_points):.2f} %",
+                f"{get_growth_rate(self.parents_data_points):.2f} %",
+                f"{get_growth_rate(self.children_data_points):.2f} %"]
 
 
 class ObjectTypeStatistics:
@@ -129,7 +139,6 @@ class ObjectTypeStatistics:
         unique_properties = set()
         for _object in self.objects:
             unique_properties.update(_object.properties)
-            unique_properties.update(_object.string_properties)
 
         return unique_properties
 
@@ -264,24 +273,18 @@ class LongCollectionStatistics:
                     object_collection_history[obj_statistics.object_type]["children_count"].append(
                         obj_statistics.get_children_count())
 
-        running_counts = {}
+        running_counts = defaultdict(lambda: LongObjectTypeStatistics())
         for collection_statistic in self.collection_statistics:
-            for key, object_type_stat in collection_statistic.obj_type_statistics.items():
-                if key not in running_counts:
-                    running_counts[key] = RunningCount()
-                    running_counts[key].add(object_type_stat)
+            for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
+                running_counts[object_type].add(object_type_stat)
 
-                else:
-                    running_counts[key].add(object_type_stat)
-
-        headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth", "Event Growth",
+        headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
+                   "Event Growth",
                    "Parent Growth", "Children Growth"]
         data = []
-        for key, values in running_counts.items():
+        for resource_type, obj_type_statistics in running_counts.items():
             data.append(
-                [key, f"{get_growth_rate(values.objects_data_points):.2f} %", f"{get_growth_rate(values.metrics_data_points):.2f} %",
-                 f"{get_growth_rate(values.properties_data_points):.2f} %", f"{get_growth_rate(values.string_property_values_data_points):.2f} %", f"{get_growth_rate(values.events_data_points):.2f} %",
-                 f"{get_growth_rate(values.parents_data_points):.2f} %", f"{get_growth_rate(values.children_data_points):.2f} %"])
+                [resource_type, *obj_type_statistics.get_growth_rates()])
 
         growth_table = str(Table(headers, data))
 
@@ -289,8 +292,8 @@ class LongCollectionStatistics:
                    "Avg Event Count", "Avg Parent Count", "Avg Child Count"]
         data = []
 
-        for key, values in object_collection_history.items():
-            data.append([key, *[get_average(l) for l in values.values()]])
+        for resource_type, values in object_collection_history.items():
+            data.append([resource_type, *[get_average(l) for l in values.values()]])
 
         obj_table = str(Table(headers, data))
 
@@ -345,11 +348,6 @@ class CollectionStatistics:
                     self.rel_statistics[key] += 1
                     self.obj_statistics[parent].add_child(child)
                     self.obj_statistics[child].add_parent(parent)
-
-    def get_unique_objects(self):
-        union = defaultdict()
-        for _object in self.obj_statistics:
-            union[_object.key] = _object.key
 
     def __repr__(self):
         headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Parents", "Children"]
