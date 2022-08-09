@@ -58,7 +58,7 @@ class ObjectStatistics:
         return len(self.children)
 
 
-class HelperClassThatNeedsABetterName:
+class UniqueObjectTypeStatistics:
     def __init__(self):
         self.running_collection = set()
         self.data_points = list()
@@ -72,17 +72,17 @@ class HelperClassThatNeedsABetterName:
 
 class LongObjectTypeStatistics:
     def __init__(self):
-        self.objects_stats = HelperClassThatNeedsABetterName()
-        self.metrics_stats = HelperClassThatNeedsABetterName()
-        self.properties_stats = HelperClassThatNeedsABetterName()
-        self.events_stats = HelperClassThatNeedsABetterName()
-        self.parents_stats = HelperClassThatNeedsABetterName()
-        self.children_stats = HelperClassThatNeedsABetterName()
-        self.string_property_values_stats = HelperClassThatNeedsABetterName()
+        self.objects_stats = UniqueObjectTypeStatistics()
+        self.metrics_stats = UniqueObjectTypeStatistics()
+        self.properties_stats = UniqueObjectTypeStatistics()
+        self.events_stats = UniqueObjectTypeStatistics()
+        self.parents_stats = UniqueObjectTypeStatistics()
+        self.children_stats = UniqueObjectTypeStatistics()
+        self.string_property_values_stats = UniqueObjectTypeStatistics()
 
     def add(self, _object):
         self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
-        self.metrics_stats.add(_object.get_unique_metrics(),_object.get_metric_count())
+        self.metrics_stats.add(_object.get_unique_metrics(), _object.get_metric_count())
         self.properties_stats.add(_object.get_unique_properties(), _object.get_property_count())
         self.events_stats.add(_object.get_unique_events(), _object.get_event_count())
         self.parents_stats.add(_object.get_unique_parents(), _object.get_parent_count())
@@ -98,13 +98,15 @@ class LongObjectTypeStatistics:
                 f"{get_growth_rate(self.parents_stats.data_points):.2f} %",
                 f"{get_growth_rate(self.children_stats.data_points):.2f} %"]
 
-    def get_averages(self):
-        return [f"{get_average(self.objects_stats.counts):.2f} %",
-                f"{get_average(self.metrics_stats.counts):.2f} %",
-                f"{get_average(self.properties_stats.counts):.2f} %",
-                f"{get_average(self.events_stats.counts):.2f} %",
-                f"{get_average(self.parents_stats.counts):.2f} %",
-                f"{get_average(self.children_stats.counts):.2f} %"]
+    def get_summary(self):
+        return {
+            "objects": Stats(self.objects_stats.counts),
+            "events": Stats(self.events_stats.counts),
+            "metrics": Stats(self.metrics_stats.counts),
+            "properties": Stats(self.properties_stats.counts),
+            "parents": Stats(self.parents_stats.counts),
+            "children": Stats(self.children_stats.counts)
+        }
 
 
 class ObjectTypeStatistics:
@@ -250,11 +252,12 @@ class LongCollectionStatistics:
                 [resource_type, *obj_type_statistics.get_growth_rates()])
         growth_table = str(Table(headers, data))
 
-        headers = ["Object Type", "Avg Object Count", "Avg Metric Count", "Avg Property Count",
-                   "Avg Event Count", "Avg Parent Count", "Avg Child Count"]
+        headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Parents", "Children"]
         data = []
         for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
-            data.append([resource_type, *obj_type_statistics.get_averages()])
+            summary = obj_type_statistics.get_summary()
+            data.append([resource_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
+                         summary["parents"], summary["children"]])
         obj_table = str(Table(headers, data))
 
         headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
