@@ -274,7 +274,7 @@ class LongCollectionStatistics:
                 else:
                     running_counts[key].add(object_type_stat)
 
-        headers = ["Object Type", "Resource Growth", "Metric Growth", "Property Growth", "Property Values Growth", "Event Growth",
+        headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth", "Event Growth",
                    "Parent Growth", "Children Growth"]
         data = []
         for key, values in running_counts.items():
