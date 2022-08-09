@@ -3,7 +3,6 @@
 
 from collections import defaultdict
 from statistics import median, stdev
-from typing import DefaultDict
 
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 
@@ -77,6 +76,13 @@ class LongObjectTypeStatistics:
         self.children_data_points = list()
         self.string_property_values_data_points = list()
 
+        self.object_count_history = list()
+        self.metric_count_history = list()
+        self.property_count_history = list()
+        self.event_count_history = list()
+        self.parent_count_history = list()
+        self.children_count_history = list()
+
     def add(self, _object):
         self.objects_collection.update(_object.get_unique_objects())
         self.objects_data_points.append(len(self.objects_collection))
@@ -99,6 +105,13 @@ class LongObjectTypeStatistics:
         self.string_property_values_collection.update(_object.get_unique_string_property_values())
         self.string_property_values_data_points.append(len(self.string_property_values_collection))
 
+        self.object_count_history.append(_object.get_object_count())
+        self.metric_count_history.append(_object.get_metric_count())
+        self.property_count_history.append(_object.get_property_count())
+        self.event_count_history.append(_object.get_event_count())
+        self.parent_count_history.append(_object.get_parent_count())
+        self.children_count_history.append(_object.get_children_count())
+
     def get_growth_rates(self):
         return [f"{get_growth_rate(self.objects_data_points):.2f} %",
                 f"{get_growth_rate(self.metrics_data_points):.2f} %",
@@ -108,6 +121,13 @@ class LongObjectTypeStatistics:
                 f"{get_growth_rate(self.parents_data_points):.2f} %",
                 f"{get_growth_rate(self.children_data_points):.2f} %"]
 
+    def get_averages(self):
+        return [f"{get_average(self.object_count_history):.2f} %",
+                f"{get_average(self.metric_count_history):.2f} %",
+                f"{get_average(self.property_count_history):.2f} %",
+                f"{get_average(self.event_count_history):.2f} %",
+                f"{get_average(self.parent_count_history):.2f} %",
+                f"{get_average(self.children_count_history):.2f} %"]
 
 class ObjectTypeStatistics:
     def __init__(self):
@@ -235,66 +255,28 @@ def get_growth_rate(inputs: list):
 
 class LongCollectionStatistics:
     def __init__(self):
-        self.collection_statistics = []
+        self.collection_statistics = list()
+        self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
 
     def add(self, collection_statistic):
         self.collection_statistics.append(collection_statistic)
+        for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
+            self.long_object_type_statistics[object_type].add(object_type_stat)
 
     def __repr__(self):
-        object_collection_history = {}
-        collection_durations = []
-        headers = ["Object Type", "Avg Count", "Avg Metrics", "Avg Properties",
-                   "Avg Events", "Avg Parents", "Avg Children"]
-
-        # TODO: move this to a separate function
-        for collection_stat in self.collection_statistics:
-            collection_durations.append(collection_stat.duration)
-            for obj_statistics in collection_stat.obj_type_statistics.values():
-                if obj_statistics.object_type not in object_collection_history:
-                    object_collection_history[obj_statistics.object_type] = {
-                        "object_count": [obj_statistics.get_object_count()],
-                        "metric_count": [obj_statistics.get_metric_count()],
-                        "property_count": [obj_statistics.get_property_count()],
-                        "event_count": [obj_statistics.get_event_count()],
-                        "parent_count": [obj_statistics.get_parent_count()],
-                        "children_count": [obj_statistics.get_children_count()],
-                    }
-                else:
-                    object_collection_history[obj_statistics.object_type]["object_count"].append(
-                        obj_statistics.get_object_count())
-                    object_collection_history[obj_statistics.object_type]["metric_count"].append(
-                        obj_statistics.get_metric_count())
-                    object_collection_history[obj_statistics.object_type]["property_count"].append(
-                        obj_statistics.get_property_count())
-                    object_collection_history[obj_statistics.object_type]["event_count"].append(
-                        obj_statistics.get_event_count())
-                    object_collection_history[obj_statistics.object_type]["parent_count"].append(
-                        obj_statistics.get_parent_count())
-                    object_collection_history[obj_statistics.object_type]["children_count"].append(
-                        obj_statistics.get_children_count())
-
-        running_counts = defaultdict(lambda: LongObjectTypeStatistics())
-        for collection_statistic in self.collection_statistics:
-            for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
-                running_counts[object_type].add(object_type_stat)
-
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
-                   "Event Growth",
-                   "Parent Growth", "Children Growth"]
+                   "Event Growth","Parent Growth", "Children Growth"]
         data = []
-        for resource_type, obj_type_statistics in running_counts.items():
+        for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
             data.append(
                 [resource_type, *obj_type_statistics.get_growth_rates()])
-
         growth_table = str(Table(headers, data))
 
         headers = ["Object Type", "Avg Object Count", "Avg Metric Count", "Avg Property Count",
                    "Avg Event Count", "Avg Parent Count", "Avg Child Count"]
         data = []
-
-        for resource_type, values in object_collection_history.items():
-            data.append([resource_type, *[get_average(l) for l in values.values()]])
-
+        for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
+            data.append([resource_type, *obj_type_statistics.get_averages()])
         obj_table = str(Table(headers, data))
 
         headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
@@ -302,7 +284,6 @@ class LongCollectionStatistics:
         data = []
         for number, collection_stat in enumerate(self.collection_statistics):
             data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_stats()])
-
         collection_table = str(Table(headers, data))
 
         return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
