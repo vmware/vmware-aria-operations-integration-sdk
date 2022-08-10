@@ -23,7 +23,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "docker==5.0.3",
-        "Pillow==9.1.0",
+        "Pillow==9.1.1",
         "prompt_toolkit==3.0.29",
         "requests==2.27.1",
         "urllib3==1.26.9",
