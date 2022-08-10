@@ -238,17 +238,17 @@ class LongCollectionStatistics:
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
                    "Event Growth", "Relationship Growth"]
         data = []
-        for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
+        for object_type, obj_type_statistics in self.long_object_type_statistics.items():
             data.append(
-                [resource_type, *obj_type_statistics.get_growth_rates()])
+                [object_type, *obj_type_statistics.get_growth_rates()])
         growth_table = str(Table(headers, data))
 
         headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Relationships"]
         data = []
-        for resource_type, obj_type_statistics in self.long_object_type_statistics.items():
+        for object_type, obj_type_statistics in self.long_object_type_statistics.items():
             summary = obj_type_statistics.get_summary()
             data.append(
-                [resource_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
+                [object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
                  summary["relationships"]])
         obj_table = str(Table(headers, data))
 
