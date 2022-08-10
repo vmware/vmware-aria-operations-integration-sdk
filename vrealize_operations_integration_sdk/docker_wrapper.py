@@ -8,7 +8,7 @@ import docker
 from docker.models.containers import Container
 from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
-from vrealize_operations_integration_sdk.collection_statistics import convert_bytes
+from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
 
 
 def login(docker_registry):
@@ -93,26 +93,43 @@ def stop_container(container: Container):
 
 
 class ContainerStats:
-    def __init__(self, initial_stats, current_stats):
+    def __init__(self, initial_stats):
+        self.current_memory_usage = []
+        self.memory_percent_usage = []
+        self.cpu_percent_usage = []
+        self.previous_stats = initial_stats
+
+    def add(self, current_stats):
         self.block_read, self.block_write = calculate_blkio_bytes(current_stats)
         self.network_read, self.network_write = calculate_network_bytes(current_stats)
-        self.current_memory_usage = current_stats["memory_stats"]["usage"]
-        # TODO: calculate cpu percent for Windows
-        self.cpu_percent_usage = calculate_cpu_percent_latest_unix(initial_stats, current_stats)
         self.total_memory = current_stats["memory_stats"]["limit"]
-        self.memory_percent_usage = (self.current_memory_usage / self.total_memory) * 100.0
+        current_memory_usage = current_stats["memory_stats"]["usage"]
+        self.current_memory_usage.append(current_memory_usage)
+        self.memory_percent_usage.append((current_memory_usage / self.total_memory) * 100.0)
+        self.cpu_percent_usage.append(calculate_cpu_percent_latest_unix(self.previous_stats, current_stats))
 
-    def get_stats(self):
+        self.previous_stats = current_stats
+
+    @classmethod
+    def get_summary_headers(cls):
+        """
+        Returns an array with the column names for the statistics about the container:
+        """
+        return ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+
+    def get_summary(self):
         """
         Returns an array with the statistics about the container:
 
         :return: ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
         """
-        return [f"{self.cpu_percent_usage:.2f} %",
-                f"{self.memory_percent_usage:.2f} %",
-                convert_bytes(self.total_memory),
-                f"{convert_bytes(self.network_read)} / {convert_bytes(self.network_write)}",
-                f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}"]
+        return [
+            LongRunStats(self.cpu_percent_usage, "%"),
+            LongRunStats(self.memory_percent_usage, "%"),
+            convert_bytes(self.total_memory),
+            f"{convert_bytes(self.network_read)} / {convert_bytes(self.network_write)}",
+            f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}"
+        ]
 
 
 # This code is transcribed from docker's code

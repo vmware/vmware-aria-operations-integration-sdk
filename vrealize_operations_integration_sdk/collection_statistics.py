@@ -2,39 +2,11 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
-from statistics import median, stdev
 
+from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
-
-
-class Stats:
-    def __init__(self, array):
-        self.data_points = len(array)
-        self.count = sum(array)
-        self.median = median(array)
-        self.min = min(array)
-        self.max = max(array)
-        self.stddev = float("NaN")
-        if len(array) > 2:
-            self.stddev = stdev(array)
-
-    def __repr__(self):
-        if self.data_points <= 1 or self.count == 0:
-            return f"{self.count}"
-        else:
-            return f"{self.count} ({self.min}/{self.median}/{self.max})"
-
-
-class LongRunStats(Stats):
-    def __init__(self, array):
-        super().__init__(array)
-        self.average = get_average(array)
-
-    def __repr__(self):
-        if self.data_points <= 1 or self.count == 0:
-            return f"{self.average}"
-        else:
-            return f"{self.average} ({self.min}/{self.median}/{self.max})"
+from vrealize_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
+from vrealize_operations_integration_sdk.ui import Table
 
 
 class ObjectStatistics:
@@ -68,18 +40,6 @@ class ObjectStatistics:
 
     def get_children_count(self):
         return len(self.children)
-
-
-class UniqueObjectTypeStatistics:
-    def __init__(self):
-        self.running_collection = set()
-        self.data_points = list()
-        self.counts = list()
-
-    def add(self, unique_items, total_items):
-        self.running_collection.update(unique_items)
-        self.data_points.append(len(self.running_collection))
-        self.counts.append(total_items)
 
 
 class LongObjectTypeStatistics:
@@ -221,22 +181,6 @@ class ObjectTypeStatistics:
         }
 
 
-def get_average(inputs: list):
-    return sum(inputs) / len(inputs)
-
-
-def get_growth_rate(inputs: list):
-    present = inputs[-1]
-    past = inputs[0]
-
-    # Adding one to the formula allows us to account for cases where zero is the initial or final value
-    if not (present and past):
-        present += 1
-        past += 1
-
-    return (((present / past) ** (1 / len(inputs))) - 1) * 100
-
-
 class LongCollectionStatistics:
     def __init__(self):
         self.collection_statistics = list()
@@ -265,28 +209,13 @@ class LongCollectionStatistics:
                  summary["relationships"]])
         obj_table = str(Table(headers, data))
 
-        headers = ["Collection", "Duration", "Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O",
-                   "Block I/O"]
+        headers = ["Collection", "Duration", *ContainerStats.get_summary_headers()]
         data = []
         for number, collection_stat in enumerate(self.collection_statistics):
-            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_stats()])
+            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
         collection_table = str(Table(headers, data))
 
         return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
-
-
-def convert_bytes(bytes_number):
-    tags = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
-
-    i = 0
-    double_bytes = bytes_number
-
-    while i < len(tags) and bytes_number >= 1024:
-        double_bytes = bytes_number / 1024.0
-        i = i + 1
-        bytes_number = bytes_number / 1024
-
-    return str(round(double_bytes, 2)) + " " + tags[i]
 
 
 class CollectionStatistics:
@@ -334,35 +263,9 @@ class CollectionStatistics:
         rel_table = str(Table(headers, data))
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [self.container_stats.get_stats()]
+        data = [self.container_stats.get_summary()]
         table = Table(headers, data)
         container_table = str(table)
 
         duration = f"Collection completed in {self.duration:0.2f} seconds.\n"
         return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + container_table + "\n" + duration
-
-
-class Table:
-    def __init__(self, headers: [], data: [[]]):
-        # Convert each header/cell to a string - otherwise won't work with len() and format() functions
-        self.headers = [str(header) for header in headers]
-        self.data = [[str(col) for col in row] for row in data]
-
-    def __repr__(self):
-        output = ""
-        column_sizes = []
-        horizontal_rule = []
-        for col in range(len(self.headers)):
-            size = len(self.headers[col])
-            for row in self.data:
-                size = max(size, len(row[col]))
-            column_sizes.append("{:<" + str(size) + "}")
-            horizontal_rule.append("-" * size)
-        formatting = " | ".join(column_sizes)
-
-        output += formatting.format(*self.headers) + "\n"
-        output += "-+-".join(horizontal_rule) + "\n"
-        for row in self.data:
-            output += formatting.format(*row) + "\n"
-
-        return output
