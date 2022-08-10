@@ -9,6 +9,10 @@ setup(
     version="0.2.0",
     name="vrealize_operations_integration_sdk",
     description="A set of tools to help users build, develop, and distribute containerized Management Packs",
+    project_urls={
+        "Source": "https://github.com/vmware/vrealize-operations-integration-sdk",
+        "Tracker": "https://github.com/vmware/vrealize-operations-integration-sdk/issues"
+    },
     python_requires=">=3.9",
     install_requires=[
         "nest_asyncio==1.5.5",
