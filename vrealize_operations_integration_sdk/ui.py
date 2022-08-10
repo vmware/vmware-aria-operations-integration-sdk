@@ -277,3 +277,29 @@ def countdown(duration, message=""):
     finally:
         # Clears the last statement print statement
         print(re.sub(".", " ", message + f"{remaining}"), end="\r")
+
+
+class Table:
+    def __init__(self, headers: [], data: [[]]):
+        # Convert each header/cell to a string - otherwise won't work with len() and format() functions
+        self.headers = [str(header) for header in headers]
+        self.data = [[str(col) for col in row] for row in data]
+
+    def __repr__(self):
+        output = ""
+        column_sizes = []
+        horizontal_rule = []
+        for col in range(len(self.headers)):
+            size = len(self.headers[col])
+            for row in self.data:
+                size = max(size, len(row[col]))
+            column_sizes.append("{:<" + str(size) + "}")
+            horizontal_rule.append("-" * size)
+        formatting = " | ".join(column_sizes)
+
+        output += formatting.format(*self.headers) + "\n"
+        output += "-+-".join(horizontal_rule) + "\n"
+        for row in self.data:
+            output += formatting.format(*row) + "\n"
+
+        return output

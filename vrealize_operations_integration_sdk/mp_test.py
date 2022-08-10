@@ -34,7 +34,7 @@ from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import 
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
 from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
-    ContainerStats
+    ContainerStats, calculate_cpu_percent_latest_unix
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
@@ -84,11 +84,20 @@ async def run_collections(client, container, project, connection, times, collect
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
+        # We get the idle container stats first
         initial_container_stats = container.stats(stream=False)
-        request, response, elapsed_time = await send_post_to_adapter(client, project,
-                                                                     connection, COLLECT_ENDPOINT)
+        container_stats = ContainerStats(initial_container_stats)
 
-        container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
+        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        task = asyncio.create_task(coroutine)
+
+        while not task.done():
+            container_stats.add(container.stats(stream=False))
+            await asyncio.sleep(.5)
+
+        # TODO: Ensure the response is valid 2XX otherwise report it as a failed collection.
+        request, response, elapsed_time = await task
+        container_stats = container_stats
 
         json_response = json.loads(response.text)
         collection_statistics.add(
@@ -127,9 +136,12 @@ async def run_long_collect(client, container, project, connection, **kwargs):
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):
     initial_container_stats = container.stats(stream=False)
+    container_stats = ContainerStats(initial_container_stats )
+
     request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
                                                                  connection=connection, endpoint=COLLECT_ENDPOINT)
-    container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
+
+    container_stats.add(container.stats(stream=False))
 
     process(request, response, elapsed_time,
             project=project,
@@ -234,7 +246,9 @@ async def run(arguments):
                 time.sleep(0.5)
 
         # async event loop
-        async with httpx.AsyncClient() as client:
+        args = vars(arguments)
+        # TODO: Add timeout variable to CLI
+        async with httpx.AsyncClient(timeout=args.get("timeout", 360)) as client:
             await method(client=client,
                          container=container,
                          project=project,
