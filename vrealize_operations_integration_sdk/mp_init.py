@@ -297,17 +297,20 @@ def main():
         print("")
         print("")
         print("project generation completed", "class:success")
-    except (KeyboardInterrupt, Exception) as error:
+    except (KeyboardInterrupt, Exception, SystemExit) as error:
+        # In all cases, we want to clean up afterwards
+        if os.path.exists(path):
+            logger.debug("Deleting generated artifacts")
+            rmdir(path)
+
         if type(error) is KeyboardInterrupt:
             logger.info("Init cancelled by user")
+        elif type(error) is SystemExit:
+            exit(error.code)
         else:
             print("Unexpected error")
             logger.error(error)
             traceback.print_tb(error.__traceback__)
-        # In both cases, we want to clean up afterwards
-        if os.path.exists(path):
-            logger.debug("Deleting generated artifacts")
-            rmdir(path)
 
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
