@@ -25,6 +25,18 @@ class Stats:
             return f"{self.count} ({self.min}/{self.median}/{self.max})"
 
 
+class LongRunStats(Stats):
+    def __init__(self, array):
+        super().__init__(array)
+        self.average = get_average(array)
+
+    def __repr__(self):
+        if self.data_points <= 1 or self.count == 0:
+            return f"{self.average}"
+        else:
+            return f"{self.average} ({self.min}/{self.median}/{self.max})"
+
+
 class ObjectStatistics:
     def __init__(self, json):
         self.key = _get_object_id(json.get("key"))
@@ -71,6 +83,7 @@ class UniqueObjectTypeStatistics:
 
 
 class LongObjectTypeStatistics:
+
     def __init__(self):
         self.objects_stats = UniqueObjectTypeStatistics()
         self.metrics_stats = UniqueObjectTypeStatistics()
@@ -98,11 +111,11 @@ class LongObjectTypeStatistics:
 
     def get_summary(self):
         return {
-            "objects": Stats(self.objects_stats.counts),
-            "events": Stats(self.events_stats.counts),
-            "metrics": Stats(self.metrics_stats.counts),
-            "properties": Stats(self.properties_stats.counts),
-            "relationships": Stats(self.relationships_stats.counts),
+            "objects": LongRunStats(self.objects_stats.counts),
+            "events": LongRunStats(self.events_stats.counts),
+            "metrics": LongRunStats(self.metrics_stats.counts),
+            "properties": LongRunStats(self.properties_stats.counts),
+            "relationships": LongRunStats(self.relationships_stats.counts),
         }
 
 
