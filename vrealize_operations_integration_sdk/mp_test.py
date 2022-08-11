@@ -247,7 +247,11 @@ async def run(arguments):
 
         # async event loop
         args = vars(arguments)
-        async with httpx.AsyncClient(timeout=get_sec(args.get("timeout", 30))) as client:
+        timeout = get_sec(args.get("timeout", 0)) # The only instance where timeout is set to zero is for the wait method.
+        if method == run_long_collect:
+            timeout = 1.5 * get_sec(args.get("collection_interval"))
+
+        async with httpx.AsyncClient(timeout=timeout) as client:
             await method(client=client,
                          container=container,
                          project=project,
