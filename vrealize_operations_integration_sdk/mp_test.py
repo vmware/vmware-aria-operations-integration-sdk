@@ -247,9 +247,13 @@ async def run(arguments):
 
         # async event loop
         args = vars(arguments)
-        timeout = get_sec(args.get("timeout", 0)) # The only instance where timeout is set to zero is for the wait method.
-        if method == run_long_collect:
+        timeout = args.get("timeout", None)
+        if timeout is not None:
+            timeout = get_sec(timeout)
+        elif method == run_long_collect:
             timeout = 1.5 * get_sec(args.get("collection_interval"))
+
+
 
         async with httpx.AsyncClient(timeout=timeout) as client:
             await method(client=client,
@@ -506,8 +510,9 @@ def main():
                                  type=str, default="5m")
 
     long_run_method.add_argument("-t", "--timeout",
-                                 help="Timeout limit for REST request performed.",
-                                 type=str, default="5m")
+                                 help="Timeout limit for REST request performed. By default, the timeout will be set "
+                                      "to 1.5 the time of a collection interval.",
+                                 type=str)
 
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
