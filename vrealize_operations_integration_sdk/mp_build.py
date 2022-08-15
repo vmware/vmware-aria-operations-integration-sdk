@@ -55,7 +55,7 @@ def build_subdirectories(directory: str):
     for file in content_files:
         file_name = os.path.splitext(file)[0].lower()
         dir_path = os.path.join(directory, f"{file_name}")
-        os.mkdir(dir_path)
+        mkdir(dir_path)
         shutil.move(os.path.join(directory, file), dir_path)
 
 
@@ -247,8 +247,7 @@ def main():
         insecure_communication = parsed_args.insecure_collector_communication
 
         log_file_path = os.path.join(project.path, 'logs')
-        if not os.path.exists(log_file_path):
-            filesystem.mkdir(log_file_path)
+        mkdir(log_file_path)
 
         try:
             logging.basicConfig(filename=os.path.join(log_file_path, "build.log"),
@@ -265,8 +264,7 @@ def main():
         # Any artifacts for generating the pak file should be stored here
         temp_dir = os.path.join(build_dir, 'tmp')
 
-        if not os.path.exists(build_dir):
-            mkdir(build_dir)
+        mkdir(build_dir)
 
         try:
             # TODO: remove this copy and add logic to zip files from the source
