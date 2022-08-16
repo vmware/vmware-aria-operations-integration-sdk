@@ -188,7 +188,7 @@ def build_pak_file(project_path, insecure_communication):
         zip_dir(adapter, adapter_dir)
 
     os.remove(adapter_conf.name)
-    shutil.rmtree(adapter_dir)
+    rmdir(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
 
@@ -271,7 +271,8 @@ def main():
             shutil.copytree(
                 project.path,
                 temp_dir,
-                ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg"),
+                ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg",
+                                              ".git", ".gitignore"),
                 dirs_exist_ok=True
             )
 
