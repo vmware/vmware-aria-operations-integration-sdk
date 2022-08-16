@@ -22,6 +22,7 @@ from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
+from httpx import ReadTimeout
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
@@ -96,21 +97,37 @@ async def run_collections(client, container, project, connection, times, collect
             await asyncio.sleep(.5)
 
         # TODO: Ensure the response is valid 2XX otherwise report it as a failed collection.
-        request, response, elapsed_time = await task
-        container_stats = container_stats
+        try:
+            result = await task
 
-        json_response = json.loads(response.text)
-        collection_statistics.add(
-            CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
+            request, response, elapsed_time = result
+            container_stats = container_stats
 
-        next_collection = time.time() + collection_interval - elapsed_time
-        if elapsed_time > collection_interval:
-            # TODO: add this to the list of statistics?
-            logger.warning("Collection took longer than the given collection interval")
+            json_response = json.loads(response.text)
 
-        time_until_next_collection = next_collection - time.time()
-        if time_until_next_collection > 0 and times != collection_no:
-            countdown(time_until_next_collection, "Time until next collection: ")
+            if response.status_code != 200:
+                print("Non 200 response")
+            if not "errorMessage" in json_response:
+                collection_statistics.add(
+                    CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
+            else:
+                print(f"error message in result: {json_response}")
+
+            next_collection = time.time() + collection_interval - elapsed_time
+            if elapsed_time > collection_interval:
+                # TODO: add this to the list of statistics?
+                logger.warning("Collection took longer than the given collection interval")
+
+            time_until_next_collection = next_collection - time.time()
+            if time_until_next_collection > 0 and times != collection_no:
+                countdown(time_until_next_collection, "Time until next collection: ")
+
+        except ReadTimeout as timeout:
+            print("timeout reached!")
+            print(timeout)
+        except Exception as e:
+            print(f"Other error: {e}")
+            print(e)
 
     return collection_statistics
 
@@ -252,8 +269,6 @@ async def run(arguments):
             timeout = get_sec(timeout)
         elif method == run_long_collect:
             timeout = 1.5 * get_sec(args.get("collection_interval"))
-
-
 
         async with httpx.AsyncClient(timeout=timeout) as client:
             await method(client=client,
