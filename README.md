@@ -207,11 +207,23 @@ Accounts** and click `ADD ACCOUNT`. Select the newly-installed management pack a
 It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately, however newly-created
-objects cannot have metrics, properties, and events added to them. After the second collection, approximately five minutes
-later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **Environment
-&rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
+objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **
+Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](doc/test-adapter-cpu-idle-time.png)
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](doc/mp-build.md).
+
+## Contributing
+
+The vrealize-operations-integration-sdk project team welcomes contributions from the community. Before you start working
+with vrealize-operations-integration-sdk, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco).
+All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote
+the patch or have the right to pass it on as an open-source patch. For more detailed information, refer
+to [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+This project is licensed under the APACHE-2 License.

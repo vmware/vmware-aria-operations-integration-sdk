@@ -34,7 +34,7 @@ from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import 
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
 from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
-    ContainerStats
+    ContainerStats, calculate_cpu_percent_latest_unix
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
@@ -84,11 +84,20 @@ async def run_collections(client, container, project, connection, times, collect
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
+        # We get the idle container stats first
         initial_container_stats = container.stats(stream=False)
-        request, response, elapsed_time = await send_post_to_adapter(client, project,
-                                                                     connection, COLLECT_ENDPOINT)
+        container_stats = ContainerStats(initial_container_stats)
 
-        container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
+        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        task = asyncio.create_task(coroutine)
+
+        while not task.done():
+            container_stats.add(container.stats(stream=False))
+            await asyncio.sleep(.5)
+
+        # TODO: Ensure the response is valid 2XX otherwise report it as a failed collection.
+        request, response, elapsed_time = await task
+        container_stats = container_stats
 
         json_response = json.loads(response.text)
         collection_statistics.add(
@@ -127,9 +136,12 @@ async def run_long_collect(client, container, project, connection, **kwargs):
 
 async def run_collect(client, container, project, connection, verbosity, **kwargs):
     initial_container_stats = container.stats(stream=False)
+    container_stats = ContainerStats(initial_container_stats)
+
     request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
                                                                  connection=connection, endpoint=COLLECT_ENDPOINT)
-    container_stats = ContainerStats(initial_container_stats, container.stats(stream=False))
+
+    container_stats.add(container.stats(stream=False))
 
     process(request, response, elapsed_time,
             project=project,
@@ -234,7 +246,16 @@ async def run(arguments):
                 time.sleep(0.5)
 
         # async event loop
-        async with httpx.AsyncClient() as client:
+        args = vars(arguments)
+        timeout = args.get("timeout", None)
+        if timeout is not None:
+            timeout = get_sec(timeout)
+        elif method == run_long_collect:
+            timeout = 1.5 * get_sec(args.get("collection_interval"))
+
+
+
+        async with httpx.AsyncClient(timeout=timeout) as client:
             await method(client=client,
                          container=container,
                          project=project,
@@ -462,11 +483,17 @@ def main():
     test_method = methods.add_parser("connect",
                                      help="Simulate the 'test connection' method being called by the vROps collector.")
     test_method.set_defaults(func=run_connect)
+    test_method.add_argument("-t", "--timeout",
+                             help="Timeout limit for REST request performed.",
+                             type=str, default="30s")
 
     # Collect method
     collect_method = methods.add_parser("collect",
                                         help="Simulate the 'collect' method being called by the vROps collector.")
     collect_method.set_defaults(func=run_collect)
+    collect_method.add_argument("-t", "--timeout",
+                                help="Timeout limit for REST request performed.",
+                                type=str, default="5m")
 
     # Long run method
     long_run_method = methods.add_parser("long-run",
@@ -482,22 +509,33 @@ def main():
                                  help="Amount of time to wait between collections.",
                                  type=str, default="5m")
 
+    long_run_method.add_argument("-t", "--timeout",
+                                 help="Timeout limit for REST request performed. By default, the timeout will be set "
+                                      "to 1.5 the time of a collection interval.",
+                                 type=str)
+
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
                                     help="Simulate the 'endpoint_urls' method being called by the vROps collector.")
     url_method.set_defaults(func=run_get_endpoint_urls)
+    url_method.add_argument("-t", "--timeout",
+                            help="Timeout limit for REST request performed.",
+                            type=str, default="30s")
 
     # Version method
-    url_method = methods.add_parser("version",
-                                    help="Simulate the 'version' method being called by the vROps collector.")
-    url_method.set_defaults(func=run_get_server_version)
+    version_method = methods.add_parser("version",
+                                        help="Simulate the 'version' method being called by the vROps collector.")
+    version_method.set_defaults(func=run_get_server_version)
+    version_method.add_argument("-t", "--timeout",
+                                help="Timeout limit for REST request performed.",
+                                type=str, default="30s")
 
     # wait
-    url_method = methods.add_parser("wait",
-                                    help="Simulate the adapter running on a vROps collector and wait for user input "
-                                         "to stop. Useful for calling REST methods via an external tool, such as "
-                                         "Insomnia or Postman.")
-    url_method.set_defaults(func=run_wait)
+    wait_method = methods.add_parser("wait",
+                                     help="Simulate the adapter running on a vROps collector and wait for user input "
+                                          "to stop. Useful for calling REST methods via an external tool, such as "
+                                          "Insomnia or Postman.")
+    wait_method.set_defaults(func=run_wait)
 
     try:
         asyncio.run(run(parser.parse_args()))
