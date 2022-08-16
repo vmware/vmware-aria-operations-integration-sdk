@@ -15,7 +15,7 @@ def mkdir(basepath, *paths):
 
 def rmdir(basepath, *paths):
     path = os.path.join(basepath, *paths)
-    shutil.rmtree(path)
+    shutil.rmtree(path, ignore_errors=True)
 
 
 def zip_file(_zip, file):
