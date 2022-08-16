@@ -1,8 +1,9 @@
 Introduction
 ============
 ## Purpose of this SDK
-This SDK provides tools and libraries to aid in developing Management Packs for VMware vRealize Operations Manager 
-(vROps).
+This SDK provides tools and libraries to aid in developing Management Packs for VMware vRealize Operations (vROps).
+
+vROps is a monitoring, management, and optimization tool for IT operations. For more information see [vRealize Operations](https://www.vmware.com/products/vrealize-operations.html).
 
 ## What is a Management Pack
 Management Packs provide the monitoring capabilities of vROps. vROps ships with a number of built-in Management Packs, such as the vCenter Management Pack.
