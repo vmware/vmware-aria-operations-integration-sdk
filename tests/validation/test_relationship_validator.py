@@ -33,7 +33,6 @@ def test_has_cycle_1():
     nodes = {1, 2}
     adj = {1: [2], 2: [1]}
     graph = Graph(nodes, adj)
-    print(graph.get_cycles())
     assert graph.get_cycles() == {Cycle([1, 2])}
 
 
@@ -42,7 +41,6 @@ def test_has_cycle_2():
     nodes = {1, 2, 3}
     adj = {1: [2, 3], 2: [3], 3: [3]}
     graph = Graph(nodes, adj)
-    print(graph.get_cycles())
     assert graph.get_cycles() == {Cycle([3])}
 
 
@@ -51,7 +49,6 @@ def test_has_cycle_3():
     nodes = {1, 2, 3, 4, 5}
     adj = {1: [2, 3], 2: [3], 3: [4], 4: [5], 5: [2]}
     graph = Graph(nodes, adj)
-    print(graph.get_cycles())
     assert graph.get_cycles() == {Cycle([2, 3, 4, 5])}
 
 
@@ -60,7 +57,6 @@ def test_has_cycle_4():
     nodes = {1, 2, 3, 4, 5, 6}
     adj = {1: [2], 2: [3], 3: [5], 5: [4], 4: [1, 2, 6], 6: [5]}
     graph = Graph(nodes, adj)
-    print(graph.get_cycles())
     assert graph.get_cycles() == {Cycle([1, 2, 3, 5, 4]), Cycle([2, 3, 5, 4]), Cycle([4, 6, 5])}
 
 
@@ -90,8 +86,6 @@ def test_cycle_inequality_1():
     c1 = Cycle([1, 2, 3, 4])
     c2 = Cycle([1, 2, 3])
     assert c1 != c2
-    print(hash(c1))
-    print(hash(c2))
     assert hash(c1) != hash(c2)
 
 
@@ -101,8 +95,6 @@ def test_cycle_inequality_2():
     c1 = Cycle([1, 2, 3])
     c2 = Cycle([1, 3, 2])
     assert c1 != c2
-    print(hash(c1))
-    print(hash(c2))
     assert hash(c1) != hash(c2)
 
 
@@ -110,8 +102,6 @@ def test_cycle_inequality_3():
     c1 = Cycle([1, 2, 4])
     c2 = Cycle([1, 2, 3])
     assert c1 != c2
-    print(hash(c1))
-    print(hash(c2))
     assert hash(c1) != hash(c2)
 
 
@@ -119,6 +109,4 @@ def test_cycle_inequality_4():
     c1 = Cycle([1, 2, 3, 4])
     c2 = Cycle([4, 3, 2, 1])
     assert c1 != c2
-    print(hash(c1))
-    print(hash(c2))
     assert hash(c1) != hash(c2)
