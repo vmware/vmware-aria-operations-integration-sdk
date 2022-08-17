@@ -84,38 +84,21 @@ def get_sec(time_str):
 async def run_collections(client, container, project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
-        # logger.info(f"Running collection No. {collection_no} of {times}")
-        #
-        # # We get the idle container stats first
-        # initial_container_stats = container.stats(stream=False)
-        # container_stats = ContainerStats(initial_container_stats)
-        #
-        # coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        # task = asyncio.create_task(coroutine)
-        #
-        # while not task.done():
-        #     container_stats.add(container.stats(stream=False))
-        #     await asyncio.sleep(.5)
-        #
-        # try:
-        #     request, response, elapsed_time = await task
-        #     json_response = json.loads(response.text)
-        # except ReadTimeout as timeout:
-        #     pass
-        # finally:
+        logger.info(f"Running collection No. {collection_no} of {times}")
 
+        # TODO run single collection and get CollectionBundle
+        # collection_bundle = run_collect(client, container, project, connection, verbosity, **kwargs)
+        # TODO add CollectionBundle to Collection Stats
+        # collection_statistics.add(collection_bundle)
 
-        collection_statistics.add(
-            CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
-
-        next_collection = time.time() + collection_interval - elapsed_time
-        if elapsed_time > collection_interval:
-            # TODO: add this to the list of statistics?
-            logger.warning("Collection took longer than the given collection interval")
-
-        time_until_next_collection = next_collection - time.time()
-        if time_until_next_collection > 0 and times != collection_no:
-            countdown(time_until_next_collection, "Time until next collection: ")
+        # next_collection = time.time() + collection_interval - elapsed_time
+        # if elapsed_time > collection_interval:
+        #     # TODO: add this to the list of statistics?
+        #     logger.warning("Collection took longer than the given collection interval")
+        #
+        # time_until_next_collection = next_collection - time.time()
+        # if time_until_next_collection > 0 and times != collection_no:
+        #     countdown(time_until_next_collection, "Time until next collection: ")
 
     return collection_statistics
 
@@ -144,19 +127,18 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
     initial_container_stats = container.stats(stream=False)
     container_stats = ContainerStats(initial_container_stats)
 
+    coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+    task = asyncio.create_task(coroutine)
+
+    while not task.done():
+        container_stats.add(container.stats(stream=False))
+        await asyncio.sleep(.5)
     try:
-        request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
-                                                                     connection=connection, endpoint=COLLECT_ENDPOINT)
+        request, response, elapsed_time = await task
     except ReadTimeout as timeout:
-        # TODO: handle timeout
         request = timeout.request
         response = None
         elapsed_time = request.extensions.get("timeout").get("read")
-    finally:
-        container_stats.add(container.stats(stream=False))
-
-
-    #TODO: add containerstatistics here
 
     # TODO:  if there is no response, we shouldn't do any processing
     process(request, response, elapsed_time,
@@ -305,26 +287,27 @@ def process(request, response, elapsed_time, project, validators, verbosity):
     for validate in validators:
         result += validate(project, request, response)
 
+    return result
     # TODO: move this logic to the UI module to display validation results
-    for severity, message in result.messages:
-        if severity.value <= verbosity:
-            if severity.value == 1:
-                logger.error(message)
-            elif severity.value == 2:
-                logger.warning(message)
-            else:
-                logger.info(message)
-    validation_file_path = os.path.join(project.path, "logs", "validation.log")
-    write_validation_log(validation_file_path, result)
-
-    if len(result.messages) > 0:
-        logger.info(f"All validation logs written to '{validation_file_path}'")
-    if result.error_count > 0 and verbosity < 1:
-        logger.error(f"Found {result.error_count} errors when validating response")
-    if result.warning_count > 0 and verbosity < 2:
-        logger.warning(f"Found {result.warning_count} warnings when validating response")
-    if result.error_count + result.warning_count == 0:
-        logger.info("Validation passed with no errors", extra={"style": "class:success"})
+    # for severity, message in result.messages:
+    #     if severity.value <= verbosity:
+    #         if severity.value == 1:
+    #             logger.error(message)
+    #         elif severity.value == 2:
+    #             logger.warning(message)
+    #         else:
+    #             logger.info(message)
+    # validation_file_path = os.path.join(project.path, "logs", "validation.log")
+    # write_validation_log(validation_file_path, result)
+    #
+    # if len(result.messages) > 0:
+    #     logger.info(f"All validation logs written to '{validation_file_path}'")
+    # if result.error_count > 0 and verbosity < 1:
+    #     logger.error(f"Found {result.error_count} errors when validating response")
+    # if result.warning_count > 0 and verbosity < 2:
+    #     logger.warning(f"Found {result.warning_count} warnings when validating response")
+    # if result.error_count + result.warning_count == 0:
+    #     logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
 def write_validation_log(validation_file_path, result):
