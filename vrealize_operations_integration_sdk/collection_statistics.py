@@ -188,8 +188,12 @@ class LongCollectionStatistics:
 
     def add(self, collection_statistic):
         self.collection_statistics.append(collection_statistic)
-        for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
-            self.long_object_type_statistics[object_type].add(object_type_stat)
+        if type(collection_statistic) is CollectionStatistics:
+            for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
+                self.long_object_type_statistics[object_type].add(object_type_stat)
+
+    def get_failed_collections(self):
+        return list(filter(lambda s: type(s) is FailedCollection, self.collection_statistics))
 
     def __repr__(self):
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
@@ -212,10 +216,26 @@ class LongCollectionStatistics:
         headers = ["Collection", "Duration", *ContainerStats.get_summary_headers()]
         data = []
         for number, collection_stat in enumerate(self.collection_statistics):
-            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
+            number = number + 1
+            if type(collection_stat) is FailedCollection:
+                number = f"{number} (failed)"
+            data.append(
+                [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
         collection_table = str(Table(headers, data))
 
         return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
+
+
+class FailedCollection():
+    def __init__(self, message, container_stats, duration):
+        self.duration = duration
+        self.container_stats = container_stats
+        self.message = message
+
+    def get_summary(self):
+        return {
+            "message": self.message,
+        }
 
 
 class CollectionStatistics:

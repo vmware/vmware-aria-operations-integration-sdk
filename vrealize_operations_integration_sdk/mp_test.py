@@ -27,7 +27,8 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from vrealize_operations_integration_sdk import filesystem
-from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
+from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics, \
+    FailedCollection
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -96,22 +97,17 @@ async def run_collections(client, container, project, connection, times, collect
             container_stats.add(container.stats(stream=False))
             await asyncio.sleep(.5)
 
-        # TODO: Ensure the response is valid 2XX otherwise report it as a failed collection.
         try:
-            result = await task
-
-            request, response, elapsed_time = result
-            container_stats = container_stats
-
+            request, response, elapsed_time = await task
             json_response = json.loads(response.text)
 
             if response.status_code != 200:
-                print("Non 200 response")
-            if not "errorMessage" in json_response:
+                collection_statistics.add(FailedCollection(json_response, container_stats, elapsed_time))
+            elif "errorMessage" in json_response:
+                collection_statistics.add(FailedCollection(json_response.get("errorMessage"), container_stats, elapsed_time))
+            else:
                 collection_statistics.add(
                     CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
-            else:
-                print(f"error message in result: {json_response}")
 
             next_collection = time.time() + collection_interval - elapsed_time
             if elapsed_time > collection_interval:
@@ -123,11 +119,7 @@ async def run_collections(client, container, project, connection, times, collect
                 countdown(time_until_next_collection, "Time until next collection: ")
 
         except ReadTimeout as timeout:
-            print("timeout reached!")
-            print(timeout)
-        except Exception as e:
-            print(f"Other error: {e}")
-            print(e)
+            collection_statistics.add(FailedCollection("Connection timeout", container_stats, timeout.request.extensions["timeout"]["read"]))
 
     return collection_statistics
 
