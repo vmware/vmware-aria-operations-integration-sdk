@@ -84,42 +84,38 @@ def get_sec(time_str):
 async def run_collections(client, container, project, connection, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
-        logger.info(f"Running collection No. {collection_no} of {times}")
+        # logger.info(f"Running collection No. {collection_no} of {times}")
+        #
+        # # We get the idle container stats first
+        # initial_container_stats = container.stats(stream=False)
+        # container_stats = ContainerStats(initial_container_stats)
+        #
+        # coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        # task = asyncio.create_task(coroutine)
+        #
+        # while not task.done():
+        #     container_stats.add(container.stats(stream=False))
+        #     await asyncio.sleep(.5)
+        #
+        # try:
+        #     request, response, elapsed_time = await task
+        #     json_response = json.loads(response.text)
+        # except ReadTimeout as timeout:
+        #     pass
+        # finally:
 
-        # We get the idle container stats first
-        initial_container_stats = container.stats(stream=False)
-        container_stats = ContainerStats(initial_container_stats)
 
-        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        task = asyncio.create_task(coroutine)
+        collection_statistics.add(
+            CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
 
-        while not task.done():
-            container_stats.add(container.stats(stream=False))
-            await asyncio.sleep(.5)
+        next_collection = time.time() + collection_interval - elapsed_time
+        if elapsed_time > collection_interval:
+            # TODO: add this to the list of statistics?
+            logger.warning("Collection took longer than the given collection interval")
 
-        try:
-            request, response, elapsed_time = await task
-            json_response = json.loads(response.text)
-
-            if response.status_code != 200:
-                collection_statistics.add(FailedCollection(json_response, container_stats, elapsed_time))
-            elif "errorMessage" in json_response:
-                collection_statistics.add(FailedCollection(json_response.get("errorMessage"), container_stats, elapsed_time))
-            else:
-                collection_statistics.add(
-                    CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
-
-            next_collection = time.time() + collection_interval - elapsed_time
-            if elapsed_time > collection_interval:
-                # TODO: add this to the list of statistics?
-                logger.warning("Collection took longer than the given collection interval")
-
-            time_until_next_collection = next_collection - time.time()
-            if time_until_next_collection > 0 and times != collection_no:
-                countdown(time_until_next_collection, "Time until next collection: ")
-
-        except ReadTimeout as timeout:
-            collection_statistics.add(FailedCollection("Connection timeout", container_stats, timeout.request.extensions["timeout"]["read"]))
+        time_until_next_collection = next_collection - time.time()
+        if time_until_next_collection > 0 and times != collection_no:
+            countdown(time_until_next_collection, "Time until next collection: ")
 
     return collection_statistics
 
@@ -137,6 +133,7 @@ async def run_long_collect(client, container, project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
+    # TODO generate a long collection bundle that contains collection bundles
     collection_statistics, elapsed_time = await run_collections(client, container, project, connection, times,
                                                                 collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
@@ -147,16 +144,27 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
     initial_container_stats = container.stats(stream=False)
     container_stats = ContainerStats(initial_container_stats)
 
-    request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
-                                                                 connection=connection, endpoint=COLLECT_ENDPOINT)
+    try:
+        request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
+                                                                     connection=connection, endpoint=COLLECT_ENDPOINT)
+    except ReadTimeout as timeout:
+        # TODO: handle timeout
+        request = timeout.request
+        response = None
+        elapsed_time = request.extensions.get("timeout").get("read")
+    finally:
+        container_stats.add(container.stats(stream=False))
 
-    container_stats.add(container.stats(stream=False))
 
+    #TODO: add containerstatistics here
+
+    # TODO:  if there is no response, we shouldn't do any processing
     process(request, response, elapsed_time,
             project=project,
             validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
             verbosity=verbosity)
 
+    # TODO: return collection bundle
     logger.info(
         CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
 
@@ -287,6 +295,7 @@ def get_method(arguments):
          (run_get_server_version, "Version")])
 
 
+# TODO: move this function to the validation module
 def process(request, response, elapsed_time, project, validators, verbosity):
     json_response = json.loads(response.text)
     logger.info(json.dumps(json_response, sort_keys=True, indent=3))
@@ -296,6 +305,7 @@ def process(request, response, elapsed_time, project, validators, verbosity):
     for validate in validators:
         result += validate(project, request, response)
 
+    # TODO: move this logic to the UI module to display validation results
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:

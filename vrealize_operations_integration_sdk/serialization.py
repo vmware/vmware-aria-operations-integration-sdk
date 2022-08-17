@@ -1,17 +1,44 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+import datetime
+import json
+import time
+
+from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics
+
+
 class CollectionBundle:
-    def __init__(self, container_stats, duration, request, response, collection_stats=None, json=None):
-        self.container_stats = container_stats
-        self.duration = duration
+    def __init__(self, request, response, duration, container_stats):
         self.request = request
         self.response = response
-        self.collection_stats = collection_stats
-        self.json = json
+        self.duration = duration
+        self.container_stats = container_stats
+        # self.collection_number = #TODO: get collection_number
+        # self.time_stamp = time.time() #TODO: get timestamp
+
+        if not self.is_failed():
+            # get/generate json
+            # get/generate collection stats
+            # get/generate validation results
+            self.json = json.loads(response.text)
+            self.collection_stats = CollectionStatistics(self.json, container_stats, duration)
+        else:
+            self.error_message = ""
+            self.failed = True
 
     def serialize(self):
+        # TODO look into Pickle vs JSON
         pass
 
     def to_html(self):
         pass
 
     def is_failed(self) -> bool:
+        # if there is no response then we failed
+        # if the response has an errorMessage then we failed
         pass
+
+    def add_validation_results(self):
+        pass
+
+# TODO: Long Collection Bundle class?
