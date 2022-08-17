@@ -186,14 +186,11 @@ class LongCollectionStatistics:
         self.collection_statistics = list()
         self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
 
-    def add(self, collection_statistic):
-        self.collection_statistics.append(collection_statistic)
-        if type(collection_statistic) is CollectionStatistics:
-            for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
+    def add(self, collection_bundle):
+        self.collection_statistics.append(collection_bundle)
+        if not collection_bundle.failed:
+            for object_type, object_type_stat in collection_bundle.collection_stats.obj_type_statistics.items():
                 self.long_object_type_statistics[object_type].add(object_type_stat)
-
-    def get_failed_collections(self):
-        return list(filter(lambda s: type(s) is FailedCollection, self.collection_statistics))
 
     def __repr__(self):
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
@@ -217,25 +214,13 @@ class LongCollectionStatistics:
         data = []
         for number, collection_stat in enumerate(self.collection_statistics):
             number = number + 1
-            if type(collection_stat) is FailedCollection:
+            if collection_stat.failed:
                 number = f"{number} (failed)"
             data.append(
                 [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
         collection_table = str(Table(headers, data))
 
         return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
-
-
-class FailedCollection():
-    def __init__(self, message, container_stats, duration):
-        self.duration = duration
-        self.container_stats = container_stats
-        self.message = message
-
-    def get_summary(self):
-        return {
-            "message": self.message,
-        }
 
 
 class CollectionStatistics:

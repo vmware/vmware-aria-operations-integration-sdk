@@ -27,8 +27,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from vrealize_operations_integration_sdk import filesystem
-from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics, \
-    FailedCollection
+from vrealize_operations_integration_sdk.collection_statistics import  LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -82,29 +81,29 @@ def get_sec(time_str):
 
 
 @timed
-async def run_collections(client, container, project, connection, times, collection_interval):
+async def run_collections(client, container, project, connection, verbosity, times, collection_interval):
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
         # TODO run single collection and get CollectionBundle
-        # collection_bundle = run_collect(client, container, project, connection, verbosity, **kwargs)
-        # TODO add CollectionBundle to Collection Stats
-        # collection_statistics.add(collection_bundle)
+        collection_bundle = await run_collect(client, container, project, connection, verbosity)
+        elapsed_time = collection_bundle.duration
+        collection_statistics.add(collection_bundle)
 
-        # next_collection = time.time() + collection_interval - elapsed_time
-        # if elapsed_time > collection_interval:
-        #     # TODO: add this to the list of statistics?
-        #     logger.warning("Collection took longer than the given collection interval")
-        #
-        # time_until_next_collection = next_collection - time.time()
-        # if time_until_next_collection > 0 and times != collection_no:
-        #     countdown(time_until_next_collection, "Time until next collection: ")
+        next_collection = time.time() + collection_interval - elapsed_time
+        if elapsed_time > collection_interval:
+            # TODO: add this to the list of statistics?
+            logger.warning("Collection took longer than the given collection interval")
+
+        time_until_next_collection = next_collection - time.time()
+        if time_until_next_collection > 0 and times != collection_no:
+            countdown(time_until_next_collection, "Time until next collection: ")
 
     return collection_statistics
 
 
-async def run_long_collect(client, container, project, connection, **kwargs):
+async def run_long_collect(client, container, project, connection, verbosity, **kwargs):
     # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
@@ -118,13 +117,13 @@ async def run_long_collect(client, container, project, connection, **kwargs):
         times = int(duration / collection_interval)
 
     # TODO generate a long collection bundle that contains collection bundles
-    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, times,
+    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, verbosity, times,
                                                                 collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     logger.info(collection_statistics)
 
 
-async def run_collect(client, container, project, connection, verbosity, **kwargs):
+async def run_collect(client, container, project, connection, verbosity, **kwargs) -> CollectionBundle:
     initial_container_stats = container.stats(stream=False)
     container_stats = ContainerStats(initial_container_stats)
 
@@ -284,9 +283,10 @@ def get_method(arguments):
 
 # TODO: move this function to the validation module
 def process(request, response, elapsed_time, project, validators, verbosity):
-    json_response = json.loads(response.text)
-    logger.info(json.dumps(json_response, sort_keys=True, indent=3))
-    logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
+    # TODO: move this code to the UI module
+    # json_response = json.loads(response.text)
+    # logger.info(json.dumps(json_response, sort_keys=True, indent=3))
+    # logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
 
     result = Result()
     for validate in validators:

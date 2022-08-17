@@ -15,17 +15,8 @@ class CollectionBundle:
         self.container_stats = container_stats
         # self.collection_number = #TODO: get collection_number
         # self.time_stamp = time.time() #TODO: get timestamp
-
-        if not self.is_failed():
-            # get/generate json
-            # get/generate collection stats
-            # get/generate validation results
-            self.json = json.loads(response.text)
-            self.collection_stats = CollectionStatistics(self.json, container_stats, duration)
-            self.failed = False
-        else:
-            self.error_message = ""
-            self.failed = True
+        self.failed = not response or not response.is_success or "errorMessage" in response.text
+        self.process_response()
 
     def serialize(self):
         # TODO look into Pickle vs JSON
@@ -34,10 +25,17 @@ class CollectionBundle:
     def to_html(self):
         pass
 
-    def is_failed(self) -> bool:
+    def process_response(self):
         # if there is no response then we failed
-        return not self.response and not self.response.is_success and "errorMessage" not in self.response.text
-        # TODO: process result
+        # TODO: process result and add message to thi method
+        if not self.failed:
+            # get/generate json
+            # get/generate collection stats
+            # get/generate validation results
+            self.json = json.loads(self.response.text)
+            self.collection_stats = CollectionStatistics(self.json, self.container_stats, self.duration)
+        else:
+            self.error_message = ""
 
     def add_validation_results(self):
         pass
