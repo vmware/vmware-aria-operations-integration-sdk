@@ -40,6 +40,7 @@ from vrealize_operations_integration_sdk.docker_wrapper import init, build_image
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.serialization import CollectionBundle
 from vrealize_operations_integration_sdk.timer import timed
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
@@ -139,16 +140,20 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
         request = timeout.request
         response = None
         elapsed_time = request.extensions.get("timeout").get("read")
+    # TODO: handle unexpected exceptions
+
+    collection_bundle = CollectionBundle(request, response, elapsed_time, container_stats)
 
     # TODO:  if there is no response, we shouldn't do any processing
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
-            verbosity=verbosity)
+    # TODO: move this process to a the validation module
+    if not collection_bundle.failed:
+        process(request, response, elapsed_time,
+                project=project,
+                validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
+                verbosity=verbosity)
 
-    # TODO: return collection bundle
-    logger.info(
-        CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
+    logger.info(collection_bundle)
+    return collection_bundle
 
 
 async def run_connect(client, project, connection, verbosity, **kwargs):

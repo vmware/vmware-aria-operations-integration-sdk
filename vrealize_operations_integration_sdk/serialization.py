@@ -22,6 +22,7 @@ class CollectionBundle:
             # get/generate validation results
             self.json = json.loads(response.text)
             self.collection_stats = CollectionStatistics(self.json, container_stats, duration)
+            self.failed = False
         else:
             self.error_message = ""
             self.failed = True
@@ -35,10 +36,17 @@ class CollectionBundle:
 
     def is_failed(self) -> bool:
         # if there is no response then we failed
-        # if the response has an errorMessage then we failed
-        pass
+        return not self.response and not self.response.is_success and "errorMessage" not in self.response.text
+        # TODO: process result
 
     def add_validation_results(self):
         pass
+
+    def __repr__(self):
+        if self.failed:
+            # TODO: return container stats along with the reason behind the error
+            return "failed"
+        else:
+            return self.collection_stats.__repr__()
 
 # TODO: Long Collection Bundle class?
