@@ -90,8 +90,7 @@ async def run_collections(client, container, project, connection, verbosity, tim
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
-            # TODO: add this to the list of statistics?
-            # TODO:  add this to the validation functions?
+            # TODO: add this to the list of statistics in the LongCollectionBundle ?
             logger.warning("Collection took longer than the given collection interval")
 
         time_until_next_collection = next_collection - time.time()
@@ -268,10 +267,7 @@ def get_method(arguments):
          (run_get_server_version, "Version")])
 
 
-# TODO: move this function to the validation module
-# NOTE: request, response, and elapsed time are all part of the CollectionBundle
-
-
+# TODO: move to UI
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
