@@ -34,7 +34,7 @@ class Result:
         self.messages.append((ResultLevel.INFORMATION, information))
 
 
-def validate(request, response, elapsed_time, project, validators, verbosity):
+def validate(project, request, response, validators):
     # TODO: move this code to the UI module
     # json_response = json.loads(response.text)
     # logger.info(json.dumps(json_response, sort_keys=True, indent=3))

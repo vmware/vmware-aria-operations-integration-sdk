@@ -142,11 +142,7 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
     # TODO: handle unexpected exceptions
 
     collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                         container_stats=container_stats, project=project, verbosity=verbosity,
-                                         validators=[
-                                             validate_api_response,
-                                             cross_check_collection_with_describe,
-                                             validate_relationships])
+                                         container_stats=container_stats)
 
     # UI code that decides wether to go to the terminal or HTML in the future and both
     logger.info(collection_bundle)

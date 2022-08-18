@@ -16,6 +16,7 @@ from vrealize_operations_integration_sdk.validation.result import Result
 
 def validate_api_response(project, request, response):
     result = Result()
+    # TODO handle case for failed response/request
     with resources.path(api, "vrops-collector-fwk2-openapi.json") as schema_file:
         with open(schema_file, "r") as schema:
             try:
