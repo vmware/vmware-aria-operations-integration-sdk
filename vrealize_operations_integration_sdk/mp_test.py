@@ -27,7 +27,7 @@ from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 
 from vrealize_operations_integration_sdk import filesystem
-from vrealize_operations_integration_sdk.collection_statistics import  LongCollectionStatistics
+from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -49,7 +49,7 @@ from vrealize_operations_integration_sdk.validation.describe_checks import cross
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
-from vrealize_operations_integration_sdk.validation.result import Result
+from vrealize_operations_integration_sdk.validation.result import Result, validate
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -86,14 +86,15 @@ async def run_collections(client, container, project, connection, verbosity, tim
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
-        # TODO run single collection and get CollectionBundle
         collection_bundle = await run_collect(client, container, project, connection, verbosity)
+        collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
         collection_statistics.add(collection_bundle)
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
             # TODO: add this to the list of statistics?
+            # TODO:  add this to the validation functions?
             logger.warning("Collection took longer than the given collection interval")
 
         time_until_next_collection = next_collection - time.time()
@@ -104,7 +105,6 @@ async def run_collections(client, container, project, connection, verbosity, tim
 
 
 async def run_long_collect(client, container, project, connection, verbosity, **kwargs):
-    # TODO: Add flag to specify collection period statistics
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
     collection_interval = get_sec(cli_args["collection_interval"])
@@ -116,8 +116,8 @@ async def run_long_collect(client, container, project, connection, verbosity, **
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    # TODO generate a long collection bundle that contains collection bundles
-    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, verbosity, times,
+    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, verbosity,
+                                                                times,
                                                                 collection_interval)
     logger.debug(f"Long collection duration: {elapsed_time}")
     logger.info(collection_statistics)
@@ -141,16 +141,14 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
         elapsed_time = request.extensions.get("timeout").get("read")
     # TODO: handle unexpected exceptions
 
-    collection_bundle = CollectionBundle(request, response, elapsed_time, container_stats)
+    collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
+                                         container_stats=container_stats, project=project, verbosity=verbosity,
+                                         validators=[
+                                             validate_api_response,
+                                             cross_check_collection_with_describe,
+                                             validate_relationships])
 
-    # TODO:  if there is no response, we shouldn't do any processing
-    # TODO: move this process to a the validation module
-    if not collection_bundle.failed:
-        process(request, response, elapsed_time,
-                project=project,
-                validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
-                verbosity=verbosity)
-
+    # UI code that decides wether to go to the terminal or HTML in the future and both
     logger.info(collection_bundle)
     return collection_bundle
 
@@ -158,26 +156,26 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
 async def run_connect(client, project, connection, verbosity, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
 
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+    validate(request, response, elapsed_time,
+             project=project,
+             validators=[validate_api_response],
+             verbosity=verbosity)
 
 
 async def run_get_endpoint_urls(client, project, connection, verbosity, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+    validate(request, response, elapsed_time,
+             project=project,
+             validators=[validate_api_response],
+             verbosity=verbosity)
 
 
 async def run_get_server_version(client, project, verbosity, **kwargs):
     request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+    validate(request, response, elapsed_time,
+             project=project,
+             validators=[validate_api_response],
+             verbosity=verbosity)
 
 
 def run_wait(**kwargs):
@@ -267,6 +265,8 @@ async def run(arguments):
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
 
+    # TODO: Add UI code here
+
 
 def get_method(arguments):
     if "func" in vars(arguments):
@@ -282,37 +282,7 @@ def get_method(arguments):
 
 
 # TODO: move this function to the validation module
-def process(request, response, elapsed_time, project, validators, verbosity):
-    # TODO: move this code to the UI module
-    # json_response = json.loads(response.text)
-    # logger.info(json.dumps(json_response, sort_keys=True, indent=3))
-    # logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
-
-    result = Result()
-    for validate in validators:
-        result += validate(project, request, response)
-
-    return result
-    # TODO: move this logic to the UI module to display validation results
-    # for severity, message in result.messages:
-    #     if severity.value <= verbosity:
-    #         if severity.value == 1:
-    #             logger.error(message)
-    #         elif severity.value == 2:
-    #             logger.warning(message)
-    #         else:
-    #             logger.info(message)
-    # validation_file_path = os.path.join(project.path, "logs", "validation.log")
-    # write_validation_log(validation_file_path, result)
-    #
-    # if len(result.messages) > 0:
-    #     logger.info(f"All validation logs written to '{validation_file_path}'")
-    # if result.error_count > 0 and verbosity < 1:
-    #     logger.error(f"Found {result.error_count} errors when validating response")
-    # if result.warning_count > 0 and verbosity < 2:
-    #     logger.warning(f"Found {result.warning_count} warnings when validating response")
-    # if result.error_count + result.warning_count == 0:
-    #     logger.info("Validation passed with no errors", extra={"style": "class:success"})
+# NOTE: request, response, and elapsed time are all part of the CollectionBundle
 
 
 def write_validation_log(validation_file_path, result):
