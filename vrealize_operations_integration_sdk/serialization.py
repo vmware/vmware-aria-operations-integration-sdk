@@ -30,9 +30,6 @@ class ResponseBundle:
         # TODO look into Pickle vs JSON
         pass
 
-    def to_html(self):
-        pass
-
     def failed(self):
         return not self.response or not self.response.is_success or "errorMessage" in self.response.text
 
@@ -55,4 +52,22 @@ class CollectionBundle(ResponseBundle):
     def __repr__(self):
         return self.stats.__repr__()
 
-# TODO: ConnectBundle
+class LongCollectionBundle():
+    #TODO
+    def __init__(self, collection_bundles, ):
+        pass
+
+
+class ConnectBundle(ResponseBundle):
+    def __init__(self, request, response, duration):
+        super().__init__(request, response, duration, [validate_api_response])
+
+
+class EndpointURLsBundle(ResponseBundle):
+    def __init__(self, request, response, duration):
+        super().__init__(request, response, duration, [validate_api_response])
+
+
+class VersionBundle(ResponseBundle):
+    def __init__(self, request, response, duration):
+        super().__init__(request, response, duration, [validate_api_response])

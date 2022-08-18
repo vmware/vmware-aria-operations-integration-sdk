@@ -34,17 +34,6 @@ class Result:
         self.messages.append((ResultLevel.INFORMATION, information))
 
 
-def validate(project, request, response, validators):
-    # TODO: move this code to the UI module
-    # json_response = json.loads(response.text)
-    # logger.info(json.dumps(json_response, sort_keys=True, indent=3))
-    # logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
-
-    result = Result()
-    for _validate in validators:
-        result += _validate(project, request, response)
-
-    return result
     # TODO: move this logic to the UI module to display validation results
     # for severity, message in result.messages:
     #     if severity.value <= verbosity:

@@ -25,7 +25,6 @@ from flask import json
 from httpx import ReadTimeout
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
-
 from vrealize_operations_integration_sdk import filesystem
 from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
@@ -35,21 +34,18 @@ from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import 
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
 from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
-    ContainerStats, calculate_cpu_percent_latest_unix
+    ContainerStats
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
-from vrealize_operations_integration_sdk.serialization import CollectionBundle
+from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
+    EndpointURLsBundle
 from vrealize_operations_integration_sdk.timer import timed
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
-from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
-from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe, \
-    validate_describe
+from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator
-from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
-from vrealize_operations_integration_sdk.validation.result import Result, validate
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -82,6 +78,7 @@ def get_sec(time_str):
 
 @timed
 async def run_collections(client, container, project, connection, verbosity, times, collection_interval):
+    # TODO: add this to long collection bundle
     collection_statistics = LongCollectionStatistics()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
@@ -119,11 +116,12 @@ async def run_long_collect(client, container, project, connection, verbosity, **
     collection_statistics, elapsed_time = await run_collections(client, container, project, connection, verbosity,
                                                                 times,
                                                                 collection_interval)
+    # TODO: return long collection bundle?
     logger.debug(f"Long collection duration: {elapsed_time}")
     logger.info(collection_statistics)
 
 
-async def run_collect(client, container, project, connection, verbosity, **kwargs) -> CollectionBundle:
+async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:
     initial_container_stats = container.stats(stream=False)
     container_stats = ContainerStats(initial_container_stats)
 
@@ -149,29 +147,21 @@ async def run_collect(client, container, project, connection, verbosity, **kwarg
     return collection_bundle
 
 
-async def run_connect(client, project, connection, verbosity, **kwargs):
+async def run_connect(client, project, connection, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
 
-    validate(request, response, elapsed_time,
-             project=project,
-             validators=[validate_api_response],
-             verbosity=verbosity)
+    return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_endpoint_urls(client, project, connection, verbosity, **kwargs):
+async def run_get_endpoint_urls(client, project, connection, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
-    validate(request, response, elapsed_time,
-             project=project,
-             validators=[validate_api_response],
-             verbosity=verbosity)
+    return EndpointURLsBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(client, project, verbosity, **kwargs):
+async def run_get_server_version(client, **kwargs):
     request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-    validate(request, response, elapsed_time,
-             project=project,
-             validators=[validate_api_response],
-             verbosity=verbosity)
+
+    return VersionBundle(request, response, elapsed_time)
 
 
 def run_wait(**kwargs):
@@ -251,17 +241,18 @@ async def run(arguments):
             timeout = 1.5 * get_sec(args.get("collection_interval"))
 
         async with httpx.AsyncClient(timeout=timeout) as client:
-            await method(client=client,
-                         container=container,
-                         project=project,
-                         connection=connection,
-                         verbosity=verbosity,
-                         cli_args=vars(arguments))
+            ui_package = await method(client=client,
+                                      container=container,
+                                      project=project,
+                                      connection=connection,
+                                      verbosity=verbosity,
+                                      cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
 
     # TODO: Add UI code here
+    logger.info(ui_package)
 
 
 def get_method(arguments):
