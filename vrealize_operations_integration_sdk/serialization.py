@@ -55,10 +55,13 @@ class CollectionBundle(ResponseBundle):
         self.collection_number = 1
         self.time_stamp = time.time()
 
+    def get_collection_statistics(self):
+        return None if self.failed() else CollectionStatistics(json.loads(self.response.text))
+
     def __repr__(self):
         _str = ""
         if not self.failed():
-            _str = CollectionStatistics(json.loads(self.response.text)).__repr__() + "\n"
+            _str = repr(self.get_collection_statistics()) + "\n"
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
         data = [self.container_stats.get_summary()]
@@ -69,12 +72,14 @@ class CollectionBundle(ResponseBundle):
 
 
 class LongCollectionBundle:
-    def __init__(self, collection_bundles, duration):
-        self.collection_bundles = collection_bundles
-        self.duration = duration
+    def __init__(self, ):
+        self.collection_bundles = list()
 
     def __repr__(self):
         return repr(LongCollectionStatistics(self.collection_bundles))
+
+    def add(self, collection_bundle):
+        self.collection_bundles.append(collection_bundle)
 
 
 class ConnectBundle(ResponseBundle):

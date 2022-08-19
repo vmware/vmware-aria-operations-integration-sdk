@@ -26,7 +26,6 @@ from httpx import ReadTimeout
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException
 from vrealize_operations_integration_sdk import filesystem
-from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -39,7 +38,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, ResponseBundle
+    EndpointURLsBundle, LongCollectionBundle
 from vrealize_operations_integration_sdk.timer import timed
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
@@ -76,10 +75,19 @@ def get_sec(time_str):
         exit(1)
 
 
-@timed
-async def run_collections(client, container, project, connection, times, collection_interval):
-    # TODO: add this to long collection bundle
-    collection_bundles = list()
+async def run_long_collect(client, container, project, connection, **kwargs):
+    logger.debug("Starting long run")
+    cli_args = kwargs.get("cli_args")
+    duration = get_sec(cli_args["duration"])
+    collection_interval = get_sec(cli_args["collection_interval"])
+
+    if duration < collection_interval:
+        times = 1
+    else:
+        # Remove decimal points by casting number to integer, which behaves as a floor function
+        times = int(duration / collection_interval)
+
+    long_collection_bundle = LongCollectionBundle()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
@@ -92,30 +100,13 @@ async def run_collections(client, container, project, connection, times, collect
             # TODO: add this to the list of statistics in the LongCollectionBundle ?
             logger.warning("Collection took longer than the given collection interval")
 
-        collection_bundles.append(collection_bundle)
+        long_collection_bundle.add(collection_bundle)
 
         time_until_next_collection = next_collection - time.time()
         if time_until_next_collection > 0 and times != collection_no:
             countdown(time_until_next_collection, "Time until next collection: ")
 
-    return collection_bundles
-
-
-async def run_long_collect(client, container, project, connection, verbosity, **kwargs):
-    cli_args = kwargs.get("cli_args")
-    duration = get_sec(cli_args["duration"])
-    collection_interval = get_sec(cli_args["collection_interval"])
-
-    logger.debug("starting long run")
-    if duration < collection_interval:
-        times = 1
-    else:
-        # Remove decimal points by casting number to integer, which behaves as a floor function
-        times = int(duration / collection_interval)
-
-    collection_bundles, elapsed_time = await run_collections(client, container, project, connection, times,
-                                                             collection_interval)
-    return LongCollectionBundle(collection_bundles, elapsed_time)
+    return long_collection_bundle
 
 
 async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:

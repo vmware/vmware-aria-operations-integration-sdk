@@ -190,8 +190,9 @@ class LongCollectionStatistics:
 
     def add(self, collection_bundle):
         self.collection_statistics.append(collection_bundle)
-        if not collection_bundle.failed():
-            for object_type, object_type_stat in collection_bundle.stats.obj_type_statistics.items():
+        statistics = collection_bundle.get_collection_statistics()
+        if statistics:
+            for object_type, object_type_stat in statistics.items():
                 self.long_object_type_statistics[object_type].add(object_type_stat)
 
     def __repr__(self):
