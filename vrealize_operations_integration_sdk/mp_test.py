@@ -39,7 +39,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle
+    EndpointURLsBundle, LongCollectionBundle, ResponseBundle
 from vrealize_operations_integration_sdk.timer import timed
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
@@ -236,18 +236,23 @@ async def run(arguments):
             timeout = 1.5 * get_sec(args.get("collection_interval"))
 
         async with httpx.AsyncClient(timeout=timeout) as client:
-            ui_package = await method(client=client,
-                                      container=container,
-                                      project=project,
-                                      connection=connection,
-                                      verbosity=verbosity,
-                                      cli_args=vars(arguments))
+            result_bundle = await method(client=client,
+                                         container=container,
+                                         project=project,
+                                         connection=connection,
+                                         verbosity=verbosity,
+                                         cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
 
     # TODO: Add UI code here
-    logger.info(ui_package)
+    logger.info(result_bundle)
+    if type(result_bundle) is not LongCollectionBundle:
+        ui_validation(result_bundle.validate(project),
+                      project,
+                      os.path.join(project.path, "logs", "validation.log"),
+                      verbosity)
 
 
 def get_method(arguments):
@@ -263,7 +268,30 @@ def get_method(arguments):
          (run_get_server_version, "Version")])
 
 
-# TODO: move to UI
+# TODO: move this to UI
+def ui_validation(result, project, validation_file_path, verbosity):
+    for severity, message in result.messages:
+        if severity.value <= verbosity:
+            if severity.value == 1:
+                logger.error(message)
+            elif severity.value == 2:
+                logger.warning(message)
+            else:
+                logger.info(message)
+    validation_file_path = os.path.join(project.path, "logs", "validation.log")
+    write_validation_log(validation_file_path, result)
+
+    if len(result.messages) > 0:
+        logger.info(f"All validation logs written to '{validation_file_path}'")
+    if result.error_count > 0 and verbosity < 1:
+        logger.error(f"Found {result.error_count} errors when validating response")
+    if result.warning_count > 0 and verbosity < 2:
+        logger.warning(f"Found {result.warning_count} warnings when validating response")
+    if result.error_count + result.warning_count == 0:
+        logger.info("Validation passed with no errors", extra={"style": "class:success"})
+
+
+# TODO: move this to UI
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:

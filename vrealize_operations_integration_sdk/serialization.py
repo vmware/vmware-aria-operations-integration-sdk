@@ -4,8 +4,8 @@ import json
 import time
 
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
+from vrealize_operations_integration_sdk.ui import Table
 
-# NOTE: we could make this a bit more generic maybe move it to the API package and call it ResponseBundle?
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
@@ -37,7 +37,7 @@ class ResponseBundle:
         if not self.failed():
             response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
         else:
-            response = "Failed: {self.error_message}"  # TODO: get error message
+            response = "Failed: {}"  # TODO: get error message
 
         response += f"\nRequest completed in {self.duration:0.2f} seconds."
 
@@ -54,13 +54,18 @@ class CollectionBundle(ResponseBundle):
         self.container_stats = container_stats
         self.collection_number = 1
         self.time_stamp = time.time()
-        if not self.failed():
-            self.stats = CollectionStatistics(json.loads(response.text), container_stats, duration)
-        else:
-            self.stats = container_stats
 
     def __repr__(self):
-        return self.stats.__repr__()
+        _str = ""
+        if not self.failed():
+            _str = CollectionStatistics(json.loads(self.response.text)).__repr__() + "\n"
+
+        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+        data = [self.container_stats.get_summary()]
+        table = Table(headers, data)
+        _str += str(table) + "\n"
+        _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
+        return _str
 
 
 class LongCollectionBundle:

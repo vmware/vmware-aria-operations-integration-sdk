@@ -226,12 +226,10 @@ class LongCollectionStatistics:
 
 
 class CollectionStatistics:
-    def __init__(self, json, container_stats, duration):
-        self.duration = duration
+    def __init__(self, json):
         self.obj_type_statistics = defaultdict(lambda: ObjectTypeStatistics())
         self.obj_statistics = {}
         self.rel_statistics = defaultdict(lambda: 0)
-        self.container_stats = container_stats
         self.get_counts(json)
 
     def get_counts(self, json):
@@ -269,10 +267,4 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [self.container_stats.get_summary()]
-        table = Table(headers, data)
-        container_table = str(table)
-
-        duration = f"Collection completed in {self.duration:0.2f} seconds.\n"
-        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + container_table + "\n" + duration
+        return "Collection summary: \n\n" + obj_table + "\n" + rel_table
