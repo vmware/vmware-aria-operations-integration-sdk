@@ -74,7 +74,7 @@ class LongCollectionBundle:
         self.duration = duration
 
     def __repr__(self):
-        return LongCollectionStatistics(self.collection_bundles).__repr__()
+        return repr(LongCollectionStatistics(self.collection_bundles))
 
 
 class ConnectBundle(ResponseBundle):
