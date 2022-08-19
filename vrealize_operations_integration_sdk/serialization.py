@@ -3,7 +3,7 @@
 import json
 import time
 
-from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics
+from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 
 # NOTE: we could make this a bit more generic maybe move it to the API package and call it ResponseBundle?
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
@@ -33,6 +33,16 @@ class ResponseBundle:
     def failed(self):
         return not self.response or not self.response.is_success or "errorMessage" in self.response.text
 
+    def __repr__(self):
+        if not self.failed():
+            response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
+        else:
+            response = "Failed: {self.error_message}"  # TODO: get error message
+
+        response += f"\nRequest completed in {self.duration:0.2f} seconds."
+
+        return response
+
 
 class CollectionBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_stats):
@@ -52,10 +62,14 @@ class CollectionBundle(ResponseBundle):
     def __repr__(self):
         return self.stats.__repr__()
 
-class LongCollectionBundle():
-    #TODO
-    def __init__(self, collection_bundles, ):
-        pass
+
+class LongCollectionBundle:
+    def __init__(self, collection_bundles, duration):
+        self.collection_bundles = collection_bundles
+        self.duration = duration
+
+    def __repr__(self):
+        return LongCollectionStatistics(self.collection_bundles).__repr__()
 
 
 class ConnectBundle(ResponseBundle):

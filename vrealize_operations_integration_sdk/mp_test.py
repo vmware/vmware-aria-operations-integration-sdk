@@ -39,7 +39,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle
+    EndpointURLsBundle, LongCollectionBundle
 from vrealize_operations_integration_sdk.timer import timed
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
@@ -77,27 +77,28 @@ def get_sec(time_str):
 
 
 @timed
-async def run_collections(client, container, project, connection, verbosity, times, collection_interval):
+async def run_collections(client, container, project, connection, times, collection_interval):
     # TODO: add this to long collection bundle
-    collection_statistics = LongCollectionStatistics()
+    collection_bundles = list()
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
-        collection_bundle = await run_collect(client, container, project, connection, verbosity)
+        collection_bundle = await run_collect(client, container, project, connection)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
-        collection_statistics.add(collection_bundle)
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
             # TODO: add this to the list of statistics in the LongCollectionBundle ?
             logger.warning("Collection took longer than the given collection interval")
 
+        collection_bundles.append(collection_bundle)
+
         time_until_next_collection = next_collection - time.time()
         if time_until_next_collection > 0 and times != collection_no:
             countdown(time_until_next_collection, "Time until next collection: ")
 
-    return collection_statistics
+    return collection_bundles
 
 
 async def run_long_collect(client, container, project, connection, verbosity, **kwargs):
@@ -112,12 +113,9 @@ async def run_long_collect(client, container, project, connection, verbosity, **
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, verbosity,
-                                                                times,
-                                                                collection_interval)
-    # TODO: return long collection bundle?
-    logger.debug(f"Long collection duration: {elapsed_time}")
-    logger.info(collection_statistics)
+    collection_bundles, elapsed_time = await run_collections(client, container, project, connection, times,
+                                                             collection_interval)
+    return LongCollectionBundle(collection_bundles, elapsed_time)
 
 
 async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:
@@ -129,6 +127,7 @@ async def run_collect(client, container, project, connection, **kwargs) -> Colle
 
     while not task.done():
         container_stats.add(container.stats(stream=False))
+        # TODO: inform the user that we are polling data every .5 seconds
         await asyncio.sleep(.5)
     try:
         request, response, elapsed_time = await task
@@ -140,9 +139,6 @@ async def run_collect(client, container, project, connection, **kwargs) -> Colle
 
     collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
                                          container_stats=container_stats)
-
-    # UI code that decides wether to go to the terminal or HTML in the future and both
-    logger.info(collection_bundle)
     return collection_bundle
 
 

@@ -182,14 +182,16 @@ class ObjectTypeStatistics:
 
 
 class LongCollectionStatistics:
-    def __init__(self):
+    def __init__(self, collection_bundle_list):
         self.collection_statistics = list()
         self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
+        for collection_bundle in collection_bundle_list:
+            self.add(collection_bundle)
 
     def add(self, collection_bundle):
         self.collection_statistics.append(collection_bundle)
-        if not collection_bundle.failed:
-            for object_type, object_type_stat in collection_bundle.collection_stats.obj_type_statistics.items():
+        if not collection_bundle.failed():
+            for object_type, object_type_stat in collection_bundle.stats.obj_type_statistics.items():
                 self.long_object_type_statistics[object_type].add(object_type_stat)
 
     def __repr__(self):
