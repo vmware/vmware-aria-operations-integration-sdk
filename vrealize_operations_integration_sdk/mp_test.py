@@ -249,6 +249,7 @@ async def run(arguments):
     # TODO: Add UI code here
     logger.info(result_bundle)
     if type(result_bundle) is not LongCollectionBundle:
+        # TODO: This logic should be performed in the UI
         ui_validation(result_bundle.validate(project),
                       project,
                       os.path.join(project.path, "logs", "validation.log"),
