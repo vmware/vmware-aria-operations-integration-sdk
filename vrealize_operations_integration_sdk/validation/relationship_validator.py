@@ -113,4 +113,6 @@ def validate_relationships(project, request, response):
 
     except JSONDecodeError as d:
         result.with_error(f"Returned result is not valid json: '{repr(response.text)}' Error: '{d}'")
+    except Exception as e:
+        result.with_error(f"Unable to validate relationship: '{e}'")
     return result
