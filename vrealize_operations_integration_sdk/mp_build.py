@@ -2,6 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import collections
 import json
 import logging
 import os
@@ -11,16 +12,19 @@ import traceback
 import zipfile
 
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
+from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_kind
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
 from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project
-from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt
+from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = logging.StreamHandler()
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
@@ -113,26 +117,60 @@ def get_docker_registry(adapter_kind_key, config_file):
     return docker_registry
 
 
+def fix_describe(describe_adapter_kind_key, manifest_file):
+    if describe_adapter_kind_key is None:
+        exit(1)
+    if not selection_prompt(
+            f"Update manifest.txt with adapter kind from describe.xml ('{describe_adapter_kind_key}')?",
+            [(True, "Yes"), (False, "No")],
+            "Select 'Yes' to update the 'manifest.txt' file and continue with the build. Select 'No' to exit without "
+            "building and fix the issue manually."):
+        exit(1)
+    with open(manifest_file) as manifest_fd:
+        # use ordered dictionary to preserve the key order in the file
+        manifest = json.load(manifest_fd, object_pairs_hook=collections.OrderedDict)
+    manifest["adapter_kinds"] = [describe_adapter_kind_key]
+    with open(manifest_file, "w") as manifest_fd:
+        json.dump(manifest, manifest_fd, indent=4, sort_keys=False)
+    print("Wrote updated manifest.txt file.", "class:success")
+    return manifest
+
+
 def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
-    with open("manifest.txt") as manifest_file:
-        manifest = json.load(manifest_file)
+    manifest_file = os.path.join(project_path, "manifest.txt")
 
-    # We should ask the user for this before we populate them with default values
-    # Default values are only accessible for authorize members, so we might want to add a message about it
+    with open(manifest_file) as manifest_fd:
+        manifest = json.load(manifest_fd)
+
     config_file = os.path.join(project_path, "config.json")
+    try:
+        describe_adapter_kind_key = get_adapter_kind(get_describe("."))
+    except Exception as e:
+        describe_adapter_kind_key = None
 
-    adapter_kinds = manifest["adapter_kinds"]
+    adapter_kinds = manifest.get("adapter_kinds", [])
     if len(adapter_kinds) == 0:
         logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
-        exit(1)
+        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+        adapter_kinds = manifest["adapter_kinds"]
+
     if len(adapter_kinds) > 1:
         logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
                      "kinds are specified in manifest.txt (key='adapter_kinds').")
-        exit(1)
+        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+        adapter_kinds = manifest["adapter_kinds"]
     adapter_kind_key = adapter_kinds[0]
 
+    if describe_adapter_kind_key is not None and describe_adapter_kind_key != adapter_kind_key:
+        logger.error(f"The 'adapter_kinds' key in manifest.txt (\"adapter_kinds\": [\"{adapter_kind_key}\"]') must "
+                     f"contain a single item matching the adapter kind key in describe.xml: "
+                     f"'{describe_adapter_kind_key}'.")
+        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+
+    # We should ask the user for this before we populate them with default values
+    # Default values are only accessible for authorize members, so we might want to add a message about it
     docker_registry = get_docker_registry(adapter_kind_key, config_file)
 
     tag = manifest["version"] + "_" + str(time.time())
@@ -286,7 +324,7 @@ def main():
                 os.remove(os.path.join(build_dir, pak_file))
 
             shutil.move(pak_file, build_dir)
-            print("Build succeeded", "class:success")
+            print("Build Succeeded", "class:success")
         finally:
             # There is a small probability that the temp dir doesn't exist
             if os.path.exists(temp_dir):
@@ -307,6 +345,7 @@ def main():
         logger.info("Build cancelled")
         exit(1)
     except SystemExit as system_exit:
+        logger.error("Unable to build pak file")
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
