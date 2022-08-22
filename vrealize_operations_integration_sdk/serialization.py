@@ -37,13 +37,13 @@ class ResponseBundle:
         if not self.failed():
             response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
         else:
-            response = f"Failed: {self._get_failure_message()}"  # TODO: get error message
+            response = f"Failed: {self.get_failure_message()}"  # TODO: get error message
 
         response += f"\nRequest completed in {self.duration:0.2f} seconds."
 
         return response
 
-    def _get_failure_message(self):
+    def get_failure_message(self):
         message = ""
         if not self.response.is_success:
             message = f"{self.response.status_code} {self.response.reason_phrase}"
@@ -72,7 +72,7 @@ class CollectionBundle(ResponseBundle):
         if not self.failed():
             _str = repr(self.get_collection_statistics()) + "\n"
         else:
-            _str = f"Collection Failed: {self._get_failure_message()}\n"
+            _str = f"Collection Failed: {self.get_failure_message()}\n"
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
         data = [self.container_stats.get_summary()]
@@ -83,11 +83,12 @@ class CollectionBundle(ResponseBundle):
 
 
 class LongCollectionBundle:
-    def __init__(self, ):
+    def __init__(self, collection_interval):
         self.collection_bundles = list()
+        self.collection_interval = collection_interval
 
     def __repr__(self):
-        return repr(LongCollectionStatistics(self.collection_bundles))
+        return repr(LongCollectionStatistics(self.collection_bundles, self.collection_interval))
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)

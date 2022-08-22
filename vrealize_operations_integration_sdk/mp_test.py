@@ -87,7 +87,7 @@ async def run_long_collect(client, container, project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    long_collection_bundle = LongCollectionBundle()
+    long_collection_bundle = LongCollectionBundle(collection_interval)
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
