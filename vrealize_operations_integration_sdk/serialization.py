@@ -37,7 +37,7 @@ class ResponseBundle:
         if not self.failed():
             response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
         else:
-            response = f"Failed: {self.get_failure_message()}"  # TODO: get error message
+            response = f"Failed: {self.get_failure_message()}"
 
         response += f"\nRequest completed in {self.duration:0.2f} seconds."
 

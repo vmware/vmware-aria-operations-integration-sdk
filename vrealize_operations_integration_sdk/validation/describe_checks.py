@@ -167,7 +167,7 @@ def cross_check_collection_with_describe(project, request, response):
     result = Result()
     try:
         if not response.is_success:
-            result.with_error(f"Unable to validate describe.xml due to status code {response.status_code} in response")
+            result.with_error(f"Unable to cross check collection against describe.xml: {response.status_code} {response.reason_phrase}")
             return result
         path = project.path
         results = json.loads(response.text)

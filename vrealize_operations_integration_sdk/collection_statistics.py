@@ -224,6 +224,7 @@ class LongCollectionStatistics:
             if collection_stat.failed():
                 number = f"{number} (failed)"
                 failed_collections.append(collection_stat)
+                longer_collections.append(collection_stat)
             elif collection_stat.duration > self.collection_interval:
                 number = f"{number} (longer than collection interval)"
                 longer_collections.append(collection_stat)

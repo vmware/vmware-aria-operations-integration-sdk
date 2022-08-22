@@ -87,7 +87,7 @@ def validate_relationships(project, request, response):
     result = Result()
     try:
         if not response.is_success:
-            result.with_error(f"Unable to validate relationships due to status code {response.status_code} in response")
+            result.with_error(f"Unable to validate relationship: {response.status_code} {response.reason_phrase}")
             return result
 
         results = json.loads(response.text)

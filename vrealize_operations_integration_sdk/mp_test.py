@@ -94,13 +94,11 @@ async def run_long_collect(client, container, project, connection, **kwargs):
         collection_bundle = await run_collect(client, container, project, connection)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
+        long_collection_bundle.add(collection_bundle)
 
         next_collection = time.time() + collection_interval - elapsed_time
         if elapsed_time > collection_interval:
-            # TODO: add this to the list of statistics in the LongCollectionBundle ?
             logger.warning("Collection took longer than the given collection interval")
-
-        long_collection_bundle.add(collection_bundle)
 
         time_until_next_collection = next_collection - time.time()
         if time_until_next_collection > 0 and times != collection_no:
@@ -127,7 +125,6 @@ async def run_collect(client, container, project, connection, **kwargs) -> Colle
         request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
         response = Response(408)
         elapsed_time = timeout_request.extensions.get("timeout").get("read")
-    # TODO: handle unexpected exceptions
 
     collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
                                          container_stats=container_stats)
