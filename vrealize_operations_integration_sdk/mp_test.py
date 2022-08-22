@@ -22,9 +22,9 @@ from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
-from httpx import ReadTimeout
+from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator
-from requests import RequestException
+from requests import RequestException, Request
 from vrealize_operations_integration_sdk import filesystem
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
@@ -123,9 +123,11 @@ async def run_collect(client, container, project, connection, **kwargs) -> Colle
     try:
         request, response, elapsed_time = await task
     except ReadTimeout as timeout:
-        request = timeout.request
-        response = None
-        elapsed_time = request.extensions.get("timeout").get("read")
+        # Translate the error to a standard request response format (for validation purposes)
+        timeout_request = timeout.request
+        request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
+        response = Response(408)
+        elapsed_time = timeout_request.extensions.get("timeout").get("read")
     # TODO: handle unexpected exceptions
 
     collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,

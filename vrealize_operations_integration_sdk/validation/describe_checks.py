@@ -166,6 +166,9 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
 def cross_check_collection_with_describe(project, request, response):
     result = Result()
     try:
+        if not response.is_success:
+            result.with_error(f"Unable to validate describe.xml due to status code {response.status_code} in response")
+            return result
         path = project.path
         results = json.loads(response.text)
 

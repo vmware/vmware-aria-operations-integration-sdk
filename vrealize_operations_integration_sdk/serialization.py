@@ -31,17 +31,26 @@ class ResponseBundle:
         pass
 
     def failed(self):
-        return not self.response or not self.response.is_success or "errorMessage" in self.response.text
+        return not self.response.is_success or "errorMessage" in self.response.text
 
     def __repr__(self):
         if not self.failed():
             response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
         else:
-            response = "Failed: {}"  # TODO: get error message
+            response = f"Failed: {self._get_failure_message()}"  # TODO: get error message
 
         response += f"\nRequest completed in {self.duration:0.2f} seconds."
 
         return response
+
+    def _get_failure_message(self):
+        message = ""
+        if not self.response.is_success:
+            message = f"{self.response.status_code} {self.response.reason_phrase}"
+        elif "errorMessage" in self.response.text:
+            message = json.loads(self.response.text).get('errorMessage')
+
+        return message
 
 
 class CollectionBundle(ResponseBundle):
@@ -62,6 +71,8 @@ class CollectionBundle(ResponseBundle):
         _str = ""
         if not self.failed():
             _str = repr(self.get_collection_statistics()) + "\n"
+        else:
+            _str = f"Collection Failed: {self._get_failure_message()}\n"
 
         headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
         data = [self.container_stats.get_summary()]

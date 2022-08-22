@@ -86,6 +86,10 @@ class Graph:
 def validate_relationships(project, request, response):
     result = Result()
     try:
+        if not response.is_success:
+            result.with_error(f"Unable to validate relationships due to status code {response.status_code} in response")
+            return result
+
         results = json.loads(response.text)
 
         # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response
