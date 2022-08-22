@@ -118,7 +118,6 @@ async def run_collect(client, container, project, connection, **kwargs) -> Colle
 
     while not task.done():
         container_stats.add(container.stats(stream=False))
-        # TODO: inform the user that we are polling data every .5 seconds
         await asyncio.sleep(.5)
     try:
         request, response, elapsed_time = await task
