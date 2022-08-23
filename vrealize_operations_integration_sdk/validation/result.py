@@ -32,3 +32,5 @@ class Result:
 
     def with_information(self, information):
         self.messages.append((ResultLevel.INFORMATION, information))
+
+

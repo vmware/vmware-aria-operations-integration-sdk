@@ -164,59 +164,65 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
 
 
 def cross_check_collection_with_describe(project, request, response):
-    path = project.path
-    results = json.loads(response.text)
-
-    # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response
-    if (type(results) is not dict) or ("result" not in results):
-        error = Result()
-        error.with_error("No collection result was found.")
-        return error
-    else:
-        results = results["result"]
-
-    describe = get_describe(path)
-    adapter_kind = get_adapter_kind(describe)
-    resource_kinds = get_resource_kinds(describe)
-
-    # store all resourceKind keys in a dictionary for fast lookup
-    describe_resource_kinds = {resource_kind.get("key"): resource_kind for resource_kind in resource_kinds}
-
-    # check Resource kinds
     result = Result()
-    for resource in results:
-        resource_adapter_kind = resource["key"]["adapterKind"]
-        resource_kind = resource["key"]["objectKind"]
+    try:
+        if not response.is_success:
+            result.with_error(f"Unable to cross check collection against describe.xml: {response.status_code} {response.reason_phrase}")
+            return result
+        path = project.path
+        results = json.loads(response.text)
 
-        # adapter kind validation
-        if adapter_kind != resource_adapter_kind:
-            result.with_warning(
-                message_format(
-                    resource,
-                    f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. "
-                )
-            )
-
-        # resource kind validation
-        if resource_kind not in describe_resource_kinds.keys():
-            result.with_warning(
-                message_format(
-                    resource,
-                    f"ResourceKind '{resource_kind}' was not found in describe.xml. "
-                )
-            )
-            logger.debug(f"Skipping metric validation for '{resource_kind}'. ")
+        # NOTE: in cases where the adapter crashes (500) results is a string, otherwise is a regular response
+        if (type(results) is not dict) or ("result" not in results):
+            error = Result()
+            error.with_error("No collection result was found.")
+            return error
         else:
-            # metric validation
-            resource_kind_element = describe_resource_kinds[resource_kind]
-            #            logger.info(f"Validating metrics for {resource_kind}")
-            for metric in resource["metrics"]:
-                result += cross_check_attribute(resource, metric, "metric", metric["key"], resource_kind_element)
-            for prop in resource["properties"]:
-                result += cross_check_attribute(resource, prop, "property", prop["key"], resource_kind_element)
+            results = results["result"]
 
-            # identifiers validation
-            result += cross_check_identifiers(resource, resource_kind_element)
+        describe = get_describe(path)
+        adapter_kind = get_adapter_kind(describe)
+        resource_kinds = get_resource_kinds(describe)
+
+        # store all resourceKind keys in a dictionary for fast lookup
+        describe_resource_kinds = {resource_kind.get("key"): resource_kind for resource_kind in resource_kinds}
+
+        # check Resource kinds
+        for resource in results:
+            resource_adapter_kind = resource["key"]["adapterKind"]
+            resource_kind = resource["key"]["objectKind"]
+
+            # adapter kind validation
+            if adapter_kind != resource_adapter_kind:
+                result.with_warning(
+                    message_format(
+                        resource,
+                        f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. "
+                    )
+                )
+
+            # resource kind validation
+            if resource_kind not in describe_resource_kinds.keys():
+                result.with_warning(
+                    message_format(
+                        resource,
+                        f"ResourceKind '{resource_kind}' was not found in describe.xml. "
+                    )
+                )
+                logger.debug(f"Skipping metric validation for '{resource_kind}'. ")
+            else:
+                # metric validation
+                resource_kind_element = describe_resource_kinds[resource_kind]
+                #            logger.info(f"Validating metrics for {resource_kind}")
+                for metric in resource["metrics"]:
+                    result += cross_check_attribute(resource, metric, "metric", metric["key"], resource_kind_element)
+                for prop in resource["properties"]:
+                    result += cross_check_attribute(resource, prop, "property", prop["key"], resource_kind_element)
+
+                # identifiers validation
+                result += cross_check_identifiers(resource, resource_kind_element)
+    except Exception as e:
+        result.with_error(f"Unable to cross check collection against describe.xml: '{e}'")
 
     return result
 

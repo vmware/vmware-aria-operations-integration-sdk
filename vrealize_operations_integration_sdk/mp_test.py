@@ -22,10 +22,10 @@ from docker.errors import ContainerError, APIError
 from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
+from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator
-from requests import RequestException
+from requests import RequestException, Request
 
-from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -38,16 +38,13 @@ from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
-from vrealize_operations_integration_sdk.timer import timed
+from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
+    EndpointURLsBundle, LongCollectionBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown
-from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
-from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe, \
-    validate_describe
+from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator
-from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
-from vrealize_operations_integration_sdk.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -78,103 +75,77 @@ def get_sec(time_str):
         exit(1)
 
 
-@timed
-async def run_collections(client, container, project, connection, times, collection_interval):
-    collection_statistics = LongCollectionStatistics()
-    for collection_no in range(1, times + 1):
-        logger.info(f"Running collection No. {collection_no} of {times}")
-
-        # We get the idle container stats first
-        initial_container_stats = container.stats(stream=False)
-        container_stats = ContainerStats(initial_container_stats)
-
-        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        task = asyncio.create_task(coroutine)
-
-        while not task.done():
-            container_stats.add(container.stats(stream=False))
-            await asyncio.sleep(.5)
-
-        # TODO: Ensure the response is valid 2XX otherwise report it as a failed collection.
-        request, response, elapsed_time = await task
-        container_stats = container_stats
-
-        json_response = json.loads(response.text)
-        collection_statistics.add(
-            CollectionStatistics(json=json_response, container_stats=container_stats, duration=elapsed_time))
-
-        next_collection = time.time() + collection_interval - elapsed_time
-        if elapsed_time > collection_interval:
-            # TODO: add this to the list of statistics?
-            logger.warning("Collection took longer than the given collection interval")
-
-        time_until_next_collection = next_collection - time.time()
-        if time_until_next_collection > 0 and times != collection_no:
-            countdown(time_until_next_collection, "Time until next collection: ")
-
-    return collection_statistics
-
-
 async def run_long_collect(client, container, project, connection, **kwargs):
-    # TODO: Add flag to specify collection period statistics
+    logger.debug("Starting long run")
     cli_args = kwargs.get("cli_args")
     duration = get_sec(cli_args["duration"])
     collection_interval = get_sec(cli_args["collection_interval"])
 
-    logger.debug("starting long run")
     if duration < collection_interval:
         times = 1
     else:
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
-    collection_statistics, elapsed_time = await run_collections(client, container, project, connection, times,
-                                                                collection_interval)
-    logger.debug(f"Long collection duration: {elapsed_time}")
-    logger.info(collection_statistics)
+    long_collection_bundle = LongCollectionBundle(collection_interval)
+    for collection_no in range(1, times + 1):
+        logger.info(f"Running collection No. {collection_no} of {times}")
+
+        collection_bundle = await run_collect(client, container, project, connection)
+        collection_bundle.collection_number = collection_no
+        elapsed_time = collection_bundle.duration
+        long_collection_bundle.add(collection_bundle)
+
+        next_collection = time.time() + collection_interval - elapsed_time
+        if elapsed_time > collection_interval:
+            logger.warning("Collection took longer than the given collection interval")
+
+        time_until_next_collection = next_collection - time.time()
+        if time_until_next_collection > 0 and times != collection_no:
+            countdown(time_until_next_collection, "Time until next collection: ")
+
+    return long_collection_bundle
 
 
-async def run_collect(client, container, project, connection, verbosity, **kwargs):
+async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:
     initial_container_stats = container.stats(stream=False)
     container_stats = ContainerStats(initial_container_stats)
 
-    request, response, elapsed_time = await send_post_to_adapter(client=client, project=project,
-                                                                 connection=connection, endpoint=COLLECT_ENDPOINT)
+    coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+    task = asyncio.create_task(coroutine)
 
-    container_stats.add(container.stats(stream=False))
+    while not task.done():
+        container_stats.add(container.stats(stream=False))
+        await asyncio.sleep(.5)
+    try:
+        request, response, elapsed_time = await task
+    except ReadTimeout as timeout:
+        # Translate the error to a standard request response format (for validation purposes)
+        timeout_request = timeout.request
+        request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
+        response = Response(408)
+        elapsed_time = timeout_request.extensions.get("timeout").get("read")
 
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response, cross_check_collection_with_describe, validate_relationships],
-            verbosity=verbosity)
-
-    logger.info(
-        CollectionStatistics(json=json.loads(response.text), container_stats=container_stats, duration=elapsed_time))
+    collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
+                                         container_stats=container_stats)
+    return collection_bundle
 
 
-async def run_connect(client, project, connection, verbosity, **kwargs):
+async def run_connect(client, project, connection, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
 
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+    return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_endpoint_urls(client, project, connection, verbosity, **kwargs):
+async def run_get_endpoint_urls(client, project, connection, **kwargs):
     request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+    return EndpointURLsBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(client, project, verbosity, **kwargs):
+async def run_get_server_version(client, **kwargs):
     request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-    process(request, response, elapsed_time,
-            project=project,
-            validators=[validate_api_response],
-            verbosity=verbosity)
+
+    return VersionBundle(request, response, elapsed_time)
 
 
 def run_wait(**kwargs):
@@ -253,18 +224,25 @@ async def run(arguments):
         elif method == run_long_collect:
             timeout = 1.5 * get_sec(args.get("collection_interval"))
 
-
-
         async with httpx.AsyncClient(timeout=timeout) as client:
-            await method(client=client,
-                         container=container,
-                         project=project,
-                         connection=connection,
-                         verbosity=verbosity,
-                         cli_args=vars(arguments))
+            result_bundle = await method(client=client,
+                                         container=container,
+                                         project=project,
+                                         connection=connection,
+                                         verbosity=verbosity,
+                                         cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
+
+    # TODO: Add UI code here
+    logger.info(result_bundle)
+    if type(result_bundle) is not LongCollectionBundle:
+        # TODO: This logic should be performed in the UI
+        ui_validation(result_bundle.validate(project),
+                      project,
+                      os.path.join(project.path, "logs", "validation.log"),
+                      verbosity)
 
 
 def get_method(arguments):
@@ -280,15 +258,8 @@ def get_method(arguments):
          (run_get_server_version, "Version")])
 
 
-def process(request, response, elapsed_time, project, validators, verbosity):
-    json_response = json.loads(response.text)
-    logger.info(json.dumps(json_response, sort_keys=True, indent=3))
-    logger.info(f"Request completed in {elapsed_time:0.2f} seconds.")
-
-    result = Result()
-    for validate in validators:
-        result += validate(project, request, response)
-
+# TODO: move this to UI
+def ui_validation(result, project, validation_file_path, verbosity):
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -310,6 +281,7 @@ def process(request, response, elapsed_time, project, validators, verbosity):
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
+# TODO: move this to UI
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
