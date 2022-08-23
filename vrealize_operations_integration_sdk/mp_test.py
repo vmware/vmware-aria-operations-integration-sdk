@@ -517,7 +517,7 @@ def main():
         logger.info("Testing cancelled")
         exit(1)
     except DockerWrapperError as docker_error:
-        logger.error("Unable to build pak file")
+        logger.error("Unable to build container")
         logger.error(f"{docker_error.message}")
         logger.error(f"{docker_error.recommendation}")
         exit(1)
