@@ -1,6 +1,6 @@
 # Development
 * * *
-### Docker
+### Images
 There are three different images in this project:
 - vrops-adapter-open-sdk-server:python (base image)
 	- Uses python:3.10.2-slim-bullseye as its base image
@@ -63,7 +63,7 @@ The stable tag convention for this project is as follows:
 - [LANGUAGE]-[MAJOR_VERSION]: points to the latest stable image of the specific major version
 
 The graphic below shows how stable and unique tags are assigned over time in a project with a similar tag convention:
-![docker tags](https://stevelaskerblog.files.wordpress.com/2018/03/stabletagging.gif)
+![tagging convention](https://stevelaskerblog.files.wordpress.com/2018/03/stabletagging.gif)
 
 
 The template below shows where each component should be for any image generated

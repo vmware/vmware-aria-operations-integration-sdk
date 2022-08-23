@@ -3,13 +3,13 @@ Management Pack Build Tool
 
 ## Purpose
 
-The mp-build tool builds a pak file and uploads the adapter container to a docker registry. `mp-build` does not perform
+The mp-build tool builds a pak file and uploads the adapter container to a registry. `mp-build` does not perform
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
 * The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
-* Write permissions to a Docker registry that is accessible from vROps. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
+* Write permissions to a registry that is accessible from vROps. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
 ## Input
 
 ### Command-line Arguments
@@ -42,7 +42,7 @@ In order to build an adapter, the tool needs to know which adapter to build. Thi
  
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
-#### Docker Registry Credentials
+#### Registry Credentials
 If the user is not logged into  [harbor-repo.vmware.com](harbor-reop.vmware.com) registry, `mp-build` will prompt
 the user for their credentials. Credentials are lodged and stored using docker CLI:
 
@@ -73,7 +73,7 @@ The pak file contains:
 * All content inside the `content` directory.
 * An adapter.zip file, containing:
   * The `conf` directory (including `describe.xml` and its localization file(s)).
-  * A configuration file that includes information about the adapter, including the docker container's registry, repository, and digest. 
+  * A configuration file that includes information about the adapter, including the container's registry, repository, and digest. 
 
 A pak file is a zip file created using the deflate compression algorithm. The contents can be inspected by using most unzip tools for extraction (depending on the tool, it may be necessary to rename the `.pak` extension to `.zip`).
 
@@ -105,7 +105,7 @@ If the pak file installs successfully but errors when creating an account (adapt
 * The Collector/Group the MP is running on is a Cloud Proxy, and
 * Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.7.1 and later.
 
-### Docker Registry Permissions (Beta)
+### Registry Permissions (Beta)
 To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
 post a request to the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
 
