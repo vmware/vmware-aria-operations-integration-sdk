@@ -37,17 +37,14 @@ def init():
 
         return client
     except docker.errors.DockerException as e:
-        if "ConnectionRefusedError" in e.args[0]:  # Unix error
-            raise InitError(message="Cannot connect to the Docker daemon at unix:///var/run/docker.sock.",
-                            recommendation="Check that the docker daemon is running")
-        elif "CreateFile" in e.args[0]:  # Windows Error
-            raise InitError(message="Cannot connect to the Docker daemon",
-                            recommendation="Check that the docker daemon is running")
+        if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:  # Unix error
+            raise InitError(message="Cannot verify docker daemon version",
+                            recommendation="This may indicate that the docker daemon is not running")
         elif "PermissionError" in e.args[0]:
             raise InitError(message="Cannot run docker commands.",
                             recommendation=f"Make sure the user {os.getlogin()} has permissions to run docker")
         else:
-            raise InitError(f"ERROR: {e}")
+            raise InitError(e)
 
 
 def push_image(client, image_tag):
