@@ -13,7 +13,7 @@ import zipfile
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
-from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir
+from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir, rm
 from vrealize_operations_integration_sdk.project import get_project
 from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
@@ -187,7 +187,7 @@ def build_pak_file(project_path, insecure_communication):
         zip_dir(adapter, "resources")
         zip_dir(adapter, adapter_dir)
 
-    os.remove(adapter_conf.name)
+    rm(adapter_conf.name)
     rmdir(adapter_dir)
 
     name = manifest["name"] + "_" + manifest["version"]
@@ -222,7 +222,7 @@ def build_pak_file(project_path, insecure_communication):
         zip_dir(pak, "content")
         zip_file(pak, "adapter.zip")
 
-        os.remove("adapter.zip")
+        rm("adapter.zip")
 
         return pak_file
 
@@ -283,7 +283,7 @@ def main():
             if os.path.exists(os.path.join(build_dir, pak_file)):
                 # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
                 logger.debug("Deleting old pak file")
-                os.remove(os.path.join(build_dir, pak_file))
+                rm(os.path.join(build_dir, pak_file))
 
             shutil.move(pak_file, build_dir)
             print("Build succeeded", "class:success")
