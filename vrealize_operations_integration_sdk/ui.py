@@ -7,7 +7,7 @@ import os
 import re
 import time
 
-from prompt_toolkit import prompt as tkprompt, print_formatted_text
+from prompt_toolkit import print_formatted_text, PromptSession
 from prompt_toolkit.application import Application
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import IsDone, Condition
@@ -173,7 +173,7 @@ class ListControlBase(FormattedTextControl):
             layout=self._get_layout(),
             key_bindings=self._bindings(),
             style=style
-        ).run()
+        ).run(in_thread=True)
 
 
 class SelectControl(ListControlBase):
@@ -258,10 +258,14 @@ def prompt(message, *args, description="", **kwargs) -> str:
     :return: User input
     """
     description = [("", description)] if description else None
-    return tkprompt(message, *args, **kwargs,
+    session: PromptSession[str] = PromptSession()
+
+    return session.prompt(
+                    message, *args, **kwargs,
                     bottom_toolbar=description,
                     lexer=SimpleLexer('class:answer'),
-                    style=style)
+                    style=style,
+                    in_thread=True)
 
 
 def countdown(duration, message=""):

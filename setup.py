@@ -15,7 +15,6 @@ setup(
     },
     python_requires=">=3.9",
     install_requires=[
-        "nest_asyncio==1.5.5",
         "docker==5.0.3",
         "Pillow==9.1.0",
         "sen==0.6.2",
