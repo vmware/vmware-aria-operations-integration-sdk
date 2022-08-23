@@ -151,11 +151,7 @@ def run_wait(**kwargs):
 
 async def run(arguments):
     # User input
-    try:
-        project = get_project(arguments)
-    except Exception as e:
-        print(e)
-        exit(3)
+    project = get_project(arguments)
 
     log_file_path = os.path.join(project.path, 'logs')
     if not os.path.exists(log_file_path):
