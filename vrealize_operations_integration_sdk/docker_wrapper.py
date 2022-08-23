@@ -37,7 +37,7 @@ def init():
 
         return client
     except docker.errors.DockerException as e:
-        if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:  # Unix error
+        if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:
             raise InitError(message="Cannot verify docker daemon version",
                             recommendation="This may indicate that the docker daemon is not running")
         elif "PermissionError" in e.args[0]:
