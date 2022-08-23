@@ -184,13 +184,13 @@ class ObjectTypeStatistics:
 class LongCollectionStatistics:
     def __init__(self, collection_bundle_list, collection_interval):
         self.collection_interval = collection_interval
-        self.collection_statistics = list()
+        self.collection_bundles = list()
         self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)
 
     def add(self, collection_bundle):
-        self.collection_statistics.append(collection_bundle)
+        self.collection_bundles.append(collection_bundle)
         statistics = collection_bundle.get_collection_statistics()
         if statistics:
             for object_type, object_type_stat in statistics.obj_type_statistics.items():
@@ -219,12 +219,16 @@ class LongCollectionStatistics:
         failed_collections = list()
         longer_collections = list()
         # TODO: move this logic when doing UI reformatting
-        for collection_stat in self.collection_statistics:
+        for collection_stat in self.collection_bundles:
             number = collection_stat.collection_number
             if collection_stat.failed():
                 number = f"{number} (failed)"
                 failed_collections.append(collection_stat)
-                longer_collections.append(collection_stat)
+
+                # If the connection timeout then we should also include it in the longer_collections
+                if "408" in collection_stat.get_failure_message() and collection_stat.duration > self.collection_interval:
+                    longer_collections.append(collection_stat)
+
             elif collection_stat.duration > self.collection_interval:
                 number = f"{number} (longer than collection interval)"
                 longer_collections.append(collection_stat)
