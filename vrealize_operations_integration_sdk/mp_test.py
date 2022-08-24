@@ -14,7 +14,6 @@ import traceback
 import xml.etree.ElementTree as ET
 
 import httpx
-import nest_asyncio
 import requests
 import urllib3
 from docker import DockerClient
@@ -53,8 +52,6 @@ logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = PTKHandler()
 consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
-
-nest_asyncio.apply()
 
 
 def get_sec(time_str):
