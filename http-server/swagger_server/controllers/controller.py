@@ -188,7 +188,8 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
             with open(output_pipe, "w") as fifo:
                 fifo.write("")
             reader_thread.join()
-            return "No result from adapter", 500
+
+            return f"No result from adapter{f': {err}' if len(err) else''}", 500
 
         return result[0]
     finally:
