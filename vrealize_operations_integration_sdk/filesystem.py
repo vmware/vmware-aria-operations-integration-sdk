@@ -24,7 +24,7 @@ def mkdir(basepath, *paths):
 def rm(path):
     try:
         os.remove(path)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         # Nothing to delete
         pass
     except OSError as e:
