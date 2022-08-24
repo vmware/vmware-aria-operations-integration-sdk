@@ -1,9 +1,17 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
+import logging
 import os
 import shutil
 import zipfile
+
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
+logger.addHandler(consoleHandler)
 
 
 def mkdir(basepath, *paths):
@@ -11,6 +19,16 @@ def mkdir(basepath, *paths):
     if not os.path.exists(path):
         os.mkdir(path, 0o755)
     return path
+
+
+def rm(path):
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        # Nothing to delete
+        pass
+    except OSError as e:
+        logger.warning(f"Could not remove file '{path}': {e}")
 
 
 def rmdir(basepath, *paths):
