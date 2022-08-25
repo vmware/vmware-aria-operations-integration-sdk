@@ -8,6 +8,7 @@ from vrealize_operations_integration_sdk.ui import Table
 
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
+from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
 from vrealize_operations_integration_sdk.validation.result import Result
 
@@ -101,7 +102,7 @@ class ConnectBundle(ResponseBundle):
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(self, request, response, duration):
-        super().__init__(request, response, duration, [validate_api_response])
+        super().__init__(request, response, duration, [validate_api_response, validate_endpoint_urls])
 
 
 class VersionBundle(ResponseBundle):
