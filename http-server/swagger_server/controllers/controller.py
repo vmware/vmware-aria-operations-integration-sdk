@@ -84,6 +84,7 @@ def api_version():  # noqa: E501
         maintenance=0
     )
 
+
 def get_endpoint_urls(body=None):  # noqa: E501
     """Retrieve endpoint URLs
 
@@ -189,7 +190,11 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
                 fifo.write("")
             reader_thread.join()
 
-            return f"No result from adapter{f': {err}' if len(err) else''}", 500
+            message = "No result from adapter"
+            if len(err):
+                message += f". Captured stderr:\n  {err}"
+
+            return message, 500
 
         return result[0]
     finally:
