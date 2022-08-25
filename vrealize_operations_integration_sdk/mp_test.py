@@ -24,6 +24,7 @@ from flask import json
 from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator
 from requests import RequestException, Request
+from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
@@ -526,6 +527,10 @@ def main():
         logger.error(f"Unable to parse describe.xml: {describe_error}")
     except SystemExit as system_exit:
         exit(system_exit.code)
+    except XMLSchemaValidationError as xml_error:
+        logger.error(xml_error)
+        logger.error("Fix describe.xml before proceeding")
+        exit(1)
     except BaseException as base_error:
         print_formatted("Unexpected error")
         logger.error(base_error)
