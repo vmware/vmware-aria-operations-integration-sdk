@@ -302,6 +302,10 @@ def main():
         # Any artifacts for generating the pak file should be stored here
         temp_dir = os.path.join(build_dir, 'tmp')
 
+        # Clean old builds
+        if os.path.exists(build_dir):
+            rmdir(build_dir)
+
         mkdir(build_dir)
 
         try:
