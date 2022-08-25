@@ -48,7 +48,9 @@ class ResponseBundle:
         if not self.response.is_success:
             message = f"{self.response.status_code} {self.response.reason_phrase}"
             if hasattr(self.response, "text"):
-                message += "\n" + self.response.text.encode('latin1', 'backslashreplace').decode('unicode-escape')
+                encoded = self.response.text.encode('latin1', 'backslashreplace').strip(b'"')
+                message += "\n" + encoded.decode('unicode-escape')
+
         elif "errorMessage" in self.response.text:
             message = json.loads(self.response.text).get('errorMessage')
 

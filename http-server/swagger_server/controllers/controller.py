@@ -192,6 +192,7 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
 
             message = "No result from adapter"
             if len(err):
+                err = err.strip("\n")
                 message += f". Captured stderr:\n  {err}"
 
             return message, 500
