@@ -47,6 +47,10 @@ class ResponseBundle:
         message = ""
         if not self.response.is_success:
             message = f"{self.response.status_code} {self.response.reason_phrase}"
+            if hasattr(self.response, "text"):
+                encoded = self.response.text.encode('latin1', 'backslashreplace').strip(b'"')
+                message += "\n" + encoded.decode('unicode-escape')
+
         elif "errorMessage" in self.response.text:
             message = json.loads(self.response.text).get('errorMessage')
 
@@ -74,11 +78,13 @@ class CollectionBundle(ResponseBundle):
         else:
             _str = f"Collection Failed: {self.get_failure_message()}\n"
 
-        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [self.container_stats.get_summary()]
-        table = Table(headers, data)
-        _str += str(table) + "\n"
-        _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
+        if self.response.status_code != 500:  # Allows the error message to be highlighted
+            headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
+            data = [self.container_stats.get_summary()]
+            table = Table(headers, data)
+            _str += str(table) + "\n"
+            _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
+
         return _str
 
 
