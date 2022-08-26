@@ -2,8 +2,10 @@
     "base_image": {
         "language": "Python",
         "path": "http-server",
-        "version": "0.7.0"
+        "version": "0.8.0"
     },
+    "docker_repo": "vrops_integration_sdk",
+    "registry_url": "projects.registry.vmware.com",
     "secondary_images": [
         {
             "language": "Java",

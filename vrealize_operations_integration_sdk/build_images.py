@@ -5,6 +5,7 @@ import os
 
 import docker
 
+from vrealize_operations_integration_sdk import docker_wrapper
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
 from vrealize_operations_integration_sdk.constant import VERSION_FILE
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
