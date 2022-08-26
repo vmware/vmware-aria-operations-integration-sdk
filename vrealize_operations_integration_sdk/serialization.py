@@ -74,7 +74,7 @@ class CollectionBundle(ResponseBundle):
     def __repr__(self):
         _str = ""
         if not self.failed():
-            _str += json.dumps(json.loads(self.response.text), sort_keys=True, indent=4)
+            _str += json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n"
             _str += repr(self.get_collection_statistics()) + "\n"
         else:
             _str += f"Collection Failed: {self.get_failure_message()}\n"
