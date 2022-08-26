@@ -74,9 +74,10 @@ class CollectionBundle(ResponseBundle):
     def __repr__(self):
         _str = ""
         if not self.failed():
-            _str = repr(self.get_collection_statistics()) + "\n"
+            _str += json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n"
+            _str += repr(self.get_collection_statistics()) + "\n"
         else:
-            _str = f"Collection Failed: {self.get_failure_message()}\n"
+            _str += f"Collection Failed: {self.get_failure_message()}\n"
 
         if self.response.status_code != 500:  # Allows the error message to be highlighted
             headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
