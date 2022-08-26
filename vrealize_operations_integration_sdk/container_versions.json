@@ -9,12 +9,12 @@
         {
             "language": "Java",
             "path": "java-client",
-            "version": "0.5.0"
+            "version": "0.6.0"
         },
         {
             "language": "Powershell",
             "path": "powershell-client",
-            "version": "0.5.0"
+            "version": "0.6.0"
         }
     ]
 }
