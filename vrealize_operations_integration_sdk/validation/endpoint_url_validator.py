@@ -13,11 +13,11 @@ def validate_endpoint(endpoint: str) -> Result:
     result = Result()
     url_validation_result = validators.url(endpoint)
     if "://" not in endpoint:
-        result.with_error(f"Endpoint {endpoint} must include a protocol. Supported protocols are: 'https://'.")
+        result.with_error(f"Endpoint '{endpoint}' must include a protocol. Supported protocols are: ['https'].")
     elif not endpoint.startswith("https://"):
-        result.with_error(f"Endpoint {endpoint} protocol must be 'https://'.")
+        result.with_error(f"Endpoint '{endpoint}' protocol must be 'https'.")
     elif type(url_validation_result) is ValidationFailure:
-        result.with_error(f"Endpoint {endpoint} is not a valid URL.")
+        result.with_error(f"Endpoint '{endpoint}' is not a valid URL.")
     return result
 
 

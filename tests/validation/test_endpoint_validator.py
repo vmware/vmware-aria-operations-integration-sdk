@@ -31,3 +31,31 @@ def test_valid_url_with_port():
     result = validate_endpoint(url)
     print(result.messages)
     assert result.error_count == 0
+
+
+def test_invalid_url():
+    url = "https://google."
+    result = validate_endpoint(url)
+    print(result.messages)
+    assert result.error_count == 1
+
+
+def test_valid_ip_address():
+    url = "https://16.2.5.40"
+    result = validate_endpoint(url)
+    print(result.messages)
+    assert result.error_count == 0
+
+
+def test_valid_ip_address_with_port():
+    url = "https://16.2.5.40:443"
+    result = validate_endpoint(url)
+    print(result.messages)
+    assert result.error_count == 0
+
+
+def test_invalid_ip_address():
+    url = "https://300.2.5.40"
+    result = validate_endpoint(url)
+    print(result.messages)
+    assert result.error_count == 1
