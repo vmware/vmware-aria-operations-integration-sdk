@@ -49,7 +49,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
     choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
 
     images = multiselect_prompt(
-        message="Select one or more docker images to build:",
+        message="Select one or more images to build:",
         items=choices)
 
     if len(images) == 0:
@@ -64,7 +64,6 @@ def main():
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=VERSION_FILE)
-    repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     base_image, secondary_images = get_latest_vrops_container_versions()
 
@@ -83,7 +82,7 @@ def main():
         set_config_value("secondary_images", secondary_images, VERSION_FILE)
 
     push_to_registry: bool = selection_prompt(
-        message=f"Push images to {registry_url}/{repo}?",
+        message=f"Push images to {registry_url}?",
         items=[(True, "Yes"),
                (False, "No")])
 
@@ -91,7 +90,6 @@ def main():
         registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com",
                                         config_file=VERSION_FILE)
         login(registry_url)
-        repo = get_config_value("docker_repo", default="tvs", config_file=VERSION_FILE)
 
     for image in images_to_build:
         try:
@@ -103,7 +101,7 @@ def main():
             )
 
             if push_to_registry:
-                push_image_to_registry(client, new_image, registry_url, repo)
+                push_image_to_registry(client, new_image, registry_url)
         except BuildError as build_error:
             print(f"Failed to build {image['language']} image")
             print(build_error.message)
@@ -151,8 +149,8 @@ def add_stable_tags(image, language: str, version: str):
         image.tag(tag)
 
 
-def push_image_to_registry(client, image, registry_url: str, repo: str):
-    registry_tag = f"{registry_url}/{repo}"
+def push_image_to_registry(client, image, registry_url: str):
+    registry_tag = f"{registry_url}"
     print(f"pushing image to {registry_tag}")
     for tag in image.tags:
         #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771

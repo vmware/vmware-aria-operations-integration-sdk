@@ -4,8 +4,7 @@
         "path": "http-server",
         "version": "0.8.0"
     },
-    "docker_repo": "vrops_integration_sdk",
-    "registry_url": "projects.registry.vmware.com",
+    "registry_url": "projects.registry.vmware.com/vrops_integration_sdk",
     "secondary_images": [
         {
             "language": "Java",
