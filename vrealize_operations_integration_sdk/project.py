@@ -3,6 +3,7 @@
 
 import json
 import os
+from typing import Optional
 
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
@@ -11,17 +12,22 @@ from vrealize_operations_integration_sdk.validation.input_validators import Proj
 
 
 class Connection:
-    def __init__(self, name: str, identifiers: dict[str, any], credential: dict[str, any]):
+    def __init__(self, name: str,
+                 identifiers: dict[str, any],
+                 credential: dict[str, any],
+                 certificates: Optional[list[str]] = None):
         self.name = name
         self.identifiers = identifiers
         self.credential = credential
+        self.certificates = certificates
 
     @classmethod
     def extract(cls, json_connection):
         name = json_connection["name"]
         identifiers = json_connection["identifiers"]
         credential = json_connection["credential"]
-        return Connection(name, identifiers, credential)
+        certificates = json_connection.get("certificates", None)
+        return Connection(name, identifiers, credential, certificates)
 
 
 class Project:
