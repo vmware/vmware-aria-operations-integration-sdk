@@ -7,7 +7,7 @@ The mp-build tool builds a pak file and uploads the adapter container to a regis
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
-* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* The [vROps Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 * Write permissions to a registry that is accessible from vROps. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
 ## Input

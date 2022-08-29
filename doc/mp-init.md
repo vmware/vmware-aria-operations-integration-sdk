@@ -9,7 +9,7 @@ calling `mp-init`, the user will be prompted with a series of questions. The scr
 an initial project structure and create classifiers that other tools and vROps will use.
 
 ## Prerequisites
-* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* The [vROps Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 
 ## Input
 
@@ -136,7 +136,7 @@ The conf directory contains configuration files used by vRealize Operations to c
 Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, and traversal specs. To learn more about adding content, consult the [Adding Content](adding_content.md) guide. 
 
 ### resources (directory)
-The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `conf/describe.xml`. For more information see [Adding Localization](adding_content.md#Adding Localization).
+The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `conf/describe.xml`. For more information see [Adding Localization](adding_content.md#adding-localization).
 
 ### eula.txt (file)
 This file defines the End User License Agreement (EULA); If no EULA was provided then `mp-init` generates a template EULA. 
@@ -169,7 +169,7 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 
 <sup>1</sup> This property is required.
 
-<sup>2</sup> Localized fields are specified in the property files located in the `resources/` directory. See [Adding Localization](adding_content.md#Adding Localization).
+<sup>2</sup> Localized fields are specified in the property files located in the `resources/` directory. See [Adding Localization](adding_content.md#adding-localization).
 
 ---
 ## Troubleshooting
