@@ -15,8 +15,7 @@ setup(
     },
     python_requires=">=3.9",
     install_requires=[
-        "nest_asyncio==1.5.5",
-        "docker==5.0.3",
+        "docker==6.0.0",
         "Pillow==9.1.0",
         "sen==0.6.2",
         "prompt_toolkit==3.0.29",
@@ -26,7 +25,8 @@ setup(
         "openapi_core==0.14.2",
         "GitPython==3.1.27",
         "xmlschema==1.11.3",
-        "httpx==0.23.0"
+        "httpx==0.23.0",
+        "validators==0.20.0"
     ],
     include_package_data=True,
     packages=[

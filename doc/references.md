@@ -3,9 +3,9 @@ References
 Contents
 * Architecture
   * vROps Collector &rarr; Management Pack &rarr; Adapter &rarr; Server &rarr; User Code
-  * Docker Images
-    * [Building docker images](docker.md)
-    * How are the docker images used
+  * Container Images
+    * [Building container images](docker.md)
+    * How are the container images used
   * [REST Server](http_server.md)
     * Swagger API specification
 

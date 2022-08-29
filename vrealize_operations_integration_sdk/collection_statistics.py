@@ -182,14 +182,19 @@ class ObjectTypeStatistics:
 
 
 class LongCollectionStatistics:
-    def __init__(self):
-        self.collection_statistics = list()
+    def __init__(self, collection_bundle_list, collection_interval):
+        self.collection_interval = collection_interval
+        self.collection_bundles = list()
         self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
+        for collection_bundle in collection_bundle_list:
+            self.add(collection_bundle)
 
-    def add(self, collection_statistic):
-        self.collection_statistics.append(collection_statistic)
-        for object_type, object_type_stat in collection_statistic.obj_type_statistics.items():
-            self.long_object_type_statistics[object_type].add(object_type_stat)
+    def add(self, collection_bundle):
+        self.collection_bundles.append(collection_bundle)
+        statistics = collection_bundle.get_collection_statistics()
+        if statistics:
+            for object_type, object_type_stat in statistics.obj_type_statistics.items():
+                self.long_object_type_statistics[object_type].add(object_type_stat)
 
     def __repr__(self):
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
@@ -211,20 +216,46 @@ class LongCollectionStatistics:
 
         headers = ["Collection", "Duration", *ContainerStats.get_summary_headers()]
         data = []
-        for number, collection_stat in enumerate(self.collection_statistics):
-            data.append([number + 1, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
+        failed_collections = list()
+        longer_collections = list()
+        # TODO: move this logic when doing UI reformatting
+        for collection_stat in self.collection_bundles:
+            number = collection_stat.collection_number
+            if collection_stat.failed():
+                number = f"{number} (failed)"
+                failed_collections.append(collection_stat)
+
+                # If the connection timeout then we should also include it in the longer_collections
+                if "408" in collection_stat.get_failure_message() and collection_stat.duration > self.collection_interval:
+                    longer_collections.append(collection_stat)
+
+            elif collection_stat.duration > self.collection_interval:
+                number = f"{number} (longer than collection interval)"
+                longer_collections.append(collection_stat)
+            data.append(
+                [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
         collection_table = str(Table(headers, data))
 
-        return "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
+        summary = "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
+        if len(failed_collections):
+            headers = ["Collection", "Failure Reason"]
+            data = []
+            for failed_collection in failed_collections:
+                data.append([failed_collection.collection_number, failed_collection.get_failure_message()])
+
+            summary += "\n" + str(Table(headers, data))
+            summary += "\n" + f"{len(failed_collections)} failed collections"
+        if len(longer_collections):
+            summary += "\n" + f"{len(longer_collections)} took longer than collection interval"
+
+        return summary
 
 
 class CollectionStatistics:
-    def __init__(self, json, container_stats, duration):
-        self.duration = duration
+    def __init__(self, json):
         self.obj_type_statistics = defaultdict(lambda: ObjectTypeStatistics())
         self.obj_statistics = {}
         self.rel_statistics = defaultdict(lambda: 0)
-        self.container_stats = container_stats
         self.get_counts(json)
 
     def get_counts(self, json):
@@ -262,10 +293,4 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-        data = [self.container_stats.get_summary()]
-        table = Table(headers, data)
-        container_table = str(table)
-
-        duration = f"Collection completed in {self.duration:0.2f} seconds.\n"
-        return "Collection summary: \n\n" + obj_table + "\n" + rel_table + "\n" + container_table + "\n" + duration
+        return "Collection summary: \n\n" + obj_table + "\n" + rel_table

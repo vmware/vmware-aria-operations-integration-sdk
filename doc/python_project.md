@@ -24,7 +24,8 @@ code, and any additional dependencies specified by the user.
 
 ### adapter_requirements.txt (file)
 TODO  talk about pip3 install -r
-Contains all python dependencies needed by the adapter. This file will be used by docker during the construction of the container
+Contains all python dependencies needed by the adapter. This file will be used during the construction of the container
+to ensure all dependencies are included in the container.
 
 ### app (directory)
 Contains all the source adapter source code. This directory is copied into the container defined by the Dockerfile.

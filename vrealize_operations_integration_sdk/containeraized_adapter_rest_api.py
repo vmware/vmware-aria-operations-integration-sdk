@@ -87,7 +87,7 @@ def get_request_body(project, connection):
             "hostName": "string"
         },
         "certificateConfig": {
-            "certificates": []
+            "certificates": connection.certificates or []
         }
     }
     if credential_config:
