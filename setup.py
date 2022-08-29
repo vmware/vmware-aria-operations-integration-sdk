@@ -25,7 +25,8 @@ setup(
         "openapi_core==0.14.2",
         "GitPython==3.1.27",
         "xmlschema==1.11.3",
-        "httpx==0.23.0"
+        "httpx==0.23.0",
+        "validators==0.20.0"
     ],
     include_package_data=True,
     packages=[

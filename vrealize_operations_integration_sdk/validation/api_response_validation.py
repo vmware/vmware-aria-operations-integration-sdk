@@ -17,6 +17,10 @@ from vrealize_operations_integration_sdk.validation.result import Result
 def validate_api_response(project, request, response):
     result = Result()
     try:
+        if not response.is_success:
+            result.with_error(f"Unable to validate the response json. The '{request.url}' endpoint "
+                              f"response was: {response.status_code} {response.reason_phrase}")
+            return result
         with resources.path(api, "vrops-collector-fwk2-openapi.json") as schema_file:
             with open(schema_file, "r") as schema:
                 try:
@@ -33,8 +37,9 @@ def validate_api_response(project, request, response):
                             else:
                                 result.with_error(error)
                 except JSONDecodeError as d:
-                    result.with_error(f"Returned result is not valid json: '{repr(response.text)}' Error: '{d}'")
+                    result.with_error(f"Unable to validate the response json. Returned result is not valid json: "
+                                      f"'{repr(response.text)}' Error: '{d}'")
     except Exception as e:
-        result.with_error(f"Unable to validate API response: '{e}'")
+        result.with_error(f"Unable to validate the response json: '{e}'")
 
     return result

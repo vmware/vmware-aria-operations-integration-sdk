@@ -1,15 +1,27 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import json
+import logging
+import os
+import ssl
 import time
+from typing import Tuple, Optional
 
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.ui import Table
-
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
+from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
+    validate_endpoint
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
 from vrealize_operations_integration_sdk.validation.result import Result
+
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
+logger.addHandler(consoleHandler)
 
 
 class ResponseBundle:
@@ -108,7 +120,63 @@ class ConnectBundle(ResponseBundle):
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(self, request, response, duration):
-        super().__init__(request, response, duration, [validate_api_response])
+        super().__init__(request, response, duration, [validate_api_response, validate_endpoint_urls])
+
+    def retrieve_certificates(self):
+        if not self.response.is_success:
+            return None
+        endpoints = json.loads(self.response.text).get("endpointUrls", [])
+        certificates = []
+        if len(endpoints) == 0:
+            # If there are no endpoints, we can return an empty list to be saved in a connection
+            return certificates
+        for endpoint in endpoints:
+            cert = _get_certificate_from_endpoint(endpoint)
+            if cert:
+                certificates.append(cert)
+        if certificates:
+            # Only return certificates to be saved in a connection if at least one endpoint succeeded.
+            return certificates
+        return None
+
+
+def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
+    result = validate_endpoint(endpoint)
+    if result.error_count > 0:
+        logger.warning(f"Could not retrieve certificate for {endpoint}: {' '.join([m[1] for m in result.messages])}")
+        return None
+    url, port = _extract_host_port_from_endpoint(endpoint)
+    try:
+        cert = str(ssl.get_server_certificate((url, port)))
+        return {
+            "certPemString": cert,
+            # vROps defaults 'isInvalidHostnameAccepted' to False, and
+            # 'isExpiredCertificateAccepted' to True, so mirror that here
+            # These can be changed by manually editing connections in the
+            # config.json file. (It's not clear in what circumstances they
+            # will change in vROps)
+            "isInvalidHostnameAccepted": False,
+            "isExpiredCertificateAccepted": True
+        }
+    except ssl.SSLError as e:
+        logger.warning(f"Could not retrieve certificate for {endpoint}: {e}")
+        return None
+
+
+def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
+    protocol, url = endpoint.split("://", maxsplit=1)
+    port = 443
+    if ":" in url:
+        url, port = url.split(":", maxsplit=1)
+        if "/" in port:
+            port, _ = port.split("/", maxsplit=1)
+        try:
+            port = int(port)
+        except ValueError as e:
+            port = 443
+    if "/" in url:
+        url, _ = url.split("/", maxsplit=1)
+    return url, port
 
 
 class VersionBundle(ResponseBundle):
