@@ -874,18 +874,17 @@
 		<xs:attribute name="dataType" use="optional">
 			<xs:annotation>
 				<xs:documentation xml:lang="en">
-					Defines the data type of the metric. Supported values:string, integer, float.
+					Defines the data type of the metric. Supported values: integer or float.
 					Specifying a data type for attributes is not really required for numeric attributes.
-					Generally attributes can have either numeric (i.e. integer, float) or string values.
+					Generally attributes can be numeric values only.
 					Currently specifying integer is same as float.
-					String metrics can be visualized in the metric graph in a different way,
-					using discrete data points, while numeric metrics are visualized by a continuous metric graph.
+					values are visualized by a continuous metric graph.
 					Default is float.
 				</xs:documentation>
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
-					<xs:enumeration value="string"/>
+					<xs:enumeration value="string" />
 					<xs:enumeration value="integer"/>
 					<xs:enumeration value="long"/>
 					<xs:enumeration value="float"/>
@@ -1018,6 +1017,7 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:assert test="true"/>
 	</xs:complexType>
 	<xs:simpleType name="PropertyDatatypeType">
 		<xs:annotation>
@@ -2386,7 +2386,7 @@
 			</xs:extension>
 		</xs:simpleContent>
 	</xs:complexType>
-	
+
 	<xs:complexType name="CustomGroupMetricsType">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">
