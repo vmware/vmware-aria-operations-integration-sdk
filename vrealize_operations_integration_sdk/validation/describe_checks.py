@@ -236,6 +236,6 @@ def cross_check_collection_with_describe(project, request, response):
 def validate_describe(path):
     logger.info("Validating describe.xml")
     # TODO: Ensure the describe.xml file is valid NOTE: describeSchema should also enforce duplicates don't exist
-    schema = xmlschema.XMLSchema("/Users/squirogacubi/code/tvg_vrops/Container/open-sdk-project/vrops-integration-sdk/doc/describeSchema.xsd")
+    schema = xmlschema.XMLSchema11("/Users/squirogacubi/code/tvg_vrops/Container/open-sdk-project/vrops-integration-sdk/doc/describeSchema.xsd")
     # schema = xmlschema.XMLSchema(os.path.join(path, "conf", "describeSchema.xsd"))
     schema.validate(os.path.join(path, "conf", "describe.xml"))
