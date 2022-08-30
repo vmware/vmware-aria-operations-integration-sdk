@@ -20,24 +20,39 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:all>
-			<xs:element name="ResourceKinds" type="describe:ResourceKindsType"/>
-			<xs:element name="Names" type="describe:NamesType" minOccurs="0"/>
-			<xs:element name="CredentialKinds" type="describe:CredentialKindsType" minOccurs="0"/>
+			<xs:element name="ResourceKinds" type="describe:ResourceKindsType">
+				<xs:unique name="resourceKindTypeKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="CredentialKinds" type="describe:CredentialKindsType" minOccurs="0">
+				<xs:unique name="CredentialKindsTypeKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
+
+<!--			TODO: remove-->
 			<xs:element name="Discoveries" type="describe:DiscoveriesType" minOccurs="0"/>
 			<xs:element name="Methods" type="describe:MethodsType" minOccurs="0"/>
 			<xs:element name="Actions" type="describe:ActionsType" minOccurs="0"/>
+			<xs:element name="LicenseConfig" type="describe:LicenseConfigType" minOccurs="0"/>
+
+<!--			TODO: move to content dir -->
 			<xs:element name="Recommendations" type="describe:RecommendationsType" minOccurs="0"/>
-			<xs:element name="CapacityDefinitions" type="describe:CapacityDefinitionsType" minOccurs="0"/>
-			<xs:element name="LaunchConfigurations" type="describe:LaunchConfigurationsType" minOccurs="0"/>
-			<xs:element name="CustomGroupMetrics" type="describe:CustomGroupMetricsType" minOccurs="0"/>
 			<xs:element name="SymptomDefinitions" type="describe:SymptomDefinitionsType" minOccurs="0"/>
 			<xs:element name="AlertDefinitions" type="describe:AlertDefinitionsType" minOccurs="0"/>
 			<xs:element name="TraversalSpecKinds" type="describe:TraversalSpecKindsType" minOccurs="0"/>
+
+			<xs:element name="CustomGroupMetrics" type="describe:CustomGroupMetricsType" minOccurs="0"/>
+			<xs:element name="CapacityDefinitions" type="describe:CapacityDefinitionsType" minOccurs="0"/>
 			<xs:element name="Faults" type="describe:FaultsType" minOccurs="0"/>
+			<xs:element name="LaunchConfigurations" type="describe:LaunchConfigurationsType" minOccurs="0"/>
 			<xs:element name="BasePolicyAnalysisSettings" type="describe:BasePolicyAnalysisSettingsType" minOccurs="0"/>
 			<xs:element name="UnitDefinitions" type="describe:UnitDefinitionsType" minOccurs="0"/>
 			<xs:element name="OOTBPolicies" type="describe:OOTBPoliciesType" minOccurs="0"/>
-			<xs:element name="LicenseConfig" type="describe:LicenseConfigType" minOccurs="0"/>
+			<xs:element name="Names" type="describe:NamesType" minOccurs="0"/>
 		</xs:all>
 
 		<xs:attribute name="key" type="xs:string" use="required">
@@ -116,7 +131,12 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="CredentialKind" type="describe:CredentialKindType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="CredentialKind" type="describe:CredentialKindType" minOccurs="0" maxOccurs="unbounded">
+				<xs:unique name="CredentialKindKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="CredentialKindType">
@@ -252,7 +272,12 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ResourceKind" type="describe:ResourceKindType" maxOccurs="unbounded"/>
+			<xs:element name="ResourceKind" type="describe:ResourceKindType" maxOccurs="unbounded">
+				<xs:unique name="resourceKindKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ResourceKindType">
@@ -264,10 +289,30 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="ResourceIdentifier" type="describe:ResourceIdentifierType"/>
-			<xs:element name="ResourceAttribute" type="describe:ResourceAttributeType"/>
-			<xs:element name="ResourceGroup" type="describe:ResourceGroupType"/>
-			<xs:element name="ComputedMetrics" type="describe:ComputedMetricsType"/>
+			<xs:element name="ResourceIdentifier" type="describe:ResourceIdentifierType">
+				<xs:unique name="resourceIdentifierKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="ResourceAttribute" type="describe:ResourceAttributeType">
+				<xs:unique name="resourceAttributeKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="ResourceGroup" type="describe:ResourceGroupType">
+				<xs:unique name="resourceGroupKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
+			<xs:element name="ComputedMetrics" type="describe:ComputedMetricsType">
+				<xs:unique name="ComputedMetricKey">
+					<xs:selector xpath="./*"/>
+					<xs:field xpath="@key"/>
+				</xs:unique>
+			</xs:element>
 			<xs:element name="PowerState" type="describe:PowerStateType"/>
 		</xs:choice>
 		<xs:attribute name="key" type="xs:string" use="required">
