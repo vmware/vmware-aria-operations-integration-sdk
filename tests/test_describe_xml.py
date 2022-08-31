@@ -8,26 +8,6 @@ import xml.etree.ElementTree as xml
 from vrealize_operations_integration_sdk.describe import ns
 
 
-class Element:
-    def __init__(self, element, key, name_key, **attributes):
-        self.attributes = {
-            "key": key,
-            "nameKey": name_key,
-            **attributes
-        }
-        self.element = xml.Element(tag=element, attrib=self.attributes)
-
-
-class ResourceIdentifier(Element):
-    def __init__(self, key, name_key, type):
-        super().__init__("ResourceIdentifier", key, name_key)
-
-
-class ResourceAttribute(Element):
-    def __init__(self, key, name_key):
-        super().__init__("ResourceAttribute", key, name_key)
-
-
 class TestSchema:
 
     @pytest.fixture(scope="session")  # the same XSD for all tests
@@ -39,23 +19,44 @@ class TestSchema:
         base_describe = xml.parse("res/base_describe.xml")
         yield base_describe.getroot()
 
-        base_describe = base_describe
+        # NOTE: maybe restore back to its original state
 
-    def test_valid_xml(self, xml_schema, base_describe_xml):
         xml_schema.is_valid(base_describe_xml)
 
-    def test_malformed_xml(self):
-        # with pytest.raises(RuntimeError) as excinfo:
-        pass
+    def test_invalid_element(self, xml_schema, base_describe_xml):
+        with pytest.raises(xmlschema.validators.exceptions.XMLSchemaValidatorError):
+            base_describe_xml.append(xml.Element("NotGood"))
+            xml_schema.validate(base_describe_xml)
 
-    def test_duplicate_resource_kind_key(self):
-        pass
+    def test_duplicate_resource_kind_key(self, xml_schema, base_describe_xml):
+        resource_kinds = base_describe_xml.find(ns("ResourceKinds"))
+        resource_kinds.insert(3, xml.Element(ns("ResourceKind"), attrib={"key": "CPU", "nameKey": "0"}))
 
-    def test_duplicate_resource_attribute_key(self):
-        pass
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            xml_schema.validate(base_describe_xml)
+        assert "duplicated value ('CPU',)" in str(duplicate.value)
 
-    def test_same_key_for_parent_and_child(self):
-        pass
+    def test_duplicate_resource_attribute_key(self, xml_schema, base_describe_xml):
+        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
+        resource_kind.insert(0, xml.Element(ns("ResourceAttribute"), attrib={"key": "test_attribute", "nameKey": "0"}))
+        resource_kind.insert(0, xml.Element(ns("ResourceAttribute"), attrib={"key": "test_attribute", "nameKey": "1"}))
 
-    def test_resource_attribute_key_inside_of_resource_group(self):
-        pass
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            xml_schema.validate(base_describe_xml)
+        assert "duplicated value ('test_attribute',)" in str(duplicate.value)
+
+    def test_same_key_for_parent_and_child(self, xml_schema, base_describe_xml):
+        resource_kinds = base_describe_xml.find(ns("ResourceKinds"))
+        resource_kinds.insert(3, xml.Element(ns("ResourceKind"), attrib={"key": "CPU", "nameKey": "0"}))
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            xml_schema.validate(base_describe_xml)
+        assert "duplicated value ('CPU',)" in str(duplicate.value)
+
+    def test_resource_attribute_key_inside_of_resource_group(self, xml_schema, base_describe_xml):
+        resource_kinds = base_describe_xml.find(ns("ResourceKinds"))
+        resource_kinds.insert(3, xml.Element(ns("ResourceKind"), attrib={"key": "CPU", "nameKey": "0"}))
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            xml_schema.validate(base_describe_xml)
+        assert "duplicated value ('CPU',)" in str(duplicate.value)
