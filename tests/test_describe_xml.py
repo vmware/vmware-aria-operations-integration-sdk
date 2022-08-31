@@ -16,10 +16,20 @@ class TestSchema:
 
     @pytest.fixture
     def base_describe_xml(self):
-        base_describe = xml.parse("res/base_describe.xml")
-        yield base_describe.getroot()
+        root = xml.Element(ns("AdapterKind"),
+                           attrib=dict(key="TestAdapter",
+                                       nameKey="1",
+                                       version="1"))
+        resource_kinds = xml.Element(ns("ResourceKinds"))
+        base_test_resource = xml.Element(ns("ResourceKind"),
+                                         attrib=dict(key="test_resource",
+                                                     nameKey="3",
+                                                     ))
+        resource_kinds.append(base_test_resource)
 
-        # NOTE: maybe restore back to its original state
+        root.append(resource_kinds)
+        tree = xml.ElementTree(root)
+        yield tree.getroot()
 
     def test_valid_xml(self, xml_schema, base_describe_xml):
         xml_schema.is_valid(base_describe_xml)
@@ -50,7 +60,9 @@ class TestSchema:
 
     def test_resource_attribute_key_inside_of_resource_group(self, xml_schema, base_describe_xml):
         resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
-        resource_group = resource_kind.find(ns("ResourceGroup"))
+        resource_group = xml.Element(ns("ResourceGroup"), attrib=dict(key="test_group", nameKey="4"))
+        resource_kind.append(resource_group)
+
         attribute = xml.Element(ns("ResourceAttribute"), attrib={"key": "twin", "nameKey": "0"})
 
         resource_kind.insert(0, attribute)
