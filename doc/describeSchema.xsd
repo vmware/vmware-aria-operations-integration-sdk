@@ -871,11 +871,12 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="dataType" use="optional">
+		<xs:attribute name="dataType" use="optional" default="float">
 			<xs:annotation>
 				<xs:documentation xml:lang="en">
-					Defines the data type of the metric. Supported values:string, integer, float.
+					Defines the data type of the metric. Supported values: string, integer, long, float, and double.
 					Specifying a data type for attributes is not really required for numeric attributes.
+					String values are only supported for properties.
 					Generally attributes can have either numeric (i.e. integer, float) or string values.
 					Currently specifying integer is same as float.
 					String metrics can be visualized in the metric graph in a different way,
@@ -1018,6 +1019,12 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+<!--		Even if the attributes have default values, the values don't seem to be assigned for the assertion step when they aren't present in the element.-->
+		<xs:assert test="@isProperty or ((not(@isProperty) or not(exists(@isProperty))) and (not(exists(@dataType)) or @dataType != 'string'))" >
+			<xs:annotation>
+				<xs:documentation xml:lang="en"> 'string' dataType is only available for ResourceAttribute with attribute isProperty = true </xs:documentation>
+			</xs:annotation>
+		</xs:assert>
 	</xs:complexType>
 	<xs:simpleType name="PropertyDatatypeType">
 		<xs:annotation>
