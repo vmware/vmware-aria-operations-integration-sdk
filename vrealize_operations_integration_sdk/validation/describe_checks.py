@@ -78,15 +78,6 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
                 f" {attribute_type}, but the attribute is defined as a {describe_attribute_type} in describe.xml."
             )
         )
-    # TODO: Can we modify the describeSchema.xsd file to disallow this case?
-    if (match.get("type", "float") == "string") and not is_true(match, "isProperty"):
-        result.with_error(
-            message_format(
-                resource,
-                f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type in describe.xml. "
-                f"Only properties can have type 'string'."
-            )
-        )
 
     if ("stringValue" in collected_metric) and (match.get("dataType", "float") != "string"):
         result.with_error(
@@ -235,6 +226,5 @@ def cross_check_collection_with_describe(project, request, response):
 
 def validate_describe(path):
     logger.info("Validating describe.xml")
-    # TODO: Ensure the describe.xml file is valid NOTE: describeSchema should also enforce duplicates don't exist
     schema = xmlschema.XMLSchema(os.path.join(path, "conf", "describeSchema.xsd"))
     schema.validate(os.path.join(path, "conf", "describe.xml"))
