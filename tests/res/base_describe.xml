@@ -1,0 +1,34 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
+<AdapterKind key="LongRunMPBlaBlaBla" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
+    <CredentialKinds>
+    </CredentialKinds>
+    <ResourceKinds>
+        <ResourceKind key="LongRunMP_adapter_instance" nameKey="2" type="7">
+            <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1"
+                                enum="false" default=""/>
+            <!-- The key 'container_memory_limit' is a special key that is read by the vROps collector to
+            determine how much memory to allocate to the docker container running this adapter. It does not
+            need to be read inside the adapter code. -->
+            <ResourceIdentifier dispOrder="2" key="container_memory_limit" nameKey="4" required="true" type="integer" identType="2" default="1024" />
+        </ResourceKind>
+        <ResourceKind key="CPU" nameKey="5">
+            <ResourceGroup key="Cores" nameKey="99">
+                <ResourceAttribute key="cpu_count" nameKey="6" dataType="float" isProperty="true"/>
+            </ResourceGroup>
+            <ResourceAttribute key="user_time" nameKey="7" dataType="integer" unit="sec" />
+            <ResourceAttribute key="nice_time" nameKey="8" dataType="float" keyAttribute="true" unit="sec"/>
+            <ResourceAttribute key="system_time" nameKey="9" dataType="float" unit="sec"/>
+            <ResourceAttribute key="idle_time" nameKey="10" dataType="float" unit="sec"/>
+        </ResourceKind>
+        <ResourceKind key="Disk" nameKey="11">
+            <ResourceAttribute key="partition" nameKey="12" dataType="string" isProperty="true"/>
+            <ResourceAttribute key="total_space" nameKey="13" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="used_space" nameKey="14" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="free_space" nameKey="15" dataType="float" unit="bytes"/>
+            <ResourceAttribute key="percent_used_space" nameKey = "16" dataType="float" keyAttribute="true" unit="percent"/>
+        </ResourceKind>
+        <ResourceKind key="System" nameKey="17">
+        </ResourceKind>
+    </ResourceKinds>
+</AdapterKind>
