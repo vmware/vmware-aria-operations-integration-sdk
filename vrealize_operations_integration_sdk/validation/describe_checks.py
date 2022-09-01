@@ -226,5 +226,5 @@ def cross_check_collection_with_describe(project, request, response):
 
 def validate_describe(path):
     logger.info("Validating describe.xml")
-    schema = xmlschema.XMLSchema(os.path.join(path, "conf", "describeSchema.xsd"))
+    schema = xmlschema.XMLSchema11(os.path.join(path, "conf", "describeSchema.xsd"))
     schema.validate(os.path.join(path, "conf", "describe.xml"))
