@@ -15,7 +15,6 @@ setup(
     },
     python_requires=">=3.9",
     install_requires=[
-        "openapi_spec_validator==0.5.1",
         "anyio==3.6.1",
         "attrs==22.1.0",
         "certifi==2022.6.15",
