@@ -8,7 +8,7 @@ from json import JSONDecodeError
 import openapi_core
 from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
-from openapi_core.validation.response.validators import ResponseValidator
+from openapi_core.validation.response import openapi_response_validator
 
 from vrealize_operations_integration_sdk import api
 from vrealize_operations_integration_sdk.validation.result import Result
@@ -25,12 +25,11 @@ def validate_api_response(project, request, response):
             with open(schema_file, "r") as schema:
                 try:
                     json_schema = json.load(schema)
-                    spec = openapi_core.create_spec(json_schema, validate_spec=True)
-                    validator = ResponseValidator(spec)
+                    spec = openapi_core.Spec.create(json_schema)
                     openapi_request = RequestsOpenAPIRequest(request)
                     openapi_response = RequestsOpenAPIResponse(response)
-                    validation = validator.validate(openapi_request, openapi_response)
-                    if validation.errors is not None and len(validation.errors) > 0:
+                    validation = openapi_response_validator.validate(spec, openapi_request, openapi_response)
+                    if validation.errors is not None:
                         for error in validation.errors:
                             if "schema_errors" in vars(error):
                                 result.with_error(f"schema error: {vars(error)['schema_errors']}")

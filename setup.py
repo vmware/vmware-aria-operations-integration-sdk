@@ -22,11 +22,12 @@ setup(
         "requests==2.27.1",
         "urllib3==1.26.9",
         "flask==2.1.1",
-        "openapi_core==0.14.2",
+        "openapi_core==0.15.0",
         "GitPython==3.1.27",
         "xmlschema==1.11.3",
         "httpx==0.23.0",
-        "validators==0.20.0"
+        "validators==0.20.0",
+        "openapi_spec_validator==0.5.1"
     ],
     include_package_data=True,
     packages=[
