@@ -168,25 +168,31 @@ def create_describe(path, adapter_key, name):
 
 def build_content_directory(path):
     content_dir = mkdir(path, "content")
-    mkdir(content_dir, "policies")
-    mkdir(content_dir, "traversalspecs")
-    mkdir(content_dir, "resources")
-    mkdir(content_dir, "customgroups")
-    mkdir(content_dir, "reports")
-    mkdir(content_dir, "recommendations")
-    mkdir(content_dir, "dashboards")
+    add_git_keep_file(mkdir(content_dir, "policies"))
+    add_git_keep_file(mkdir(content_dir, "traversalspecs"))
+    add_git_keep_file(mkdir(content_dir, "resources"))
+    add_git_keep_file(mkdir(content_dir, "customgroups"))
+    add_git_keep_file(mkdir(content_dir, "reports"))
+    add_git_keep_file(mkdir(content_dir, "recommendations"))
+    add_git_keep_file(mkdir(content_dir, "dashboards"))
 
     files_dir = mkdir(content_dir, "files")
-    mkdir(files_dir, "topowidget")
-    mkdir(files_dir, "txtwidget")
-    mkdir(files_dir, "solutionconfig")
-    mkdir(files_dir, "reskndmetric")
+    add_git_keep_file(mkdir(files_dir, "topowidget"))
+    add_git_keep_file(mkdir(files_dir, "txtwidget"))
+    add_git_keep_file(mkdir(files_dir, "solutionconfig"))
+    add_git_keep_file(mkdir(files_dir, "reskndmetric"))
 
-    mkdir(content_dir, "alertdefs")
-    mkdir(content_dir, "supermetrics")
-    mkdir(content_dir, "symptomdefs")
+    add_git_keep_file(mkdir(content_dir, "alertdefs"))
+    add_git_keep_file(mkdir(content_dir, "supermetrics"))
+    add_git_keep_file(mkdir(content_dir, "symptomdefs"))
 
     return content_dir
+
+
+def add_git_keep_file(path):
+    with open(os.path.join(path, ".gitkeep"), "w") as gitkeep:
+        # Create empty .gitkeep file
+        pass
 
 
 def create_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language):
