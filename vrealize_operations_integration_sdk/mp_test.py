@@ -22,7 +22,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from flask import json
 from httpx import ReadTimeout, Response
-from prompt_toolkit.validation import ConditionalValidator
+from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from requests import RequestException, Request
 from xmlschema import XMLSchemaValidationError
 
@@ -63,25 +63,25 @@ async def run_long_collect(timeout, container, project, connection, **kwargs):
         cli_args.get("duration", None) or \
         prompt(message="Collection duration: ",
                default="6h",
-               validator=TimeValidator("Duration"),
-               description="The collection duration is the total period of time for the long collection. Defaults to "
+               validator=TimeValidator("Long run duration"),
+               description="The long run duration is the total period of time for the long collection. Defaults to "
                            "6 hours. Allowable units are s (seconds), m (minutes, default), and h (hours).")
     collection_interval = \
         cli_args.get("collection_interval", None) or \
         prompt(message="Collection interval: ",
                default="5m",
-               validator=TimeValidator("Interval"),
+               validator=TimeValidator("Collection interval"),
                description="The collection interval is the period of time between a collection starting and the next "
                            "collection starting. Defaults to 5 minutes. Allowable units are s (seconds), m (minutes, "
                            "default), and h (hours). By default, the timeout is set to 1.5 times the collection "
                            "interval. If a collection takes longer than the interval, the next collection will start "
                            "as soon as the the current one finishes.")
 
-    if timeout is None:
-        timeout = 1.5 * TimeValidator.get_sec(collection_interval)
+    duration = TimeValidator.get_sec("Long run duration", duration)
+    collection_interval = TimeValidator.get_sec("Collection interval", collection_interval)
 
-    duration = TimeValidator.get_sec(duration)
-    collection_interval = TimeValidator.get_sec(collection_interval)
+    if timeout is None:
+        timeout = 1.5 * collection_interval
 
     if duration < collection_interval:
         times = 1
@@ -242,7 +242,7 @@ async def run(arguments):
         args = vars(arguments)
         timeout = args.get("timeout", None)
         if timeout is not None:
-            timeout = TimeValidator.get_sec(timeout)
+            timeout = TimeValidator.get_sec("Timeout", timeout)
 
         result_bundle = await method(timeout=timeout,
                                      container=container,
@@ -535,6 +535,9 @@ def main():
         print_formatted("")
         logger.info("Testing cancelled")
         exit(1)
+    except ValidationError as validation_error:
+        logger.error(validation_error.message)
+        exit(1)
     except DockerWrapperError as docker_error:
         logger.error("Unable to build container")
         logger.error(f"{docker_error.message}")
@@ -546,6 +549,7 @@ def main():
         exit(1)
     except ET.ParseError as describe_error:
         logger.error(f"Unable to parse describe.xml: {describe_error}")
+        exit(1)
     except SystemExit as system_exit:
         exit(system_exit.code)
     except XMLSchemaValidationError as xml_error:
