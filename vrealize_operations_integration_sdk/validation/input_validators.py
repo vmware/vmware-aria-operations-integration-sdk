@@ -52,6 +52,31 @@ class IntegerValidator(Validator):
             raise ValidationError(message=f"{self.label} must be an integer.")
 
 
+class TimeValidator(Validator):
+    def __init__(self, label):
+        self.label = label
+
+    def validate(self, document: Document):
+        if document.text:
+            TimeValidator.get_sec(document.text)
+
+    @classmethod
+    def get_sec(cls, time_str):
+        """Get seconds from time."""
+        try:
+            unit = time_str[-1]
+            if unit == "s":
+                return float(time_str[0:-1].strip())
+            elif unit == "m":
+                return float(time_str[0:-1].strip()) * 60
+            elif unit == "h":
+                return float(time_str[0:-1].strip()) * 3600
+            else:  # no unit specified, default to minutes
+                return float(time_str) * 60
+        except ValueError:
+            raise ValidationError(message="Invalid time. Time should be a numeric value in minutes, or a numeric value "
+                                          "followed by the unit 'h', 'm', or 's'.")
+
 class NewProjectDirectoryValidator(NotEmptyValidator):
     def validate(self, document: Document):
         super().validate(document)

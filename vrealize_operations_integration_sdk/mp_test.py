@@ -44,7 +44,7 @@ from vrealize_operations_integration_sdk.ui import selection_prompt, print_forma
     countdown
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
-    ChainValidator, IntegerValidator
+    ChainValidator, IntegerValidator, TimeValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -55,29 +55,33 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def get_sec(time_str):
-    """Get seconds from time."""
-    try:
-        unit = time_str[-1]
-        if unit == "s":
-            return float(time_str[0:-1])
-        elif unit == "m":
-            return float(time_str[0:-1]) * 60
-        elif unit == "h":
-            return float(time_str[0:-1]) * 3600
-        else:  # no unit specified, default to minutes
-            return float(time_str) * 60
-    except ValueError:
-        logger.error("Invalid time. Time should be a numeric value in minutes, or a numeric value "
-                     "followed by the unit 'h', 'm', or 's'.")
-        exit(1)
-
-
-async def run_long_collect(client, container, project, connection, **kwargs):
+async def run_long_collect(timeout, container, project, connection, **kwargs):
     logger.debug("Starting long run")
     cli_args = kwargs.get("cli_args")
-    duration = get_sec(cli_args["duration"])
-    collection_interval = get_sec(cli_args["collection_interval"])
+
+    duration = \
+        cli_args.get("duration", None) or \
+        prompt(message="Collection duration: ",
+               default="6h",
+               validator=TimeValidator("Duration"),
+               description="The collection duration is the total period of time for the long collection. Defaults to "
+                           "6 hours. Allowable units are s (seconds), m (minutes, default), and h (hours).")
+    collection_interval = \
+        cli_args.get("collection_interval", None) or \
+        prompt(message="Collection interval: ",
+               default="5m",
+               validator=TimeValidator("Interval"),
+               description="The collection interval is the period of time between a collection starting and the next "
+                           "collection starting. Defaults to 5 minutes. Allowable units are s (seconds), m (minutes, "
+                           "default), and h (hours). By default, the timeout is set to 1.5 times the collection "
+                           "interval. If a collection takes longer than the interval, the next collection will start "
+                           "as soon as the the current one finishes.")
+
+    if timeout is None:
+        timeout = 1.5 * TimeValidator.get_sec(collection_interval)
+
+    duration = TimeValidator.get_sec(duration)
+    collection_interval = TimeValidator.get_sec(collection_interval)
 
     if duration < collection_interval:
         times = 1
@@ -89,7 +93,7 @@ async def run_long_collect(client, container, project, connection, **kwargs):
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
 
-        collection_bundle = await run_collect(client, container, project, connection)
+        collection_bundle = await run_collect(timeout, container, project, connection)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
         long_collection_bundle.add(collection_bundle)
@@ -105,45 +109,47 @@ async def run_long_collect(client, container, project, connection, **kwargs):
     return long_collection_bundle
 
 
-async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:
-    initial_container_stats = container.stats(stream=False)
-    container_stats = ContainerStats(initial_container_stats)
+async def run_collect(timeout, container, project, connection, **kwargs) -> CollectionBundle:
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        initial_container_stats = container.stats(stream=False)
+        container_stats = ContainerStats(initial_container_stats)
 
-    coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-    task = asyncio.create_task(coroutine)
+        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+        task = asyncio.create_task(coroutine)
 
-    while not task.done():
-        container_stats.add(container.stats(stream=False))
-        await asyncio.sleep(.5)
-    try:
-        request, response, elapsed_time = await task
-    except ReadTimeout as timeout:
-        # Translate the error to a standard request response format (for validation purposes)
-        timeout_request = timeout.request
-        request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
-        response = Response(408)
-        elapsed_time = timeout_request.extensions.get("timeout").get("read")
+        while not task.done():
+            container_stats.add(container.stats(stream=False))
+            await asyncio.sleep(.5)
+        try:
+            request, response, elapsed_time = await task
+        except ReadTimeout as timeout:
+            # Translate the error to a standard request response format (for validation purposes)
+            timeout_request = timeout.request
+            request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
+            response = Response(408)
+            elapsed_time = timeout_request.extensions.get("timeout").get("read")
 
-    collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                         container_stats=container_stats)
-    return collection_bundle
-
-
-async def run_connect(client, project, connection, **kwargs):
-    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
-
-    return ConnectBundle(request, response, elapsed_time)
+        collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
+                                             container_stats=container_stats)
+        return collection_bundle
 
 
-async def run_get_endpoint_urls(client, project, connection, **kwargs):
-    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
-    return EndpointURLsBundle(request, response, elapsed_time)
+async def run_connect(timeout, project, connection, **kwargs):
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+        return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(client, **kwargs):
-    request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+async def run_get_endpoint_urls(timeout, project, connection, **kwargs):
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
+        return EndpointURLsBundle(request, response, elapsed_time)
 
-    return VersionBundle(request, response, elapsed_time)
+
+async def run_get_server_version(timeout, **kwargs):
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+        return VersionBundle(request, response, elapsed_time)
 
 
 def run_wait(**kwargs):
@@ -219,14 +225,13 @@ async def run(arguments):
         # called but no certificates were found).
         if method in [run_connect, run_collect, run_long_collect] and connection.certificates is None:
             try:
-                async with httpx.AsyncClient(timeout=30) as client:
-                    endpoints = await run_get_endpoint_urls(client, project, connection)
-                    certificates = endpoints.retrieve_certificates()
-                    connection.certificates = certificates
-                    # Record certificates in connection to omit this step next time.
-                    # Certificates can be regenerated by removing the 'certificates' key
-                    # from the connection.
-                    project.record()
+                endpoints = await run_get_endpoint_urls(30, project, connection)
+                certificates = endpoints.retrieve_certificates()
+                connection.certificates = certificates
+                # Record certificates in connection to omit this step next time.
+                # Certificates can be regenerated by removing the 'certificates' key
+                # from the connection.
+                project.record()
             except Exception as e:
                 logger.warning(f"Caught exception when retrieving SSL certificates: {e}.")
         if connection.certificates is None:
@@ -237,17 +242,14 @@ async def run(arguments):
         args = vars(arguments)
         timeout = args.get("timeout", None)
         if timeout is not None:
-            timeout = get_sec(timeout)
-        elif method == run_long_collect:
-            timeout = 1.5 * get_sec(args.get("collection_interval"))
+            timeout = TimeValidator.get_sec(timeout)
 
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            result_bundle = await method(client=client,
-                                         container=container,
-                                         project=project,
-                                         connection=connection,
-                                         verbosity=verbosity,
-                                         cli_args=vars(arguments))
+        result_bundle = await method(timeout=timeout,
+                                     container=container,
+                                     project=project,
+                                     connection=connection,
+                                     verbosity=verbosity,
+                                     cli_args=vars(arguments))
     finally:
         stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
