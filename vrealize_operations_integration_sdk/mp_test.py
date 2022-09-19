@@ -1,6 +1,3 @@
-__author__ = 'VMware, Inc.'
-__copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
@@ -37,7 +34,7 @@ from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
     EndpointURLsBundle, LongCollectionBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
-    countdown
+    countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator, TimeValidator
@@ -86,13 +83,14 @@ async def run_long_collect(timeout, container, project, connection, container_st
         times = int(duration / collection_interval)
 
     # Wait for the container to finish starting *after* we've read in all the user input.
-    await container_startup_task
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
 
     long_collection_bundle = LongCollectionBundle(collection_interval)
     for collection_no in range(1, times + 1):
-        logger.info(f"Running collection No. {collection_no} of {times}")
-
-        collection_bundle = await run_collect(timeout, container, project, connection)
+        title = f"Running collection No. {collection_no} of {times}"
+        collection_bundle = await run_collect(timeout, container, project, connection, title=title)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
         long_collection_bundle.add(collection_bundle)
@@ -108,56 +106,71 @@ async def run_long_collect(timeout, container, project, connection, container_st
     return long_collection_bundle
 
 
-async def run_collect(timeout, container, project, connection, container_startup_task=None, **kwargs) -> CollectionBundle:
-    if container_startup_task:
-        await container_startup_task
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        initial_container_stats = container.stats(stream=False)
-        container_stats = ContainerStats(initial_container_stats)
+async def run_collect(timeout, container, project, connection, container_startup_task=None, title="Running Collect", **kwargs) -> CollectionBundle:
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
 
-        coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-        task = asyncio.create_task(coroutine)
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            initial_container_stats = container.stats(stream=False)
+            container_stats = ContainerStats(initial_container_stats)
 
-        while not task.done():
-            container_stats.add(container.stats(stream=False))
-            await asyncio.sleep(.5)
-        try:
-            request, response, elapsed_time = await task
-        except ReadTimeout as timeout:
-            # Translate the error to a standard request response format (for validation purposes)
-            timeout_request = timeout.request
-            request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
-            response = Response(408)
-            elapsed_time = timeout_request.extensions.get("timeout").get("read")
+            coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+            task = asyncio.create_task(coroutine)
 
-        collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                             container_stats=container_stats)
-        return collection_bundle
+            while not task.done():
+                container_stats.add(container.stats(stream=False))
+                await asyncio.sleep(.5)
+            try:
+                request, response, elapsed_time = await task
+            except ReadTimeout as timeout:
+                # Translate the error to a standard request response format (for validation purposes)
+                timeout_request = timeout.request
+                request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
+                response = Response(408)
+                elapsed_time = timeout_request.extensions.get("timeout").get("read")
 
-
-async def run_connect(timeout, project, connection, container_startup_task, **kwargs):
-    await container_startup_task
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
-        return ConnectBundle(request, response, elapsed_time)
+            collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
+                                                 container_stats=container_stats)
+            return collection_bundle
 
 
-async def run_get_endpoint_urls(timeout, project, connection, container_startup_task, **kwargs):
-    await container_startup_task
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
-                                                                     ENDPOINTS_URLS_ENDPOINT)
-        return EndpointURLsBundle(request, response, elapsed_time)
+async def run_connect(timeout, project, connection, container_startup_task, title="Running Connect", **kwargs):
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+            return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(timeout, container_startup_task, **kwargs):
-    await container_startup_task
-    async with httpx.AsyncClient(timeout=timeout) as client:
-        request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-        return VersionBundle(request, response, elapsed_time)
+async def run_get_endpoint_urls(timeout, project, connection, container_startup_task, title="Running Endpoint URLs", **kwargs):
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                         ENDPOINTS_URLS_ENDPOINT)
+            return EndpointURLsBundle(request, response, elapsed_time)
 
 
-def run_wait(**kwargs):
+async def run_get_server_version(timeout, container_startup_task, title="Running Get Server Version", **kwargs):
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+            return VersionBundle(request, response, elapsed_time)
+
+
+async def run_wait(container_startup_task, **kwargs):
+    if container_startup_task and not container_startup_task.done():
+        with Spinner("Waiting for adapter container to start"):
+            await container_startup_task
     input("Press enter to finish")
 
 
@@ -191,16 +204,16 @@ async def run(arguments):
 
     # Start the container. Requires the memory limit to be set, which requires the connection, so this is as early as
     # we can start it.
-    logger.info("Waiting for adapter image to finish building")
-    image = await image_task
-    logger.info("Starting container")
-    container = run_image(docker_client, image, project.path, connection.get_memory_limit())
+    with Spinner("Building adapter container image"):
+        image = await image_task
 
-    # Get the method to test
-    method = get_method(arguments)
-    verbosity = arguments.verbosity
+    container = None
     try:
-        #
+        container = run_image(docker_client, image, project.path, connection.get_memory_limit())
+        # Get the method to test
+        method = get_method(arguments)
+        verbosity = arguments.verbosity
+
         container_startup_task = asyncio.create_task(wait_for_container_startup())
 
         # Get certificates and add to connection if we are running any of the test or collect methods
@@ -208,7 +221,9 @@ async def run(arguments):
         # called but no certificates were found).
         if method in [run_connect, run_collect, run_long_collect] and connection.certificates is None:
             try:
-                await container_startup_task
+                if container_startup_task and not container_startup_task.done():
+                    with Spinner("Waiting for adapter container to start"):
+                        await container_startup_task
                 endpoints = await run_get_endpoint_urls(30, project, connection)
                 certificates = endpoints.retrieve_certificates()
                 connection.certificates = certificates
@@ -236,7 +251,8 @@ async def run(arguments):
                                      verbosity=verbosity,
                                      cli_args=vars(arguments))
     finally:
-        stop_container(container)
+        if container:
+            stop_container(container)
         docker_client.images.prune(filters={"label": "mp-test"})
 
     # TODO: Add UI code here
