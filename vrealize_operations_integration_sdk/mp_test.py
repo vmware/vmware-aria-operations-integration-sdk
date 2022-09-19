@@ -14,12 +14,8 @@ import traceback
 import xml.etree.ElementTree as ET
 
 import httpx
-import requests
 import urllib3
-from docker import DockerClient
 from docker.errors import ContainerError, APIError
-from docker.models.containers import Container
-from docker.models.images import Image
 from flask import json
 from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
@@ -32,8 +28,8 @@ from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import 
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
-from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
-    ContainerStats
+from vrealize_operations_integration_sdk.docker_wrapper import init, DockerWrapperError, stop_container, \
+    ContainerStats, get_container_image, run_image
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
@@ -55,7 +51,7 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-async def run_long_collect(timeout, container, project, connection, **kwargs):
+async def run_long_collect(timeout, container, project, connection, container_startup_task, **kwargs):
     logger.debug("Starting long run")
     cli_args = kwargs.get("cli_args")
 
@@ -89,6 +85,9 @@ async def run_long_collect(timeout, container, project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
+    # Wait for the container to finish starting *after* we've read in all the user input.
+    await container_startup_task
+
     long_collection_bundle = LongCollectionBundle(collection_interval)
     for collection_no in range(1, times + 1):
         logger.info(f"Running collection No. {collection_no} of {times}")
@@ -109,7 +108,9 @@ async def run_long_collect(timeout, container, project, connection, **kwargs):
     return long_collection_bundle
 
 
-async def run_collect(timeout, container, project, connection, **kwargs) -> CollectionBundle:
+async def run_collect(timeout, container, project, connection, container_startup_task=None, **kwargs) -> CollectionBundle:
+    if container_startup_task:
+        await container_startup_task
     async with httpx.AsyncClient(timeout=timeout) as client:
         initial_container_stats = container.stats(stream=False)
         container_stats = ContainerStats(initial_container_stats)
@@ -134,19 +135,23 @@ async def run_collect(timeout, container, project, connection, **kwargs) -> Coll
         return collection_bundle
 
 
-async def run_connect(timeout, project, connection, **kwargs):
+async def run_connect(timeout, project, connection, container_startup_task, **kwargs):
+    await container_startup_task
     async with httpx.AsyncClient(timeout=timeout) as client:
         request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
         return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_endpoint_urls(timeout, project, connection, **kwargs):
+async def run_get_endpoint_urls(timeout, project, connection, container_startup_task, **kwargs):
+    await container_startup_task
     async with httpx.AsyncClient(timeout=timeout) as client:
-        request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
+        request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                     ENDPOINTS_URLS_ENDPOINT)
         return EndpointURLsBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(timeout, **kwargs):
+async def run_get_server_version(timeout, container_startup_task, **kwargs):
+    await container_startup_task
     async with httpx.AsyncClient(timeout=timeout) as client:
         request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
         return VersionBundle(request, response, elapsed_time)
@@ -157,9 +162,18 @@ def run_wait(**kwargs):
 
 
 async def run(arguments):
+    docker_client = init()
+
     # User input
     project = get_project(arguments)
 
+    # start to get/build container image as soon as possible, which requires project
+    # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
+    # the command line and there are interactive prompts, this can provide a noticeable speed increase.
+
+    image_task = asyncio.wrap_future(get_container_image(docker_client, project.path))
+
+    # Set up logger, which requires project
     log_file_path = os.path.join(project.path, 'logs')
     if not os.path.exists(log_file_path):
         mkdir(log_file_path)
@@ -174,57 +188,27 @@ async def run(arguments):
         logger.warning(f"Unable to save logs to {log_file_path}")
 
     connection = get_connection(project, arguments)
+
+    # Start the container. Requires the memory limit to be set, which requires the connection, so this is as early as
+    # we can start it.
+    logger.info("Waiting for adapter image to finish building")
+    image = await image_task
+    logger.info("Starting container")
+    container = run_image(docker_client, image, project.path, connection.get_memory_limit())
+
+    # Get the method to test
     method = get_method(arguments)
     verbosity = arguments.verbosity
-
-    docker_client = init()
-
-    image = get_container_image(docker_client, project.path)
-    logger.info("Starting adapter HTTP server")
-
-    memory_limit = connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
-    if type(memory_limit) is dict:
-        memory_limit = memory_limit.get("value", DEFAULT_MEMORY_LIMIT)
-
     try:
-        memory_limit = int(memory_limit)
-        if memory_limit < 6:
-            logger.warning(f"'container_memory_limit' of {memory_limit} MB is below the 6MB docker limit.")
-            logger.warning(f"Using minimum value: 6 MB")
-            memory_limit = 6
-    except ValueError as e:
-        logger.warning(f"Cannot set 'container_memory_limit': {e}")
-        logger.warning(f"Using default value: {DEFAULT_MEMORY_LIMIT} MB")
-        memory_limit = DEFAULT_MEMORY_LIMIT
-
-    container = run_image(docker_client, image, project.path, memory_limit)
-
-    try:
-        # Need time for the server to start
-        started = False
-        start_time = time.perf_counter()
-        max_wait_time = 20
-        while not started:
-            try:
-                version = json.loads(requests.get(
-                    f"http://localhost:{DEFAULT_PORT}/apiVersion",
-                    headers={"Accept": "application/json"}).text)
-                started = True
-                logger.info(f"HTTP Server started with api version "
-                            f"{version['major']}.{version['minor']}.{version['maintenance']}")
-            except (RequestException, ConnectionError) as e:
-                elapsed_time = time.perf_counter() - start_time
-                if elapsed_time > max_wait_time:
-                    logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
-                    exit(1)
-                logger.info("Waiting for HTTP server to start...")
-                time.sleep(0.5)
+        #
+        container_startup_task = asyncio.create_task(wait_for_container_startup())
 
         # Get certificates and add to connection if we are running any of the test or collect methods
         # We will distinguish between 'None' (endpointURLs has not been called) and '[]' (endpointURLs has been
         # called but no certificates were found).
         if method in [run_connect, run_collect, run_long_collect] and connection.certificates is None:
             try:
+                await container_startup_task
                 endpoints = await run_get_endpoint_urls(30, project, connection)
                 certificates = endpoints.retrieve_certificates()
                 connection.certificates = certificates
@@ -246,6 +230,7 @@ async def run(arguments):
 
         result_bundle = await method(timeout=timeout,
                                      container=container,
+                                     container_startup_task=container_startup_task,
                                      project=project,
                                      connection=connection,
                                      verbosity=verbosity,
@@ -308,38 +293,26 @@ def write_validation_log(validation_file_path, result):
             validation_file.write(f"{severity.name}: {message}\n")
 
 
-# Docker helpers ***************
-def get_container_image(client: DockerClient, build_path: str) -> Image:
-    with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
-        manifest = json.load(manifest_file)
-
-    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"]
-
-    logger.info("Building adapter image")
-    build_image(client, path=build_path, tag=docker_image_tag, nocache=False, labels={"mp-test": f"{time.time()}"})
-
-    return docker_image_tag
-
-
-def run_image(client: DockerClient, image: Image, path: str,
-              container_memory_limit: int = DEFAULT_MEMORY_LIMIT) -> Container:
-    # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
-    # by the try/except block in the 'main' function
-
-    memory_limit = DEFAULT_MEMORY_LIMIT
-    if container_memory_limit:
-        memory_limit = container_memory_limit
-
-    # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
-    # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory
-    # setting is a combination of memory and swap, so this will limit swap space to a max of 512MB regardless
-    # of the memory limit.
-    return client.containers.run(image,
-                                 detach=True,
-                                 ports={"8080/tcp": DEFAULT_PORT},
-                                 mem_limit=f"{memory_limit}m",
-                                 memswap_limit=f"{memory_limit + 512}m",
-                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
+async def wait_for_container_startup():
+    # Need time for the server to start
+    started = False
+    start_time = time.perf_counter()
+    max_wait_time = 20
+    while not started:
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+            version = json.loads(response.text)
+            started = True
+            logger.debug(f"HTTP Server started with api version "
+                         f"{version['major']}.{version['minor']}.{version['maintenance']}")
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            elapsed_time = time.perf_counter() - start_time
+            if elapsed_time > max_wait_time:
+                logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
+                exit(1)
+            logger.debug("Waiting for HTTP server to start...")
+            await asyncio.sleep(0.5)
 
 
 # Helpers for creating the json payload ***************
