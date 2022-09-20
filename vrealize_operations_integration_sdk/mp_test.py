@@ -13,20 +13,19 @@ import xml.etree.ElementTree as ET
 import httpx
 import urllib3
 from docker.errors import ContainerError, APIError
-from flask import json
 from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
-from requests import RequestException, Request
+from requests import Request
 from xmlschema import XMLSchemaValidationError
 
-from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
-    CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
+from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
+from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+    CONNECT_ENDPOINT, COLLECT_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
-from vrealize_operations_integration_sdk.docker_wrapper import init, DockerWrapperError, stop_container, \
-    ContainerStats, get_container_image, run_image
+from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
@@ -48,7 +47,7 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-async def run_long_collect(timeout, container, project, connection, container_startup_task, **kwargs):
+async def run_long_collect(timeout, project, connection, adapter_container, **kwargs):
     logger.debug("Starting long run")
     cli_args = kwargs.get("cli_args")
 
@@ -83,14 +82,12 @@ async def run_long_collect(timeout, container, project, connection, container_st
         times = int(duration / collection_interval)
 
     # Wait for the container to finish starting *after* we've read in all the user input.
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+    await adapter_container.wait_for_container_startup()
 
     long_collection_bundle = LongCollectionBundle(collection_interval)
     for collection_no in range(1, times + 1):
         title = f"Running collection No. {collection_no} of {times}"
-        collection_bundle = await run_collect(timeout, container, project, connection, title=title)
+        collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
         long_collection_bundle.add(collection_bundle)
@@ -106,10 +103,8 @@ async def run_long_collect(timeout, container, project, connection, container_st
     return long_collection_bundle
 
 
-async def run_collect(timeout, container, project, connection, container_startup_task=None, title="Running Collect", **kwargs) -> CollectionBundle:
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
+    container = await adapter_container.get_container()
 
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -127,7 +122,8 @@ async def run_collect(timeout, container, project, connection, container_startup
             except ReadTimeout as timeout:
                 # Translate the error to a standard request response format (for validation purposes)
                 timeout_request = timeout.request
-                request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
+                request = Request(method=timeout_request.method, url=timeout_request.url,
+                                  headers=timeout_request.headers)
                 response = Response(408)
                 elapsed_time = timeout_request.extensions.get("timeout").get("read")
 
@@ -136,20 +132,16 @@ async def run_collect(timeout, container, project, connection, container_startup
             return collection_bundle
 
 
-async def run_connect(timeout, project, connection, container_startup_task, title="Running Connect", **kwargs):
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+async def run_connect(timeout, project, connection, adapter_container, title="Running Connect", **kwargs):
+    await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
             return ConnectBundle(request, response, elapsed_time)
 
 
-async def run_get_endpoint_urls(timeout, project, connection, container_startup_task, title="Running Endpoint URLs", **kwargs):
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
+    await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
@@ -157,34 +149,27 @@ async def run_get_endpoint_urls(timeout, project, connection, container_startup_
             return EndpointURLsBundle(request, response, elapsed_time)
 
 
-async def run_get_server_version(timeout, container_startup_task, title="Running Get Server Version", **kwargs):
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
+    await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
             return VersionBundle(request, response, elapsed_time)
 
 
-async def run_wait(container_startup_task, **kwargs):
-    if container_startup_task and not container_startup_task.done():
-        with Spinner("Waiting for adapter container to start"):
-            await container_startup_task
+async def run_wait(adapter_container, **kwargs):
+    await adapter_container.wait_for_container_startup()
     input("Press enter to finish")
 
 
 async def run(arguments):
-    docker_client = init()
-
     # User input
     project = get_project(arguments)
 
     # start to get/build container image as soon as possible, which requires project
     # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
     # the command line and there are interactive prompts, this can provide a noticeable speed increase.
-
-    image_task = asyncio.wrap_future(get_container_image(docker_client, project.path))
+    adapter_container = AdapterContainer(project.path)
 
     # Set up logger, which requires project
     log_file_path = os.path.join(project.path, 'logs')
@@ -202,29 +187,18 @@ async def run(arguments):
 
     connection = get_connection(project, arguments)
 
-    # Start the container. Requires the memory limit to be set, which requires the connection, so this is as early as
-    # we can start it.
-    with Spinner("Building adapter container image"):
-        image = await image_task
-
-    container = None
     try:
-        container = run_image(docker_client, image, project.path, connection.get_memory_limit())
+        adapter_container.start(connection.get_memory_limit())
         # Get the method to test
         method = get_method(arguments)
         verbosity = arguments.verbosity
-
-        container_startup_task = asyncio.create_task(wait_for_container_startup())
 
         # Get certificates and add to connection if we are running any of the test or collect methods
         # We will distinguish between 'None' (endpointURLs has not been called) and '[]' (endpointURLs has been
         # called but no certificates were found).
         if method in [run_connect, run_collect, run_long_collect] and connection.certificates is None:
             try:
-                if container_startup_task and not container_startup_task.done():
-                    with Spinner("Waiting for adapter container to start"):
-                        await container_startup_task
-                endpoints = await run_get_endpoint_urls(30, project, connection)
+                endpoints = await run_get_endpoint_urls(30, project, connection, adapter_container)
                 certificates = endpoints.retrieve_certificates()
                 connection.certificates = certificates
                 # Record certificates in connection to omit this step next time.
@@ -244,16 +218,13 @@ async def run(arguments):
             timeout = TimeValidator.get_sec("Timeout", timeout)
 
         result_bundle = await method(timeout=timeout,
-                                     container=container,
-                                     container_startup_task=container_startup_task,
+                                     adapter_container=adapter_container,
                                      project=project,
                                      connection=connection,
                                      verbosity=verbosity,
                                      cli_args=vars(arguments))
     finally:
-        if container:
-            stop_container(container)
-        docker_client.images.prune(filters={"label": "mp-test"})
+        await adapter_container.stop()
 
     # TODO: Add UI code here
     logger.info(result_bundle)
@@ -307,28 +278,6 @@ def write_validation_log(validation_file_path, result):
     with open(validation_file_path, "w") as validation_file:
         for (severity, message) in result.messages:
             validation_file.write(f"{severity.name}: {message}\n")
-
-
-async def wait_for_container_startup():
-    # Need time for the server to start
-    started = False
-    start_time = time.perf_counter()
-    max_wait_time = 20
-    while not started:
-        try:
-            async with httpx.AsyncClient(timeout=5) as client:
-                request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-            version = json.loads(response.text)
-            started = True
-            logger.debug(f"HTTP Server started with api version "
-                         f"{version['major']}.{version['minor']}.{version['maintenance']}")
-        except (httpx.RequestError, httpx.HTTPStatusError) as e:
-            elapsed_time = time.perf_counter() - start_time
-            if elapsed_time > max_wait_time:
-                logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
-                exit(1)
-            logger.debug("Waiting for HTTP server to start...")
-            await asyncio.sleep(0.5)
 
 
 # Helpers for creating the json payload ***************
