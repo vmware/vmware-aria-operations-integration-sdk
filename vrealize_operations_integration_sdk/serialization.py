@@ -25,10 +25,11 @@ logger.addHandler(consoleHandler)
 
 
 class ResponseBundle:
-    def __init__(self, request, response, duration, validators):
+    def __init__(self, request, response, duration, container_statistics, validators):
         self.response = response
         self.request = request
         self.duration = duration
+        self.container_statistics = container_statistics
         self.validators = validators
 
     def validate(self, project):
@@ -47,13 +48,15 @@ class ResponseBundle:
 
     def __repr__(self):
         if not self.failed():
-            response = json.dumps(json.loads(self.response.text), sort_keys=True, indent=3)
+            _str = json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n\n"
         else:
-            response = f"Failed: {self.get_failure_message()}"
+            _str = f"Failed: {self.get_failure_message()}\n\n"
 
-        response += f"\nRequest completed in {self.duration:0.2f} seconds."
+        if self.response.status_code != 500:  # Allows the error message to be highlighted
+            _str += str(self.container_statistics.get_table()) + "\n"
+            _str += f"Request completed in {self.duration:0.2f} seconds.\n"
 
-        return response
+        return _str
 
     def get_failure_message(self):
         message = ""
@@ -70,13 +73,12 @@ class ResponseBundle:
 
 
 class CollectionBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_stats):
-        super().__init__(request, response, duration,
+    def __init__(self, request, response, duration, container_statistics):
+        super().__init__(request, response, duration, container_statistics,
                          validators=[
                              validate_api_response,
                              cross_check_collection_with_describe,
                              validate_relationships])
-        self.container_stats = container_stats
         self.collection_number = 1
         self.time_stamp = time.time()
 
@@ -87,15 +89,12 @@ class CollectionBundle(ResponseBundle):
         _str = ""
         if not self.failed():
             _str += json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n"
-            _str += repr(self.get_collection_statistics()) + "\n"
+            _str += repr(self.get_collection_statistics()) + "\n\n"
         else:
-            _str += f"Collection Failed: {self.get_failure_message()}\n"
+            _str += f"Collection Failed: {self.get_failure_message()}\n\n"
 
         if self.response.status_code != 500:  # Allows the error message to be highlighted
-            headers = ["Avg CPU %", "Avg Memory Usage %", "Memory Limit", "Network I/O", "Block I/O"]
-            data = [self.container_stats.get_summary()]
-            table = Table(headers, data)
-            _str += str(table) + "\n"
+            _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
 
         return _str
@@ -114,13 +113,13 @@ class LongCollectionBundle:
 
 
 class ConnectBundle(ResponseBundle):
-    def __init__(self, request, response, duration):
-        super().__init__(request, response, duration, [validate_api_response])
+    def __init__(self, request, response, duration, container_statistics):
+        super().__init__(request, response, duration, container_statistics, [validate_api_response])
 
 
 class EndpointURLsBundle(ResponseBundle):
-    def __init__(self, request, response, duration):
-        super().__init__(request, response, duration, [validate_api_response, validate_endpoint_urls])
+    def __init__(self, request, response, duration, container_statistics):
+        super().__init__(request, response, duration, container_statistics, [validate_api_response, validate_endpoint_urls])
 
     def retrieve_certificates(self):
         if not self.response.is_success:
@@ -180,5 +179,17 @@ def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
 
 
 class VersionBundle(ResponseBundle):
-    def __init__(self, request, response, duration):
-        super().__init__(request, response, duration, [validate_api_response])
+    def __init__(self, request, response, duration, container_statistics):
+        super().__init__(request, response, duration, container_statistics, [validate_api_response])
+
+
+class WaitBundle:
+    def __init__(self, duration, container_statistics):
+        self.duration = duration
+        self.container_statistics = container_statistics
+
+    def __repr__(self):
+        _str = "\n"
+        _str += str(self.container_statistics.get_table()) + "\n"
+        _str += f"\nContainer ran for {self.duration:0.2f} seconds."
+        return _str

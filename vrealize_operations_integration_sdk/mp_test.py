@@ -13,9 +13,7 @@ import xml.etree.ElementTree as ET
 import httpx
 import urllib3
 from docker.errors import ContainerError, APIError
-from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
-from requests import Request
 from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
@@ -31,7 +29,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -104,62 +102,48 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
 
 
 async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
-    container = await adapter_container.get_container()
-
+    await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            initial_container_stats = container.stats(stream=False)
-            container_stats = ContainerStats(initial_container_stats)
-
-            coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-            task = asyncio.create_task(coroutine)
-
-            while not task.done():
-                container_stats.add(container.stats(stream=False))
-                await asyncio.sleep(.5)
-            try:
-                request, response, elapsed_time = await task
-            except ReadTimeout as timeout:
-                # Translate the error to a standard request response format (for validation purposes)
-                timeout_request = timeout.request
-                request = Request(method=timeout_request.method, url=timeout_request.url,
-                                  headers=timeout_request.headers)
-                response = Response(408)
-                elapsed_time = timeout_request.extensions.get("timeout").get("read")
-
-            collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                                 container_stats=container_stats)
-            return collection_bundle
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+            return CollectionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_connect(timeout, project, connection, adapter_container, title="Running Connect", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
-            return ConnectBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+            return ConnectBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
-                                                                         ENDPOINTS_URLS_ENDPOINT)
-            return EndpointURLsBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             ENDPOINTS_URLS_ENDPOINT)
+            return EndpointURLsBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-            return VersionBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+            return VersionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_wait(adapter_container, **kwargs):
     await adapter_container.wait_for_container_startup()
-    input("Press enter to finish")
+    start_time = time.perf_counter()
+    async with await adapter_container.record_stats():
+        prompt("Press enter to stop container and exit.")
+    return WaitBundle(time.perf_counter() - start_time, adapter_container.stats)
 
 
 async def run(arguments):
@@ -228,7 +212,7 @@ async def run(arguments):
 
     # TODO: Add UI code here
     logger.info(result_bundle)
-    if type(result_bundle) is not LongCollectionBundle:
+    if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
         ui_validation(result_bundle.validate(project),
                       project,

@@ -8,7 +8,8 @@ import httpx
 
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter
-from vrealize_operations_integration_sdk.docker_wrapper import init, get_container_image, run_image, stop_container
+from vrealize_operations_integration_sdk.docker_wrapper import init, get_container_image, run_image, stop_container, \
+    ContainerStats
 from vrealize_operations_integration_sdk.ui import Spinner
 
 
@@ -22,6 +23,7 @@ class AdapterContainer:
         self._image_task = asyncio.wrap_future(get_container_image(self.docker_client, self.path))
         self.container = None
         self._container_task = None
+        self.stats = None
 
     def start(self, memory_limit):
         self.memory_limit = memory_limit
@@ -46,6 +48,10 @@ class AdapterContainer:
         if not self.started:
             await self.wait_for_container_startup()
         return self.container
+
+    async def record_stats(self):
+        self.stats = ContainerStats(await self.get_container())
+        return self.stats
 
     async def wait_for_container_startup(self):
         if self.started:
