@@ -13,9 +13,7 @@ import xml.etree.ElementTree as ET
 import httpx
 import urllib3
 from docker.errors import ContainerError, APIError
-from httpx import ReadTimeout, Response
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
-from requests import Request
 from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
@@ -117,16 +115,7 @@ async def run_collect(timeout, project, connection, adapter_container, title="Ru
             while not task.done():
                 container_stats.add(container.stats(stream=False))
                 await asyncio.sleep(.5)
-            try:
-                request, response, elapsed_time = await task
-            except ReadTimeout as timeout:
-                # Translate the error to a standard request response format (for validation purposes)
-                timeout_request = timeout.request
-                request = Request(method=timeout_request.method, url=timeout_request.url,
-                                  headers=timeout_request.headers)
-                response = Response(408)
-                elapsed_time = timeout_request.extensions.get("timeout").get("read")
-
+            request, response, elapsed_time = await task
             collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
                                                  container_stats=container_stats)
             return collection_bundle
