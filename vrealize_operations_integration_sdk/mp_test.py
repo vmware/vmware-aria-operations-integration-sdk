@@ -102,23 +102,12 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
 
 
 async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
-    container = await adapter_container.get_container()
-
+    await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            initial_container_stats = container.stats(stream=False)
-            container_stats = ContainerStats(initial_container_stats)
-
-            coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-            task = asyncio.create_task(coroutine)
-
-            while not task.done():
-                container_stats.add(container.stats(stream=False))
-                await asyncio.sleep(.5)
-            request, response, elapsed_time = await task
-            collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                                 container_stats=container_stats)
-            return collection_bundle
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+            return CollectionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_connect(timeout, project, connection, adapter_container, title="Running Connect", **kwargs):

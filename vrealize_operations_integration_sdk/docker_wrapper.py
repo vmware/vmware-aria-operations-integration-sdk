@@ -1,5 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import asyncio
 import json
 import os
 import subprocess
@@ -14,6 +15,7 @@ from sen.util import calculate_blkio_bytes, calculate_network_bytes
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
 from vrealize_operations_integration_sdk.threading import threaded
+from vrealize_operations_integration_sdk.ui import Spinner
 
 
 def login(docker_registry):
@@ -142,11 +144,33 @@ def stop_container(container: Container):
 
 
 class ContainerStats:
-    def __init__(self, initial_stats):
+    def __init__(self, container):
         self.current_memory_usage = []
         self.memory_percent_usage = []
         self.cpu_percent_usage = []
-        self.previous_stats = initial_stats
+        self.previous_stats = None
+        self.container = container
+        self._recording = False
+
+    async def __aenter__(self):
+        self.previous_stats = self.container.stats(stream=False)
+        self._recording = True
+        self._recording_task = asyncio.wrap_future(self._record())
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self._recording = False
+        await self._recording_task
+        self.add(self.container.stats(stream=False))
+
+    @threaded
+    def _record(self):
+        last_collection_time = time.perf_counter()
+        while self._recording:
+            current_time = time.perf_counter()
+            if current_time >= last_collection_time + 0.5:
+                self.add(self.container.stats(stream=False))
+                last_collection_time = current_time
+            time.sleep(0.05)
 
     def add(self, current_stats):
         self.block_read, self.block_write = calculate_blkio_bytes(current_stats)
