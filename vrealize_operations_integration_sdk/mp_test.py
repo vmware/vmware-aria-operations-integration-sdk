@@ -29,7 +29,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -114,30 +114,36 @@ async def run_connect(timeout, project, connection, adapter_container, title="Ru
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
-            return ConnectBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+            return ConnectBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
-                                                                         ENDPOINTS_URLS_ENDPOINT)
-            return EndpointURLsBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             ENDPOINTS_URLS_ENDPOINT)
+            return EndpointURLsBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
-            request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-            return VersionBundle(request, response, elapsed_time)
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+            return VersionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_wait(adapter_container, **kwargs):
     await adapter_container.wait_for_container_startup()
-    input("Press enter to finish")
+    start_time = time.perf_counter()
+    async with await adapter_container.record_stats():
+        prompt("Press enter to stop container and exit.")
+    return WaitBundle(time.perf_counter() - start_time, adapter_container.stats)
 
 
 async def run(arguments):
@@ -206,7 +212,7 @@ async def run(arguments):
 
     # TODO: Add UI code here
     logger.info(result_bundle)
-    if type(result_bundle) is not LongCollectionBundle:
+    if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
         ui_validation(result_bundle.validate(project),
                       project,

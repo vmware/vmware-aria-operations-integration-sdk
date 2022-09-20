@@ -15,7 +15,7 @@ from sen.util import calculate_blkio_bytes, calculate_network_bytes
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
 from vrealize_operations_integration_sdk.threading import threaded
-from vrealize_operations_integration_sdk.ui import Spinner
+from vrealize_operations_integration_sdk.ui import Table, Spinner
 
 
 def login(docker_registry):
@@ -203,6 +203,12 @@ class ContainerStats:
             f"{convert_bytes(self.network_read)} / {convert_bytes(self.network_write)}",
             f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}"
         ]
+
+    def get_table(self):
+        headers = self.get_summary_headers()
+        data = [self.get_summary()]
+        return Table(headers, data)
+
 
 
 # This code is transcribed from docker's code
