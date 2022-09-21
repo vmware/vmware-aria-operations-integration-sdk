@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import os
 import re
+import signal
 import time
 
 from prompt_toolkit import print_formatted_text, PromptSession
@@ -296,6 +297,13 @@ class Spinner(FormattedTextControl):
 
     def __exit__(self, exec_type, exc_value, traceback):
         self._finished = True
+
+        # The spinner *should* be running when we get here. If it's not, it's because the user interrupted with ctrl-c
+        # or similar. We don't need to call application.exit(), because it's already stopped, but we *do* need to
+        # re-raise the exception, as it was raised on the spinner thread and not the main thread.
+        if not self.application.is_running:
+            raise KeyboardInterrupt("Cancelled")
+
         self.application.exit()
         # we've called exit, now have to wait for task to finish
         # weird things can happen if two applications are running at the same time; this will prevent that in the case
@@ -306,7 +314,7 @@ class Spinner(FormattedTextControl):
     def _get_layout(self):
         def get_text():
             spinner = "-\\|/"[self._index]
-            if time.time() > self._update_time + 0.25:
+            if time.time() >= self._update_time + 0.2:
                 self._index = (self._index + 1) % 4
                 self._update_time = time.time()
 
