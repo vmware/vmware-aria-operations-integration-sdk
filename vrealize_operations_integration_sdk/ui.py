@@ -21,6 +21,8 @@ from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Frame, TextArea
 
+from vrealize_operations_integration_sdk.threading import threaded
+
 style = Style.from_dict({
     # Prompts
     "disabled": "fg:ansidarkgray italic",
@@ -266,6 +268,69 @@ def prompt(message, *args, description="", **kwargs) -> str:
                     lexer=SimpleLexer('class:answer'),
                     style=style,
                     in_thread=True)
+
+
+class Spinner(FormattedTextControl):
+    def __init__(self, text):
+        self.spinner_text = text
+        self._index = 0
+        self._update_time = time.time()
+        self._finished = False
+        super().__init__()
+
+    def __enter__(self):
+        self.application = Application(
+            layout=self._get_layout(),
+            key_bindings=self._bindings(),
+            style=style,
+            refresh_interval=0.1
+        )
+        self._application_task = self._start_application()
+        while not self.application.is_running:
+            pass
+        return self
+
+    @threaded
+    def _start_application(self):
+        self.application.run()
+
+    def __exit__(self, exec_type, exc_value, traceback):
+        self._finished = True
+        self.application.exit()
+        # we've called exit, now have to wait for task to finish
+        # weird things can happen if two applications are running at the same time; this will prevent that in the case
+        # a spinner is started immediately after another
+        while not self._application_task.done():
+            pass
+
+    def _get_layout(self):
+        def get_text():
+            spinner = "-\\|/"[self._index]
+            if time.time() > self._update_time + 0.25:
+                self._index = (self._index + 1) % 4
+                self._update_time = time.time()
+
+            if not self._finished:
+                return [("class:message", self.spinner_text + " " + spinner)]
+            else:
+                return [("class:message", self.spinner_text + " "), ("class:answer", "[Finished]")]
+
+        return Layout(HSplit([
+            Window(
+                height=LayoutDimension.exact(1),
+                content=FormattedTextControl(get_text, show_cursor=False)
+            )
+        ]))
+
+    def _bindings(self):
+        bindings = KeyBindings()
+
+        @bindings.add("c-q", eager=True)
+        @bindings.add("c-c", eager=True)
+        @bindings.add("c-d", eager=True)
+        def _(event):
+            event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
+        return bindings
 
 
 def countdown(duration, message=""):

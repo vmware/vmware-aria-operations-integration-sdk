@@ -1,6 +1,3 @@
-__author__ = 'VMware, Inc.'
-__copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
@@ -14,37 +11,30 @@ import traceback
 import xml.etree.ElementTree as ET
 
 import httpx
-import requests
 import urllib3
-from docker import DockerClient
 from docker.errors import ContainerError, APIError
-from docker.models.containers import Container
-from docker.models.images import Image
-from flask import json
-from httpx import ReadTimeout, Response
-from prompt_toolkit.validation import ConditionalValidator
-from requests import RequestException, Request
+from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
-from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
-    CONNECT_ENDPOINT, COLLECT_ENDPOINT, DEFAULT_MEMORY_LIMIT
+from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
+from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+    CONNECT_ENDPOINT, COLLECT_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
-from vrealize_operations_integration_sdk.docker_wrapper import init, build_image, DockerWrapperError, stop_container, \
-    ContainerStats
+from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
-    countdown
+    countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
-    ChainValidator, IntegerValidator
+    ChainValidator, IntegerValidator, TimeValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -55,29 +45,33 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def get_sec(time_str):
-    """Get seconds from time."""
-    try:
-        unit = time_str[-1]
-        if unit == "s":
-            return float(time_str[0:-1])
-        elif unit == "m":
-            return float(time_str[0:-1]) * 60
-        elif unit == "h":
-            return float(time_str[0:-1]) * 3600
-        else:  # no unit specified, default to minutes
-            return float(time_str) * 60
-    except ValueError:
-        logger.error("Invalid time. Time should be a numeric value in minutes, or a numeric value "
-                     "followed by the unit 'h', 'm', or 's'.")
-        exit(1)
-
-
-async def run_long_collect(client, container, project, connection, **kwargs):
+async def run_long_collect(timeout, project, connection, adapter_container, **kwargs):
     logger.debug("Starting long run")
     cli_args = kwargs.get("cli_args")
-    duration = get_sec(cli_args["duration"])
-    collection_interval = get_sec(cli_args["collection_interval"])
+
+    duration = \
+        cli_args.get("duration", None) or \
+        prompt(message="Collection duration: ",
+               default="6h",
+               validator=TimeValidator("Long run duration"),
+               description="The long run duration is the total period of time for the long collection. Defaults to "
+                           "6 hours. Allowable units are s (seconds), m (minutes, default), and h (hours).")
+    collection_interval = \
+        cli_args.get("collection_interval", None) or \
+        prompt(message="Collection interval: ",
+               default="5m",
+               validator=TimeValidator("Collection interval"),
+               description="The collection interval is the period of time between a collection starting and the next "
+                           "collection starting. Defaults to 5 minutes. Allowable units are s (seconds), m (minutes, "
+                           "default), and h (hours). By default, the timeout is set to 1.5 times the collection "
+                           "interval. If a collection takes longer than the interval, the next collection will start "
+                           "as soon as the the current one finishes.")
+
+    duration = TimeValidator.get_sec("Long run duration", duration)
+    collection_interval = TimeValidator.get_sec("Collection interval", collection_interval)
+
+    if timeout is None:
+        timeout = 1.5 * collection_interval
 
     if duration < collection_interval:
         times = 1
@@ -85,11 +79,13 @@ async def run_long_collect(client, container, project, connection, **kwargs):
         # Remove decimal points by casting number to integer, which behaves as a floor function
         times = int(duration / collection_interval)
 
+    # Wait for the container to finish starting *after* we've read in all the user input.
+    await adapter_container.wait_for_container_startup()
+
     long_collection_bundle = LongCollectionBundle(collection_interval)
     for collection_no in range(1, times + 1):
-        logger.info(f"Running collection No. {collection_no} of {times}")
-
-        collection_bundle = await run_collect(client, container, project, connection)
+        title = f"Running collection No. {collection_no} of {times}"
+        collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)
         collection_bundle.collection_number = collection_no
         elapsed_time = collection_bundle.duration
         long_collection_bundle.add(collection_bundle)
@@ -105,55 +101,61 @@ async def run_long_collect(client, container, project, connection, **kwargs):
     return long_collection_bundle
 
 
-async def run_collect(client, container, project, connection, **kwargs) -> CollectionBundle:
-    initial_container_stats = container.stats(stream=False)
-    container_stats = ContainerStats(initial_container_stats)
-
-    coroutine = send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
-    task = asyncio.create_task(coroutine)
-
-    while not task.done():
-        container_stats.add(container.stats(stream=False))
-        await asyncio.sleep(.5)
-    try:
-        request, response, elapsed_time = await task
-    except ReadTimeout as timeout:
-        # Translate the error to a standard request response format (for validation purposes)
-        timeout_request = timeout.request
-        request = Request(method=timeout_request.method, url=timeout_request.url, headers=timeout_request.headers)
-        response = Response(408)
-        elapsed_time = timeout_request.extensions.get("timeout").get("read")
-
-    collection_bundle = CollectionBundle(request=request, response=response, duration=elapsed_time,
-                                         container_stats=container_stats)
-    return collection_bundle
+async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
+    await adapter_container.wait_for_container_startup()
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+            return CollectionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_connect(client, project, connection, **kwargs):
-    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
-
-    return ConnectBundle(request, response, elapsed_time)
-
-
-async def run_get_endpoint_urls(client, project, connection, **kwargs):
-    request, response, elapsed_time = await send_post_to_adapter(client, project, connection, ENDPOINTS_URLS_ENDPOINT)
-    return EndpointURLsBundle(request, response, elapsed_time)
+async def run_connect(timeout, project, connection, adapter_container, title="Running Connect", **kwargs):
+    await adapter_container.wait_for_container_startup()
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+            return ConnectBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_get_server_version(client, **kwargs):
-    request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
+    await adapter_container.wait_for_container_startup()
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             ENDPOINTS_URLS_ENDPOINT)
+            return EndpointURLsBundle(request, response, elapsed_time, adapter_container.stats)
 
-    return VersionBundle(request, response, elapsed_time)
+
+async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
+    await adapter_container.wait_for_container_startup()
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+            return VersionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-def run_wait(**kwargs):
-    input("Press enter to finish")
+async def run_wait(adapter_container, **kwargs):
+    await adapter_container.wait_for_container_startup()
+    start_time = time.perf_counter()
+    async with await adapter_container.record_stats():
+        prompt("Press enter to stop container and exit.")
+    return WaitBundle(time.perf_counter() - start_time, adapter_container.stats)
 
 
 async def run(arguments):
     # User input
     project = get_project(arguments)
 
+    # start to get/build container image as soon as possible, which requires project
+    # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
+    # the command line and there are interactive prompts, this can provide a noticeable speed increase.
+    adapter_container = AdapterContainer(project.path)
+
+    # Set up logger, which requires project
     log_file_path = os.path.join(project.path, 'logs')
     if not os.path.exists(log_file_path):
         mkdir(log_file_path)
@@ -168,65 +170,25 @@ async def run(arguments):
         logger.warning(f"Unable to save logs to {log_file_path}")
 
     connection = get_connection(project, arguments)
-    method = get_method(arguments)
-    verbosity = arguments.verbosity
-
-    docker_client = init()
-
-    image = get_container_image(docker_client, project.path)
-    logger.info("Starting adapter HTTP server")
-
-    memory_limit = connection.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
-    if type(memory_limit) is dict:
-        memory_limit = memory_limit.get("value", DEFAULT_MEMORY_LIMIT)
 
     try:
-        memory_limit = int(memory_limit)
-        if memory_limit < 6:
-            logger.warning(f"'container_memory_limit' of {memory_limit} MB is below the 6MB docker limit.")
-            logger.warning(f"Using minimum value: 6 MB")
-            memory_limit = 6
-    except ValueError as e:
-        logger.warning(f"Cannot set 'container_memory_limit': {e}")
-        logger.warning(f"Using default value: {DEFAULT_MEMORY_LIMIT} MB")
-        memory_limit = DEFAULT_MEMORY_LIMIT
-
-    container = run_image(docker_client, image, project.path, memory_limit)
-
-    try:
-        # Need time for the server to start
-        started = False
-        start_time = time.perf_counter()
-        max_wait_time = 20
-        while not started:
-            try:
-                version = json.loads(requests.get(
-                    f"http://localhost:{DEFAULT_PORT}/apiVersion",
-                    headers={"Accept": "application/json"}).text)
-                started = True
-                logger.info(f"HTTP Server started with api version "
-                            f"{version['major']}.{version['minor']}.{version['maintenance']}")
-            except (RequestException, ConnectionError) as e:
-                elapsed_time = time.perf_counter() - start_time
-                if elapsed_time > max_wait_time:
-                    logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
-                    exit(1)
-                logger.info("Waiting for HTTP server to start...")
-                time.sleep(0.5)
+        adapter_container.start(connection.get_memory_limit())
+        # Get the method to test
+        method = get_method(arguments)
+        verbosity = arguments.verbosity
 
         # Get certificates and add to connection if we are running any of the test or collect methods
         # We will distinguish between 'None' (endpointURLs has not been called) and '[]' (endpointURLs has been
         # called but no certificates were found).
         if method in [run_connect, run_collect, run_long_collect] and connection.certificates is None:
             try:
-                async with httpx.AsyncClient(timeout=30) as client:
-                    endpoints = await run_get_endpoint_urls(client, project, connection)
-                    certificates = endpoints.retrieve_certificates()
-                    connection.certificates = certificates
-                    # Record certificates in connection to omit this step next time.
-                    # Certificates can be regenerated by removing the 'certificates' key
-                    # from the connection.
-                    project.record()
+                endpoints = await run_get_endpoint_urls(30, project, connection, adapter_container)
+                certificates = endpoints.retrieve_certificates()
+                connection.certificates = certificates
+                # Record certificates in connection to omit this step next time.
+                # Certificates can be regenerated by removing the 'certificates' key
+                # from the connection.
+                project.record()
             except Exception as e:
                 logger.warning(f"Caught exception when retrieving SSL certificates: {e}.")
         if connection.certificates is None:
@@ -237,24 +199,20 @@ async def run(arguments):
         args = vars(arguments)
         timeout = args.get("timeout", None)
         if timeout is not None:
-            timeout = get_sec(timeout)
-        elif method == run_long_collect:
-            timeout = 1.5 * get_sec(args.get("collection_interval"))
+            timeout = TimeValidator.get_sec("Timeout", timeout)
 
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            result_bundle = await method(client=client,
-                                         container=container,
-                                         project=project,
-                                         connection=connection,
-                                         verbosity=verbosity,
-                                         cli_args=vars(arguments))
+        result_bundle = await method(timeout=timeout,
+                                     adapter_container=adapter_container,
+                                     project=project,
+                                     connection=connection,
+                                     verbosity=verbosity,
+                                     cli_args=vars(arguments))
     finally:
-        stop_container(container)
-        docker_client.images.prune(filters={"label": "mp-test"})
+        await adapter_container.stop()
 
     # TODO: Add UI code here
     logger.info(result_bundle)
-    if type(result_bundle) is not LongCollectionBundle:
+    if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
         ui_validation(result_bundle.validate(project),
                       project,
@@ -304,40 +262,6 @@ def write_validation_log(validation_file_path, result):
     with open(validation_file_path, "w") as validation_file:
         for (severity, message) in result.messages:
             validation_file.write(f"{severity.name}: {message}\n")
-
-
-# Docker helpers ***************
-def get_container_image(client: DockerClient, build_path: str) -> Image:
-    with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
-        manifest = json.load(manifest_file)
-
-    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"]
-
-    logger.info("Building adapter image")
-    build_image(client, path=build_path, tag=docker_image_tag, nocache=False, labels={"mp-test": f"{time.time()}"})
-
-    return docker_image_tag
-
-
-def run_image(client: DockerClient, image: Image, path: str,
-              container_memory_limit: int = DEFAULT_MEMORY_LIMIT) -> Container:
-    # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
-    # by the try/except block in the 'main' function
-
-    memory_limit = DEFAULT_MEMORY_LIMIT
-    if container_memory_limit:
-        memory_limit = container_memory_limit
-
-    # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
-    # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory
-    # setting is a combination of memory and swap, so this will limit swap space to a max of 512MB regardless
-    # of the memory limit.
-    return client.containers.run(image,
-                                 detach=True,
-                                 ports={"8080/tcp": DEFAULT_PORT},
-                                 mem_limit=f"{memory_limit}m",
-                                 memswap_limit=f"{memory_limit + 512}m",
-                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
 # Helpers for creating the json payload ***************
@@ -533,6 +457,9 @@ def main():
         print_formatted("")
         logger.info("Testing cancelled")
         exit(1)
+    except ValidationError as validation_error:
+        logger.error(validation_error.message)
+        exit(1)
     except DockerWrapperError as docker_error:
         logger.error("Unable to build container")
         logger.error(f"{docker_error.message}")
@@ -544,6 +471,7 @@ def main():
         exit(1)
     except ET.ParseError as describe_error:
         logger.error(f"Unable to parse describe.xml: {describe_error}")
+        exit(1)
     except SystemExit as system_exit:
         exit(system_exit.code)
     except XMLSchemaValidationError as xml_error:

@@ -37,6 +37,9 @@ def build_subdirectories(directory: str):
 
     :return: None
     """
+    if not os.path.exists(directory):
+        return
+
     content_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
 
     for file in content_files:

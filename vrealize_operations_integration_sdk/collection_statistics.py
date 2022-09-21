@@ -233,7 +233,7 @@ class LongCollectionStatistics:
                 number = f"{number} (longer than collection interval)"
                 longer_collections.append(collection_stat)
             data.append(
-                [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_stats.get_summary()])
+                [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_statistics.get_summary()])
         collection_table = str(Table(headers, data))
 
         summary = "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table

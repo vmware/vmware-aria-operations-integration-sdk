@@ -2,7 +2,8 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 import httpx
-from requests.models import Request
+from httpx import ReadTimeout, Response
+from requests import Request
 
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT
 from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_instance
@@ -31,18 +32,34 @@ async def post(client, url, json, headers):
 
 
 async def send_post_to_adapter(client, project, connection, endpoint):
-    response = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-                          json=get_request_body(project, connection),
-                          headers={"Accept": "application/json"})
-
-    return response
+    try:
+        request, response, elapsed_time = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+                                                     json=get_request_body(project, connection),
+                                                     headers={"Accept": "application/json"})
+    except ReadTimeout as timeout:
+        # Translate the error to a standard request response format (for validation purposes)
+        timeout_request = timeout.request
+        request = Request(method=timeout_request.method, url=timeout_request.url,
+                          headers=timeout_request.headers)
+        response = Response(408)
+        elapsed_time = timeout_request.extensions.get("timeout").get("read")
+    return request, response, elapsed_time
 
 
 async def send_get_to_adapter(client, endpoint):
-    return await get(client,
-                     url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-                     headers={"Accept": "application/json"}
-                     )
+    try:
+        request, response, elapsed_time = await get(client,
+                                                    url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+                                                    headers={"Accept": "application/json"}
+                                                    )
+    except ReadTimeout as timeout:
+        # Translate the error to a standard request response format (for validation purposes)
+        timeout_request = timeout.request
+        request = Request(method=timeout_request.method, url=timeout_request.url,
+                          headers=timeout_request.headers)
+        response = Response(408)
+        elapsed_time = timeout_request.extensions.get("timeout").get("read")
+    return request, response, elapsed_time
 
 
 def get_request_body(project, connection):

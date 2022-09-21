@@ -1,14 +1,21 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
+import asyncio
+import json
 import os
 import subprocess
+import time
 
 import docker
+from docker import DockerClient
 from docker.models.containers import Container
+from docker.models.images import Image
 from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
+from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
+from vrealize_operations_integration_sdk.threading import threaded
+from vrealize_operations_integration_sdk.ui import Table, Spinner
 
 
 def login(docker_registry):
@@ -80,11 +87,55 @@ def push_image(client, image_tag):
     return image_digest
 
 
-def build_image(client, path, tag, nocache=True, labels={}):
+def build_image(client, path, tag, nocache=True, labels=None):
+    """
+    Wraps the docker clients images.build method with some appropriate default values
+    :param client: Docker client
+    :param path: path to the directory containing the dockerfile
+    :param tag: Tag for the image
+    :param nocache: Do not use the cache when building if this is set. Defaults to true (set)
+    :param labels: dict of labels. Defaults to empty dict
+    :return:
+    """
+    if labels is None:
+        labels = {}
     try:
         return client.images.build(path=path, tag=tag, nocache=nocache, rm=True, labels=labels)
     except docker.errors.BuildError as error:
         raise BuildError(message=f"ERROR: Unable to build Docker file at {path}:\n {error}")
+
+
+@threaded
+def get_container_image(client: DockerClient, build_path: str) -> Image:
+    with open(os.path.join(build_path, "manifest.txt")) as manifest_file:
+        manifest = json.load(manifest_file)
+
+    docker_image_tag = manifest["name"].lower() + "-test:" + manifest["version"]
+
+    build_image(client, path=build_path, tag=docker_image_tag, nocache=False, labels={"mp-test": f"{time.time()}"})
+
+    return docker_image_tag
+
+
+def run_image(client: DockerClient, image: Image, path: str,
+              container_memory_limit: int = DEFAULT_MEMORY_LIMIT) -> Container:
+    # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
+    # by the try/except block in the 'main' function
+
+    memory_limit = DEFAULT_MEMORY_LIMIT
+    if container_memory_limit:
+        memory_limit = container_memory_limit
+
+    # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
+    # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory
+    # setting is a combination of memory and swap, so this will limit swap space to a max of 512MB regardless
+    # of the memory limit.
+    return client.containers.run(image,
+                                 detach=True,
+                                 ports={"8080/tcp": DEFAULT_PORT},
+                                 mem_limit=f"{memory_limit}m",
+                                 memswap_limit=f"{memory_limit + 512}m",
+                                 volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}})
 
 
 def stop_container(container: Container):
@@ -93,11 +144,33 @@ def stop_container(container: Container):
 
 
 class ContainerStats:
-    def __init__(self, initial_stats):
+    def __init__(self, container):
         self.current_memory_usage = []
         self.memory_percent_usage = []
         self.cpu_percent_usage = []
-        self.previous_stats = initial_stats
+        self.previous_stats = None
+        self.container = container
+        self._recording = False
+
+    async def __aenter__(self):
+        self.previous_stats = self.container.stats(stream=False)
+        self._recording = True
+        self._recording_task = asyncio.wrap_future(self._record())
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self._recording = False
+        await self._recording_task
+        self.add(self.container.stats(stream=False))
+
+    @threaded
+    def _record(self):
+        last_collection_time = time.perf_counter()
+        while self._recording:
+            current_time = time.perf_counter()
+            if current_time >= last_collection_time + 0.5:
+                self.add(self.container.stats(stream=False))
+                last_collection_time = current_time
+            time.sleep(0.05)
 
     def add(self, current_stats):
         self.block_read, self.block_write = calculate_blkio_bytes(current_stats)
@@ -130,6 +203,12 @@ class ContainerStats:
             f"{convert_bytes(self.network_read)} / {convert_bytes(self.network_write)}",
             f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}"
         ]
+
+    def get_table(self):
+        headers = self.get_summary_headers()
+        data = [self.get_summary()]
+        return Table(headers, data)
+
 
 
 # This code is transcribed from docker's code
