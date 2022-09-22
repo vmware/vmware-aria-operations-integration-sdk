@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 
 import os
 import re
-import signal
 import time
 
 from prompt_toolkit import print_formatted_text, PromptSession
