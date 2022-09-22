@@ -1,10 +1,12 @@
 import os.path
+from importlib import resources
 
 import xmlschema
 import pytest
 
 import xml.etree.ElementTree as xml
 
+from vrealize_operations_integration_sdk import adapter_template
 from vrealize_operations_integration_sdk.describe import ns
 
 
@@ -12,7 +14,8 @@ class TestSchema:
 
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..", "doc", "describeSchema.xsd"))
+        with resources.path(adapter_template, "describeSchema.xsd") as describe_schema:
+            return xmlschema.XMLSchema11(describe_schema)
 
     @pytest.fixture
     def base_describe_xml(self):
