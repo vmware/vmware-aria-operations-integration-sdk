@@ -135,4 +135,5 @@ def _find_project_by_path(path):
 def _add_and_update_project_paths(path):
     project_paths = set(get_config_value("projects", []))
     project_paths.add(path)
-    set_config_value("projects", list([path for path in project_paths if ProjectValidator.is_project_dir(path)]))
+    set_config_value("projects",
+                     list([path for path in project_paths if ProjectValidator.is_project_dir(path)]).sort())

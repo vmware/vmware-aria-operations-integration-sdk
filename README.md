@@ -84,7 +84,7 @@ dir vrops-integration-sdk
 install.bat
 ```
 
-To access these tools, activate the virtual environment:
+To use the SDK, activate the virtual environment:
 
 For Mac and Linux:
 ```sh
@@ -130,32 +130,31 @@ the creation of a new management pack project.
 
 5. `Management Pack vendor`
 
-    The vendor field shows up in the UI under 'About' on the Integration Card.
+   The vendor field shows up in the UI under 'About' on the Integration Card.
 
-    ![About popup for the 'TestAdapter' Management Pack](doc/test-adapter-about.png)
+   ![About popup for the 'TestAdapter' Management Pack](doc/test-adapter-about.png)
 
-    *This Management Pack's vendor is 'VMware'*
+   *This Management Pack's vendor is 'VMware'*
 
 6. `Enter a path to a EULA text file, or leave blank for no EULA`
 
-    vROps requires a EULA file to be present in a Management
-    Pack. If one isn't provided, a stub EULA file (`eula.txt` in the root project directory) will be added to the project
-    which reads:
+   vROps requires a EULA file to be present in a Management Pack. If one isn't provided, a stub EULA file (`eula.txt` in
+   the root project directory) will be added to the project which reads:
     ```
     There is no EULA associated with this Management Pack.
     ```
 
 7. `Enter a path to the Management Pack icon file, or leave blank for no icon`
 
-    The icon is used in the vROps UI if present. If it is not present, a default icon will be used. 
-    The icon file must be png format and 256x256 px. An icon file can be added later by copying the icon to the root
-    project directory and setting the value of `"pak_icon"` to the icon's file name in the `manifest.txt` file.
+   The icon is used in the vROps UI if present. If it is not present, a default icon will be used. The icon file must be
+   png format and 256x256 px. An icon file can be added later by copying the icon to the root project directory and
+   setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
 8. `Select a language for the adapter. Supported languages are [...]`
 
-    Supported languages are listed. Once selected, the project will be generated, including a template adapter in the
-    selected language. The template adapter collects several objects and metrics from the container that the adapter
-    is running in, and can be used as a starting point for creating a new adapter.
+   Supported languages are listed. Once selected, the project will be generated, including a template adapter in the
+   selected language. The template adapter collects several objects and metrics from the container that the adapter 
+   is running in, and can be used as a starting point for creating a new adapter.
 
 For complete documentation of the `mp-init` tool see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
@@ -163,24 +162,25 @@ For complete documentation of the `mp-init` tool see the [MP Initialization Tool
 To test a project, run `mp-test`  in the virtual environment.
 
 If `mp-test` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
-test the selected project. If the tool is run from a project directory, the tool will automatically test that
-project.
+test the selected project. If the tool is run from a project directory, the tool will automatically test that project.
 
 `mp-test` will ask for a _connection_. No connections should exist, so choose **New Connection**. The test tool then
-reads the `conf/describe.xml` file to find the connection parameters and credentials required for a connection, and prompts
-for each. This is similar to creating a new _Adapter Instance_ in the vROps UI. Connections are automatically saved
-per project, and can be reused when re-running the `mp-test` tool.
+reads the `conf/describe.xml` file to find the connection parameters and credentials required for a connection, and
+prompts for each. This is similar to creating a new _Adapter Instance_ in the vROps UI. Connections are automatically
+saved per project, and can be reused when re-running the `mp-test` tool.
 
-In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
-this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements
-an example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test
-Connection will fail.
+> Note: In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on, this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection will fail.
 
 The test tool also asks for the method to test. There are four options:
-* Test Connection - This call tests the connection and returns either an error message if the connection failed, or an empty json object if the connection succeeded.
+
+* Test Connection - This call tests the connection and returns either an error message if the connection failed, or an
+  empty json object if the connection succeeded.
 * Collect - This call test the collection, and returns objects, metrics, properties, events, and relationships.
-* Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that vROps can ask the end user to import into the vROps TrustStore.
-* Version - This returns the API version the adapter implements. The implementation of this method is not generally handled by the developer.
+* Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that vROps can ask
+  the end user to import into the vROps TrustStore.
+* Version - This returns
+  the [vROps Collector API](vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json) version the
+  adapter implements. The implementation of this method is not generally handled by the developer.
 
 For more information on these endpoints, see
 the [Swagger API documentation](vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json). Each

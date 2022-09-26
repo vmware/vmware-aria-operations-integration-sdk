@@ -9,7 +9,7 @@ If the test tool runs error-free on each endpoint, then the Management Pack shou
 
 ## Prerequisites
 
-* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* The [vROps Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 
 ## Input
@@ -84,7 +84,7 @@ In order to test an adapter, the tool needs to know which adapter to test. This 
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
 #### Connection
-A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in vROps. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](adding_to_an_adapter.md#Adding a Configuration Field to an Adapter Instance) and [Adding a Credential](adding_to_an_adapter.md#Adding a Credential). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
+A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in vROps. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance) and [Adding a Credential](adding_to_an_adapter.md#adding-a-credential). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
 * If the `-c CONNECTION_NAME` or `--connection CONNECTION_NAME` argument is specified, the connection with the given name will be used. 
 * If a command line argument was not provided, or it was not a valid connection name, the tool will prompt the user to select an existing connection or create one:
     ```

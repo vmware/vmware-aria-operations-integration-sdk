@@ -1,7 +1,7 @@
 Adding to an Adapter
 ====================
 ## Defining an Adapter
-To define an adapter, use the top-level `AdapterKind` element in the `conf/describe.xml` file. Only one adapter can be defined in the `describe.xml` file. The key will be used when creating objects (See [Creating an object](#Creating an Object)), and must also be present in the `manifest.txt` file in the `"adapter_kinds"` array. 
+To define an adapter, use the top-level `AdapterKind` element in the `conf/describe.xml` file. Only one adapter can be defined in the `describe.xml` file. The key will be used when creating objects (See [Creating an object](#creating-an-object)), and must also be present in the `manifest.txt` file in the `"adapter_kinds"` array. 
 
 > Note: The `mp-init` tool will create the AdapterKind element and ensure its key exists in the `manifest.txt` file.
 
@@ -26,8 +26,8 @@ An adapter instance is a special object in vROps that stores user configuration 
 </AdapterKind>
 ```
 
-Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) and credentials (`CredentialKind`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page (See [Adding a Configuration Field to an Adapter Instance](#Adding a Configuration field to an Adapter Instance) and [Adding a Credential](#Adding a Credential).
-After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
+Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) and credentials (`CredentialKind`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page (See [Adding a Configuration Field to an Adapter Instance](#adding-a-configuration-field-to-an-adapter-instance) and [Adding a Credential](#adding-a-credential).
+After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
 ## Adding a Configuration Field to an Adapter Instance
 Adapter instance _identifiers_ distinguish between adapter instances from the same adapter. They also allow for user configuration.
@@ -58,7 +58,7 @@ Adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1
 > Note: If there are any existing connections used by the [`mp-test`](mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
  
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page.
-After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
+After the account has been created, configuration fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
 ## Adding a Credential
 In order to connect to most targets a credential is required. If necessary, an adapter can have multiple different credential kinds.
@@ -106,9 +106,9 @@ Once the credential is defined in the `describe.xml` file, it can be used in the
 > Note: If there are any existing connections used by the [`mp-test`](mp-test.md) tool before the credential was created or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any credential fields (`CredentialField`) will be prompted to the user when creating an account in vROps on the `Data Sources` &rarr; `Integrations` page.
-After the account has been created, credential fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
+After the account has been created, credential fields will be available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
-Using the [Python vROps Integration Module](python-integration-module.md), the credential is available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#Creating an Adapter Instance).)
+Using the [Python vROps Integration Module](python-integration-module.md), the credential is available in the input to the `collect`, `test_connection`, and `get_endpoint_urls` methods. (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
 ## Creating an Adapter Instance
 Using the [Python vROps Integration Module](python-integration-module.md), the canonical method for creating an adapter instance is using the `AdapterInstance` object. Configuration fields and credentials can be accessed using `get_identifier_value` and `get_credential_value`, respectively. These methods return `None` if the given key does not exist in the adapter instance.
@@ -153,10 +153,10 @@ For more information about the supported elements and attributes, see the [descr
 
 > Note: Identifiers can have an `identType` of `1` or `2`. A type of `1` is most common, and means the identifier will be used for determining uniqueness. If the type is `2`, the identifier is _non-identifying_, and will show up in the identifiers of an object but will not cause a new object to be created if it changes. If _all_ identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. 
 
-Once the object type is defined in the `describe.xml` file, it can be used in the adapter code. See [Creating an object](#Creating an object).
+Once the object type is defined in the `describe.xml` file, it can be used in the adapter code. See [Creating an object](#creating-an-object).
 
 ## Creating an Object
-Before creating an object, ensure that the object type is [present in the describe.xml file](#Adding an object type).
+Before creating an object, ensure that the object type is [present in the describe.xml file](#adding-an-object-type).
 
 Using the [Python vROps Integration Module](python-integration-module.md), the canonical method for creating a new object is to use the `CollectResult` object.
 
@@ -210,10 +210,10 @@ Attributes can be grouped together in `ResourceGroup` elements, which can be nes
 ```
 For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
 
-Once an attribute is defined in the `describe.xml` file, it can be used in the adapter code. See [Creating a metric or property](#Creating a Metric or Property).
+Once an attribute is defined in the `describe.xml` file, it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
 
 ## Creating a Metric or Property
-Before creating a metric or property, ensure that the attribute describing the data is [present in the describe.xml file](#Adding an Attribute).
+Before creating a metric or property, ensure that the attribute describing the data is [present in the describe.xml file](#adding-an-attribute).
 
 Using the [Python vROps Integration Module](python-integration-module.md), metrics and properties can be added using the attribute key and a value. In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and form the metric or property key.
 ```python
