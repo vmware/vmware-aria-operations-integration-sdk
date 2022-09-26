@@ -1,5 +1,8 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import os
+from pathlib import Path
+
 import pytest
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import ValidationError, Validator
@@ -7,6 +10,8 @@ from prompt_toolkit.validation import ValidationError, Validator
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, AdapterKeyValidator, \
     IntegerValidator, TimeValidator, NewProjectDirectoryValidator, UniquenessValidator, ChainValidator, \
     ProjectValidator, EulaValidator, ImageValidator
+
+rel_path = Path(__file__).resolve().parent
 
 
 def test_not_empty_validator_pass():
@@ -117,19 +122,19 @@ def test_time_validator_fail_negative():
 
 def test_new_project_directory_validator_pass():
     npdv = NewProjectDirectoryValidator()
-    npdv.validate(Document("./non-existing-directory/"))
+    npdv.validate(Document(os.path.join(rel_path, "non-existing-directory")))
 
 
 def test_new_project_directory_validator_fail_file():
     npdv = NewProjectDirectoryValidator()
     with pytest.raises(ValidationError):
-        npdv.validate(Document("./test_input_validators.py"))
+        npdv.validate(Document(os.path.join(rel_path, "test_input_validators.py")))
 
 
 def test_new_project_directory_validator_fail_non_empty_directory():
     npdv = NewProjectDirectoryValidator()
     with pytest.raises(ValidationError):
-        npdv.validate(Document("../validation/"))
+        npdv.validate(Document(os.path.join(rel_path, "..", "validation")))
 
 
 def test_uniqueness_validator_pass():
@@ -145,7 +150,7 @@ def test_uniqueness_validator_fail():
 
 def test_eula_validator_pass():
     ev = EulaValidator()
-    ev.validate(Document("./test_mp/eula.txt"))
+    ev.validate(Document(os.path.join(rel_path, "test_mp", "eula.txt")))
 
 
 def test_eula_validator_pass_empty():
@@ -156,18 +161,18 @@ def test_eula_validator_pass_empty():
 def test_eula_validator_non_existing_file():
     ev = EulaValidator()
     with pytest.raises(ValidationError):
-        ev.validate(Document("./test_mp/eula_fake.txt"))
+        ev.validate(Document(os.path.join(rel_path, "test_mp", "eula_fake.txt")))
 
 
 def test_eula_validator_wrong_file_type():
     ev = EulaValidator()
     with pytest.raises(ValidationError):
-        ev.validate(Document("./test_mp/circle-256.png"))
+        ev.validate(Document(os.path.join(rel_path, "test_mp", "circle-256.png")))
 
 
 def test_image_validator_pass():
     iv = ImageValidator()
-    iv.validate(Document("./test_mp/circle-256.png"))
+    iv.validate(Document(os.path.join(rel_path, "test_mp", "circle-256.png")))
 
 
 def test_image_validator_pass_empty():
@@ -178,36 +183,36 @@ def test_image_validator_pass_empty():
 def test_image_validator_fail_non_existing_file():
     iv = ImageValidator()
     with pytest.raises(ValidationError):
-        iv.validate(Document("./test_mp/square-256.png"))
+        iv.validate(Document(os.path.join(rel_path, "test_mp", "square-256.png")))
 
 
 def test_image_validator_fail_wrong_image_type():
     iv = ImageValidator()
     with pytest.raises(ValidationError):
-        iv.validate(Document("./test_mp/circle-256.jpg"))
+        iv.validate(Document(os.path.join(rel_path, "test_mp", "circle-256.jpg")))
 
 
 def test_image_validator_fail_wrong_image_size():
     iv = ImageValidator()
     with pytest.raises(ValidationError):
-        iv.validate(Document("./test_mp/circle-128.png"))
+        iv.validate(Document(os.path.join(rel_path, "test_mp", "circle-128.png")))
 
 
 def test_project_validator_pass():
     pv = ProjectValidator()
-    pv.validate(Document("./test_mp/"))
+    pv.validate(Document(os.path.join(rel_path, "test_mp")))
 
 
 def test_project_validator_fail_non_project_dir():
     pv = ProjectValidator()
     with pytest.raises(ValidationError):
-        pv.validate(Document("./"))
+        pv.validate(Document(os.path.join(rel_path)))
 
 
 def test_project_validator_fail_non_existing_dir():
     pv = ProjectValidator()
     with pytest.raises(ValidationError):
-        pv.validate(Document("./fake_mp/"))
+        pv.validate(Document(os.path.join(rel_path, "fake_mp")))
 
 
 class ConstValidator(Validator):
