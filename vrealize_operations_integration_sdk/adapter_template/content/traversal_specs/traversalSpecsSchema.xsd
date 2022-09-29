@@ -1,0 +1,39 @@
+<xs:schema attributeFormDefault="unqualified"
+           elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="TraversalSpecKinds">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="TraversalSpecKind" maxOccurs="unbounded" minOccurs="0">
+                    <xs:complexType mixed="true">
+                        <xs:sequence>
+                            <xs:element name="ResourcePath" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute type="xs:string" name="path"/>
+                                            <xs:attribute type="xs:string" name="targetResourceKinds" use="optional"/>
+                                            <xs:attribute type="xs:integer" name="maxPropogationLevelOfWildCard" use="optional"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="name" />
+                        <xs:attribute name="filterType" use="optional">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="ADAPTER_ASSOCIATION" />
+                                    <xs:enumeration value="GENERIC_RELATION" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:attribute>
+                        <xs:attribute type="xs:string" name="rootAdapterKind"/>
+                        <xs:attribute type="xs:string" name="rootResourceKind" use="optional"/>
+                        <xs:attribute type="xs:string" name="description" use="optional" />
+                        <xs:attribute type="xs:string" name="usedFor" use="optional" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
