@@ -7,9 +7,9 @@ The mp-build tool builds a pak file and uploads the adapter container to a regis
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
-* The [vROps Integration SDK](../README.md#Installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
-* Write permissions to a registry that is accessible from vROps. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
+* Write permissions to a registry that is accessible from VMware Aria Operations. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
 ## Input
 
 ### Command-line Arguments
@@ -18,7 +18,7 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 -p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current 
                       directory is not a project.
 -i, --insecure-collector-communication
-                      If this flag is present, communication between the vROps collector and the adapter will be 
+                      If this flag is present, communication between the VMware Aria Operations collector and the adapter will be 
                       unencrypted. If using a custom server with this option, the server must be configured to listen on 
                       port 8080.
 ```
@@ -64,7 +64,7 @@ build
 └── ManagementPack_1.0.0.pak
 ```
 ### Pak file
-The primary artifact of the `mp-build` tool is a pak file that can be uploaded directly to on-prem vROps installations. The vROps Integration SDK does not currently have support for vROps Cloud. 
+The primary artifact of the `mp-build` tool is a pak file that can be uploaded directly to on-prem VMware Aria Operations installations. The VMware Aria Operations Integration SDK does not currently have support for VMware Aria Operations Cloud. 
 
 The pak file contains: 
 * The `manifest.txt` file and its localization inside the `resources` directory. 
@@ -97,7 +97,7 @@ For Windows, set the log level back to `info` after debugging.
 
 All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
 
-### 'Unknown adapter type' when creating an account in vROps
+### 'Unknown adapter type' when creating an account in VMware Aria Operations
 ![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](unknown_adapter_type.png)
 > Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
 

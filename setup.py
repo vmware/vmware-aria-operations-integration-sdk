@@ -49,7 +49,7 @@ setup(
         "packaging==21.3",
         "parse==1.19.0",
         "pathable==0.4.3",
-        "Pillow==9.1.0",
+        "Pillow==9.1.1",
         "prompt-toolkit==3.0.29",
         "pyparsing==3.0.9",
         "pyrsistent==0.18.1",

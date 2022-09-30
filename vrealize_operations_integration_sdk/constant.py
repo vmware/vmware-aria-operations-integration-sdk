@@ -7,9 +7,9 @@ from sys import platform
 VERSION_FILE = "container_versions.json"
 
 if platform == "win32":
-    CONFIG_DIRECTORY = path.join(environ.get("LocalAppData"), "VMware", "vROps Integration SDK")
+    CONFIG_DIRECTORY = path.join(environ.get("LocalAppData", "."), "VMware", "vROps Integration SDK")
 else:
-    CONFIG_DIRECTORY = path.join(environ.get("HOME"), ".vrops-sdk")
+    CONFIG_DIRECTORY = path.join(environ.get("HOME", "."), ".vrops-sdk")
 
 try:
     os.makedirs(CONFIG_DIRECTORY, exist_ok=True)
@@ -22,7 +22,7 @@ except OSError as e:
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
-REPO_NAME = "vrealize-operations-integration-sdk"
+REPO_NAME = "vmware-aria-operations-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
 COLLECT_ENDPOINT = "collect"
 CONNECT_ENDPOINT = "test"

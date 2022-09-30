@@ -149,11 +149,11 @@ def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
         cert = str(ssl.get_server_certificate((url, port)))
         return {
             "certPemString": cert,
-            # vROps defaults 'isInvalidHostnameAccepted' to False, and
+            # VMware Aria Operations defaults 'isInvalidHostnameAccepted' to False, and
             # 'isExpiredCertificateAccepted' to True, so mirror that here
             # These can be changed by manually editing connections in the
             # config.json file. (It's not clear in what circumstances they
-            # will change in vROps)
+            # will change in VMware Aria Operations)
             "isInvalidHostnameAccepted": False,
             "isExpiredCertificateAccepted": True
         }
