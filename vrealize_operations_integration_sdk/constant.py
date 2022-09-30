@@ -7,9 +7,9 @@ from sys import platform
 VERSION_FILE = "container_versions.json"
 
 if platform == "win32":
-    CONFIG_DIRECTORY = path.join(environ.get("LocalAppData", "."), "VMware", "Aria Operations Integration SDK")
+    CONFIG_DIRECTORY = path.join(environ.get("LocalAppData", "."), "VMware", "vROps Integration SDK")
 else:
-    CONFIG_DIRECTORY = path.join(environ.get("HOME", "."), ".vmware-aria-ops-sdk")
+    CONFIG_DIRECTORY = path.join(environ.get("HOME", "."), ".vrops-sdk")
 
 try:
     os.makedirs(CONFIG_DIRECTORY, exist_ok=True)
