@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import configparser
 import json
 import logging
@@ -80,6 +83,7 @@ def api_version():  # noqa: E501
         minor=0,
         maintenance=0
     )
+
 
 def get_endpoint_urls(body=None):  # noqa: E501
     """Retrieve endpoint URLs
@@ -185,7 +189,13 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
             with open(output_pipe, "w") as fifo:
                 fifo.write("")
             reader_thread.join()
-            return "No result from adapter", 500
+
+            message = "No result from adapter"
+            if len(err):
+                err = err.strip("\n")
+                message += f". Captured stderr:\n  {err}"
+
+            return message, 500
 
         return result[0]
     finally:

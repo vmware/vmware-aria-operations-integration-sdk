@@ -2,10 +2,10 @@ References
 ==========
 Contents
 * Architecture
-  * vROps Collector &rarr; Management Pack &rarr; Adapter &rarr; Server &rarr; User Code
-  * Docker Images
-    * [Building docker images](docker.md)
-    * How are the docker images used
+  * VMware Aria Operations Collector &rarr; Management Pack &rarr; Adapter &rarr; Server &rarr; User Code
+  * Container Images
+    * [Building container images](docker.md)
+    * How are the container images used
   * [REST Server](http_server.md)
     * Swagger API specification
 
@@ -23,7 +23,7 @@ Contents
   * describe.xml
   * commands.cfg
 
-* vROps Integration Library
+* VMware Aria Operations Integration Library
   * [Python](python-integration-module.md)
     * Object model
       * Adapter Instance

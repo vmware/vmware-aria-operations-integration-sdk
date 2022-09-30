@@ -1,5 +1,8 @@
 # coding: utf-8
 
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import sys
 
 if sys.version_info < (3, 7):

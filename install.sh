@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+
 VIRTUAL_ENV_FILE_NAME="vrops_mp_sdk_venv"
 
 DEPENDENCIES_MET=1
@@ -15,7 +20,7 @@ LT_BLUE=$(tput setaf 153)
 BRIGHT=$(tput bold)
 DEFAULT=$(tput sgr0)
 
-function test_dependency() {
+test_dependency() {
   NAME=${1}
   EXECUTABLE=${2}
   MIN_VERSION=${3}

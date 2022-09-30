@@ -1,0 +1,20 @@
+{
+    "base_image": {
+        "language": "Python",
+        "path": "http-server",
+        "version": "0.8.0"
+    },
+    "registry_url": "projects.registry.vmware.com/vrops_integration_sdk",
+    "secondary_images": [
+        {
+            "language": "Java",
+            "path": "java-client",
+            "version": "0.6.0"
+        },
+        {
+            "language": "Powershell",
+            "path": "powershell-client",
+            "version": "0.6.0"
+        }
+    ]
+}

@@ -1,3 +1,6 @@
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 import sys
 
 from vrops.object import Key, Identifier, Object
@@ -15,9 +18,11 @@ class AdapterInstance(Object):
                              identifier in json["adapter_key"]["identifiers"]]))
 
         if type(json.get("credential_config")) is dict:
+            self.credential_type = json["credential_config"]["credentialKey"]
             self.credentials = {credential.get("key"): credential.get("value")
                                 for credential in json["credential_config"]["credential_fields"]}
         else:
+            self.credential_type = None
             self.credentials = {}
 
         if type(json.get("cluster_connection_info")) is dict:
@@ -33,11 +38,18 @@ class AdapterInstance(Object):
         else:
             self.certificates = []
 
+    def get_credential_type(self):
+        """ Get the type (key) of credential. This is useful if an adapter supports multiple types of credentials.
+
+        :return: the type of the credential used by this adapter instance, or None if the adapter instance does not have a credential.
+        """
+        return self.credential_type
+
     def get_credential_value(self, credential_key):
         """ Retrieve the value of a given credential
 
-        :param credential_key: Key of the credential
-        :return: value associated with the credential, or None if credential does not exist
+        :param credential_key: Key of the credential field
+        :return: value associated with the credential field, or None if a credential field with the given key does not exist.
         """
         return self.credentials.get(credential_key)
 

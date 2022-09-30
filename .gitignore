@@ -67,8 +67,11 @@ http-server/.ipynb_checkpoints
 #IntelliJ project
 .idea
 
-# local config file
-config.json
+# test/build
+.tox
+build
+dist
+sdist
 
 # default virtual environment location
 vrops_mp_sdk_venv

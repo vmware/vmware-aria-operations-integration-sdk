@@ -1,16 +1,16 @@
 Adding Content
 ==============
 To add content to a Management Pack, first create the adapter with the objects, metrics, properties, and relationships that are necessary for the content.
-Once the adapter is ready, install the Management Pack on vROps and create an adapter instance.
+Once the adapter is ready, install the Management Pack on VMware Aria Operations and create an adapter instance.
 
 Then follow the instructions below to create the content, export it, and add to the Management Pack project.
 
 ## Adding a Dashboard
 
 1. To add a dashboard to a Management Pack, first create the dashboard. Creating a dashboard is outside the scope of this document, but more information can be found here:
-   * [Dashboards (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-BBEF42E2-301F-4C07-AA51-F836FECF1271.html)
-   * [Create and Configure Dashboards (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-0ABB810B-0496-48CF-AFC5-AA9BDF9B527A.html)
-   * [vRealize Operations Dashboards Made Easy (video series)](https://www.youtube.com/watch?v=bIOgkU0kwu4)
+   * [Dashboards (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-BBEF42E2-301F-4C07-AA51-F836FECF1271.html)
+   * [Create and Configure Dashboards (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-0ABB810B-0496-48CF-AFC5-AA9BDF9B527A.html)
+   * [VMware Aria Operations Dashboards Made Easy (video series)](https://www.youtube.com/watch?v=bIOgkU0kwu4)
 
 2. Once the dashboard is created, click `Manage` on the `Visualize` &rarr; `Dashboards` page. Select the dashboard, click the `...` button, and select `Export`.
 
@@ -30,7 +30,7 @@ Then follow the instructions below to create the content, export it, and add to 
        └── resources.properties
    ```
 
-   > Note: A newly created dashboard will not contain a `resources` directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See [Adding Localization](#Adding Localization)). If localization is not required, ignore the `resources` directories in the following steps.
+   > Note: A newly created dashboard will not contain a `resources` directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
 
    Unzip the file and move the root `dashboard` directory to the `[project_dir]/content/dashboards` directory. The `dashboard` directory and dashboard file (`dashboard.json`) can be renamed, but should match. For example, with two dashboards, `myDashboard` and `myOtherDashboard`, the project's content directory should look like this:
    ```
@@ -46,14 +46,14 @@ Then follow the instructions below to create the content, export it, and add to 
    │           └── resources.properties
    └── <...>
    ```
-4. If a dashboard uses any configuration files (Text Widget Content, Resource Kind Metrics, or Topology Widget Configurations), these are not included in the zip file. To add these to the Management Pack project, copy the necessary content from the `Configure` &rarr; `Configuration Files` page in vROps and save as a file in the `content/files/txtwidget`, `content/files/reskndmetric`, or `content/files/topowidget` directory. 
+4. If a dashboard uses any configuration files (Text Widget Content, Resource Kind Metrics, or Topology Widget Configurations), these are not included in the zip file. To add these to the Management Pack project, copy the necessary content from the `Configure` &rarr; `Configuration Files` page in VMware Aria Operations and save as a file in the `content/files/txtwidget`, `content/files/reskndmetric`, or `content/files/topowidget` directory. 
 5. Once the dashboard(s) are present in the content directory as above, run `mp-build` to create a new pak file that includes the dashboards.
 
 ## Adding a Report Template
 
 1. To add a report template to a Management Pack, first create the template. Creating a report template is outside the scope of this document, but more information can be found here:
-   * [Reports (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-D7C6B89F-B4D0-409F-8045-71B92FE81AFF.html)
-   * [Create a Report Template (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-40D426D2-92D8-4132-A695-79ED57B6683A.html)
+   * [Reports (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-D7C6B89F-B4D0-409F-8045-71B92FE81AFF.html)
+   * [Create a Report Template (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-40D426D2-92D8-4132-A695-79ED57B6683A.html)
 
 2. Once the report template is created, click `Manage` on the `Visualize` &rarr; `reports` page. Select the report, click the `...` button, and select `Export`.
 
@@ -76,7 +76,7 @@ Then follow the instructions below to create the content, export it, and add to 
        └── content.properties
    ```
 
-   > Note: A newly created report template will not contain a `resources` directory, unless it was cloned and/or edited from an existing report template that contained localization (See [Adding Localization](#Adding Localization)). If localization is not required, ignore the `resources` directories in the following steps.
+   > Note: A newly created report template will not contain a `resources` directory, unless it was cloned and/or edited from an existing report template that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
     
    Unzip the file and move the root directory to the `[project_dir]/content/reports` directory. The directory and report file (`content.xml`) can be renamed to match, if desired. For example, with two reports, `myReport` and `myOtherReport`, the project's content directory should look like this:
    ```
@@ -97,7 +97,7 @@ Then follow the instructions below to create the content, export it, and add to 
 ## Adding Alert Definitions
 
 1. To add an alert definition to a Management Pack, first create the alert definition. Creating an alert definition is outside the scope of this document, but more information can be found here:
-   * [Configuring Alerts (vRealize Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html)
+   * [Configuring Alerts (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html)
 
 2. Once the alert definition is created, click `Manage` on the `Configure` &rarr; `Alerts` &rarr; `Alert Definitions` page. Select the alert, click the `...` button, and select `Export`.
 
@@ -128,7 +128,7 @@ Then follow the instructions below to create the content, export it, and add to 
 
 ## Adding a Traversal
 
-> Note: Traversals must be created manually. There is no option to create in the vROps UI and export.
+> Note: Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.
  
 A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the `describe.xml` file.
 Each path consists of two or more _nodes_, and each node is separated by two bars (`||`).
@@ -154,9 +154,9 @@ Now, say that we want to be able to select an instance and see all the databases
    </TraversalSpecKinds>
 </AdapterKind>
 ```
-When the Management Pack is installed in vROps, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
+When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
 
-![Simple Traversal in vROps](traversal_1.png)
+![Simple Traversal in VMware Aria Operations](traversal_1.png)
 
 Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:
 
@@ -176,18 +176,18 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
 ```
 > For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
 
-When the Management Pack is installed in vROps, the `Object Browser` will show the both traversals in the `Environments` section.
+When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
 
-![MyTraversal in vROps](traversal_2.png)
+![MyTraversal in VMware Aria Operations](traversal_2.png)
 
 In the second traversal ("MyReversedTraversal"), instead of starting from the instance, the traversal's root node is a database. This traversal has a single path, from database to instance to VM. Thus, every database will show up at the top level, and each can be expanded to show the instance it resides on, and the instance can be expanded to show the VM:
 
-![MyReversedTraversal in vROps](traversal_3.png)
+![MyReversedTraversal in VMware Aria Operations](traversal_3.png)
 
 ## Adding Localization
 
-The vROps UI supports translations in resource files that are included within a Management Pack.
+The VMware Aria Operations UI supports translations in resource files that are included within a Management Pack.
 
 The corresponding model element in the content file (`dashboard.json`, `describe.xml`, etc) has an identifying attribute (often `key` or `name`), which also is the default representation in the UI (a _label_).
 To change this label an element, add a `nameKey` attribute in the model definition. The value of the `nameKey` attribute must be a positive integer, and corresponds to the key portion of
@@ -219,9 +219,19 @@ version=1
 > Note: `NameKey` integers do not have to be in order or contiguous.
 
 To supply an additional translation, create an additional file with the form `resources_<locale>.properties`, with the same set of keys as the original file but mapping to translated values.
-A locale specifier can have two parts, a two-letter language ID and a two-letter country code. For example, "en_US" and "en_UK" specify American English and British English. 
-The country code is optional in the resource file name. If you choose to specify the country code, it is separated from the language ID by another underscore. Do not specify a country code without a language ID.
-The locale specifier uses the ISO 639-1 standard language code and ISO 3166-1 standard country code.
+A locale specifier can have two parts, a two-letter language ID and an optional two-letter country code.
+The currently supported locales are:
+
+| Locale |       Language        |
+|:------:|:---------------------:|
+|   de   |        German         |
+|   es   |        Spanish        |
+|   fr   |        French         |
+|   ja   |       Japanese        |
+|   ko   |        Korean         |
+| zh-CN  | Chinese (Simplified)  |
+| zh-TW  | Chinese (Traditional) |
+
 For example, to translate into French, add a resources file with the 'French' language code to the `resources` directory:
 ```
 conf
@@ -241,3 +251,16 @@ version=1
 183=<...>
 ...
 ```
+Configuration Fields can include descriptions. A description can be used to provide a more detailed explanation of what the configuration field does or controls, and will show up in the UI as a tooltip that appears when a user clicks an info button to the right of the field.
+To add a description, use the `nameKey` value appended with `.description`. For example:
+```
+version=1
+1=<...>
+...
+10=<...>
+11=Host
+11.description=VMware Aria Operations Cluster Host
+12=<...>
+...
+```
+![Example of a tooltip description on a Configuration Field](configuration_field_description.png)
