@@ -1,4 +1,4 @@
-vROps Integration SDK Contents
+VMware Aria Operations Integration SDK Contents
 ==============================
 
 [Introduction](introduction.md)

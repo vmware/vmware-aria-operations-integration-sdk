@@ -56,7 +56,7 @@ def build_subdirectories(directory: str):
                 f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
             logger.info(f"{directory}/myContent/resources/myContent.properties")
             logger.info(
-                f"For detailed information, consult the documentation in vROps Integration SDK -> Guides -> Adding Content.")
+                f"For detailed information, consult the documentation in VMware Aria Operations Integration SDK -> Guides -> Adding Content.")
             exit(1)
 
     for file in content_files:
@@ -279,9 +279,9 @@ def main():
                                  "or prompts if current directory is not a project.")
 
         parser.add_argument("-i", "--insecure-collector-communication",
-                            help="If this flag is present, communication between the vROps collector and the adapter "
-                                 "will be unencrypted. If using a custom server with this option, the server must be "
-                                 "configured to listen on port 8080.",
+                            help="If this flag is present, communication between the collector (Cloud Proxy) and the "
+                                 "adapter will be unencrypted. If using a custom server with this option, the server "
+                                 "must be configured to listen on port 8080.",
                             action="store_true")
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)

@@ -22,7 +22,7 @@ except OSError as e:
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
-REPO_NAME = "vrealize-operations-integration-sdk"
+REPO_NAME = "vmware-aria-operations-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
 COLLECT_ENDPOINT = "collect"
 CONNECT_ENDPOINT = "test"
