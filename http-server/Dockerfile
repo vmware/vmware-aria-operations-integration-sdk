@@ -4,9 +4,9 @@ FROM python:3.10.2-slim-bullseye
 RUN chmod 777 /var/log
 
 # Create LPU and create/set work directory
-RUN useradd --create-home --shell /bin/bash vrops-adapter-user
-USER vrops-adapter-user
-WORKDIR /home/vrops-adapter-user/src/app
+RUN useradd --create-home --shell /bin/bash aria-ops-adapter-user
+USER aria-ops-adapter-user
+WORKDIR /home/aria-ops-adapter-user/src/app
 
 # Copy project into container and install requirements
 COPY . .

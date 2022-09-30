@@ -12,7 +12,7 @@ from git import Repo
 
 from vrealize_operations_integration_sdk import adapter_template
 from vrealize_operations_integration_sdk.adapter_template import java, powershell
-from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME
+from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME
 from vrealize_operations_integration_sdk.filesystem import mkdir, rmdir
 from vrealize_operations_integration_sdk.project import Project, record_project
 from vrealize_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
@@ -334,12 +334,12 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
     with open(os.path.join(root_directory, "Dockerfile"), "w") as dockerfile:
         # NOTE: This host is only accessible internally, for future releases we have to provide a public host
         dockerfile.write(
-            "# If the harbor repo isn't accessible, the vrops-adapter-open-sdk-server image can be built locally.\n")
+            f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n")
         dockerfile.write(
             f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
             f"tools/build_images.py\n")
         dockerfile.write(
-            f"FROM projects.registry.vmware.com/vrops_integration_sdk/vrops-adapter-open-sdk-server:{language}-{version}\n")
+            f"FROM projects.registry.vmware.com/vrops_integration_sdk/{CONTAINER_BASE_NAME}:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:
