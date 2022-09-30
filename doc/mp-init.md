@@ -173,27 +173,6 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 
 ---
 ## Troubleshooting
-### Path to 'vrops-integration-sdk'
-If this message appears, it is because the config file is missing a required key that links to the cloned repository.
-```
-The path to the 'vrops-integration-sdk' repository must be set in the '[path]/.vrops-sdk/config.json' file
-for this tool to function. It is not currently set.
-Enter path to the 'vrops-integration-sdk' repository:
-```
-To correct this, the path to the repository should be entered, or it can be added directly to the config file (press
-ctrl-c to exit).
-
-For example, if the following commands were run to clone the vrops-integration-sdk repo:
-```shell
-cd /Users/sdk-user/code/
-git clone git@gitlab.eng.vmware.com:cmbu-tvg/vrops-integration-sdk.git
-```
-Then the correct path to enter if this message appears would be:
-```
-/Users/sdk-user/code/vrops-integration-sdk/
-```
-> Note: The tool will look for a certain directory structure to ensure the path entered is correct.
-
 ### Setting log level
 
 Set log level to debug to see a verbose output of the program:
