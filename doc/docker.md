@@ -4,7 +4,7 @@
 There are three different images in this project:
 - vrops-adapter-open-sdk-server:python (base image)
 	- Uses python:3.10.2-slim-bullseye as its base image
-	- Contains the swagger_server used by vROps to communicate with the adapter
+	- Contains the swagger_server used in adapters for communication with VMware Aria Operations.
 - vrops-adapter-open-sdk-server:java
 	- Uses vrops-adapter-open-sdk-server:python as its base image
 	- Contains Zulu 17 headless JDK
