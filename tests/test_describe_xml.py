@@ -111,4 +111,3 @@ class TestSchema:
     def test_alert_definition(self, generated_content):
         alert_definitions = generated_content.find(ns("AlertDefinitions"))
 
-        alert_definitions
