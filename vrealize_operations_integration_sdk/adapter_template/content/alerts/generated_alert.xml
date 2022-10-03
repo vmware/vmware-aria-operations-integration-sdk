@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><alertContent>
+    <AlertDefinitions>
+        <AlertDefinition adapterKind="CISCOHYPERFLEX_ADAPTER" description="119" id="AlertDefinition-CISCOHYPERFLEX_ADAPTER-alert-all-symptom-cisco_hyperflex_cisco_hyperflex_adapter_instance-aggregate_metric_computation-" name="Aggregate Metric Computation" resourceKind="ciscohyperflex_adapter_instance" subType="18" type="15">
+            <State severity="warning">
+                <SymptomSet aggregation="any" applyOn="self" operator="and" ref="SymptomDefinition-CISCOHYPERFLEX_ADAPTER-symptom-cisco_hyperflex_cisco_hyperflex_adapter_instance-aggregate_metric_computation"/>
+                <Impact key="health" type="badge"/>
+                <Recommendations>
+                    <Recommendation priority="1" ref="Recommendation-df-CISCOHYPERFLEX_ADAPTER-recommendation-1"/>
+                </Recommendations>
+            </State>
+        </AlertDefinition>
+    </AlertDefinitions>
+    <SymptomDefinitions>
+        <SymptomDefinition adapterKind="CISCOHYPERFLEX_ADAPTER" id="SymptomDefinition-CISCOHYPERFLEX_ADAPTER-symptom-cisco_hyperflex_cisco_hyperflex_adapter_instance-aggregate_metric_computation" name="Aggregate Metric Computation" resourceKind="ciscohyperflex_adapter_instance">
+            <State severity="warning">
+                <Condition eventMsg="Aggregate Metric Computation" eventSubType="13" eventType="5" operator="contains" type="msg_event"/>
+            </State>
+        </SymptomDefinition>
+    </SymptomDefinitions>
+    <Recommendations>
+        <Recommendation key="Recommendation-df-CISCOHYPERFLEX_ADAPTER-recommendation-1">
+            <Description>Verify that these source metrics are available in the HyperFlex interface.</Description>
+        </Recommendation>
+    </Recommendations>
+</alertContent>
