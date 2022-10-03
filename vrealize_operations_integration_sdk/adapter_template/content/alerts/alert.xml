@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<alertContent>
+
+<alertContent xmlns="http://schemas.vmware.com/vcops/schema">
     <AlertDefinitions>
-        <AlertDefinition adapterKind="VMWARE" description="A fatal error was detected on a Peripheral Component Interconnect Express (PCIe) bus during the previous reboot. Typically, this problem is caused by faulty hardware. The bus is faulty and might cause unstable system behavior. The device, bus number, vendor name, and other device-related information should appear in the symptom details." id="AlertDefinition-VMWARE-FatalPCIeErrorAlert" name="A fatal error occured on a PCIe bus during system reboot" resourceKind="HostSystem" subType="18" type="17">
+        <AlertDefinition nameKey="1" adapterKind="VMWARE" description="A fatal error was detected on a Peripheral Component Interconnect Express (PCIe) bus during the previous reboot. Typically, this problem is caused by faulty hardware. The bus is faulty and might cause unstable system behavior. The device, bus number, vendor name, and other device-related information should appear in the symptom details." id="AlertDefinition-VMWARE-FatalPCIeErrorAlert" name="A fatal error occurred on a PCIe bus during system reboot" resourceKind="HostSystem" subType="18" type="17">
             <State severity="critical">
                 <SymptomSet applyOn="self" ref="SymptomDefinition-VMWARE-FatalPCIeError"/>
                 <Impact key="health" type="badge"/>
@@ -12,7 +13,7 @@
         </AlertDefinition>
     </AlertDefinitions>
     <SymptomDefinitions>
-        <SymptomDefinition adapterKind="VMWARE" id="SymptomDefinition-VMWARE-FatalPCIeError" name="A fatal PCIe error occurred" resourceKind="HostSystem">
+        <SymptomDefinition nameKey="2" adapterKind="VMWARE" id="SymptomDefinition-VMWARE-FatalPCIeError" resourceKind="HostSystem">
             <State severity="critical">
                 <Condition eventSubType="5" eventType="12" faultevent="esx.problem.apei.bert.pcie.error.fatal" key="fault|comp|pcie" operator="equals" type="fault"/>
             </State>
@@ -20,7 +21,7 @@
     </SymptomDefinitions>
     <Recommendations>
         <Recommendation key="Recommendation-df-VMWARE-ReplacePCIeRec">
-            <Description>Check and replace the PCIe device identified in the alert as the cause of the problem. Contact the vendor for assistance.</Description>
+            <Description nameKey="3" />
         </Recommendation>
     </Recommendations>
 </alertContent>

@@ -1,11 +1,13 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:describe="http://schemas.vmware.com/vcops/schema" elementFormDefault="qualified" targetNamespace="http://schemas.vmware.com/vcops/schema" version="8.3.0">
-    <xs:complexType name="alertContent">
-        <xs:all>
-            <xs:element name="AlertDefinitions" type="describe:AlertDefinitionsType" minOccurs="0"/>
-            <xs:element name="SymptomDefinitions" type="describe:SymptomDefinitionsType" minOccurs="0"/>
-            <xs:element name="Recommendations" type="describe:RecommendationsType" minOccurs="0"/>
-        </xs:all>
-    </xs:complexType>
+    <xs:element name="alertContent">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="AlertDefinitions" type="describe:AlertDefinitionsType" minOccurs="0"/>
+                <xs:element name="SymptomDefinitions" type="describe:SymptomDefinitionsType" minOccurs="0"/>
+                <xs:element name="Recommendations" type="describe:RecommendationsType" minOccurs="0"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
     <xs:complexType name="AlertDefinitionsType">
         <xs:annotation>
             <xs:documentation xml:lang="en">Collection of AlertDefinition elements.</xs:documentation>

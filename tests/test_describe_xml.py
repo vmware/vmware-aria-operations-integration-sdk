@@ -6,6 +6,7 @@ import pytest
 import xml.etree.ElementTree as xml
 
 from vrealize_operations_integration_sdk.describe import ns
+from lxml import etree
 
 
 class TestSchema:
@@ -13,6 +14,17 @@ class TestSchema:
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
         return xmlschema.XMLSchema11(os.path.join("..", "doc", "describeSchema.xsd"))
+
+    @pytest.fixture(scope="session")
+    def content_xml_schema(self):
+        return xmlschema.XMLSchema11(os.path.join("..",
+                                                  "vrealize_operations_integration_sdk",
+                                                  "adapter_template",
+                                                  "content", "alerts", "alertDefinitionSchema.xsd"))
+
+    @pytest.fixture
+    def base_content_xml(self):
+        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/alert.xml")
 
     @pytest.fixture
     def base_describe_xml(self):
@@ -85,3 +97,6 @@ class TestSchema:
         resource_kind.insert(0, _property)
 
         assert not xml_schema.is_valid(base_describe_xml)
+
+    def test_valid_content_xml(self, content_xml_schema, base_content_xml):
+        content_xml_schema.is_valid(base_content_xml)
