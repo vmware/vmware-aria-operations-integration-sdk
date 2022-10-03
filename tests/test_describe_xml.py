@@ -23,8 +23,12 @@ class TestSchema:
                                                   "content", "alerts", "alertDefinitionSchema.xsd"))
 
     @pytest.fixture
-    def base_content_xml(self):
-        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/alert.xml")
+    def modified_content(self):
+        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/modified_alert.xml")
+
+    @pytest.fixture
+    def generated_content(self):
+        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/generated_alert.xml")
 
     @pytest.fixture
     def base_describe_xml(self):
@@ -98,5 +102,13 @@ class TestSchema:
 
         assert not xml_schema.is_valid(base_describe_xml)
 
-    def test_valid_content_xml(self, content_xml_schema, base_content_xml):
-        content_xml_schema.is_valid(base_content_xml)
+    def test_valid_content_xml_generated_alert(self, content_xml_schema, generated_content):
+        content_xml_schema.validate(generated_content)
+
+    def test_valid_content_xml_generated_alert_modified_alert(self, content_xml_schema, modified_content):
+        content_xml_schema.validate(modified_content)
+
+    def test_alert_definition(self, generated_content):
+        alert_definitions = generated_content.find(ns("AlertDefinitions"))
+
+        alert_definitions

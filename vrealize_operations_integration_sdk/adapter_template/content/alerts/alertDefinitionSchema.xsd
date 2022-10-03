@@ -1,10 +1,10 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:describe="http://schemas.vmware.com/vcops/schema" elementFormDefault="qualified" targetNamespace="http://schemas.vmware.com/vcops/schema" version="8.3.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  version="8.3.0">
     <xs:element name="alertContent">
         <xs:complexType>
             <xs:all>
-                <xs:element name="AlertDefinitions" type="describe:AlertDefinitionsType" minOccurs="0"/>
-                <xs:element name="SymptomDefinitions" type="describe:SymptomDefinitionsType" minOccurs="0"/>
-                <xs:element name="Recommendations" type="describe:RecommendationsType" minOccurs="0"/>
+                <xs:element name="AlertDefinitions" type="AlertDefinitionsType" minOccurs="0"/>
+                <xs:element name="SymptomDefinitions" type="SymptomDefinitionsType" minOccurs="0"/>
+                <xs:element name="Recommendations" type="RecommendationsType" minOccurs="0"/>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -13,7 +13,7 @@
             <xs:documentation xml:lang="en">Collection of AlertDefinition elements.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="AlertDefinition" type="describe:AlertDefinitionType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="AlertDefinition" type="AlertDefinitionType" maxOccurs="unbounded" minOccurs="0" />
         </xs:sequence>
         <xs:attribute type="xs:boolean" name="forceUpdate" use="optional" default="false">
             <xs:annotation>
@@ -39,10 +39,10 @@
                             to resolve the alert.</xs:documentation>
                     </xs:annotation>
                     <xs:all>
-                        <xs:element name="SymptomSets" type="describe:symptomsetsType" maxOccurs="1" minOccurs="0" />
-                        <xs:element name="SymptomSet" type="describe:symptomsetType" maxOccurs="1" minOccurs="0" />
-                        <xs:element name="Impact" type="describe:impactType" maxOccurs="1" minOccurs="1" />
-                        <xs:element name="Recommendations" type="describe:recommendationsType" maxOccurs="1" minOccurs="0" />
+                        <xs:element name="SymptomSets" type="symptomsetsType" maxOccurs="1" minOccurs="0" />
+                        <xs:element name="SymptomSet" type="symptomsetType" maxOccurs="1" minOccurs="0" />
+                        <xs:element name="Impact" type="impactType" maxOccurs="1" minOccurs="1" />
+                        <xs:element name="Recommendations" type="recommendationsType" maxOccurs="1" minOccurs="0" />
                     </xs:all>
                     <xs:attribute name="severity" use="required">
                         <xs:annotation>
@@ -83,7 +83,7 @@
                 <xs:documentation xml:lang="en">A brief description of the nature of the issue.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attributeGroup ref="describe:RequiredNameKeyGroup" />
+        <xs:attributeGroup ref="RequiredNameKeyGroup" />
         <xs:attribute type="xs:integer" name="waitCycle" use="optional">
             <xs:annotation>
                 <xs:documentation xml:lang="en">Number of monitoring cycles to wait after all the Symptoms conditions listed
@@ -161,8 +161,8 @@
             <xs:documentation xml:lang="en">A logical combination of multiple SymptomSet elements or nested sub SymptomSets elemnets.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="SymptomSets" type="describe:symptomsetsType" maxOccurs="unbounded" minOccurs="0" />
-            <xs:element name="SymptomSet" type="describe:symptomsetType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="SymptomSets" type="symptomsetsType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="SymptomSet" type="symptomsetType" maxOccurs="unbounded" minOccurs="0" />
         </xs:sequence>
         <xs:attribute name="operator" use="required">
             <xs:annotation>
@@ -350,7 +350,7 @@
             <xs:documentation xml:lang="en">Collection of SymptomDefinition elements.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="SymptomDefinition" type="describe:SymptomDefinitionType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="SymptomDefinition" type="SymptomDefinitionType" maxOccurs="unbounded" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="SymptomDefinitionType">
@@ -368,7 +368,7 @@
                             its severity.</xs:documentation>
                     </xs:annotation>
                     <xs:sequence>
-                        <xs:element name="Condition" type="describe:ConditionType" maxOccurs="1" minOccurs="1" />
+                        <xs:element name="Condition" type="ConditionType" maxOccurs="1" minOccurs="1" />
                     </xs:sequence>
                     <xs:attribute name="severity" use="required">
                         <xs:annotation>
@@ -396,7 +396,7 @@
                 <xs:documentation xml:lang="en">Unique id of the Symptom for this adapter.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attributeGroup ref="describe:RequiredNameKeyGroup" />
+        <xs:attributeGroup ref="RequiredNameKeyGroup" />
         <xs:attribute type="xs:string" name="adapterKind" use="required">
             <xs:annotation>
                 <xs:documentation xml:lang="en">The AdapterKind key of the Resource for which the Symptom is defined.</xs:documentation>
@@ -425,6 +425,11 @@
                     Defaults to 1 if unspecified.
                     This only applies to metric and property Symptoms (e.g. condition type ="metric", "htmetric" (deprecated - use metric instead), "dtmetric", "htsuper", "dtsuper", "property").
                     It is ignored and defaulted to 1 for other type of Symptoms.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" name="name" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">The name of the symptom when displayed by vROps</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
@@ -583,7 +588,7 @@
             <xs:documentation xml:lang="en">Collection of Recommendation elements.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="Recommendation" type="describe:RecommendationType" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="Recommendation" type="RecommendationType" maxOccurs="unbounded" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="RecommendationType">
@@ -592,12 +597,12 @@
                 condition. It can optionally include an action to run.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="Description" maxOccurs="1" minOccurs="0">
-                <xs:complexType>
+            <xs:element name="Description" maxOccurs="1" minOccurs="0" >
+                <xs:complexType mixed="true">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">The Recommendation text.</xs:documentation>
                     </xs:annotation>
-                    <xs:attributeGroup ref="describe:RequiredNameKeyGroup" />
+                    <xs:attributeGroup ref="RequiredNameKeyGroup" />
                 </xs:complexType>
             </xs:element>
             <xs:element name="Action" maxOccurs="1" minOccurs="0">
@@ -631,7 +636,7 @@
         </xs:attribute>
     </xs:complexType>
     <xs:attributeGroup name="RequiredNameKeyGroup">
-        <xs:attribute name="nameKey" type="xs:integer" use="required">
+        <xs:attribute name="nameKey" type="xs:integer" use="optional">
             <xs:annotation>
                 <xs:documentation xml:lang="en">Localized name id for the adapter.
                     The numeric value must exist as an entry in a localized resources.properties file for the adapter.</xs:documentation>
