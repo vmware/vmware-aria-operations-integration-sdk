@@ -1,5 +1,6 @@
 import os.path
 
+import lxml.etree
 import xmlschema
 import pytest
 
@@ -24,10 +25,20 @@ class TestSchema:
 
     @pytest.fixture
     def modified_content(self):
+        """
+        This prefix uses a modified xml file that conforms to the standards set by the describeSchema
+        most notably, it uses nameKeys in the Description element, and it does not include a name attribute
+        for the AlertDefinition.
+        :return:
+        """
         yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/modified_alert.xml")
 
     @pytest.fixture
     def generated_content(self):
+        """
+
+        :return:
+        """
         yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/generated_alert.xml")
 
     @pytest.fixture
@@ -105,9 +116,65 @@ class TestSchema:
     def test_valid_content_xml_generated_alert(self, content_xml_schema, generated_content):
         content_xml_schema.validate(generated_content)
 
-    def test_valid_content_xml_generated_alert_modified_alert(self, content_xml_schema, modified_content):
+    def test_valid_content_xml_modified_alert(self, content_xml_schema, modified_content):
         content_xml_schema.validate(modified_content)
 
-    def test_alert_definition(self, generated_content):
-        alert_definitions = generated_content.find(ns("AlertDefinitions"))
+    def test_invalid_element_on_content_xml(self, content_xml_schema, generated_content, modified_content):
+        invalid_element = lxml.etree.Element("NotGood")
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError):
+            generated_content.getroot().append(invalid_element)
+            content_xml_schema.validate(generated_content)
 
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError):
+            modified_content.getroot().append(invalid_element)
+            content_xml_schema.validate(modified_content)
+
+    def test_alert_definition_duplicate(self, content_xml_schema, generated_content):
+        alert_definitions = generated_content.getroot().find("AlertDefinitions")
+        alert_definition = alert_definitions.find("AlertDefinition")
+        alert_definitions.insert(0, alert_definition)
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            content_xml_schema.validate(generated_content)
+
+        assert "duplicated value" in str(duplicate.value)
+
+    def test_alert_definition_missing_properties(self, content_xml_schema, generated_content):
+        alert_definition = generated_content.find("AlertDefinitions").find("AlertDefinition")
+        alert_definition.clear()
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
+            content_xml_schema.validate(generated_content)
+        assert "missing required attribute" in str(missing.value)
+
+    def test_missing_state_element_from_alert_definition(self, content_xml_schema, generated_content):
+        alert_definition = lxml.etree.Element("AlertDefinition",
+                                              attrib=dict(adapterKind="TestAdapterKind", description="120",
+                                                          id="AlertDefinition-New", name="New Alert",
+                                                          resourceKind="TestResourceKind", subType="18", type="15"))
+
+        alert_definitions = generated_content.find("AlertDefinitions")
+        alert_definitions.insert(0, alert_definition)
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
+            content_xml_schema.validate(generated_content)
+
+        assert "The content of element 'AlertDefinition' is not complete. Tag 'State' expected" in str(missing)
+
+    def test_symptom_definition_duplicate(self, content_xml_schema, generated_content):
+        symptom_definitions = generated_content.find("SymptomDefinitions")
+        symptom_definition = symptom_definitions.find("SymptomDefinition")
+        symptom_definitions.insert(0, symptom_definition)
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
+            content_xml_schema.validate(generated_content)
+
+        assert "duplicated value" in str(duplicate.value)
+
+    def test_symptom_definition_missing_properties(self, content_xml_schema, generated_content):
+        symptom_definition: xml.Element = generated_content.find("SymptomDefinitions").find("SymptomDefinition")
+        symptom_definition.clear()
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
+            content_xml_schema.validate(generated_content)
+        assert "missing required attribute" in str(missing.value)
