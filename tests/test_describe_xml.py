@@ -14,7 +14,10 @@ class TestSchema:
 
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..", "doc", "describeSchema.xsd"))
+        return xmlschema.XMLSchema11(os.path.join("..",
+                                                  "vrealize_operations_integration_sdk",
+                                                  "adapter_template",
+                                                  "describeSchema.xsd"))
 
     @pytest.fixture(scope="session")
     def content_xml_schema(self):
