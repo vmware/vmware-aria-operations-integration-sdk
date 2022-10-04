@@ -97,7 +97,7 @@ class AdapterDefinition(GroupType):
         return parameter
 
     def define_int_parameter(self, key: str, label: str = None, description: str = None,
-                             default: str = None, required: bool = True, advanced: bool = False):
+                             default: int = None, required: bool = True, advanced: bool = False):
         """
         Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -181,7 +181,7 @@ class AdapterDefinition(GroupType):
             raise DuplicateKeyException(f"Credential type with key {key} already exists in adapter definition.")
         self.credentials[key] = credential_type
 
-    def define_object_type(self, key, label):
+    def define_object_type(self, key: str, label: str):
         """
         Create a new object type definition and add it to this adapter definition.
         :param key: The object type
