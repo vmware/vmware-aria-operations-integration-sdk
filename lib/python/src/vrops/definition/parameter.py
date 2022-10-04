@@ -10,17 +10,17 @@ class Parameter(ABC):
                  key: str,
                  label: str = None,
                  description: str = None,
+                 default: str | int = None,
                  required: bool = True,
                  advanced: bool = False,
-                 default: str | int = None,
                  display_order: int = 0):
         """
         :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
         self.key = key
@@ -28,10 +28,10 @@ class Parameter(ABC):
         if label is None:
             self.label = key
         self.description = description
+        self.default = default
         self.required = required
         self.advanced = advanced
         self.display_order = display_order
-        self.default = default
 
     def to_json(self):
         return {
@@ -46,17 +46,18 @@ class Parameter(ABC):
 
 
 class IntParameter(Parameter):
-    def __init__(self, key: str, *args, default: int = None, **kwargs):
+    def __init__(self, key: str, label: str = None, description: str = None, default: int = None, required: bool = True,
+                 advanced: bool = False, display_order: int = 0):
         """
         :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, *args, default=default, **kwargs)
+        super().__init__(key, label, description, default, required, advanced, display_order)
 
     def to_json(self):
         return super().to_json() | {
@@ -66,17 +67,19 @@ class IntParameter(Parameter):
 
 
 class StringParameter(Parameter):
-    def __init__(self, key: str, *args, default: str = None, max_length: int = None, **kwargs):
+    def __init__(self, key: str, label: str = None, description: str = None, default: str = None,
+                 max_length: int = None, required: bool = True, advanced: bool = False, display_order: int = 0):
         """
         :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
+        :param max_length: The max length of the parameter value.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, *args, default=default, **kwargs)
+        super().__init__(key, label, description, default, required, advanced, display_order)
         self.max_length = max_length
 
     def to_json(self):
@@ -88,19 +91,20 @@ class StringParameter(Parameter):
 
 
 class EnumParameter(Parameter):
-    def __init__(self, key: str, *args, values: list[str], default: str = None, **kwargs):
+    def __init__(self, key: str, values: list[str], label: str = None, description: str = None,
+                 default: str = None, required: bool = True, advanced: bool = False, display_order: int = 0):
         """
         :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
                will be added as an additional enum value. Enum values are not localizable.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
         :param default: The default value of the parameter.
+        :param required: True if user is required to provide this parameter. Defaults to True.
+        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, *args, default=default, **kwargs)
+        super().__init__(key, label, description, default, required, advanced, display_order)
         self.values = values
         if default not in self.values:
             self.values.append(default)
@@ -111,5 +115,3 @@ class EnumParameter(Parameter):
             "enum": True,
             "enum_values": [str(value) for value in self.values]
         }
-
-
