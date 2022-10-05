@@ -220,6 +220,8 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
         dest = os.path.join(path, "conf")
         copy(src, dest)
 
+    #TODO: copy contentSchema.xsd
+
     # create project structure
     executable_directory_path = build_project_structure(path, manifest["name"], language)
 
