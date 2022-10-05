@@ -102,6 +102,13 @@ def test_define_enum_identifier():
     }
 
 
+def test_duplicate_enum_values_not_allowed():
+    definition = ObjectType("test")
+    with pytest.raises(DuplicateKeyException):
+        definition.define_enum_identifier("A", ["B", "C", "B"], "D", False, False, "E")
+
+
+
 def test_add_identifiers():
     definition = ObjectType("test")
     assert len(definition.identifiers) == 0

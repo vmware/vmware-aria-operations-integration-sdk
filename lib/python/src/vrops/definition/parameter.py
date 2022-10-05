@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import ABC
 
 from vrops.definition.assertions import validate_key
+from vrops.definition.exceptions import DuplicateKeyException
 
 
 class Parameter(ABC):
@@ -107,7 +108,9 @@ class EnumParameter(Parameter):
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
         super().__init__(key, label, description, default, required, advanced, display_order)
-        self.values = list(set(values))
+        if len(values) > len(set(values)):
+            raise DuplicateKeyException(f"Duplicate enum value in parameter {key}: {values}.")
+        self.values = values
         if default not in self.values:
             self.values.append(default)
 

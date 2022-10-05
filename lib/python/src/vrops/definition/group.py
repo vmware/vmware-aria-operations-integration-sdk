@@ -172,7 +172,7 @@ class GroupType(ABC):
         """
         key = attribute.key
         if key in self.attributes:
-            raise DuplicateKeyException(f"Group with key {key} already exists in {type(self)} {self.key}.")
+            raise DuplicateKeyException(f"Attribute with key {key} already exists in {type(self)} {self.key}.")
 
         self.attributes[key] = attribute
 

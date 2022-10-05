@@ -118,6 +118,12 @@ def test_add_group(group):
     }
 
 
+def test_duplicate_attribute_keys_not_allowed(group):
+    group.define_metric("child")
+    with pytest.raises(DuplicateKeyException):
+        group.define_string_property("child")
+
+
 def test_define_integer_metric(group):
     group.define_metric("A", "B", Units.DATA_SIZE.BYTE, True, True, True, True, "multinomial", True)
     assert len(group.attributes) == 1

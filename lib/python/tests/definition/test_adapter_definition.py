@@ -3,7 +3,9 @@
 import pytest
 
 from vrops.definition.adapter_definition import AdapterDefinition
+from vrops.definition.credential_type import CredentialStringParameter, CredentialPasswordParameter, CredentialType
 from vrops.definition.exceptions import KeyException, DuplicateKeyException
+from vrops.definition.object_type import ObjectType
 
 
 def test_adapter_definition_default_label():
@@ -14,38 +16,43 @@ def test_adapter_definition_default_label():
 
 def test_missing_adapter_key_raises_exception():
     with pytest.raises(KeyException):
-        definition = AdapterDefinition(key=None)
+        AdapterDefinition(key=None)
 
 
 def test_invalid_type_adapter_key_raises_exception():
     with pytest.raises(KeyException):
-        definition = AdapterDefinition(key=5)
+        AdapterDefinition(key=5)
 
 
 def test_empty_adapter_key_raises_exception():
     with pytest.raises(KeyException):
-        definition = AdapterDefinition(key="")
+        AdapterDefinition(key="")
 
 
 def test_blank_adapter_key_raises_exception():
     with pytest.raises(KeyException):
-        definition = AdapterDefinition(key="\n ")
+        AdapterDefinition(key="\n ")
 
 
 def test_leading_digit_adapter_key_raises_exception():
     with pytest.raises(KeyException):
-        definition = AdapterDefinition(key="6key")
+        AdapterDefinition(key="6key")
+
+
+def test_key_with_special_character_raises_exception():
+    with pytest.raises(KeyException):
+        AdapterDefinition("te$t")
 
 
 def test_containing_whitespace_adapter_key_raises_exception():
     with pytest.raises(KeyException) as ke:
-        definition = AdapterDefinition(key="ke\ty")
+        AdapterDefinition(key="ke\ty")
     assert str(ke.value) == "Adapter key cannot contain whitespace."
 
 
 def test_complex_valid_adapter_key():
     try:
-        definition = AdapterDefinition(key="This_15_a_valid_KEY")
+        AdapterDefinition(key="This_15_a_valid_KEY")
     except KeyException as e:
         assert e is False
 
@@ -121,10 +128,13 @@ def test_credential_parameter_order():
     credential = definition.define_credential_type()
     credential.define_string_parameter("username")
     credential.define_string_parameter("password")
+    credential.define_int_parameter("token")
     fields = definition.to_json()["credential_types"][0]["fields"]
     param1 = list(filter(lambda i: i["key"] == "username", fields))[0]
     param2 = list(filter(lambda i: i["key"] == "password", fields))[0]
+    param3 = list(filter(lambda i: i["key"] == "token", fields))[0]
     assert param1["display_order"] < param2["display_order"]
+    assert param2["display_order"] < param3["display_order"]
 
 
 def test_duplicate_credential_parameter_keys_not_allowed():
@@ -158,6 +168,31 @@ def test_duplicate_object_type_keys_not_allowed():
     definition.define_object_type("obj")
     with pytest.raises(DuplicateKeyException) as dke:
         definition.define_object_type("obj")
+
+
+def test_add_credential_parameters():
+    definition = AdapterDefinition("key")
+    credential = definition.define_credential_type("cred")
+    param1 = CredentialStringParameter("username")
+    param2 = CredentialPasswordParameter("password")
+    credential.add_parameters([param1, param2])
+    assert len(credential.credential_parameters) == 2
+
+
+def test_add_credential_types():
+    definition = AdapterDefinition("key")
+    type1 = CredentialType("Type1")
+    type2 = CredentialType("Type2")
+    definition.add_credential_types([type1, type2])
+    assert len(definition.credentials) == 2
+
+
+def test_add_object_types():
+    definition = AdapterDefinition("key")
+    type1 = ObjectType("Type1")
+    type2 = ObjectType("Type2")
+    definition.add_object_types([type1, type2])
+    assert len(definition.object_types) == 2
 
 
 def test_adapter_definition_example():
