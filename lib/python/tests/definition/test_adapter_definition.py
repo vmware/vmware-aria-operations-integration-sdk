@@ -3,7 +3,7 @@
 import pytest
 
 from vrops.definition.adapter_definition import AdapterDefinition
-from vrops.definition.exceptions import KeyException
+from vrops.definition.exceptions import KeyException, DuplicateKeyException
 
 
 def test_adapter_definition_default_label():
@@ -76,6 +76,13 @@ def test_adapter_definition_default_ai_label_2():
     assert definition.adapter_instance_label == f"{definition.label} Adapter Instance"
 
 
+def test_duplicate_parameter_keys_not_allowed():
+    with pytest.raises(DuplicateKeyException) as dke:
+        definition = AdapterDefinition("key")
+        definition.define_string_parameter("param1")
+        definition.define_string_parameter("param1")
+
+
 def test_parameter_order():
     definition = AdapterDefinition("key")
     definition.define_string_parameter("param1")
@@ -102,14 +109,30 @@ def test_enum_default_not_included():
     assert len(param1["enum_values"]) == 3
 
 
+def test_duplicate_credential_type_keys_not_allowed():
+    definition = AdapterDefinition("key")
+    definition.define_credential_type("ldap")
+    with pytest.raises(DuplicateKeyException) as dke:
+        definition.define_credential_type("ldap")
+
+
 def test_credential_parameter_order():
     definition = AdapterDefinition("key")
-    definition.define_string_parameter("param1")
-    definition.define_string_parameter("param2")
-    identifiers = definition.to_json()["adapter_instance"]["identifiers"]
-    param1 = list(filter(lambda i: i["key"] == "param1", identifiers))[0]
-    param2 = list(filter(lambda i: i["key"] == "param2", identifiers))[0]
+    credential = definition.define_credential_type()
+    credential.define_string_parameter("username")
+    credential.define_string_parameter("password")
+    fields = definition.to_json()["credential_types"][0]["fields"]
+    param1 = list(filter(lambda i: i["key"] == "username", fields))[0]
+    param2 = list(filter(lambda i: i["key"] == "password", fields))[0]
     assert param1["display_order"] < param2["display_order"]
+
+
+def test_duplicate_credential_parameter_keys_not_allowed():
+    definition = AdapterDefinition("adapter")
+    credential = definition.define_credential_type("ldap")
+    credential.define_int_parameter("key")
+    with pytest.raises(DuplicateKeyException) as dke:
+        credential.define_string_parameter("key")
 
 
 def test_credential_enum_default_included():
@@ -130,6 +153,13 @@ def test_credential_enum_default_not_included():
     assert len(param1["enum_values"]) == 3
 
 
+def test_duplicate_object_type_keys_not_allowed():
+    definition = AdapterDefinition("key")
+    definition.define_object_type("obj")
+    with pytest.raises(DuplicateKeyException) as dke:
+        definition.define_object_type("obj")
+
+
 def test_adapter_definition_example():
     definition = AdapterDefinition("adapter_key", "Adapter Label")
 
@@ -138,9 +168,9 @@ def test_adapter_definition_example():
     definition.define_enum_parameter("API Version", advanced=True, values=["1.1", "1.2", "2+"], default="2+", description="Select the API version the target supports.")
 
     credential = definition.define_credential_type()
-    credential.string_parameter("Username", label="User Name")
-    credential.password_parameter("Password")
-    credential.enum_parameter("Authentication Source", values=["Local", "LDAP"], default="Local")
+    credential.define_string_parameter("Username", label="User Name")
+    credential.define_password_parameter("Password")
+    credential.define_enum_parameter("Authentication Source", values=["Local", "LDAP"], default="Local")
 
 
 def test_adapter_definition_example_multiple_credential_types():

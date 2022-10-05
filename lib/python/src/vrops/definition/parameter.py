@@ -107,7 +107,7 @@ class EnumParameter(Parameter):
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
         super().__init__(key, label, description, default, required, advanced, display_order)
-        self.values = values
+        self.values = list(set(values))
         if default not in self.values:
             self.values.append(default)
 

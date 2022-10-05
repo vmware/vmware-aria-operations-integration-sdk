@@ -62,22 +62,22 @@ class ObjectType(GroupType):
         self.add_identifier(parameter)
         return self
 
-    def define_enum_identifier(self, key: str, label: str = None, required: bool = True, is_part_of_uniqueness: bool = True,
-                               default: str = None) -> ObjectType:
+    def define_enum_identifier(self, key: str, values: list[str], label: str = None, required: bool = True,
+                               is_part_of_uniqueness: bool = True, default: str = None) -> ObjectType:
         """
         Create a new enum identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the 
         object name will be used for identification.
         :param key: Used to identify the parameter.
+        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
+               will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
         :param required: True if this parameter is required. Defaults to True.
         :param is_part_of_uniqueness: True if the parameter should be used for object identification. Defaults to True.
         :param default: The default value of the parameter.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
         :return The created Enum Identifier.
         """
-        parameter = EnumParameter(key, label, required=required, advanced=not is_part_of_uniqueness, default=default,
+        parameter = EnumParameter(key, values, label, required=required, advanced=not is_part_of_uniqueness, default=default,
                                   display_order=len(self.identifiers))
         self.add_identifier(parameter)
         return self

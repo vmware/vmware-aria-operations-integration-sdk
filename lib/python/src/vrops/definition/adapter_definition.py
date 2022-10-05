@@ -140,7 +140,7 @@ class AdapterDefinition(GroupType):
             raise DuplicateKeyException(f"Parameter with key {key} already exists in adapter definition.")
         self.parameters[key] = parameter
 
-    def define_credential_type(self, key="default_credential", label=None):
+    def define_credential_type(self, key: str = "default_credential", label: str = None):
         """
         Create a new credential type and add it to this adapter instance. When more than one credential types are
         present, The user will be required to select the type and then fill in the parameters for that type, as only
@@ -175,7 +175,7 @@ class AdapterDefinition(GroupType):
             raise DuplicateKeyException(f"Credential type with key {key} already exists in adapter definition.")
         self.credentials[key] = credential_type
 
-    def define_object_type(self, key: str, label: str):
+    def define_object_type(self, key: str, label: str = None):
         """
         Create a new object type definition and add it to this adapter definition.
         :param key: The object type
