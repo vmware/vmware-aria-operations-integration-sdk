@@ -1,6 +1,8 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
+
+from vrops.definition.assertions import validate_key
 from vrops.definition.units import Unit
 
 
@@ -33,7 +35,7 @@ class Attribute(ABC):
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        self.key = key
+        self.key = validate_key(key, "Attribute")
         self.label = label
         if label is None:
             self.label = key

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from abc import ABC
 
+from vrops.definition.assertions import validate_key
+
 
 class Parameter(ABC):
     def __init__(self,
@@ -23,7 +25,7 @@ class Parameter(ABC):
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        self.key = key
+        self.key = validate_key(key, "Parameter/Identifier")
         self.label = label
         if label is None:
             self.label = key

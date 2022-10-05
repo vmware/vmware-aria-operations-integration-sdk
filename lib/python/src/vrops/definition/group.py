@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import ABC
 from collections import OrderedDict
 
+from vrops.definition.assertions import validate_key
 from vrops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
 from vrops.definition.exceptions import DuplicateKeyException
 from vrops.definition.units import Unit
@@ -196,7 +197,7 @@ class Group(GroupType):
         provide a location for aggregate metrics across all instances, for example. This does nothing if 'instanced' is
         False.
         """
-        self.key = key
+        self.key = validate_key(key, "Group")
         self.label = label
         if label is None:
             self.label = key

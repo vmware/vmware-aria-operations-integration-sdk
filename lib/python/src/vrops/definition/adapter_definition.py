@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
+from vrops.definition.assertions import validate_key
 from vrops.definition.credential_type import CredentialType
 from vrops.definition.exceptions import KeyException, DuplicateKeyException
 from vrops.definition.group import GroupType
@@ -24,18 +25,11 @@ class AdapterDefinition(GroupType):
         :param label: Label that is displayed in the VMware Aria Operations UI for this adapter. Defaults to the key.
         :param adapter_instance_key: Object type of the adapter instance object. Defaults to
                '{adapter key}_adapter_instance'.
-        :param adapter_instance_label: Label that is displayed in the VMware Aria Operations UI for the adapter instance object type.
-               Defaults to '{adapter label} Adapter Instance'.
+        :param adapter_instance_label: Label that is displayed in the VMware Aria Operations UI for the adapter instance
+               object type. Defaults to '{adapter label} Adapter Instance'.
         :param version: Version of the definition. This should be incremented for new releases of the adapter.
         """
-        if key is None:
-            raise KeyException("Adapter key cannot be 'None'.")
-        if type(key) is not str:
-            raise KeyException("Adapter key must be a string.")
-        if key == "":
-            raise KeyException("Adapter key cannot be empty.")
-        if key.isspace():
-            raise KeyException("Adapter key cannot be blank.")
+        key = validate_key(key, "Adapter")
         if not key[0].isalpha():
             raise KeyException("Adapter key must start with a letter.")
         if len(key.split()) > 1:

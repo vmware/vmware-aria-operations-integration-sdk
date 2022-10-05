@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
+from vrops.definition.assertions import validate_key
 from vrops.definition.exceptions import DuplicateKeyException
 from vrops.definition.group import GroupType
 from vrops.definition.parameter import EnumParameter, IntParameter, StringParameter, Parameter
@@ -18,8 +19,10 @@ class ObjectType(GroupType):
         :param key: The key of the object type
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
         """
-        self.key = key
+        self.key = validate_key(key, "Object type")
         self.label = label
+        if label is None:
+            self.label = key
         self.identifiers = OrderedDict()
         super().__init__()
 

@@ -3,6 +3,7 @@
 from abc import ABC
 from collections import OrderedDict
 
+from vrops.definition.assertions import validate_key
 from vrops.definition.exceptions import DuplicateKeyException
 
 
@@ -14,7 +15,7 @@ class CredentialParameter(ABC):
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        self.key = key
+        self.key = validate_key(key, "Credential parameter")
         self.label = label
         if label is None:
             self.label = key
@@ -112,7 +113,7 @@ class CredentialEnumParameter(CredentialParameter):
 
 class CredentialType:
     def __init__(self, key, label=None):
-        self.key = key
+        self.key = validate_key(key, "Credential type")
         self.label = label
         if label is None:
             self.label = key
