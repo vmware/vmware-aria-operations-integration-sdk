@@ -396,6 +396,7 @@
                 <xs:documentation xml:lang="en">Unique id of the Symptom for this adapter.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute type="xs:boolean" name="disableInBasePolicy" use="optional" default="false"/>
         <xs:attributeGroup ref="RequiredNameKeyGroup" />
         <xs:attribute type="xs:string" name="adapterKind" use="required">
             <xs:annotation>

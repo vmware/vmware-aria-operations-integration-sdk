@@ -4,24 +4,24 @@
     <AlertDefinitions>
         <AlertDefinition nameKey="1" adapterKind="VMWARE" description="A fatal error was detected on a Peripheral Component Interconnect Express (PCIe) bus during the previous reboot. Typically, this problem is caused by faulty hardware. The bus is faulty and might cause unstable system behavior. The device, bus number, vendor name, and other device-related information should appear in the symptom details." id="AlertDefinition-VMWARE-FatalPCIeErrorAlert" name="A fatal error occurred on a PCIe bus during system reboot" resourceKind="HostSystem" subType="18" type="17">
             <State severity="critical">
-                <SymptomSet applyOn="self" ref="SymptomDefinition-VMWARE-FatalPCIeError"/>
+                <SymptomSet applyOn="self" operator="and" ref="SymptomDefinition-d37fdfb2-a8c1-4e6c-a598-1a709e61843a"/>
                 <Impact key="health" type="badge"/>
                 <Recommendations>
-                    <Recommendation priority="1" ref="Recommendation-df-VMWARE-ReplacePCIeRec"/>
+                    <Recommendation priority="1" ref="Recommendation-ud-b8f3ad42-51fe-4f28-b51e-bf9ef7358286"/>
                 </Recommendations>
             </State>
         </AlertDefinition>
     </AlertDefinitions>
     <SymptomDefinitions>
-        <SymptomDefinition nameKey="2" adapterKind="VMWARE" id="SymptomDefinition-VMWARE-FatalPCIeError" resourceKind="HostSystem">
+        <SymptomDefinition adapterKind="ContentTestMP" cancelCycle="3" disableInBasePolicy="true" id="SymptomDefinition-d37fdfb2-a8c1-4e6c-a598-1a709e61843a" name="Long Collection Time (Test Symptom)" resourceKind="ContentTestMP_adapter_instance" waitCycle="3">
             <State severity="critical">
                 <Condition eventSubType="5" eventType="12" faultevent="esx.problem.apei.bert.pcie.error.fatal" key="fault|comp|pcie" operator="equals" type="fault"/>
             </State>
         </SymptomDefinition>
     </SymptomDefinitions>
     <Recommendations>
-        <Recommendation key="Recommendation-df-VMWARE-ReplacePCIeRec">
-            <Description nameKey="3" />
+        <Recommendation key="Recommendation-ud-b8f3ad42-51fe-4f28-b51e-bf9ef7358286">
+            <Description>Learn how to make stuff faster please.</Description>
         </Recommendation>
     </Recommendations>
 </alertContent>
