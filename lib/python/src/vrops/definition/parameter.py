@@ -115,5 +115,6 @@ class EnumParameter(Parameter):
         return super().to_json() | {
             "type": "string",
             "enum": True,
-            "enum_values": [str(value) for value in self.values]
+            "enum_values": [str(value) for value in self.values],
+            "default": str(self.default)
         }

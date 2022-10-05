@@ -81,8 +81,7 @@ def test_define_int_identifier():
         "description": None,
         "default": 9,
         "display_order": 0,
-        "type": "integer",
-        "length": None
+        "type": "integer"
     }
 
 
@@ -97,10 +96,9 @@ def test_define_enum_identifier():
         "enum": True,
         "enum_values": ["B", "C", "E"],
         "description": None,
-        "default": 9,
+        "default": "E",
         "display_order": 0,
-        "type": "string",
-        "length": None
+        "type": "string"
     }
 
 
