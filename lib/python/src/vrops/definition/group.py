@@ -17,7 +17,7 @@ class GroupType(ABC):
         self.attributes = OrderedDict()
         self.groups = OrderedDict()
 
-    def define_group(self, key: str, label: str) -> Group:
+    def define_group(self, key: str, label: str = None) -> Group:
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
@@ -28,7 +28,7 @@ class GroupType(ABC):
         self.add_group(group)
         return group
 
-    def define_instanced_group(self, key: str, label: str, instance_required: bool = True) -> Group:
+    def define_instanced_group(self, key: str, label: str = None, instance_required: bool = True) -> Group:
         """
         Create a new group that can hold attributes and subgroups. This group can be 'instanced', with a value, so that
         its subgroups and attributes can appear multiple times, once for each instance value. For example, a group

@@ -54,11 +54,11 @@ def test_duplicate_identifier_keys_not_allowed():
 
 def test_define_string_identifier():
     definition = ObjectType("test")
-    definition.define_string_identifier("A", "B", False, False, "C")
+    definition.define_string_identifier("A", "B", True, False, "C")
     assert definition.identifiers["A"].to_json() == {
         "key": "A",
         "label": "B",
-        "required": False,
+        "required": True,
         "ident_type": 2,
         "enum": False,
         "description": None,
@@ -71,12 +71,12 @@ def test_define_string_identifier():
 
 def test_define_int_identifier():
     definition = ObjectType("test")
-    definition.define_int_identifier("A", "B", False, False, 9)
+    definition.define_int_identifier("A", "B", False, True, 9)
     assert definition.identifiers["A"].to_json() == {
         "key": "A",
         "label": "B",
         "required": False,
-        "ident_type": 2,
+        "ident_type": 1,
         "enum": False,
         "description": None,
         "default": 9,

@@ -39,7 +39,7 @@ class Attribute(ABC):
         self.label = label
         if label is None:
             self.label = key
-        self.unit = unit.name if unit else None
+        self.unit = unit.value.key if unit else None
         self.is_rate = unit.value.is_rate if unit else is_rate
         self.is_discrete = is_discrete
         self.is_kpi = is_kpi
