@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE root SYSTEM "TraversalSpecsSchema.xsd">-->
+<AdapterKind key="ContentTestMP" version="1">
+    <TraversalSpecKinds>
+        <TraversalSpecKind name="Content Traversal Root"
+                           rootAdapterKind="ContentTestMP" rootResourceKind="System"
+                           usedFor="ALL"
+                           description="This is the root traversal test">
+            <ResourcePath path="ContentTestMP::System||ContentTestMP::CPU::child"/>
+            <ResourcePath path="ContentTestMP::System||ContentTestMP::Disk::child"/>
+        </TraversalSpecKind>
+        <TraversalSpecKind name="Inverted Content Traversal Root"
+                           rootAdapterKind="ContentTestMP" rootResourceKind="Disk"
+                           usedFor="ALL"
+                           description="This is the root traversal test">
+            <ResourcePath path="ContentTestMP::Disk||ContentTestMP::System::~child"/>
+            <ResourcePath path="ContentTestMP::Disk||ContentTestMP::System::~child/skip||ContentTestMP::CPU::child"/>
+        </TraversalSpecKind>
+    </TraversalSpecKinds>
+</AdapterKind>
