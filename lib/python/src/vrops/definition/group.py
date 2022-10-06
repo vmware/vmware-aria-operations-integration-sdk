@@ -5,6 +5,7 @@ from __future__ import annotations
 from abc import ABC
 from collections import OrderedDict
 
+from vrops.definition.assertions import validate_key
 from vrops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
 from vrops.definition.exceptions import DuplicateKeyException
 from vrops.definition.units import Unit
@@ -16,7 +17,7 @@ class GroupType(ABC):
         self.attributes = OrderedDict()
         self.groups = OrderedDict()
 
-    def define_group(self, key: str, label: str) -> Group:
+    def define_group(self, key: str, label: str = None) -> Group:
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
@@ -27,7 +28,7 @@ class GroupType(ABC):
         self.add_group(group)
         return group
 
-    def define_instanced_group(self, key: str, label: str, instance_required: bool = True) -> Group:
+    def define_instanced_group(self, key: str, label: str = None, instance_required: bool = True) -> Group:
         """
         Create a new group that can hold attributes and subgroups. This group can be 'instanced', with a value, so that
         its subgroups and attributes can appear multiple times, once for each instance value. For example, a group
@@ -171,7 +172,7 @@ class GroupType(ABC):
         """
         key = attribute.key
         if key in self.attributes:
-            raise DuplicateKeyException(f"Group with key {key} already exists in {type(self)} {self.key}.")
+            raise DuplicateKeyException(f"Attribute with key {key} already exists in {type(self)} {self.key}.")
 
         self.attributes[key] = attribute
 
@@ -196,7 +197,7 @@ class Group(GroupType):
         provide a location for aggregate metrics across all instances, for example. This does nothing if 'instanced' is
         False.
         """
-        self.key = key
+        self.key = validate_key(key, "Group")
         self.label = label
         if label is None:
             self.label = key

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from abc import ABC
 
+from vrops.definition.assertions import validate_key
+from vrops.definition.exceptions import DuplicateKeyException
+
 
 class Parameter(ABC):
     def __init__(self,
@@ -23,7 +26,7 @@ class Parameter(ABC):
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
-        self.key = key
+        self.key = validate_key(key, "Parameter/Identifier")
         self.label = label
         if label is None:
             self.label = key
@@ -105,6 +108,8 @@ class EnumParameter(Parameter):
         :param display_order: Determines the order parameters will be displayed in the UI.
         """
         super().__init__(key, label, description, default, required, advanced, display_order)
+        if len(values) > len(set(values)):
+            raise DuplicateKeyException(f"Duplicate enum value in parameter {key}: {values}.")
         self.values = values
         if default not in self.values:
             self.values.append(default)
@@ -113,5 +118,6 @@ class EnumParameter(Parameter):
         return super().to_json() | {
             "type": "string",
             "enum": True,
-            "enum_values": [str(value) for value in self.values]
+            "enum_values": [str(value) for value in self.values],
+            "default": str(self.default)
         }
