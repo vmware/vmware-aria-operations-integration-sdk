@@ -1,5 +1,6 @@
 import copy
-import os.path
+import os
+from importlib import resources
 
 import xmlschema
 import pytest
@@ -7,6 +8,7 @@ import pytest
 import xml.etree.ElementTree as xml
 
 from vrealize_operations_integration_sdk.describe import ns
+from vrealize_operations_integration_sdk import adapter_template
 from lxml import etree
 
 
@@ -14,10 +16,8 @@ class TestDescribe:
 
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..",
-                                                  "vrealize_operations_integration_sdk",
-                                                  "adapter_template",
-                                                  "describeSchema.xsd"))
+        with resources.path(adapter_template, "describeSchema.xsd") as schema:
+            return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture
     def base_describe_xml(self):
@@ -95,10 +95,8 @@ class TestDescribe:
 class TestAlertsRecommendationsAndSymptoms:
     @pytest.fixture(scope="session")
     def content_xml_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..",
-                                                  "vrealize_operations_integration_sdk",
-                                                  "adapter_template",
-                                                  "alertDefinitionSchema.xsd"))
+        with resources.path(adapter_template, "alertDefinitionSchema.xsd") as schema:
+            return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture
     def modified_content(self):
@@ -178,10 +176,8 @@ class TestAlertsRecommendationsAndSymptoms:
 class TestTraversals:
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def traversal_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..",
-                                                  "vrealize_operations_integration_sdk",
-                                                  "adapter_template",
-                                                  "traversalSpecsSchema.xsd"))
+        with resources.path(adapter_template, "traversalSpecsSchema.xsd") as schema:
+            return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture
     def base_traversal_xml(self):
