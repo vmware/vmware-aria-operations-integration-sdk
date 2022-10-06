@@ -1,6 +1,6 @@
-# Contributing to vrealize-operations-integration-sdk
+# Contributing to vmware-aria-operations-integration-sdk
 
-The vrealize-operations-integration-sdk project team welcomes contributions from the community. Before you start working with vrealize-operations-integration-sdk, please
+The vmware-aria-operations-integration-sdk project team welcomes contributions from the community. Before you start working with vmware-aria-operations-integration-sdk, please
 read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be
 signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on
 as an open-source patch.
@@ -18,7 +18,7 @@ This is a rough outline of what a contributor's workflow looks like:
 Example:
 
 ``` shell
-git remote add upstream https://github.com/vmware/vrealize-operations-integration-sdk.git
+git remote add upstream https://github.com/vmware/vmware-aria-operations-integration-sdk.git
 git checkout -b my-new-feature main
 git commit -a
 git push origin my-new-feature

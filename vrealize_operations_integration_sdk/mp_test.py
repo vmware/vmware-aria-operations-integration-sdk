@@ -292,9 +292,9 @@ def get_connection(project, arguments):
         logger.error("Make sure the adapter instance resource kind exists and has tag 'type=\"7\"'.")
         exit(1)
 
-    print_formatted("""Connections are akin to Adapter Instances in vROps, and contain the parameters needed to connect to a target
-environment. As such, the following connection parameters and credential fields are derived from the
-'conf/describe.xml' file and are specific to each Management Pack.""", "class:information", frame=True)
+    print_formatted("""Connections are akin to Adapter Instances in VMware Aria Operations, and contain the parameters 
+needed to connect to a target environment. As such, the following connection parameters and credential fields are 
+derived from the 'conf/describe.xml' file and are specific to each Management Pack.""", "class:information", frame=True)
 
     identifiers = {}
     for identifier in sorted(get_identifiers(adapter_instance_kind), key=lambda i: int(i.get("dispOrder") or "100")):
@@ -378,7 +378,7 @@ def input_parameter(parameter_type, parameter, resources):
 
 
 def main():
-    description = "Tool for running adapter test and collect methods outside of a vROps Cloud Proxy."
+    description = "Tool for running adapter test and collect methods outside of a VMware Aria Operations Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
 
     # General options
@@ -394,7 +394,7 @@ def main():
 
     # Test method
     test_method = methods.add_parser("connect",
-                                     help="Simulate the 'test connection' method being called by the vROps collector.")
+                                     help="Simulate the 'test connection' method being called by the VMware Aria Operations collector.")
     test_method.set_defaults(func=run_connect)
     test_method.add_argument("-t", "--timeout",
                              help="Timeout limit for REST request performed.",
@@ -402,7 +402,7 @@ def main():
 
     # Collect method
     collect_method = methods.add_parser("collect",
-                                        help="Simulate the 'collect' method being called by the vROps collector.")
+                                        help="Simulate the 'collect' method being called by the VMware Aria Operations collector.")
     collect_method.set_defaults(func=run_collect)
     collect_method.add_argument("-t", "--timeout",
                                 help="Timeout limit for REST request performed.",
@@ -429,7 +429,7 @@ def main():
 
     # URL Endpoints method
     url_method = methods.add_parser("endpoint_urls",
-                                    help="Simulate the 'endpoint_urls' method being called by the vROps collector.")
+                                    help="Simulate the 'endpoint_urls' method being called by the VMware Aria Operations collector.")
     url_method.set_defaults(func=run_get_endpoint_urls)
     url_method.add_argument("-t", "--timeout",
                             help="Timeout limit for REST request performed.",
@@ -437,7 +437,7 @@ def main():
 
     # Version method
     version_method = methods.add_parser("version",
-                                        help="Simulate the 'version' method being called by the vROps collector.")
+                                        help="Simulate the 'version' method being called by the VMware Aria Operations collector.")
     version_method.set_defaults(func=run_get_server_version)
     version_method.add_argument("-t", "--timeout",
                                 help="Timeout limit for REST request performed.",
@@ -445,7 +445,7 @@ def main():
 
     # wait
     wait_method = methods.add_parser("wait",
-                                     help="Simulate the adapter running on a vROps collector and wait for user input "
+                                     help="Simulate the adapter running on a VMware Aria Operations collector and wait for user input "
                                           "to stop. Useful for calling REST methods via an external tool, such as "
                                           "Insomnia or Postman.")
     wait_method.set_defaults(func=run_wait)

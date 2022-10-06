@@ -30,10 +30,10 @@ to ensure all dependencies are included in the container.
 ### app (directory)
 Contains all the source adapter source code. This directory is copied into the container defined by the Dockerfile.
 ### adapter.py (file)
- - This file is used by the HTTP server to server request made by the vRealize Operations Manager.
+ - This file is used by the HTTP server to server request made by the VMware Aria Operations Manager.
  - the HTTP server passes each request in the form of a parameter, and reads the responses through stdout.
  - To re-define the file the HTTP server uses to perform HTTP requests for the server, the user should modify the commands.cfg file.
- - The adapter uses the python vROps library (TODO create the vROps Library)
+ - The adapter uses the python VMware Aria Operations library.
  - API calls table
 | Request/Parameter  | Description   |
 | :----------------: | :------------ |
@@ -68,7 +68,7 @@ TODO: create table for manifest file properties
 | Content Cell       | Content Cell  |
 
 ### resources (directory)
-A file that contains English labels for various objects. vROps supports localization, so users can add additional file(s) to support other languages.
-To support another language, create a file with resources_[LANGUAGE_CODE].properties, then vROps will use the appropriate labels when set to that language.
+A file that contains English labels for various objects. VMware Aria Operations supports localization, so users can add additional file(s) to support other languages.
+To support another language, create a file with resources_[LANGUAGE_CODE].properties, then VMware Aria Operations will use the appropriate labels when set to that language.
 #### resources.properties (file)
 TODO: Add example file

@@ -64,12 +64,13 @@ def get_endpoints(adapter_instance: AdapterInstance) -> EndpointResult:
     # result.with_endpoint(adapter_instance.get_identifier_value("secondary_host"))
     #
     # This 'get_endpoints' method will be run before the 'test' method,
-    # and vROps will use the results to extract a certificate from each URL. If the
-    # certificate is not trusted by the vROps Trust Store, the user will be prompted
-    # to either accept or reject the certificate. If it is accepted, the certificate
-    # will be added to the AdapterInstance object that is passed to the 'test' and
-    # 'collect' methods. Any certificate that is encountered in those methods should
-    # then be validated against the certificate(s) in the AdapterInstance.
+    # and VMware Aria Operations will use the results to extract a certificate from
+    # each URL. If the certificate is not trusted by the VMware Aria Operations Trust
+    # Store, the user will be prompted to either accept or reject the certificate. If
+    # it is accepted, the certificate will be added to the AdapterInstance object that
+    # is passed to the 'test' and 'collect' methods. Any certificate that is
+    # encountered in those methods should then be validated against the certificate(s)
+    # in the AdapterInstance.
     return result
 
 

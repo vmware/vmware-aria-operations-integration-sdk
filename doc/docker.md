@@ -4,7 +4,7 @@
 There are three different images in this project:
 - vrops-adapter-open-sdk-server:python (base image)
 	- Uses python:3.10.2-slim-bullseye as its base image
-	- Contains the swagger_server used by vROps to communicate with the adapter
+	- Contains the swagger_server used in adapters for communication with VMware Aria Operations.
 - vrops-adapter-open-sdk-server:java
 	- Uses vrops-adapter-open-sdk-server:python as its base image
 	- Contains Zulu 17 headless JDK
@@ -49,11 +49,12 @@ The language component of a tag specifies the main language supported by the gen
 Language is one of `python`,`java`, or `powershell`. If an unsupported language is desired, the base
 image `vrops-adapter-open-sdk-server:python` can be used as a starting point to install an additional
 language or runtime environment. The base image contains the HTTP server, which is required to serve
-calls from vROps and the user's adapter. It is also possible to start from a different base image,
-but in this case an HTTP server that conforms to the collector API must be manually added.
+calls from VMware Aria Operations and the user's adapter. It is also possible to start from a different 
+base image, but in this case an HTTP server that conforms to the collector API must be manually added.
 
 ###### Server Version
-The main component in the project is the HTTP Server defined by the vROps collector API. Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
+The main component in the project is the HTTP Server defined by the VMware Aria Operations Collector API. 
+Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
 
 
 ##### Stable Tags
