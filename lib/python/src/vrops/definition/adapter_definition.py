@@ -2,227 +2,17 @@
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from abc import ABC
+from collections import OrderedDict
+
+from vrops.definition.assertions import validate_key
+from vrops.definition.credential_type import CredentialType
+from vrops.definition.exceptions import KeyException, DuplicateKeyException
+from vrops.definition.group import GroupType
+from vrops.definition.object_type import ObjectType
+from vrops.definition.parameter import StringParameter, IntParameter, EnumParameter, Parameter
 
 
-class KeyException(Exception):
-    pass
-
-
-class Parameter(ABC):
-    def __init__(self,
-                 key: str,
-                 label: str = None,
-                 description: str = None,
-                 required: bool = True,
-                 advanced: bool = False,
-                 default: str | int = None,
-                 display_order: int = 0):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        self.key = key
-        self.label = label
-        if label is None:
-            self.label = key
-        self.description = description
-        self.required = required
-        self.advanced = advanced
-        self.display_order = display_order
-        self.default = default
-
-    def to_json(self):
-        return {
-            "key": self.key,
-            "label": self.label,
-            "description": self.description,
-            "required": self.required,
-            "ident_type": 1 if not self.advanced else 2,
-            "enum": False,
-            "display_order": self.display_order,
-        }
-
-
-class IntParameter(Parameter):
-    def __init__(self, key: str, *args, default: int = None, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        super().__init__(key, *args, default=default, **kwargs)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "integer",
-            "default": int(self.default),
-        }
-
-
-class StringParameter(Parameter):
-    def __init__(self, key: str, *args, default: str = None, max_length: int = None, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        super().__init__(key, *args, default=default, **kwargs)
-        self.max_length = max_length
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "string",
-            "length": self.max_length,
-            "default": str(self.default)
-        }
-
-
-class EnumParameter(Parameter):
-    def __init__(self, key: str, *args, values: list[str], default: str = None, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value. Enum values are not localizable.
-        :param default: The default value of the parameter.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        super().__init__(key, *args, default=default, **kwargs)
-        self.values = values
-        if default not in self.values:
-            self.values.append(default)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "string",
-            "enum": True,
-            "enum_values": [str(value) for value in self.values]
-        }
-
-
-class CredentialParameter(ABC):
-    def __init__(self, key: str, label: str = None, credential_type: str = "default_credential", required: bool = True, display_order: int = 0):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        self.key = key
-        self.label = label
-        self.credential_type = credential_type
-        self.required = required
-        self.display_order = display_order
-
-    def to_json(self):
-        return {
-            "key": self.key,
-            "label": self.label,
-            "required": self.required,
-            "password": False,
-            "enum": False,
-            "display_order": self.display_order
-        }
-
-
-class IntCredentialParameter(CredentialParameter):
-    """
-    :param key: Used to identify the parameter.
-    :param label: Label that is displayed in the vROps UI. Defaults to the key.
-    :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-    :param required: True if user is required to provide this parameter. Defaults to True.
-    :param display_order: Determines the order parameters will be displayed in the UI.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "integer",
-        }
-
-
-class StringCredentialParameter(CredentialParameter):
-    def __init__(self, *args, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        super().__init__(*args, **kwargs)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "string",
-        }
-
-
-class PasswordCredentialParameter(CredentialParameter):
-    def __init__(self, key: str, *args, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
-        """
-        super().__init__(key, *args, **kwargs)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "string",
-            "password": True,
-        }
-
-
-class EnumCredentialParameter(CredentialParameter):
-    """
-    :param key: Used to identify the parameter.
-    :param label: Label that is displayed in the vROps UI. Defaults to the key.
-    :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-    :param required: True if user is required to provide this parameter. Defaults to True.
-    :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-           will be added as an additional enum value. Enum values are not localizable.
-    :param default: The default value of the enum.
-    :param display_order: Determines the order parameters will be displayed in the UI.
-    """
-    def __init__(self, key: str, *args, values: list[str], default: str = None, **kwargs):
-        super().__init__(key, *args, **kwargs)
-        self.values = values
-        self.default = default
-        if default not in values:
-            self.values.append(default)
-
-    def to_json(self):
-        return super().to_json() | {
-            "type": "string",
-            "default": self.default,
-            "enum": True,
-            "enum_values": [str(value) for value in self.values]
-        }
-
-
-class AdapterDefinition:
+class AdapterDefinition(GroupType):
     def __init__(self,
                  key: str,
                  label: str = None,
@@ -232,21 +22,14 @@ class AdapterDefinition:
         """
         :param key: The adapter key is used to identify the adapter and its object types. It must be unique across
                all Management Packs.
-        :param label: Label that is displayed in the vROps UI for this adapter. Defaults to the key.
+        :param label: Label that is displayed in the VMware Aria Operations UI for this adapter. Defaults to the key.
         :param adapter_instance_key: Object type of the adapter instance object. Defaults to
                '{adapter key}_adapter_instance'.
-        :param adapter_instance_label: Label that is displayed in the vROps UI for the adapter instance object type.
-               Defaults to '{adapter label} Adapter Instance'.
+        :param adapter_instance_label: Label that is displayed in the VMware Aria Operations UI for the adapter instance
+               object type. Defaults to '{adapter label} Adapter Instance'.
         :param version: Version of the definition. This should be incremented for new releases of the adapter.
         """
-        if key is None:
-            raise KeyException("Adapter key cannot be 'None'.")
-        if type(key) is not str:
-            raise KeyException("Adapter key must be a string.")
-        if key == "":
-            raise KeyException("Adapter key cannot be empty.")
-        if key.isspace():
-            raise KeyException("Adapter key cannot be blank.")
+        key = validate_key(key, "Adapter")
         if not key[0].isalpha():
             raise KeyException("Adapter key must start with a letter.")
         if len(key.split()) > 1:
@@ -269,8 +52,11 @@ class AdapterDefinition:
             self.adapter_instance_label = f"{self.label} Adapter Instance"
 
         self.version = version
-        self.parameters = []
+        self.parameters = OrderedDict()
         self.credentials = {}
+        self.object_types = {}
+
+        super().__init__()
 
     def to_json(self):
         return {
@@ -278,96 +64,144 @@ class AdapterDefinition:
             "adapter_label": self.label,
             "describe_version": self.version,
             "adapter_instance": {
-                "key": self.adapter_instance_key,
-                "label": self.adapter_instance_label,
-                "identifiers": [identifier.to_json() for identifier in self.parameters]
-            },
-            "credential_types": [
-                {
-                    "credential_type": credential_type,
-                    "fields": [field.to_json() for field in self.credentials[credential_type]]
-                }
-                for credential_type in self.credentials.keys()
-            ]
+                                    "key": self.adapter_instance_key,
+                                    "label": self.adapter_instance_label,
+                                    "identifiers": [identifier.to_json() for identifier in self.parameters.values()],
+                                } | super().to_json(),
+            "credential_types": [credential_type.to_json() for credential_type in self.credentials.values()],
+            "object_types": [object_type.to_json() for object_type in self.object_types.values()]
         }
 
-    def string_parameter(self, *args, **kwargs):
+    def define_string_parameter(self, key: str, label: str = None, description: str = None, default: str = None,
+                                required: bool = True, advanced: bool = False):
         """
+        Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
+        this parameter each time a new account/adapter instance is created.
         :param key: Used to identify the parameter
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
+        :return The created string parameter definition.
         """
-        self.parameters.append(StringParameter(*args, **kwargs, display_order=len(self.parameters)))
+        parameter = StringParameter(key, label, description, default, required, advanced,
+                                    display_order=len(self.parameters))
+        self.add_parameter(parameter)
+        return parameter
 
-    def int_parameter(self, *args, **kwargs):
+    def define_int_parameter(self, key: str, label: str = None, description: str = None,
+                             default: int = None, required: bool = True, advanced: bool = False):
         """
+        Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
+        this parameter each time a new account/adapter instance is created.
         :param key: Used to identify the parameter
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
+        :return The created int parameter definition.
         """
-        self.parameters.append(IntParameter(*args, **kwargs, display_order=len(self.parameters)))
+        parameter = IntParameter(key, label, description, default, required, advanced,
+                                 display_order=len(self.parameters))
+        self.add_parameter(parameter)
+        return parameter
 
-    def enum_parameter(self, *args, **kwargs):
+    def define_enum_parameter(self, key: str, values: list[str], label: str = None, description: str = None,
+                              default: str = None, required: bool = True, advanced: bool = False):
         """
+        Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
+        this parameter each time a new account/adapter instance is created.
         :param key: Used to identify the parameter
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the vROps UI.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param default: The default value of the parameter.
         :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
                will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
-        """
-        self.parameters.append(EnumParameter(*args, **kwargs, display_order=len(self.parameters)))
-
-    def string_credential_parameter(self, *args, **kwargs):
-        """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+        :param default: The default value of the parameter.
         :param required: True if user is required to provide this parameter. Defaults to True.
+        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
+        :return The created enum parameter definition.
         """
-        self._add_credential(StringCredentialParameter(*args, **kwargs))
+        parameter = EnumParameter(key, values, label, description, default, required, advanced,
+                                  display_order=len(self.parameters))
+        self.add_parameter(parameter)
+        return parameter
 
-    def int_credential_parameter(self, *args, **kwargs):
+    def add_parameter(self, parameter: Parameter):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
+        Add a parameter to the adapter instance. The user will be asked to provide a value for
+        this parameter each time a new account/adapter instance is created.
+        :param parameter: The parameter to add to the adapter instance.
+        :return: None
         """
-        self._add_credential(IntCredentialParameter(*args, **kwargs))
+        key = parameter.key
+        if key in self.parameters:
+            raise DuplicateKeyException(f"Parameter with key {key} already exists in adapter definition.")
+        self.parameters[key] = parameter
 
-    def password_credential_parameter(self, *args, **kwargs):
+    def define_credential_type(self, key: str = "default_credential", label: str = None):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
+        Create a new credential type and add it to this adapter instance. When more than one credential types are
+        present, The user will be required to select the type and then fill in the parameters for that type, as only
+        one credential type can be used for any given adapter instance.
+        :param key: Used to identify the credential type
+        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        :return The created credential type.
         """
-        self._add_credential(PasswordCredentialParameter(*args, **kwargs))
+        credential = CredentialType(key, label)
+        self.add_credential_type(credential)
+        return credential
 
-    def enum_credential_parameter(self, *args, **kwargs):
+    def add_credential_types(self, credential_types: list[CredentialType]):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the vROps UI. Defaults to the key.
-        :param credential_type: A group of credential parameters comprises a credential type. An adapter can have multiple types of credentials, which the user can choose between when creating an adapter instance. The default type is 'default_credential', which is useful for the common case where only one credential type is required.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value. Enum values are not localizable.
-        :param default: The default value of the enum.
+        Add a list of credential types to the adapter instance.
+        :param credential_types: A list of credential types to add.
+        :return: None
         """
-        self._add_credential(EnumCredentialParameter(*args, **kwargs))
+        for credential_type in credential_types:
+            self.add_credential_type(credential_type)
 
-    def _add_credential(self, credential_parameter: CredentialParameter):
-        credential_type = credential_parameter.credential_type
-        self.credentials.setdefault(credential_type, [])
-        credential_parameter.display_order = len(self.credentials[credential_type])
-        self.credentials[credential_type].append(credential_parameter)
+    def add_credential_type(self, credential_type: CredentialType):
+        """
+        Add a credential type to the adapter instance. When more than one credential types are present, The user will
+        be required to select the type and then fill in the parameters for that type, as only one credential type can be
+        used for any given adapter instance.
+        :param credential_type: The credential type to add.
+        :return: None
+        """
+        key = credential_type.key
+        if key in self.credentials:
+            raise DuplicateKeyException(f"Credential type with key {key} already exists in adapter definition.")
+        self.credentials[key] = credential_type
 
+    def define_object_type(self, key: str, label: str = None):
+        """
+        Create a new object type definition and add it to this adapter definition.
+        :param key: The object type
+        :param label: Label that is displayed in the VMware Aria Operations UI for this object type. Defaults to the key.
+        :return: The created object type definition
+        """
+        object_type = ObjectType(key, label)
+        self.add_object_type(object_type)
+        return object_type
+
+    def add_object_types(self, object_types: list[ObjectType]):
+        """
+        Adds a list of object types to this adapter definition
+        :param object_types: A list of object type definitions.
+        :return: None
+        """
+        for object_type in object_types:
+            self.add_object_type(object_type)
+
+    def add_object_type(self, object_type: ObjectType):
+        """
+        Adds an object type to this adapter definition
+        :param object_type: An object type definition.
+        :return: None
+        """
+        key = object_type.key
+        if key in self.object_types:
+            raise DuplicateKeyException(f"Object type with key {key} already exists in adapter definition.")
+        self.object_types[key] = object_type
