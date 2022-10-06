@@ -177,11 +177,39 @@ class TestAlertsRecommendationsAndSymptoms:
 
 class TestTraversals:
     @pytest.fixture(scope="session")  # the same XSD for all tests
-    def xml_schema(self):
+    def traversal_schema(self):
         return xmlschema.XMLSchema11(os.path.join("..",
                                                   "vrealize_operations_integration_sdk",
                                                   "adapter_template",
-                                                  "describeSchema.xsd"))
+                                                  "content",
+                                                  "traversal_specs",
+                                                  "traversalSpecsSchema.xsd"))
 
-    def test_valid_describe_xml(self, xml_schema, base_describe_xml):
-        xml_schema.is_valid(base_describe_xml)
+    @pytest.fixture
+    def base_traversal_xml(self):
+        yield etree.parse("res/traversal.xml")
+
+    def test_valid_traversal_xml(self, traversal_schema, base_traversal_xml):
+        traversal_schema.is_valid(base_traversal_xml)
+
+    def test_invalid_element(self, traversal_schema, base_traversal_xml):
+        root = base_traversal_xml.getroot()
+        root.insert(0, etree.Element("Invalid"))
+
+        with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as invalid:
+            traversal_schema.validate(base_traversal_xml)
+
+        assert "Unexpected child with tag 'Invalid' at position 1" in str(invalid.value)
+
+    def test_add_valid_traversal(self, traversal_schema, base_traversal_xml):
+        traversal_spec_kinds = base_traversal_xml.find("TraversalSpecKinds")
+        new_traversal = etree.Element("TraversalSpecKind",
+                                      attrib=dict(name="New Traversal"),
+                                      rootAdapterKind="ContentTestMP",
+                                      rootResourceKind="System",
+                                      usedFor="ENV",
+                                      description="New Traversal description")
+        new_traversal.insert(0, etree.Element("ResourcePath", attrib=dict(path="ContentTestMP::System||ContentTestMP::CPU::child")))
+        traversal_spec_kinds.insert(0, new_traversal)
+
+        traversal_schema.validate(base_traversal_xml)
