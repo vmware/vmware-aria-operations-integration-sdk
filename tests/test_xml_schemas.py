@@ -10,7 +10,7 @@ from vrealize_operations_integration_sdk.describe import ns
 from lxml import etree
 
 
-class TestSchema:
+class TestDescribe:
 
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
@@ -18,21 +18,6 @@ class TestSchema:
                                                   "vrealize_operations_integration_sdk",
                                                   "adapter_template",
                                                   "describeSchema.xsd"))
-
-    @pytest.fixture(scope="session")
-    def content_xml_schema(self):
-        return xmlschema.XMLSchema11(os.path.join("..",
-                                                  "vrealize_operations_integration_sdk",
-                                                  "adapter_template",
-                                                  "content", "alerts", "alertDefinitionSchema.xsd"))
-
-    @pytest.fixture
-    def modified_content(self):
-        yield etree.parse("res/modified_alert.xml")
-
-    @pytest.fixture
-    def generated_content(self):
-        yield etree.parse("res/generated_alert.xml")
 
     @pytest.fixture
     def base_describe_xml(self):
@@ -51,7 +36,7 @@ class TestSchema:
         tree = xml.ElementTree(root)
         yield tree.getroot()
 
-    def test_valid_xml(self, xml_schema, base_describe_xml):
+    def test_valid_describe_xml(self, xml_schema, base_describe_xml):
         xml_schema.is_valid(base_describe_xml)
 
     def test_invalid_element(self, xml_schema, base_describe_xml):
@@ -106,6 +91,23 @@ class TestSchema:
 
         assert not xml_schema.is_valid(base_describe_xml)
 
+
+class TestAlertsRecommendationsAndSymptoms:
+    @pytest.fixture(scope="session")
+    def content_xml_schema(self):
+        return xmlschema.XMLSchema11(os.path.join("..",
+                                                  "vrealize_operations_integration_sdk",
+                                                  "adapter_template",
+                                                  "content", "alerts", "alertDefinitionSchema.xsd"))
+
+    @pytest.fixture
+    def modified_content(self):
+        yield etree.parse("res/modified_alert.xml")
+
+    @pytest.fixture
+    def generated_content(self):
+        yield etree.parse("res/generated_alert.xml")
+
     def test_valid_content_xml_generated_alert(self, content_xml_schema, generated_content):
         content_xml_schema.validate(generated_content)
 
@@ -142,9 +144,9 @@ class TestSchema:
 
     def test_missing_state_element_from_alert_definition(self, content_xml_schema, generated_content):
         alert_definition = etree.Element("AlertDefinition",
-                                              attrib=dict(adapterKind="TestAdapterKind", description="120",
-                                                          id="AlertDefinition-New", name="New Alert",
-                                                          resourceKind="TestResourceKind", subType="18", type="15"))
+                                         attrib=dict(adapterKind="TestAdapterKind", description="120",
+                                                     id="AlertDefinition-New", name="New Alert",
+                                                     resourceKind="TestResourceKind", subType="18", type="15"))
 
         alert_definitions = generated_content.find("AlertDefinitions")
         alert_definitions.insert(0, alert_definition)
@@ -171,3 +173,15 @@ class TestSchema:
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
             content_xml_schema.validate(generated_content)
         assert "missing required attribute" in str(missing.value)
+
+
+class TestTraversals:
+    @pytest.fixture(scope="session")  # the same XSD for all tests
+    def xml_schema(self):
+        return xmlschema.XMLSchema11(os.path.join("..",
+                                                  "vrealize_operations_integration_sdk",
+                                                  "adapter_template",
+                                                  "describeSchema.xsd"))
+
+    def test_valid_describe_xml(self, xml_schema, base_describe_xml):
+        xml_schema.is_valid(base_describe_xml)
