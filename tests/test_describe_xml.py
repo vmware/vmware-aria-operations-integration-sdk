@@ -28,21 +28,11 @@ class TestSchema:
 
     @pytest.fixture
     def modified_content(self):
-        """
-        This prefix uses a modified xml file that conforms to the standards set by the describeSchema
-        most notably, it uses nameKeys in the Description element, and it does not include a name attribute
-        for the AlertDefinition.
-        :return:
-        """
-        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/modified_alert.xml")
+        yield etree.parse("res/modified_alert.xml")
 
     @pytest.fixture
     def generated_content(self):
-        """
-
-        :return:
-        """
-        yield etree.parse("../vrealize_operations_integration_sdk/adapter_template/content/alerts/generated_alert.xml")
+        yield etree.parse("res/generated_alert.xml")
 
     @pytest.fixture
     def base_describe_xml(self):
