@@ -98,7 +98,7 @@ class TestAlertsRecommendationsAndSymptoms:
         return xmlschema.XMLSchema11(os.path.join("..",
                                                   "vrealize_operations_integration_sdk",
                                                   "adapter_template",
-                                                  "content", "alerts", "alertDefinitionSchema.xsd"))
+                                                  "alertDefinitionSchema.xsd"))
 
     @pytest.fixture
     def modified_content(self):
@@ -181,8 +181,6 @@ class TestTraversals:
         return xmlschema.XMLSchema11(os.path.join("..",
                                                   "vrealize_operations_integration_sdk",
                                                   "adapter_template",
-                                                  "content",
-                                                  "traversal_specs",
                                                   "traversalSpecsSchema.xsd"))
 
     @pytest.fixture

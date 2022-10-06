@@ -220,7 +220,15 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
         dest = os.path.join(path, "conf")
         copy(src, dest)
 
-    #TODO: copy contentSchema.xsd
+    # copy alert definition specs xml schema into conf directory
+    with resources.path(adapter_template, "alertDefinitionSchema.xsd") as src:
+        dest = os.path.join(path, "conf")
+        copy(src, dest)
+
+    # copy traversal specs xml schema into conf directory
+    with resources.path(adapter_template, "traversalSpecsSchema.xsd") as src:
+        dest = os.path.join(path, "conf")
+        copy(src, dest)
 
     # create project structure
     executable_directory_path = build_project_structure(path, manifest["name"], language)
