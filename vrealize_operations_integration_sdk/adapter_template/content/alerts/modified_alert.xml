@@ -21,7 +21,7 @@
     </SymptomDefinitions>
     <Recommendations>
         <Recommendation key="Recommendation-ud-b8f3ad42-51fe-4f28-b51e-bf9ef7358286">
-            <Description>Learn how to make stuff faster please.</Description>
+            <Description nameKey="3"/>
         </Recommendation>
     </Recommendations>
 </alertContent>
