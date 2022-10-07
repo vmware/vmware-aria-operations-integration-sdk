@@ -1,4 +1,4 @@
-FROM vrops-adapter-open-sdk-server:python-0.8.0
+FROM vmware-aria-ops-adapter-open-sdk-server:python-0.8.0
 
 # manual java install to prevent overwriting previous dependencies
 # switch to root in oder to do all installs
@@ -27,4 +27,4 @@ RUN  apt-get update
 RUN apt-get install -y zulu17-ca-jdk-headless #NOTE:maybe we could get away with just having the JRE since the user should provide executables
 
 #switch back to the LPU
-USER vrops-adapter-user
+USER aria-ops-adapter-user

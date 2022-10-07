@@ -88,7 +88,7 @@ def registry_prompt(default):
                   validator=NotEmptyValidator("Host"),
                   description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
                               "three parts: domain, port, and path. For example:\n"
-                              "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vrops-integration-sdk-adapter-server
+                              "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vmware-aria-operations-integration-sdk-adapter-server
                               "domain: projects.registry.vmware.com\n"
                               "port: 443\n"
                               "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"

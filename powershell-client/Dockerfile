@@ -1,4 +1,4 @@
-FROM vrops-adapter-open-sdk-server:python-0.8.0
+FROM vmware-aria-ops-adapter-open-sdk-server:python-0.8.0
 
 # manual powershell install to prevent overwritting previous dependecies
 # switch to root in oder to do all installs
@@ -20,4 +20,4 @@ RUN apt-get update
 RUN apt-get install -y  powershell
 
 #switch back to the LPU
-USER vrops-adapter-user
+USER aria-ops-adapter-user
