@@ -115,7 +115,7 @@
           }
         },
         "operationId": "get-endpointUrls",
-        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aira Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
+        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aria Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -181,7 +181,7 @@
           },
           "isPartOfUniqueness": {
             "type": "boolean",
-            "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aira Operations.",
+            "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.",
             "default": false
           }
         },
