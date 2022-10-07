@@ -7,7 +7,7 @@ import docker
 
 from vrealize_operations_integration_sdk import docker_wrapper
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.constant import VERSION_FILE
+from vrealize_operations_integration_sdk.constant import VERSION_FILE, CONTAINER_BASE_NAME
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
 from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
@@ -65,7 +65,7 @@ def main():
     # as such we assume relative paths will work
     registry_url = get_config_value("registry_url", default="harbor-repo.vmware.com", config_file=VERSION_FILE)
 
-    base_image, secondary_images = get_latest_vrops_container_versions()
+    base_image, secondary_images = get_latest_aria_ops_container_versions()
 
     images_to_build = get_images_to_build(base_image, secondary_images)
 
@@ -108,7 +108,7 @@ def main():
             print(build_error.recommendation)
 
 
-def get_latest_vrops_container_versions() -> (dict, [dict]):
+def get_latest_aria_ops_container_versions() -> (dict, [dict]):
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     base_image: dict = get_config_value("base_image", config_file=VERSION_FILE)
@@ -125,10 +125,10 @@ def build_image(client: docker.client, language: str, version: str, path: str):
     build_path = os.path.join(os.path.realpath(".."), path)
 
     # TODO use Low level API to show user build progress
-    print(f"building {language} image:vrops-adapter-open-sdk-server:{language}-{version}...")
+    print(f"building {language} image:{CONTAINER_BASE_NAME}:{language}-{version}...")
     image, _ = docker_wrapper.build_image(client,
                                           path=build_path,
-                                          tag=f"vrops-adapter-open-sdk-server:{language}-{version}"
+                                          tag=f"{CONTAINER_BASE_NAME}:{language}-{version}"
                                           )
     # TODO try pulling/building base image
 
@@ -140,8 +140,8 @@ def build_image(client: docker.client, language: str, version: str, path: str):
 
 def add_stable_tags(image, language: str, version: str):
     tags = [
-        f"vrops-adapter-open-sdk-server:{language}-{version.split('.')[0]}",
-        f"vrops-adapter-open-sdk-server:{language}-latest"
+        f"{CONTAINER_BASE_NAME}:{language}-{version.split('.')[0]}",
+        f"{CONTAINER_BASE_NAME}:{language}-latest"
     ]
 
     for tag in tags:
