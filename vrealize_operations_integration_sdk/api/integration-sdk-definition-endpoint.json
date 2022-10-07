@@ -1,0 +1,266 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Adapter API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "VMware, Inc"
+    },
+    "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/adapterDefinition": {
+      "get": {
+        "summary": "Retrieve the data model for collection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterDefinition"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "definition",
+        "description": "Get Definition"
+      },
+      "parameters": []
+    }
+  },
+  "components": {
+    "schemas": {
+      "AttributeDefinition": {
+        "type": "object",
+        "title": "Attribute Definition",
+        "description": "Defines an attribute's metadata",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string",
+            "format": "nullable"
+          },
+          "is_rate": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_discrete": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_kpi": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_impact": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_key_attribute": {
+            "type": "boolean",
+            "default": false
+          },
+          "dashboard_order": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data_type": {
+            "type": "string"
+          },
+          "is_property": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CredentialDefinition": {
+        "type": "object",
+        "title": "Credential Definition",
+        "description": "Defines what credential fields are present on a given credential type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "password": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "enum": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "display_order": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "type": {
+                  "type": "string",
+                  "default": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "IdentifierDefinition": {
+        "type": "object",
+        "title": "Identifier Definition",
+        "description": "Defines what identifiers are present on a given object type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "format": "nullable"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          },
+          "ident_type": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "enum": {
+            "type": "boolean",
+            "default": false
+          },
+          "display_order": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "length": {
+            "type": "string",
+            "format": "nullable"
+          },
+          "default": {
+            "type": "string"
+          }
+        }
+      },
+      "GroupDefinition": {
+        "title": "Group Definition",
+        "type": "object",
+        "description": "Definition of a group of attributes and subgroups",
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeDefinition"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupDefinition"
+            }
+          }
+        }
+      },
+      "ObjectDefinition": {
+        "title": "Object Definition",
+        "type": "object",
+        "description": "Definition of an object type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentifierDefinition"
+            }
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeDefinition"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupDefinition"
+            }
+          }
+        }
+      },
+      "AdapterDefinition": {
+        "title": "Adapter Definition",
+        "type": "object",
+        "description": "Definition of the object model returned in CollectResult",
+        "properties": {
+          "adapter_key": {
+            "type": "string"
+          },
+          "adapter_label": {
+            "type": "string"
+          },
+          "describe_version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "adapter_instance": {
+            "$ref": "#/components/schemas/ObjectDefinition"
+          },
+          "credential_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredentialDefinition"
+            }
+          },
+          "object_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectDefinition"
+            }
+          }
+        }
+      }
+    }
+  }
+}
