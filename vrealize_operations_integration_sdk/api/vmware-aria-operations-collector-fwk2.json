@@ -297,7 +297,7 @@
           },
           "notExistingObjects": {
             "type": "array",
-            "description": "Collection of not exisitng objects.",
+            "description": "Collection of not existing objects.",
             "items": {
               "$ref": "#/components/schemas/ObjectKey"
             }
