@@ -21,7 +21,7 @@ def validate_api_response(project, request, response):
             result.with_error(f"Unable to validate the response json. The '{request.url}' endpoint "
                               f"response was: {response.status_code} {response.reason_phrase}")
             return result
-        with resources.path(api, "vrops-collector-fwk2-openapi.json") as schema_file:
+        with resources.path(api, "vmware-aria-operations-collector-fwk2.json") as schema_file:
             with open(schema_file, "r") as schema:
                 try:
                     json_schema = json.load(schema)

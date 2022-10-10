@@ -115,7 +115,7 @@
           }
         },
         "operationId": "get-endpointUrls",
-        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the vRealize Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
+        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aria Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -181,7 +181,7 @@
           },
           "isPartOfUniqueness": {
             "type": "boolean",
-            "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in vRealize Operations.",
+            "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.",
             "default": false
           }
         },
@@ -297,7 +297,7 @@
           },
           "notExistingObjects": {
             "type": "array",
-            "description": "Collection of not exisitng objects.",
+            "description": "Collection of not existing objects.",
             "items": {
               "$ref": "#/components/schemas/ObjectKey"
             }
@@ -324,7 +324,7 @@
           },
           "add": {
             "type": "boolean",
-            "description": "If the value is true, then this relationship will be added to vRealize Operations Manager, if false, this relationship will be removed from vRealize Operations Manager.",
+            "description": "If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.",
             "default": true
           },
           "clearFirst": {
@@ -423,7 +423,7 @@
       "ClusterConnectionInfo": {
         "type": "object",
         "title": "ClusterConnectionInfo",
-        "description": "Represents the connection info to be used by adapter to communicate with vROps Suite API.",
+        "description": "Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.",
         "properties": {
           "userName": {
             "type": "string",
@@ -437,7 +437,7 @@
           },
           "hostName": {
             "type": "string",
-            "description": "Host name for connection to vROps Cluster"
+            "description": "Host name for connection to the VMware Aria Operations Cluster"
           }
         },
         "required": [
