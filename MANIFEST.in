@@ -3,6 +3,3 @@ include vrealize_operations_integration_sdk/adapter_template/traversalSpecsSchem
 include vrealize_operations_integration_sdk/adapter_template/alertDefinitionSchema.xsd
 include vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json
 include vrealize_operations_integration_sdk/api/integration-sdk-definition-endpoint.json
-include vrealize_operations_integration_sdk/container_versions.json
-
-exclude vrealize_operations_integration_sdk/build_images.py
