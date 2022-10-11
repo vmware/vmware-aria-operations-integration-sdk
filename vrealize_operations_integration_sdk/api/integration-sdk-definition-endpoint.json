@@ -54,6 +54,7 @@
           },
           "unit": {
             "type": "string",
+            "required": false,
             "format": "nullable"
           },
           "is_rate": {
@@ -122,6 +123,17 @@
                   "type": "boolean",
                   "default": false
                 },
+                "enum_values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "required": false
+                },
+                "default": {
+                  "type": "string",
+                  "required": false
+                },
                 "display_order": {
                   "type": "integer",
                   "format": "int32"
@@ -148,7 +160,7 @@
           },
           "description": {
             "type": "string",
-            "format": "nullable"
+            "required": false
           },
           "required": {
             "type": "boolean",
@@ -163,6 +175,13 @@
             "type": "boolean",
             "default": false
           },
+          "enum_values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "required": false
+          },
           "display_order": {
             "type": "integer",
             "format": "int32"
@@ -172,10 +191,11 @@
           },
           "length": {
             "type": "string",
-            "format": "nullable"
+            "required": false
           },
           "default": {
-            "type": "string"
+            "type": "string",
+            "required": false
           }
         }
       },
