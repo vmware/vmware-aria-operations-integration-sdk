@@ -4,6 +4,7 @@ import os
 from os import path, environ
 from sys import platform
 
+VERSION_FILE = "container_versions.json"
 CONTAINER_BASE_NAME = "vmware-aria-ops-adapter-open-sdk-server"
 
 if platform == "win32":
