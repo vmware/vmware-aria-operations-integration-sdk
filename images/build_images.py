@@ -11,7 +11,7 @@ from vrealize_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
 from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
-VERSION_FILE = "container_versions.json"
+VERSION_FILE = "../vrealize_operations_integration_sdk/container_versions.json"
 
 
 def update_version(update_type: str, current_version: str) -> str:
