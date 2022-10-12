@@ -88,10 +88,10 @@ def registry_prompt(default):
                   validator=NotEmptyValidator("Host"),
                   description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
                               "three parts: domain, port, and path. For example:\n"
-                              "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk/vmware-aria-operations-integration-sdk-adapter-server breaks into\n"
+                              "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter breaks into\n"
                               "domain: projects.registry.vmware.com\n"
                               "port: 443\n"
-                              "path: vmware_aria_operations_integration_sdk/vmware-aria-operations-integration-sdk-adapter-server\n"
+                              "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
                               "Domain is optional, and defaults to Docker Hub (docker.io)\n"
                               "Port number is optional, and defaults to 443."
                   )
