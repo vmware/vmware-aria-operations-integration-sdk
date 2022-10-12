@@ -3,7 +3,11 @@ info:
   title: Adapter API
   description: The API contract is defined using a standard OpenAPI specification
     to simplify adapter development.
-  contact: {}
+  contact:
+    name: "VMware, Inc"
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
   version: 1.0.0
 servers:
 - url: http://localhost:8080
@@ -66,7 +70,7 @@ paths:
       summary: Retrieve endpoint URLs
       description: This should return a list of properly formed endpoint URL(s) (https://ip
         address) this adapter instance is expected to communicate with. List of URLs
-        will be used for taking advantage of the vRealize Operations Manager certificate
+        will be used for taking advantage of the VMware Aria Operations Manager certificate
         trust system. If the list is empty this means adapter will handle certificates
         manually.
       operationId: get_endpoint_urls
@@ -82,6 +86,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EndpointResults'
+      x-openapi-router-controller: swagger_server.controllers.controller
+  /adapterDefinition:
+    get:
+      summary: Retrieve the data model for collection
+      description: Get Definition
+      operationId: definition
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdapterDefinition'
       x-openapi-router-controller: swagger_server.controllers.controller
 components:
   schemas:
@@ -112,18 +129,23 @@ components:
             resource.
           items:
             $ref: '#/components/schemas/Identifier'
-      description: "Represents a key to uniquely identify a object in the system.\
-        \ A key's\nuniqueness depends on its object kind, adapter kind, and either\
-        \ the\nobject name or additional \"uniqueness\" identifiers.\n\nSee {Identifier}\
-        \ for information about object identifiers.\n\nA object key includes the object\
-        \ name as part of the key's uniqueness if\nit has no identifiers marked as\
-        \ part of uniqueness; otherwise, it includes\nthe identifiers marked as part\
-        \ of uniqueness instead of the object name.\n\nAll components used to determine\
-        \ uniqueness are compared in a case-insensitive way.\n\nThe following shows\
-        \ how to add two objects, by objectKey, to a discovery\nresult.  The first\
-        \ is created with no identifiers.  The second is created\nwith two identifiers,\
-        \ one of which plays a part in uniquely identifying the\nobject and the other\
-        \ which is for informational purposes only."
+      description: |-
+        Represents a key to uniquely identify a object in the system. A key's
+        uniqueness depends on its object kind, adapter kind, and either the
+        object name or additional "uniqueness" identifiers.
+
+        See {Identifier} for information about object identifiers.
+
+        A object key includes the object name as part of the key's uniqueness if
+        it has no identifiers marked as part of uniqueness; otherwise, it includes
+        the identifiers marked as part of uniqueness instead of the object name.
+
+        All components used to determine uniqueness are compared in a case-insensitive way.
+
+        The following shows how to add two objects, by objectKey, to a discovery
+        result.  The first is created with no identifiers.  The second is created
+        with two identifiers, one of which plays a part in uniquely identifying the
+        object and the other which is for informational purposes only.
       example:
         objectKind: objectKind
         adapterKind: adapterKind
@@ -156,7 +178,7 @@ components:
           description: "Flag to indicate whether the identifier should be considered\
             \ for object's uniqueness. If a object has multiple identifiers that are\
             \ part of uniqueness, there can be only one combination of values of those\
-            \ identifiers in vRealize Operations."
+            \ identifiers in VMware Aria Operations."
           default: false
       description: "Stores the adapter object's identifier configuration.\nAn identifier\
         \ can either be an active identifier or an informational identifier.\nAll\
@@ -247,16 +269,17 @@ components:
       properties:
         key:
           type: string
-          description: "Key represents a hierarchical structure for an individual\n\
-            metric. The formation of the metric key is an important part of designing\
-            \ a\ndata feed. Well-formed metric keys will lead to better usability,\
-            \ performance\nand visualization of analytics results, such as root cause\
-            \ analysis.\n\nThe base concepts are as follows:<br>\nA metric key can\
-            \ consist of any number of hierarchical groups. Each hierarchical group\
-            \ can contain\ninstances. The last item in the hierarchy is assumed to\
-            \ be the name of the\nmetric. The hierarchy without instance names represents\
-            \ an attribute that can\nbe collected. If there are no instances, then\
-            \ a metric key and an attribute are one and the same."
+          description: |-
+            Key represents a hierarchical structure for an individual
+            metric. The formation of the metric key is an important part of designing a
+            data feed. Well-formed metric keys will lead to better usability, performance
+            and visualization of analytics results, such as root cause analysis.
+
+            The base concepts are as follows:<br>
+            A metric key can consist of any number of hierarchical groups. Each hierarchical group can contain
+            instances. The last item in the hierarchy is assumed to be the name of the
+            metric. The hierarchy without instance names represents an attribute that can
+            be collected. If there are no instances, then a metric key and an attribute are one and the same.
         numberValue:
           type: number
           description: Current double value.
@@ -280,16 +303,17 @@ components:
       properties:
         key:
           type: string
-          description: "Key represents a hierarchical structure for an individual\n\
-            metric. The formation of the metric key is an important part of designing\
-            \ a\ndata feed. Well-formed metric keys will lead to better usability,\
-            \ performance\nand visualization of analytics results, such as root cause\
-            \ analysis.\n\nThe base concepts are as follows:<br>\nA metric key can\
-            \ consist of any number of hierarchical groups. Each hierarchical group\
-            \ can contain\ninstances. The last item in the hierarchy is assumed to\
-            \ be the name of the\nmetric. The hierarchy without instance names represents\
-            \ an attribute that can\nbe collected. If there are no instances, then\
-            \ a metric key and an attribute are one and the same."
+          description: |-
+            Key represents a hierarchical structure for an individual
+            metric. The formation of the metric key is an important part of designing a
+            data feed. Well-formed metric keys will lead to better usability, performance
+            and visualization of analytics results, such as root cause analysis.
+
+            The base concepts are as follows:<br>
+            A metric key can consist of any number of hierarchical groups. Each hierarchical group can contain
+            instances. The last item in the hierarchy is assumed to be the name of the
+            metric. The hierarchy without instance names represents an attribute that can
+            be collected. If there are no instances, then a metric key and an attribute are one and the same.
         stringValue:
           type: string
           description: Current string value
@@ -326,7 +350,7 @@ components:
             $ref: '#/components/schemas/ObjectRelationship'
         notExistingObjects:
           type: array
-          description: Collection of not exisitng objects.
+          description: Collection of not existing objects.
           items:
             $ref: '#/components/schemas/ObjectKey'
         errorMessage:
@@ -460,8 +484,8 @@ components:
         add:
           type: boolean
           description: "If the value is true, then this relationship will be added\
-            \ to vRealize Operations Manager, if false, this relationship will be\
-            \ removed from vRealize Operations Manager."
+            \ to VMware Aria Operations Manager, if false, this relationship will\
+            \ be removed from VMware Aria Operations Manager."
           default: true
         clearFirst:
           type: boolean
@@ -502,9 +526,9 @@ components:
           $ref: '#/components/schemas/ClusterConnectionInfo'
         certificateConfig:
           $ref: '#/components/schemas/CertificateConfig'
-      description: "Is designed for transferring adapter instance configuration from\
-        \ the Collector to\nAdapter, containing all necessary information about connection\
-        \ parameters, credentials."
+      description: |-
+        Is designed for transferring adapter instance configuration from the Collector to
+        Adapter, containing all necessary information about connection parameters, credentials.
     CredentialConfig:
       title: CredentialConfig
       required:
@@ -568,9 +592,9 @@ components:
           format: password
         hostName:
           type: string
-          description: Host name for connection to vROps Cluster
+          description: Host name for connection to the VMware Aria Operations Cluster
       description: Represents the connection info to be used by adapter to communicate
-        with vROps Suite API.
+        with the VMware Aria Operations Suite API.
     Certificate:
       title: Certificate
       required:
@@ -696,6 +720,433 @@ components:
         endpointUrls:
         - endpointUrls
         - endpointUrls
+    AttributeDefinition:
+      title: Attribute Definition
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        unit:
+          type: string
+          format: nullable
+        is_rate:
+          type: boolean
+          default: false
+        is_discrete:
+          type: boolean
+          default: false
+        is_kpi:
+          type: boolean
+          default: false
+        is_impact:
+          type: boolean
+          default: false
+        is_key_attribute:
+          type: boolean
+          default: false
+        dashboard_order:
+          type: integer
+          format: int32
+        data_type:
+          type: string
+        is_property:
+          type: boolean
+      description: Defines an attribute's metadata
+      example:
+        is_kpi: false
+        unit: unit
+        is_impact: false
+        is_property: true
+        is_discrete: false
+        dashboard_order: 5
+        data_type: data_type
+        is_key_attribute: false
+        label: label
+        key: key
+        is_rate: false
+    CredentialDefinition:
+      title: Credential Definition
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialDefinition_fields'
+      description: Defines what credential fields are present on a given credential
+        type
+      example:
+        label: label
+        fields:
+        - password: false
+          default: default
+          enum_values:
+          - enum_values
+          - enum_values
+          display_order: 5
+          label: label
+          type: string
+          key: key
+          required: true
+          enum: false
+        - password: false
+          default: default
+          enum_values:
+          - enum_values
+          - enum_values
+          display_order: 5
+          label: label
+          type: string
+          key: key
+          required: true
+          enum: false
+        key: key
+    IdentifierDefinition:
+      title: Identifier Definition
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        required:
+          type: boolean
+          default: true
+        ident_type:
+          type: integer
+          format: int32
+          default: 1
+        enum:
+          type: boolean
+          default: false
+        enum_values:
+          type: array
+          items:
+            type: string
+        display_order:
+          type: integer
+          format: int32
+        type:
+          type: string
+        length:
+          type: string
+        default:
+          type: string
+      description: Defines what identifiers are present on a given object type
+      example:
+        default: default
+        enum_values:
+        - enum_values
+        - enum_values
+        display_order: 1
+        length: length
+        description: description
+        label: label
+        ident_type: 6
+        type: type
+        key: key
+        required: true
+        enum: false
+    GroupDefinition:
+      title: Group Definition
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeDefinition'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupDefinition'
+      description: Definition of a group of attributes and subgroups
+      example:
+        groups:
+        - null
+        - null
+        attributes:
+        - null
+        - null
+    ObjectDefinition:
+      title: Object Definition
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierDefinition'
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeDefinition'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupDefinition'
+      description: Definition of an object type
+      example:
+        identifiers:
+        - default: default
+          enum_values:
+          - enum_values
+          - enum_values
+          display_order: 1
+          length: length
+          description: description
+          label: label
+          ident_type: 6
+          type: type
+          key: key
+          required: true
+          enum: false
+        - default: default
+          enum_values:
+          - enum_values
+          - enum_values
+          display_order: 1
+          length: length
+          description: description
+          label: label
+          ident_type: 6
+          type: type
+          key: key
+          required: true
+          enum: false
+        groups:
+        - groups:
+          - null
+          - null
+          attributes:
+          - null
+          - null
+        - groups:
+          - null
+          - null
+          attributes:
+          - null
+          - null
+        attributes:
+        - is_kpi: false
+          unit: unit
+          is_impact: false
+          is_property: true
+          is_discrete: false
+          dashboard_order: 5
+          data_type: data_type
+          is_key_attribute: false
+          label: label
+          key: key
+          is_rate: false
+        - is_kpi: false
+          unit: unit
+          is_impact: false
+          is_property: true
+          is_discrete: false
+          dashboard_order: 5
+          data_type: data_type
+          is_key_attribute: false
+          label: label
+          key: key
+          is_rate: false
+        label: label
+        key: key
+    AdapterDefinition:
+      title: Adapter Definition
+      type: object
+      properties:
+        adapter_key:
+          type: string
+        adapter_label:
+          type: string
+        describe_version:
+          type: integer
+          format: int32
+        adapter_instance:
+          $ref: '#/components/schemas/ObjectDefinition'
+        credential_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialDefinition'
+        object_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectDefinition'
+      description: Definition of the object model returned in CollectResult
+      example:
+        object_types:
+        - null
+        - null
+        adapter_instance:
+          identifiers:
+          - default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 1
+            length: length
+            description: description
+            label: label
+            ident_type: 6
+            type: type
+            key: key
+            required: true
+            enum: false
+          - default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 1
+            length: length
+            description: description
+            label: label
+            ident_type: 6
+            type: type
+            key: key
+            required: true
+            enum: false
+          groups:
+          - groups:
+            - null
+            - null
+            attributes:
+            - null
+            - null
+          - groups:
+            - null
+            - null
+            attributes:
+            - null
+            - null
+          attributes:
+          - is_kpi: false
+            unit: unit
+            is_impact: false
+            is_property: true
+            is_discrete: false
+            dashboard_order: 5
+            data_type: data_type
+            is_key_attribute: false
+            label: label
+            key: key
+            is_rate: false
+          - is_kpi: false
+            unit: unit
+            is_impact: false
+            is_property: true
+            is_discrete: false
+            dashboard_order: 5
+            data_type: data_type
+            is_key_attribute: false
+            label: label
+            key: key
+            is_rate: false
+          label: label
+          key: key
+        adapter_key: adapter_key
+        describe_version: 0
+        adapter_label: adapter_label
+        credential_types:
+        - label: label
+          fields:
+          - password: false
+            default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 5
+            label: label
+            type: string
+            key: key
+            required: true
+            enum: false
+          - password: false
+            default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 5
+            label: label
+            type: string
+            key: key
+            required: true
+            enum: false
+          key: key
+        - label: label
+          fields:
+          - password: false
+            default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 5
+            label: label
+            type: string
+            key: key
+            required: true
+            enum: false
+          - password: false
+            default: default
+            enum_values:
+            - enum_values
+            - enum_values
+            display_order: 5
+            label: label
+            type: string
+            key: key
+            required: true
+            enum: false
+          key: key
+    CredentialDefinition_fields:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        required:
+          type: boolean
+          default: true
+        password:
+          type: boolean
+          default: false
+        enum:
+          type: boolean
+          default: false
+        enum_values:
+          type: array
+          items:
+            type: string
+        default:
+          type: string
+        display_order:
+          type: integer
+          format: int32
+        type:
+          type: string
+          default: string
+      example:
+        password: false
+        default: default
+        enum_values:
+        - enum_values
+        - enum_values
+        display_order: 5
+        label: label
+        type: string
+        key: key
+        required: true
+        enum: false
   securitySchemes: {}
   links: {}
   callbacks: {}

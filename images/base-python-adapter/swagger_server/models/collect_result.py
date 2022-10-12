@@ -111,7 +111,7 @@ class CollectResult(Model):
     def not_existing_objects(self) -> List[ObjectKey]:
         """Gets the not_existing_objects of this CollectResult.
 
-        Collection of not exisitng objects.  # noqa: E501
+        Collection of not existing objects.  # noqa: E501
 
         :return: The not_existing_objects of this CollectResult.
         :rtype: List[ObjectKey]
@@ -122,7 +122,7 @@ class CollectResult(Model):
     def not_existing_objects(self, not_existing_objects: List[ObjectKey]):
         """Sets the not_existing_objects of this CollectResult.
 
-        Collection of not exisitng objects.  # noqa: E501
+        Collection of not existing objects.  # noqa: E501
 
         :param not_existing_objects: The not_existing_objects of this CollectResult.
         :type not_existing_objects: List[ObjectKey]

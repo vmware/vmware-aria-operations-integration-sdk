@@ -39,9 +39,21 @@ def collect(body=None):  # noqa: E501
         return "No body in request", 400
 
     command = getcommand("collect")
-    environment = create_env(body)
 
-    return runcommand(command, body, environment, 200)
+    return runcommand(command, body, 200)
+
+
+def definition():
+    """Get Adapter Definition
+
+    Trigger an adapter definition request # noqa: E501
+
+    :rtype: AdapterDefinition
+    """
+    logger.info("Request: definition")
+
+    command = getcommand("definition")
+    return runcommand(command)
 
 
 def test(body=None):  # noqa: E501
@@ -63,9 +75,8 @@ def test(body=None):  # noqa: E501
         return "No body in request", 400
 
     command = getcommand("test")
-    environment = create_env(body)
 
-    return runcommand(command, body, environment, 200)
+    return runcommand(command, body, 200)
 
 
 def api_version():  # noqa: E501
@@ -105,9 +116,8 @@ def get_endpoint_urls(body=None):  # noqa: E501
         return "No body in request", 400
 
     command = getcommand("endpoint_urls")
-    environment = create_env(body)
 
-    return runcommand(command, body, environment, 200)
+    return runcommand(command, body, 200)
 
 
 def getcommand(commandtype):
@@ -118,24 +128,7 @@ def getcommand(commandtype):
     return command.split(" ")
 
 
-def create_env(body: AdapterConfig):
-    logger.debug("Creating environment")
-
-    env = dict()
-    env["ADAPTER_KIND"] = body.adapter_key.adapter_kind
-    env["ADAPTER_INSTANCE_OBJECT_KIND"] = body.adapter_key.object_kind
-
-    for identifier in body.adapter_key.identifiers:
-        env[identifier.key.upper()] = identifier.value
-
-    if body.credential_config:
-        for credential_field in body.credential_config.credential_fields:
-            env[f"CREDENTIAL_{credential_field.key.upper()}"] = credential_field.value
-
-    return env
-
-
-def runcommand(command, body: AdapterConfig, environment=None, good_response_code=200):
+def runcommand(command, body: AdapterConfig = None, good_response_code=200):
     logger.debug(f"Running command {repr(command)}")
     dir = tempfile.mkdtemp()
     # These are named from the perspective of the subprocess. We write the subprocess input to the input pipe
@@ -156,7 +149,7 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
         os.mkfifo(output_pipe)
         logger.debug("Finished making pipes")
         process = subprocess.Popen(command + [input_pipe, output_pipe], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   universal_newlines=True, env=environment)
+                                   universal_newlines=True)
         logger.debug(f"Started process {process.args}")
     except OSError as e:
         logger.debug(f"Failed to create pipe {input_pipe} or {output_pipe}: {e}")
@@ -206,18 +199,18 @@ def runcommand(command, body: AdapterConfig, environment=None, good_response_cod
 
 def write_adapter_instance(body, input_pipe):
     try:
-        body_dict = body.to_dict()
+        body_dict = body.to_dict() if body else {}
 
         with open(input_pipe, "w") as fifo:
             logger.debug("Opened input pipe for writing")
             json.dump(body_dict, fifo)
 
-        logger.debug(f"Wrote adapter instance to input pipe {input_pipe}:")
-
-        # Don't log sensitive information!
-        body_dict["credential_config"] = "REDACTED"
-        body_dict["cluster_connection_info"] = "REDACTED"
-        logger.debug(f"{json.dumps(body_dict, indent=3)}")
+        if body:
+            logger.debug(f"Wrote adapter instance to input pipe {input_pipe}:")
+            # Don't log sensitive information!
+            body_dict["credential_config"] = "REDACTED"
+            body_dict["cluster_connection_info"] = "REDACTED"
+            logger.debug(f"{json.dumps(body_dict, indent=3)}")
 
     except Exception as e:
         logger.warning(f"Unknown server error when writing adapter instance to input pipe {input_pipe}: {e}")

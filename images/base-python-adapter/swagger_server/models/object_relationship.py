@@ -109,7 +109,7 @@ class ObjectRelationship(Model):
     def add(self) -> bool:
         """Gets the add of this ObjectRelationship.
 
-        If the value is true, then this relationship will be added to vRealize Operations Manager, if false, this relationship will be removed from vRealize Operations Manager.  # noqa: E501
+        If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.  # noqa: E501
 
         :return: The add of this ObjectRelationship.
         :rtype: bool
@@ -120,7 +120,7 @@ class ObjectRelationship(Model):
     def add(self, add: bool):
         """Sets the add of this ObjectRelationship.
 
-        If the value is true, then this relationship will be added to vRealize Operations Manager, if false, this relationship will be removed from vRealize Operations Manager.  # noqa: E501
+        If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.  # noqa: E501
 
         :param add: The add of this ObjectRelationship.
         :type add: bool
