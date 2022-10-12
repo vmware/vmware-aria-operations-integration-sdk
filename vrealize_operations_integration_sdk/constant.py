@@ -5,7 +5,7 @@ from os import path, environ
 from sys import platform
 
 VERSION_FILE = "container_versions.json"
-CONTAINER_BASE_NAME = "vmware-aria-ops-adapter-open-sdk-server"
+CONTAINER_BASE_NAME = "base-adapter"
 
 if platform == "win32":
     CONFIG_DIRECTORY = path.join(environ.get("LocalAppData", "."), "VMware", "vROps Integration SDK")

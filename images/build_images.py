@@ -65,7 +65,7 @@ def main():
     client = init()
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
-    registry_url = get_config_value("registry_url", default="projects.registry.vmware.com/vrops_integration_sdk", config_file=VERSION_FILE)
+    registry_url = get_config_value("registry_url", default="projects.registry.vmware.com/vmware_aria_operations_integration_sdk", config_file=VERSION_FILE)
 
     base_image, secondary_images = get_latest_aria_ops_container_versions()
 

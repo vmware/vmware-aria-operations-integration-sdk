@@ -349,7 +349,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
             f"tools/build_images.py\n")
         dockerfile.write(
-            f"FROM projects.registry.vmware.com/vrops_integration_sdk/{CONTAINER_BASE_NAME}:{language}-{version}\n")
+            f"FROM projects.registry.vmware.com/vmware_aria_operations_integration_sdk/{CONTAINER_BASE_NAME}:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:

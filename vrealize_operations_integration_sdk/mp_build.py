@@ -88,10 +88,10 @@ def registry_prompt(default):
                   validator=NotEmptyValidator("Host"),
                   description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
                               "three parts: domain, port, and path. For example:\n"
-                              "projects.registry.vmware.com:443/vrops_integration_sdk/vrops-adapter-open-sdk-server breaks into\n"  # TODO: change the name of the vrops repo to vmware-aria-operations-integration-sdk-adapter-server
+                              "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk/vmware-aria-operations-integration-sdk-adapter-server breaks into\n"
                               "domain: projects.registry.vmware.com\n"
                               "port: 443\n"
-                              "path: vrops_integration_sdk/vrops-adapter-open-sdk-server\n"
+                              "path: vmware_aria_operations_integration_sdk/vmware-aria-operations-integration-sdk-adapter-server\n"
                               "Domain is optional, and defaults to Docker Hub (docker.io)\n"
                               "Port number is optional, and defaults to 443."
                   )
@@ -105,7 +105,7 @@ def get_docker_registry(adapter_kind_key, config_file):
         print("mp-build needs to configure a Docker registry to store the adapter container image.",
               "class:information")
         docker_registry = registry_prompt(
-            default=f"harbor-repo.vmware.com/vrops_integration_sdk_mps/{adapter_kind_key.lower()}")
+            default=f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}")
 
     first_time = True
     while not is_valid_registry(docker_registry):
