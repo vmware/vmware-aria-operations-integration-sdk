@@ -52,8 +52,14 @@ def definition():
     """
     logger.info("Request: definition")
 
-    command = getcommand("definition")
-    return runcommand(command)
+    command = getcommand("adapter_definition")
+    message, code = runcommand(command)
+    if message == "No result from adapter":
+        # Special case for this endpoint, since a definition endpoint is not required
+        # If we get a 204 error, that is a signal to use a manually-generated describe.xml file
+        # if it exists, or generate a temporary stub xml file if it does not.
+        return json.loads("{}"), 204
+    return message, code
 
 
 def test(body=None):  # noqa: E501
