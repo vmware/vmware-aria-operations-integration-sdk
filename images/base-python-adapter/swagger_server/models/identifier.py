@@ -105,7 +105,7 @@ class Identifier(Model):
     def is_part_of_uniqueness(self) -> bool:
         """Gets the is_part_of_uniqueness of this Identifier.
 
-        Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in vRealize Operations.  # noqa: E501
+        Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.  # noqa: E501
 
         :return: The is_part_of_uniqueness of this Identifier.
         :rtype: bool
@@ -116,7 +116,7 @@ class Identifier(Model):
     def is_part_of_uniqueness(self, is_part_of_uniqueness: bool):
         """Sets the is_part_of_uniqueness of this Identifier.
 
-        Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in vRealize Operations.  # noqa: E501
+        Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.  # noqa: E501
 
         :param is_part_of_uniqueness: The is_part_of_uniqueness of this Identifier.
         :type is_part_of_uniqueness: bool

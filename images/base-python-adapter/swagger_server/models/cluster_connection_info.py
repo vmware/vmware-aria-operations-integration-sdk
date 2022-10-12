@@ -105,7 +105,7 @@ class ClusterConnectionInfo(Model):
     def host_name(self) -> str:
         """Gets the host_name of this ClusterConnectionInfo.
 
-        Host name for connection to vROps Cluster  # noqa: E501
+        Host name for connection to the VMware Aria Operations Cluster  # noqa: E501
 
         :return: The host_name of this ClusterConnectionInfo.
         :rtype: str
@@ -116,7 +116,7 @@ class ClusterConnectionInfo(Model):
     def host_name(self, host_name: str):
         """Sets the host_name of this ClusterConnectionInfo.
 
-        Host name for connection to vROps Cluster  # noqa: E501
+        Host name for connection to the VMware Aria Operations Cluster  # noqa: E501
 
         :param host_name: The host_name of this ClusterConnectionInfo.
         :type host_name: str
