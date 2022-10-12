@@ -72,7 +72,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
         "name": adapter_key,
         "description": "DESCRIPTION",
         "version": "1.0.0",
-        "vcops_minimum_version": "8.7.2",
+        "vcops_minimum_version": "8.10.0",
         "disk_space_required": 500,
         "run_scripts_on_all_nodes": "true",
         "eula_file": eula_file,

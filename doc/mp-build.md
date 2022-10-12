@@ -103,7 +103,7 @@ All logs can be seen in the command line, but they are also saved in  `logs/buil
 
 If the pak file installs successfully but errors when creating an account (adapter instance), check that:
 * The Collector/Group the MP is running on is a Cloud Proxy, and
-* Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.7.1 and later.
+* Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.10.0 and later.
 
 ### Registry Permissions (Beta)
 To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
