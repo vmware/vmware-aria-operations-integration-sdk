@@ -7,7 +7,8 @@ import docker
 
 from vrealize_operations_integration_sdk import docker_wrapper
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.constant import CONTAINER_BASE_NAME
+from vrealize_operations_integration_sdk.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
+    CONTAINER_REGISTRY_HOST
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
 from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
@@ -65,7 +66,7 @@ def main():
     client = init()
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
-    registry_url = get_config_value("registry_url", default="projects.registry.vmware.com/vmware_aria_operations_integration_sdk", config_file=VERSION_FILE)
+    registry_url = get_config_value("registry_url", default=f"{CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}", config_file=VERSION_FILE)
 
     base_image, secondary_images = get_latest_aria_ops_container_versions()
 

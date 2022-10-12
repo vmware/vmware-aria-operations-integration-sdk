@@ -6,6 +6,8 @@ from sys import platform
 
 VERSION_FILE = "container_versions.json"
 CONTAINER_BASE_NAME = "base-adapter"
+CONTAINER_REGISTRY_PATH = "vmware_aria_operations_integration_sdk"
+CONTAINER_REGISTRY_HOST = "projects.registry.vmware.com"
 
 if platform == "win32":
     CONFIG_DIRECTORY = path.join(environ.get("LocalAppData", "."), "VMware", "vROps Integration SDK")
