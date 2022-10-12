@@ -10,7 +10,8 @@ from typing import Tuple, Optional
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.ui import Table
-from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
+from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response, \
+    validate_definition_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
 from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
     validate_endpoint
@@ -176,6 +177,26 @@ def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
     if "/" in url:
         url, _ = url.split("/", maxsplit=1)
     return url, port
+
+
+class AdapterDefinitionBundle(ResponseBundle):
+    def __init__(self, request, response, duration, container_statistics):
+        super().__init__(request, response, duration, container_statistics, [validate_definition_api_response])
+
+    def __repr__(self):
+        if not self.failed():
+            if self.response.status_code == 204:
+                _str = "No adapter definition returned.\n\n"
+            else:
+                _str = json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n\n"
+        else:
+            _str = f"Failed: {self.get_failure_message()}\n\n"
+
+        if self.response.status_code != 500:  # Allows the error message to be highlighted
+            _str += str(self.container_statistics.get_table()) + "\n"
+            _str += f"Request completed in {self.duration:0.2f} seconds.\n"
+
+        return _str
 
 
 class VersionBundle(ResponseBundle):

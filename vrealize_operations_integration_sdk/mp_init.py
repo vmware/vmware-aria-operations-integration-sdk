@@ -232,7 +232,7 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
         copy(src, dest)
 
     # create project structure
-    executable_directory_path = build_project_structure(path, manifest["name"], language)
+    executable_directory_path = build_project_structure(path, adapter_key, name, language)
 
     # create Dockerfile
     create_dockerfile(language, path, executable_directory_path)
@@ -380,10 +380,11 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
         commands.write("[Commands]\n")
         commands.write(f"test={command_and_executable} test\n")
         commands.write(f"collect={command_and_executable} collect\n")
+        commands.write(f"adapter_definition={command_and_executable} adapter_definition\n")
         commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
 
 
-def build_project_structure(path: str, adapter_kind: str, language: str):
+def build_project_structure(path: str, adapter_kind: str, name: str, language: str):
     logger.info("generating project structure")
     project_directory = ''  # this is where all the source code will reside
 
@@ -407,6 +408,7 @@ def build_project_structure(path: str, adapter_kind: str, language: str):
 
         with open(os.path.join(path, project_directory, "constants.py"), "w") as constants:
             constants.write(f'ADAPTER_KIND = "{adapter_kind}"')
+            constants.write(f'ADAPTER_NAME = "{name}"')
 
     if language == "java":
         # TODO: copy a java class instead of generate it

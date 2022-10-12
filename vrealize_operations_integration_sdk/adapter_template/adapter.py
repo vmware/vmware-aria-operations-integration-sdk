@@ -7,9 +7,12 @@ import sys
 
 import psutil
 
-from constants import ADAPTER_KIND
+from vrops.definition.group import Group
+from constants import ADAPTER_KIND, ADAPTER_NAME
 from vrops.adapter_instance import AdapterInstance
 from vrops.attribute import Property, Metric
+from vrops.definition.adapter_definition import AdapterDefinition
+from vrops.definition.units import Units
 from vrops.result import EndpointResult, CollectResult, TestResult
 
 logger = logging.getLogger(__name__)
@@ -147,6 +150,49 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
         return result
 
 
+def get_adapter_definition() -> AdapterDefinition:
+    """
+    The adapter definition defines the object types and attribute types (metric/property) that are present
+    in a collection. Setting these object types and attribute types
+    :return: AdapterDefinition
+    """
+    definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
+
+    definition.define_string_parameter("ID",
+                                       label="ID",
+                                       description="Example identifier. Using a value of 'bad' will cause "
+                                                   "test connection to fail; any other value will pass.",
+                                       required=True)
+    # The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
+    # determine how much memory to allocate to the docker container running this adapter. It does not
+    # need to be read inside the adapter code.
+    definition.define_int_parameter("container_memory_limit",
+                                    label="Adapter Memory Limit (MB)",
+                                    description="Sets the maximum amount of memory VMware Aria Operations can "
+                                                "allocate to the container running this adapter instance.u",
+                                    required=True,
+                                    advanced=True,
+                                    default=1024)
+
+    cpu = definition.define_object_type("cpu", "CPU")
+    cpu.define_numeric_property("cpu_count", "CPU Count", is_discrete=True)
+    cpu.define_metric("user_time", "User Time", Units.TIME.SECONDS)
+    cpu.define_metric("nice_time", "Nice Time", Units.TIME.SECONDS, is_key_attribute=True)
+    cpu.define_metric("system_time", "System Time", Units.TIME.SECONDS)
+    cpu.define_metric("idle_time", "Idle Time", Units.TIME.SECONDS)
+
+    disk = definition.define_object_type("disk", "Disk")
+    disk.define_string_property("partition", "Partition")
+    disk.define_metric("total_space", "Total Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
+    disk.define_metric("used_space", "Used Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
+    disk.define_metric("free_space", "Free Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
+    disk.define_metric("percent_used_space", "Disk Utilization", unit=Units.RATIO.PERCENT, is_key_attribute=True)
+
+    system = definition.define_object_type("system", "System")
+
+    return definition
+
+
 # Main entry point of the adapter. You should not need to modify anything below this line.
 def main(argv):
     try:
@@ -166,14 +212,24 @@ def main(argv):
         exit(1)
 
     method = argv[0]
-    adapter_instance = AdapterInstance.from_input()
 
     if method == "test":
-        test(adapter_instance).send_results()
+        test(AdapterInstance.from_input()).send_results()
     elif method == "endpoint_urls":
-        get_endpoints(adapter_instance).send_results()
+        get_endpoints(AdapterInstance.from_input()).send_results()
     elif method == "collect":
-        collect(adapter_instance).send_results()
+        collect(AdapterInstance.from_input()).send_results()
+    elif method == "adapter_definition":
+        print(dir())
+        # if "get_adapter_definition" in dir():
+        result = get_adapter_definition()
+        if type(result) is AdapterDefinition:
+            result.send_results()
+        else:
+            logger.info("get_adapter_definition method did not return an AdapterDefinition")
+        # else:
+        #     logger.info("get_adapter_definition method is not defined")
+        exit(1)
     else:
         logger.debug(f"Command {method} not found")
         exit(1)
