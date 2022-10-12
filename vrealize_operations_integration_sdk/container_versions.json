@@ -4,7 +4,7 @@
         "path": "base-python-adapter",
         "version": "0.8.0"
     },
-    "registry_url": "projects.registry.vmware.com/vrops_integration_sdk",
+    "registry_url": "projects.registry.vmware.com/vmware_aria_operations_integration_sdk",
     "secondary_images": [
         {
             "language": "Java",

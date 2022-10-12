@@ -12,7 +12,8 @@ from git import Repo
 
 from vrealize_operations_integration_sdk import adapter_template
 from vrealize_operations_integration_sdk.adapter_template import java, powershell
-from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME
+from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME, \
+    CONTAINER_REGISTRY_PATH, CONTAINER_REGISTRY_HOST
 from vrealize_operations_integration_sdk.filesystem import mkdir, rmdir
 from vrealize_operations_integration_sdk.project import Project, record_project
 from vrealize_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
@@ -349,7 +350,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
             f"tools/build_images.py\n")
         dockerfile.write(
-            f"FROM projects.registry.vmware.com/vrops_integration_sdk/{CONTAINER_BASE_NAME}:{language}-{version}\n")
+            f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
 
         if "python" in language:
