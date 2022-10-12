@@ -2,6 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
+import sys
 from collections import OrderedDict
 
 from vrops.definition.assertions import validate_key
@@ -10,6 +11,7 @@ from vrops.definition.exceptions import KeyException, DuplicateKeyException
 from vrops.definition.group import GroupType
 from vrops.definition.object_type import ObjectType
 from vrops.definition.parameter import StringParameter, IntParameter, EnumParameter, Parameter
+from vrops.pipe_utils import write_to_pipe
 
 
 class AdapterDefinition(GroupType):
@@ -71,6 +73,14 @@ class AdapterDefinition(GroupType):
             "credential_types": [credential_type.to_json() for credential_type in self.credentials.values()],
             "object_types": [object_type.to_json() for object_type in self.object_types.values()]
         }
+
+    def send_results(self, output_pipe=sys.argv[-1]) -> None:
+        """Opens the output pipe and sends results directly back to the server
+
+        This method can only be called once per server request.
+        """
+        # The server always invokes methods with the output file as the last argument
+        write_to_pipe(output_pipe, self.to_json())
 
     def define_string_parameter(self, key: str, label: str = None, description: str = None, default: str = None,
                                 required: bool = True, advanced: bool = False):
