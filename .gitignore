@@ -8,19 +8,19 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-http-server/env/
-http-server/build/
-http-server/develop-eggs/
-http-server/dist/
-http-server/downloads/
-http-server/eggs/
-http-server/.eggs/
-http-server/lib/
-http-server/lib64/
-http-server/parts/
-http-server/sdist/
-http-server/var/
-http-server/.installed.cfg
+images/base-python-adapter/env/
+images/base-python-adapter/build/
+images/base-python-adapter/develop-eggs/
+images/base-python-adapter/dist/
+images/base-python-adapter/downloads/
+images/base-python-adapter/eggs/
+images/base-python-adapter/.eggs/
+images/base-python-adapter/lib/
+images/base-python-adapter/lib64/
+images/base-python-adapter/parts/
+images/base-python-adapter/sdist/
+images/base-python-adapter/var/
+images/base-python-adapter/.installed.cfg
 lib/python/dist
 *.egg-info/
 *.egg
@@ -32,21 +32,21 @@ lib/python/dist
 *.spec
 
 # Installer logs
-http-server/pip-log.txt
-http-server/pip-delete-this-directory.txt
+images/base-python-adapter/pip-log.txt
+images/base-python-adapter/pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-http-server/htmlcov/
-http-server/.tox/
-http-server/.coverage
-http-server/.coverage.*
-http-server/.cache
-http-server/nosetests.xml
-http-server/coverage.xml
+images/base-python-adapter/htmlcov/
+images/base-python-adapter/.tox/
+images/base-python-adapter/.coverage
+images/base-python-adapter/.coverage.*
+images/base-python-adapter/.cache
+images/base-python-adapter/nosetests.xml
+images/base-python-adapter/coverage.xml
 *,cover
-http-server/.hypothesis/
-http-server/venv/
-http-server/.python-version
+images/base-python-adapter/.hypothesis/
+images/base-python-adapter/venv/
+images/base-python-adapter/.python-version
 
 # Translations
 *.mo
@@ -56,13 +56,13 @@ http-server/.python-version
 *.log
 
 # Sphinx documentation
-http-server/docs/_build/
+images/base-python-adapter/docs/_build/
 
 # PyBuilder
-http-server/target/
+images/base-python-adapter/target/
 
 #Ipython Notebook
-http-server/.ipynb_checkpoints
+images/base-python-adapter/.ipynb_checkpoints
 
 #IntelliJ project
 .idea
