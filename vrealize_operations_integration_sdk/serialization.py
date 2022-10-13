@@ -112,6 +112,7 @@ class LongCollectionBundle:
         self.collection_bundles.append(collection_bundle)
 
 
+
 class ConnectBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
         super().__init__(request, response, duration, container_statistics, [validate_api_response])
@@ -119,7 +120,8 @@ class ConnectBundle(ResponseBundle):
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_api_response, validate_endpoint_urls])
+        super().__init__(request, response, duration, container_statistics,
+                         [validate_api_response, validate_endpoint_urls])
 
     def retrieve_certificates(self):
         if not self.response.is_success:

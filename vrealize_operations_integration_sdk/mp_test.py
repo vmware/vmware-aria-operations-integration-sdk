@@ -3,9 +3,9 @@
 
 import argparse
 import asyncio
-import json
 import logging
 import os
+import pickle
 import time
 import traceback
 import xml.etree.ElementTree as ET
@@ -17,19 +17,21 @@ from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
+from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
-from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
+from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
     EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
+from vrealize_operations_integration_sdk.stats import get_growth_rate
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -101,12 +103,14 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     return long_collection_bundle
 
 
-async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
+async def run_collect(timeout, project, connection, adapter_container, title="Running Collect",
+                      **kwargs) -> CollectionBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
-                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             COLLECT_ENDPOINT)
             return CollectionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
@@ -115,11 +119,13 @@ async def run_connect(timeout, project, connection, adapter_container, title="Ru
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
-                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             CONNECT_ENDPOINT)
             return ConnectBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
+async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs",
+                                **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -218,6 +224,8 @@ async def run(arguments):
                       project,
                       os.path.join(project.path, "logs", "validation.log"),
                       verbosity)
+    elif type(result_bundle) is LongCollectionBundle:
+        ui_highlight(result_bundle, os.path.join(project.path, "logs", "highlights.log"), verbosity)
 
 
 def get_method(arguments):
@@ -256,7 +264,25 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
-# TODO: move this to UI
+def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_path: str, verbosity: str):
+    long_collection_stats = LongCollectionStatistics(long_collection_bundle.collection_bundles,
+                                                     long_collection_bundle.collection_interval)
+
+    # Highlight condition
+    objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
+                           object_type, stats in
+                           long_collection_stats.long_object_type_statistics.items()
+                           if get_growth_rate(stats.objects_stats.data_points) > 0]
+
+    logger.debug("object growth")
+    if len(objects_with_growth):
+        for obj_type, growth in objects_with_growth:
+            logger.debug(f"Object of type {obj_type} displayed growth of {growth}")
+    else:
+        logger.debug("no growth detected")
+
+
+# TODO: a new file inside of the validation module
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:

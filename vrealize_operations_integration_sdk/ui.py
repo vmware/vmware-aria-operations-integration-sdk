@@ -21,7 +21,7 @@ from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Frame, TextArea
 
-from vrealize_operations_integration_sdk.threading import threaded
+from vrealize_operations_integration_sdk.threading_temp_name import threaded
 
 style = Style.from_dict({
     # Prompts
@@ -263,11 +263,11 @@ def prompt(message, *args, description="", **kwargs) -> str:
     session: PromptSession[str] = PromptSession()
 
     return session.prompt(
-                    message, *args, **kwargs,
-                    bottom_toolbar=description,
-                    lexer=SimpleLexer('class:answer'),
-                    style=style,
-                    in_thread=True)
+        message, *args, **kwargs,
+        bottom_toolbar=description,
+        lexer=SimpleLexer('class:answer'),
+        style=style,
+        in_thread=True)
 
 
 class Spinner(FormattedTextControl):
@@ -337,6 +337,7 @@ class Spinner(FormattedTextControl):
         @bindings.add("c-d", eager=True)
         def _(event):
             event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
+
         return bindings
 
 
@@ -345,7 +346,6 @@ def countdown(duration, message=""):
     remaining = ""
     try:
         while time.time() < end_time:
-
             remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
             print(f"{message}{remaining}", end="\r")
             time.sleep(.2)
@@ -379,3 +379,10 @@ class Table:
             output += formatting.format(*row) + "\n"
 
         return output
+
+
+# TODO: write highlight class
+class Highlight:
+    def __init__(self, bundle, condition):
+
+        pass

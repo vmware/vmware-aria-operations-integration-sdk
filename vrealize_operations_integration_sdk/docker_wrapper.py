@@ -14,7 +14,7 @@ from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
 from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
-from vrealize_operations_integration_sdk.threading import threaded
+from vrealize_operations_integration_sdk.threading_temp_name import threaded
 from vrealize_operations_integration_sdk.ui import Table, Spinner
 
 
