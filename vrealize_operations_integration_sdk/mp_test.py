@@ -274,10 +274,17 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
                            long_collection_stats.long_object_type_statistics.items()
                            if get_growth_rate(stats.objects_stats.data_points) > 0]
 
+    # Calculate growth threshold
+    num_collections = len(long_collection_bundle.collection_bundles)
+    # We calculate the growth rate of a new object every 4 collections
+    growth_threshold = ((1 + (num_collections / 4)) ** (1/num_collections) - 1) * 100
+
+
     logger.debug("object growth")
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
-            logger.debug(f"Object of type {obj_type} displayed growth of {growth}")
+            if growth_threshold < growth:
+                logger.debug(f"Object of type {obj_type} displayed growth of {growth}")
     else:
         logger.debug("no growth detected")
 
