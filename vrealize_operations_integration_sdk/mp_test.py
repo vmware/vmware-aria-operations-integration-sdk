@@ -268,7 +268,7 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
     long_collection_stats = LongCollectionStatistics(long_collection_bundle.collection_bundles,
                                                      long_collection_bundle.collection_interval)
 
-    # Highlight condition
+    # Highlight condition / filter objects_types with object growth
     objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
                            object_type, stats in
                            long_collection_stats.long_object_type_statistics.items()
@@ -277,14 +277,15 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
     # Calculate growth threshold
     num_collections = len(long_collection_bundle.collection_bundles)
     # We calculate the growth rate of a new object every 4 collections
-    growth_threshold = ((1 + (num_collections / 4)) ** (1/num_collections) - 1) * 100
+    growth_threshold = ((1 + (num_collections / 4)) ** (1 / num_collections) - 1) * 100
 
-
-    logger.debug("object growth")
+    logger.info("Highlights")
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
             if growth_threshold < growth:
-                logger.debug(f"Object of type {obj_type} displayed growth of {growth}")
+                logger.info(f"Object of type {obj_type} displayed growth of {growth}")
+                logger.info("Persistent object growth over time may lead to high storage and memory usage in VMware "
+                            "Aria Operations")
     else:
         logger.debug("no growth detected")
 

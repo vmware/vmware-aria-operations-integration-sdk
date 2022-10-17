@@ -112,7 +112,6 @@ class LongCollectionBundle:
         self.collection_bundles.append(collection_bundle)
 
 
-
 class ConnectBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
         super().__init__(request, response, duration, container_statistics, [validate_api_response])
