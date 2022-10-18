@@ -11,10 +11,10 @@ This example uses the [Connexion](https://github.com/zalando/connexion) library 
 Python 3.5.2+
 
 ## Regenerate the server
-To regenerate the server, from the repository root directory, update the swagger api json file
-in `vrealize_operations_integration_sdk/api` and run the following command:
+To regenerate the server, from the repository root directory, update the swagger api json file (s)
+in `vrealize_operations_integration_sdk/api` and run the following command from the `images` directory:
 ```
-docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli-v3 generate -i local/vrealize_operations_integration_sdk/api/vrops-collector-fwk2-openapi.json -l python-flask -o local/http-server
+python3 update-base-python-adapter-server.py
 ```
 
 ## Usage
