@@ -32,7 +32,7 @@ def login(docker_registry):
 def init():
     """ Tries to establish a connection with the docker daemon via unix socket.
 
-    If the connection fails, the error message is parsed to find a coomon error message that could inidicate that the
+    If the connection fails, the error message is parsed to find a common error message that could indicate that the
     daemon isn't running.
     If the message does not match the common error message, then the error is appended to another
     error message.
