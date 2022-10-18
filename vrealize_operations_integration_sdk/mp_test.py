@@ -265,29 +265,54 @@ def ui_validation(result, project, validation_file_path, verbosity):
 
 
 def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_path: str, verbosity: str):
+    """
+    Scenario 1: individual objects of a mame type are collected, but their identifier keeps changing which
+    causes for there to always be the same number of objects, each collection, but overall there is object  growth
+    overtime.
+
+    Scenario 2: Every collection returns more and more objects overtime
+    :param long_collection_bundle: The bundle contains all information about the long collection including its stats
+    :param highlight_file_path: In case we want to save the highlights in a file
+    :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
+    """
     long_collection_stats = LongCollectionStatistics(long_collection_bundle.collection_bundles,
                                                      long_collection_bundle.collection_interval)
 
-    # Highlight condition / filter objects_types with object growth
+    # Highlight condition / filter objects_types with object growth to asses scenario # 1
     objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
                            object_type, stats in
                            long_collection_stats.long_object_type_statistics.items()
                            if get_growth_rate(stats.objects_stats.data_points) > 0]
 
+    # get overall object growth rate in order to asses scenario # 2
+    # find first successful collection and count number of objects
+    unique_object_per_collection = [0] * len(long_collection_stats.collection_bundles)
+    unique_object_per_collection[0] = len(long_collection_stats.collection_bundles[0]
+                                          .get_collection_statistics().obj_type_statistics)
+    unique_object_per_collection[-1] = len(long_collection_stats.long_object_type_statistics)
+
+    overall_growth = get_growth_rate(unique_object_per_collection)
+
     # Calculate growth threshold
     num_collections = len(long_collection_bundle.collection_bundles)
     # We calculate the growth rate of a new object every 4 collections
-    growth_threshold = ((1 + (num_collections / 4)) ** (1 / num_collections) - 1) * 100
+    growth_threshold = (((
+                (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
+                                    1 / num_collections) - 1) * 100
 
     logger.info("Highlights")
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
-            if growth_threshold < growth:
+            if growth > growth_threshold:
                 logger.info(f"Object of type {obj_type} displayed growth of {growth}")
                 logger.info("Persistent object growth over time may lead to high storage and memory usage in VMware "
                             "Aria Operations")
     else:
-        logger.debug("no growth detected")
+        if overall_growth > growth_threshold:
+            logger.info(f"There is an overall unique object growth overtime, which may lead to high memory usage in "
+                        f"in VMware Aria Operations")
+        else:
+            logger.debug("No object growth detected")
 
 
 # TODO: a new file inside of the validation module
