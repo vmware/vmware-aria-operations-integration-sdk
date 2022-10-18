@@ -399,7 +399,7 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
                                " repository.\n")
             requirements.write("--extra-index-url https://testpypi.python.org/pypi\n")
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vrops-integration==0.0.*\n")
+            requirements.write("vmware-aria-operations-integration-sdk-lib==0.3.*\n")
 
         # copy adapter.py into app directory
         with resources.path(adapter_template, "adapter.py") as src:
