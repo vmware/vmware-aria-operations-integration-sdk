@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from abc import ABC
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.exceptions import DuplicateKeyException
 
 
 class Parameter(ABC):

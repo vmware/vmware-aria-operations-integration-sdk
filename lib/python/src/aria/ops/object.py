@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-__author__ = 'VMware, Inc.'
-__copyright__ = 'Copyright 2022 VMware, Inc. All rights reserved.'
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
 import copy
 from typing import Optional
 
-from vrops.attribute import Metric, Property
-from vrops.event import Event
+from aria.ops.attribute import Metric, Property
+from aria.ops.event import Event
 
 
 class Key:

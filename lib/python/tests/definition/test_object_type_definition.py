@@ -2,9 +2,9 @@
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from vrops.definition.exceptions import KeyException, DuplicateKeyException
-from vrops.definition.object_type import ObjectType
-from vrops.definition.parameter import IntParameter, StringParameter
+from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.object_type import ObjectType
+from aria.ops.definition.parameter import IntParameter, StringParameter
 
 
 def test_object_type_definition_default_label():

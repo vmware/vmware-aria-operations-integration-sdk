@@ -2,12 +2,12 @@
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from vrops.definition.adapter_definition import AdapterDefinition
-from vrops.definition.attribute import PropertyAttribute, MetricAttribute
-from vrops.definition.exceptions import KeyException, DuplicateKeyException
-from vrops.definition.group import Group
-from vrops.definition.object_type import ObjectType
-from vrops.definition.units import Units
+from aria.ops.definition.adapter_definition import AdapterDefinition
+from aria.ops.definition.attribute import PropertyAttribute, MetricAttribute
+from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.group import Group
+from aria.ops.definition.object_type import ObjectType
+from aria.ops.definition.units import Units
 
 
 def test_group_definition_default_label():

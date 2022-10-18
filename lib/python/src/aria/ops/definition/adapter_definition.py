@@ -5,13 +5,13 @@ from __future__ import annotations
 import sys
 from collections import OrderedDict
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.credential_type import CredentialType
-from vrops.definition.exceptions import KeyException, DuplicateKeyException
-from vrops.definition.group import GroupType
-from vrops.definition.object_type import ObjectType
-from vrops.definition.parameter import StringParameter, IntParameter, EnumParameter, Parameter
-from vrops.pipe_utils import write_to_pipe
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.credential_type import CredentialType
+from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.group import GroupType
+from aria.ops.definition.object_type import ObjectType
+from aria.ops.definition.parameter import StringParameter, IntParameter, EnumParameter, Parameter
+from aria.ops.pipe_utils import write_to_pipe
 
 
 class AdapterDefinition(GroupType):
