@@ -6,7 +6,7 @@ from __future__ import annotations
 import copy
 from typing import Optional
 
-from aria.ops.attribute import Metric, Property
+from aria.ops.data import Metric, Property
 from aria.ops.event import Event
 
 

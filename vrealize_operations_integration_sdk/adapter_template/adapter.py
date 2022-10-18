@@ -8,7 +8,7 @@ import psutil
 
 from constants import ADAPTER_KIND
 from aria.ops.adapter_instance import AdapterInstance
-from aria.ops.attribute import Property, Metric
+from aria.ops.data import Property, Metric
 from aria.ops.result import EndpointResult, CollectResult, TestResult
 
 logger = logging.getLogger(__name__)
