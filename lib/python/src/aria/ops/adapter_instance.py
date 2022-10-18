@@ -3,9 +3,9 @@
 
 import sys
 
-from vrops.object import Key, Identifier, Object
-from vrops.pipe_utils import read_from_pipe
-from vrops.suite_api_client import VROpsSuiteApiClient, SuiteApiConnectionParameters
+from aria.ops.object import Key, Identifier, Object
+from aria.ops.pipe_utils import read_from_pipe
+from aria.ops.suite_api_client import VROpsSuiteApiClient, SuiteApiConnectionParameters
 
 
 class AdapterInstance(Object):

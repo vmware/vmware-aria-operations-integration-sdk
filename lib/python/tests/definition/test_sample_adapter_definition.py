@@ -1,8 +1,8 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-from vrops.definition.adapter_definition import AdapterDefinition
-from vrops.definition.group import Group
-from vrops.definition.units import *
+from aria.ops.definition.adapter_definition import AdapterDefinition
+from aria.ops.definition.group import Group
+from aria.ops.definition.units import Units
 from pprint import pprint
 
 

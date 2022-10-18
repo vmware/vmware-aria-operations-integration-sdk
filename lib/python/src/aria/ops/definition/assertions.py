@@ -1,6 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-from vrops.definition.exceptions import KeyException
+from aria.ops.definition.exceptions import KeyException
 
 
 def validate_key(key: str, context: str) -> str:

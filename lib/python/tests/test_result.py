@@ -1,6 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-from vrops import result
+from aria.ops import result
 
 
 def test_empty_test_result():

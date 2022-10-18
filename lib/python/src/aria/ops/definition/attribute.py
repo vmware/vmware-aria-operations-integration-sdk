@@ -2,8 +2,8 @@
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.units import Unit
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.units import Unit
 
 
 class Attribute(ABC):

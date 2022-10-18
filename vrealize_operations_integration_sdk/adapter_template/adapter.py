@@ -2,18 +2,17 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 import sys
 
 import psutil
 
-from vrops.definition.group import Group
+from aria.ops.definition.group import Group
 from constants import ADAPTER_KIND, ADAPTER_NAME
-from vrops.adapter_instance import AdapterInstance
-from vrops.attribute import Property, Metric
-from vrops.definition.adapter_definition import AdapterDefinition
-from vrops.definition.units import Units
-from vrops.result import EndpointResult, CollectResult, TestResult
+from aria.ops.adapter_instance import AdapterInstance
+from aria.ops.attribute import Property, Metric
+from aria.ops.definition.adapter_definition import AdapterDefinition
+from aria.ops.definition.units import Units
+from aria.ops.result import EndpointResult, CollectResult, TestResult
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +152,8 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
 def get_adapter_definition() -> AdapterDefinition:
     """
     The adapter definition defines the object types and attribute types (metric/property) that are present
-    in a collection. Setting these object types and attribute types
+    in a collection. Setting these object types and attribute types helps VMware Aria Operations to 
+    validate, process, and display the data correctly.
     :return: AdapterDefinition
     """
     definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)

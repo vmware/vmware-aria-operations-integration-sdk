@@ -3,8 +3,8 @@
 from abc import ABC
 from collections import OrderedDict
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.exceptions import DuplicateKeyException
 
 
 class CredentialParameter(ABC):

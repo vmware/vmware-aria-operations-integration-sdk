@@ -2,7 +2,6 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from xml.etree.ElementTree import Element, SubElement
 
 from aenum import Enum, skip
 
