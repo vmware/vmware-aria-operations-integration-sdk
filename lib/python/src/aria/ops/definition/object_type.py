@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.exceptions import DuplicateKeyException
-from vrops.definition.group import GroupType
-from vrops.definition.parameter import EnumParameter, IntParameter, StringParameter, Parameter
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.group import GroupType
+from aria.ops.definition.parameter import EnumParameter, IntParameter, StringParameter, Parameter
 
 
 class ObjectType(GroupType):

@@ -2,10 +2,10 @@
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from vrops.definition.adapter_definition import AdapterDefinition
-from vrops.definition.credential_type import CredentialStringParameter, CredentialPasswordParameter, CredentialType
-from vrops.definition.exceptions import KeyException, DuplicateKeyException
-from vrops.definition.object_type import ObjectType
+from aria.ops.definition.adapter_definition import AdapterDefinition
+from aria.ops.definition.credential_type import CredentialStringParameter, CredentialPasswordParameter, CredentialType
+from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.object_type import ObjectType
 
 
 def test_adapter_definition_default_label():

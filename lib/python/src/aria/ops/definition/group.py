@@ -5,10 +5,10 @@ from __future__ import annotations
 from abc import ABC
 from collections import OrderedDict
 
-from vrops.definition.assertions import validate_key
-from vrops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
-from vrops.definition.exceptions import DuplicateKeyException
-from vrops.definition.units import Unit
+from aria.ops.definition.assertions import validate_key
+from aria.ops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.units import Unit
 
 
 class GroupType(ABC):
