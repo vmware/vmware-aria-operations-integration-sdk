@@ -7,13 +7,13 @@ Installing
 ---------
 To install this package locally, run the following command:
 ```
-pip install -i https://test.pypi.org/simple/ vrops-integration
+pip install -i https://test.pypi.org/simple/ vmware-aria-operations-integration-sdk-lib
 ```
 
 To install this package in an adapter container, add the following line to the `adapter_requirements.txt` file, 
 substituting `x.y.z` for the desired version of the library.
 ```
-vrops-integration==x.y.z
+vmware-aria-operations-integration-sdk-lib==x.y.z
 ```
 
 Releasing
@@ -34,12 +34,12 @@ https://packaging.python.org/en/latest/tutorials/packaging-projects/
 1. Upload to PyPi For testing:
    ```
    python3 -m twine upload --repository testpypi dist/*
-   python3 -m pip install --index-url https://test.pypi.org/simple/ vrops-integration-x.y.z --no-deps
+   python3 -m pip install --index-url https://test.pypi.org/simple/ vmware-aria-operations-integration-sdk-lib-x.y.z --no-deps
    ```
    For distribution:
    ```
    python3 -m twine upload dist/*
-   python3 -m pip install vrops-integration-x.y.z
+   python3 -m pip install vmware-aria-operations-integration-sdk-lib-x.y.z
    ```
    In both cases, use `__token__` for the username, and paste the token (including `pypi-` prefix) as password
 

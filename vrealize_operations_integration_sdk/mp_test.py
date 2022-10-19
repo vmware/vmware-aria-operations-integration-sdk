@@ -18,7 +18,7 @@ from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
-    CONNECT_ENDPOINT, COLLECT_ENDPOINT
+    CONNECT_ENDPOINT, COLLECT_ENDPOINT, ADAPTER_DEFINITION_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
@@ -29,7 +29,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle, AdapterDefinitionBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -127,6 +127,15 @@ async def run_get_endpoint_urls(timeout, project, connection, adapter_container,
                 request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
                                                                              ENDPOINTS_URLS_ENDPOINT)
             return EndpointURLsBundle(request, response, elapsed_time, adapter_container.stats)
+
+
+async def run_get_adapter_definition(timeout, project, connection, adapter_container, title="Running Adapter Definition", **kwargs):
+    await adapter_container.wait_for_container_startup()
+    with Spinner(title):
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            async with await adapter_container.record_stats():
+                request, response, elapsed_time = await send_get_to_adapter(client, ADAPTER_DEFINITION_ENDPOINT)
+            return AdapterDefinitionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
 async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
@@ -230,6 +239,7 @@ def get_method(arguments):
          (run_collect, "Collect"),
          (run_long_collect, "Long Run Collection"),
          (run_get_endpoint_urls, "Endpoint URLs"),
+         (run_get_adapter_definition, "Adapter Definition"),
          (run_get_server_version, "Version")])
 
 
@@ -431,6 +441,14 @@ def main():
     url_method = methods.add_parser("endpoint_urls",
                                     help="Simulate the 'endpoint_urls' method being called by the VMware Aria Operations collector.")
     url_method.set_defaults(func=run_get_endpoint_urls)
+    url_method.add_argument("-t", "--timeout",
+                            help="Timeout limit for REST request performed.",
+                            type=str, default="30s")
+
+    # URL Endpoints method
+    url_method = methods.add_parser("adapter_definition",
+                                    help="Simulate the 'adapterDefinition' method being called by the mp-build tool to generate a describe.xml file.")
+    url_method.set_defaults(func=run_get_adapter_definition)
     url_method.add_argument("-t", "--timeout",
                             help="Timeout limit for REST request performed.",
                             type=str, default="30s")
