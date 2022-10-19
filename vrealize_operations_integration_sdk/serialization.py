@@ -104,9 +104,18 @@ class LongCollectionBundle:
     def __init__(self, collection_interval):
         self.collection_bundles = list()
         self.collection_interval = collection_interval
+        self._long_collection_statistics = None
 
     def __repr__(self):
         return repr(LongCollectionStatistics(self.collection_bundles, self.collection_interval))
+
+    def get_stats(self) -> LongCollectionStatistics:
+        # TODO write lazy function logic to compute stats
+        if self._long_collection_statistics is not None:
+            return self._long_collection_statistics
+        # self.long_collection_statistics = result from calculations
+
+        pass
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)

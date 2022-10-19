@@ -217,6 +217,7 @@ async def run(arguments):
         await adapter_container.stop()
 
     # TODO: Add UI code here
+    # calculate_stats() ->all stats_object
     logger.info(result_bundle)
     if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
@@ -299,20 +300,19 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
     growth_threshold = (((
                 (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
                                     1 / num_collections) - 1) * 100
+    highlight = ""
 
-    logger.info("Highlights")
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
             if growth > growth_threshold:
-                logger.info(f"Object of type {obj_type} displayed growth of {growth}")
-                logger.info("Persistent object growth over time may lead to high storage and memory usage in VMware "
-                            "Aria Operations")
+                highlight = f"Object of type {obj_type} displayed growth of {growth:.2f}"
     else:
         if overall_growth > growth_threshold:
-            logger.info(f"There is an overall unique object growth overtime, which may lead to high memory usage in "
-                        f"in VMware Aria Operations")
+            highlight = f"There is an overall unique object growth overtime, which may lead to high memory usage in VMware Aria Operations"
         else:
-            logger.debug("No object growth detected")
+            highlight = "No object growth detected"
+
+    return highlight
 
 
 # TODO: a new file inside of the validation module
