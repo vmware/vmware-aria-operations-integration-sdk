@@ -306,6 +306,8 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
         for obj_type, growth in objects_with_growth:
             if growth > growth_threshold:
                 highlight = f"Object of type {obj_type} displayed growth of {growth:.2f}"
+            else:
+                highlight = f"Object of type {obj_type} displayed negligible growth ({growth:.2f})"
     else:
         if overall_growth > growth_threshold:
             highlight = f"There is an overall unique object growth overtime, which may lead to high memory usage in VMware Aria Operations"
