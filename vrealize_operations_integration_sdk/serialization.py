@@ -7,6 +7,7 @@ import ssl
 import time
 from typing import Tuple, Optional
 
+from util import LazyAttribute
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
@@ -81,7 +82,7 @@ class CollectionBundle(ResponseBundle):
         self.collection_number = 1
         self.time_stamp = time.time()
 
-    #TODO: write lazy function
+    # TODO: write lazy function
     def get_collection_statistics(self):
         return None if self.failed() else CollectionStatistics(json.loads(self.response.text))
 
@@ -108,12 +109,9 @@ class LongCollectionBundle:
     def __repr__(self):
         return repr(self.long_collection_statistics)
 
-    @property
+    @LazyAttribute
     def long_collection_statistics(self) -> LongCollectionStatistics:
-        if not hasattr(self, "_calculated_stats"):
-            self._calculated_stats = LongCollectionStatistics(self.collection_bundles, self.collection_interval)
-
-        return self._calculated_stats
+        return LongCollectionStatistics(self.collection_bundles, self.collection_interval)
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)
