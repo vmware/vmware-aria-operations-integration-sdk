@@ -61,6 +61,7 @@ class LongObjectTypeStatistics:
         self.relationships_stats.add(unique_relationships, len(unique_relationships))
         self.string_property_values_stats.add(_object.get_unique_string_property_values(), 0)
 
+    # TODO: change signature to lazy function
     def get_growth_rates(self):
         return [f"{get_growth_rate(self.objects_stats.data_points):.2f} %",
                 f"{get_growth_rate(self.metrics_stats.data_points):.2f} %",
@@ -184,7 +185,8 @@ class ObjectTypeStatistics:
 class LongCollectionStatistics:
     def __init__(self, collection_bundle_list, collection_interval):
         self.collection_interval = collection_interval
-        self.collection_bundles = list()
+        self.collection_bundles = list()  # This is a duplicated from LongCollectionBundle
+        self.total_number_of_collections = len(collection_bundle_list)
         self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)

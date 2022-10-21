@@ -70,7 +70,7 @@ class TestHighlights:
             collection_bundle.collection_number = collection
             normal_collection.add(collection_bundle)
 
-        highlight = ui_highlight(normal_collection, "file_name.txt", "verbosity")
+        highlight = ui_highlight(normal_collection.long_collection_statistics, "file_name.txt", "verbosity")
         assert "No object growth detected" in highlight
 
     def test_highlight_for_growing_unique_objects(self):
@@ -91,7 +91,7 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}"
 
-        highlight = ui_highlight(growing_unique_objects_overtime, "file_name.txt", "verbosity")
+        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object of type HighlightsMP::Growing Object displayed growth of 25.89" in highlight
 
     def test_highlight_for_growing_unique_objects_two(self):
@@ -113,7 +113,7 @@ class TestHighlights:
             if collection % 3 == 0:
                 _json["result"][0]["key"]["name"] = f"{collection}"
 
-        highlight = ui_highlight(growing_unique_objects_overtime, "file_name.txt", "verbosity")
+        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object of type HighlightsMP::Growing Object displayed growth of 3.59" in highlight
 
     def test_highlight_for_growing_unique_objects_with_low_object_growth(self):
@@ -134,7 +134,7 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 4 == 0 else "same_object"
 
-        highlight = ui_highlight(growing_unique_objects_overtime, "file_name.txt", "verbosity")
+        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object displayed growth of 17.46" in highlight
 
     def test_no_highlight_for_growing_unique_objects_with_low_object_growth(self):
@@ -155,7 +155,7 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 9 == 0 else "same_object"
 
-        highlight = ui_highlight(growing_unique_objects_overtime, "file_name.txt", "verbosity")
+        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object of type HighlightsMP::Growing Object displayed negligible growth (2.60)" in highlight
 
     def test_highlight_for_high_number_of_growing_objects_per_collection(self):
@@ -177,7 +177,7 @@ class TestHighlights:
             new_object["key"]["name"] = f"{collection}"
             _json["result"].append(new_object)
 
-        highlight = ui_highlight(increasing_number_of_objects_per_collection, "file_name.txt", "verbosity")
+        highlight = ui_highlight(increasing_number_of_objects_per_collection.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object displayed growth of 25.89" in highlight
 
     def test_no_highlight_for_high_number_of_growing_objects_per_collection(self):
@@ -200,5 +200,5 @@ class TestHighlights:
                 new_object["key"]["name"] = f"{collection}"
                 _json["result"].append(new_object)
 
-        highlight = ui_highlight(increasing_number_of_objects_per_collection, "file_name.txt", "verbosity")
+        highlight = ui_highlight(increasing_number_of_objects_per_collection.long_collection_statistics, "file_name.txt", "verbosity")
         assert "Object of type HighlightsMP::Growing Object displayed negligible growth (2.52)" in highlight

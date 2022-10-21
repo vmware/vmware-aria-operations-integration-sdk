@@ -54,6 +54,7 @@ def get_average(inputs: list):
     return sum(inputs) / len(inputs)
 
 
+# TODO: change signature to initial, final, and size
 def get_growth_rate(inputs: list):
     present = inputs[-1]
     past = inputs[0]
@@ -76,4 +77,3 @@ class UniqueObjectTypeStatistics:
         self.running_collection.update(unique_items)
         self.data_points.append(len(self.running_collection))
         self.counts.append(total_items)
-

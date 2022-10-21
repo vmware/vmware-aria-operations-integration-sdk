@@ -5,7 +5,6 @@ import argparse
 import asyncio
 import logging
 import os
-import pickle
 import time
 import traceback
 import xml.etree.ElementTree as ET
@@ -17,7 +16,6 @@ from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
-from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -226,7 +224,7 @@ async def run(arguments):
                       os.path.join(project.path, "logs", "validation.log"),
                       verbosity)
     elif type(result_bundle) is LongCollectionBundle:
-        ui_highlight(result_bundle, os.path.join(project.path, "logs", "highlights.log"), verbosity)
+        ui_highlight(result_bundle.long_collection_statistics, os.path.join(project.path, "logs", "highlights.log"), verbosity)
 
 
 def get_method(arguments):
@@ -265,19 +263,17 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
-def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_path: str, verbosity: str):
+def ui_highlight(long_collection_stats, highlight_file_path: str, verbosity: str):
     """
     Scenario 1: individual objects of a mame type are collected, but their identifier keeps changing which
     causes for there to always be the same number of objects, each collection, but overall there is object  growth
     overtime.
 
     Scenario 2: Every collection returns more and more objects overtime
-    :param long_collection_bundle: The bundle contains all information about the long collection including its stats
+    :param long_collection_stats:  Contains all the long collections statistics necessary to generate highliights
     :param highlight_file_path: In case we want to save the highlights in a file
     :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
     """
-    long_collection_stats = LongCollectionStatistics(long_collection_bundle.collection_bundles,
-                                                     long_collection_bundle.collection_interval)
 
     # Highlight condition / filter objects_types with object growth to asses scenario # 1
     objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
@@ -287,7 +283,7 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
 
     # get overall object growth rate in order to asses scenario # 2
     # find first successful collection and count number of objects
-    unique_object_per_collection = [0] * len(long_collection_stats.collection_bundles)
+    unique_object_per_collection = [0] * long_collection_stats.total_number_of_collections
     unique_object_per_collection[0] = len(long_collection_stats.collection_bundles[0]
                                           .get_collection_statistics().obj_type_statistics)
     unique_object_per_collection[-1] = len(long_collection_stats.long_object_type_statistics)
@@ -295,7 +291,7 @@ def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_pa
     overall_growth = get_growth_rate(unique_object_per_collection)
 
     # Calculate growth threshold
-    num_collections = len(long_collection_bundle.collection_bundles)
+    num_collections = long_collection_stats.total_number_of_collections
     # We calculate the growth rate of a new object every 4 collections
     growth_threshold = (((
                 (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (

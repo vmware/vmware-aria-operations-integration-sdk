@@ -9,7 +9,6 @@ from typing import Tuple, Optional
 
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.ui import Table
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
 from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
@@ -82,6 +81,7 @@ class CollectionBundle(ResponseBundle):
         self.collection_number = 1
         self.time_stamp = time.time()
 
+    #TODO: write lazy function
     def get_collection_statistics(self):
         return None if self.failed() else CollectionStatistics(json.loads(self.response.text))
 
@@ -104,18 +104,16 @@ class LongCollectionBundle:
     def __init__(self, collection_interval):
         self.collection_bundles = list()
         self.collection_interval = collection_interval
-        self._long_collection_statistics = None
 
     def __repr__(self):
-        return repr(LongCollectionStatistics(self.collection_bundles, self.collection_interval))
+        return repr(self.long_collection_statistics)
 
-    def get_stats(self) -> LongCollectionStatistics:
-        # TODO write lazy function logic to compute stats
-        if self._long_collection_statistics is not None:
-            return self._long_collection_statistics
-        # self.long_collection_statistics = result from calculations
+    @property
+    def long_collection_statistics(self) -> LongCollectionStatistics:
+        if not hasattr(self, "_calculated_stats"):
+            self._calculated_stats = LongCollectionStatistics(self.collection_bundles, self.collection_interval)
 
-        pass
+        return self._calculated_stats
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)
