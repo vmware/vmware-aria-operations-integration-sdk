@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 
+from util import LazyAttribute
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 from vrealize_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
@@ -61,14 +62,13 @@ class LongObjectTypeStatistics:
         self.relationships_stats.add(unique_relationships, len(unique_relationships))
         self.string_property_values_stats.add(_object.get_unique_string_property_values(), 0)
 
-    # TODO: change signature to lazy function
     def get_growth_rates(self):
-        return [f"{get_growth_rate(self.objects_stats.data_points):.2f} %",
-                f"{get_growth_rate(self.metrics_stats.data_points):.2f} %",
-                f"{get_growth_rate(self.properties_stats.data_points):.2f} %",
-                f"{get_growth_rate(self.string_property_values_stats.data_points):.2f} %",
-                f"{get_growth_rate(self.events_stats.data_points):.2f} %",
-                f"{get_growth_rate(self.relationships_stats.data_points):.2f} %"]
+        return [f"{self.objects_growth_rate:.2f} %",
+                f"{self.metrics_growth_rate:.2f} %",
+                f"{self.properties_growth_rate:.2f} %",
+                f"{self.string_properties_growth_rate:.2f} %",
+                f"{self.events_growth_rate:.2f} %",
+                f"{self.relationships_growth_rate:.2f} %"]
 
     def get_summary(self):
         return {
@@ -78,6 +78,30 @@ class LongObjectTypeStatistics:
             "properties": LongRunStats(self.properties_stats.counts),
             "relationships": LongRunStats(self.relationships_stats.counts),
         }
+
+    @LazyAttribute
+    def objects_growth_rate(self):
+        return get_growth_rate(self.objects_stats.data_points)
+
+    @LazyAttribute
+    def metrics_growth_rate(self):
+        return get_growth_rate(self.metrics_stats.data_points)
+
+    @LazyAttribute
+    def properties_growth_rate(self):
+        return get_growth_rate(self.properties_stats.data_points)
+
+    @LazyAttribute
+    def string_properties_growth_rate(self):
+        return get_growth_rate(self.string_property_values_stats.data_points)
+
+    @LazyAttribute
+    def events_growth_rate(self):
+        return get_growth_rate(self.events_stats.data_points)
+
+    @LazyAttribute
+    def relationships_growth_rate(self):
+        return get_growth_rate(self.relationships_stats.data_points)
 
 
 class ObjectTypeStatistics:
