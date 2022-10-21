@@ -219,12 +219,13 @@ async def run(arguments):
     logger.info(result_bundle)
     if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
-        ui_validation(result_bundle.validate(project),
-                      project,
-                      os.path.join(project.path, "logs", "validation.log"),
-                      verbosity)
+        display_ui(result_bundle.validate(project),
+                   os.path.join(project.path, "logs", "validation.log"),
+                   verbosity)
     elif type(result_bundle) is LongCollectionBundle:
-        ui_highlight(result_bundle.long_collection_statistics, os.path.join(project.path, "logs", "highlights.log"), verbosity)
+        display_ui(result_bundle.long_collection_statistics.highlight(),
+                   os.path.join(project.path, "logs", "highlight.log"),
+                   verbosity)
 
 
 def get_method(arguments):
@@ -241,7 +242,7 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def ui_validation(result, project, validation_file_path, verbosity):
+def display_ui(result, validation_file_path, verbosity):
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -250,7 +251,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
-    validation_file_path = os.path.join(project.path, "logs", "validation.log")
     write_validation_log(validation_file_path, result)
 
     if len(result.messages) > 0:
@@ -261,56 +261,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.warning(f"Found {result.warning_count} warnings when validating response")
     if result.error_count + result.warning_count == 0:
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
-
-
-def ui_highlight(long_collection_stats, highlight_file_path: str, verbosity: str):
-    """
-    Scenario 1: individual objects of a mame type are collected, but their identifier keeps changing which
-    causes for there to always be the same number of objects, each collection, but overall there is object  growth
-    overtime.
-
-    Scenario 2: Every collection returns more and more objects overtime
-    :param long_collection_stats:  Contains all the long collections statistics necessary to generate highliights
-    :param highlight_file_path: In case we want to save the highlights in a file
-    :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
-    """
-
-    # Highlight condition / filter objects_types with object growth to asses scenario # 1
-    objects_with_growth = [(object_type, stats.objects_growth_rate) for
-                           object_type, stats in
-                           long_collection_stats.long_object_type_statistics.items()
-                           if stats.objects_growth_rate > 0]
-
-    # get overall object growth rate in order to asses scenario # 2
-    # find first successful collection and count number of objects
-    unique_object_per_collection = [0] * long_collection_stats.total_number_of_collections
-    unique_object_per_collection[0] = len(long_collection_stats.collection_bundles[0]
-                                          .get_collection_statistics().obj_type_statistics)
-    unique_object_per_collection[-1] = len(long_collection_stats.long_object_type_statistics)
-
-    overall_growth = get_growth_rate(unique_object_per_collection)
-
-    # Calculate growth threshold
-    num_collections = long_collection_stats.total_number_of_collections
-    # We calculate the growth rate of a new object every 4 collections
-    growth_threshold = (((
-                (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
-                                    1 / num_collections) - 1) * 100
-    highlight = ""
-
-    if len(objects_with_growth):
-        for obj_type, growth in objects_with_growth:
-            if growth > growth_threshold:
-                highlight = f"Object of type {obj_type} displayed growth of {growth:.2f}"
-            else:
-                highlight = f"Object of type {obj_type} displayed negligible growth ({growth:.2f})"
-    else:
-        if overall_growth > growth_threshold:
-            highlight = f"There is an overall unique object growth overtime, which may lead to high memory usage in VMware Aria Operations"
-        else:
-            highlight = "No object growth detected"
-
-    return highlight
 
 
 # TODO: a new file inside of the validation module

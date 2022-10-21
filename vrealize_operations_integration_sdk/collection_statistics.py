@@ -4,6 +4,7 @@
 from collections import defaultdict
 
 from util import LazyAttribute
+from validation.result import Result
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 from vrealize_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
@@ -222,7 +223,53 @@ class LongCollectionStatistics:
             for object_type, object_type_stat in statistics.obj_type_statistics.items():
                 self.long_object_type_statistics[object_type].add(object_type_stat)
 
-    def __repr__(self):
+    def highlight(self) -> [str]:
+        """
+        Scenario 1: individual objects of the same type are collected, but their identifier keeps changing which
+        causes for there to always be the same number of objects, each collection, but overall there is object  growth
+        overtime.
+
+        Scenario 2: Every collection returns more and more objects overtime
+        :param long_collection_stats:  Contains all the long collections statistics necessary to generate highliights
+        :param highlight_file_path: In case we want to save the highlights in a file
+        :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
+        """
+        # Highlight condition / filter objects_types with object growth to asses scenario # 1
+        objects_with_growth = [(object_type, stats.objects_growth_rate) for
+                               object_type, stats in
+                               self.long_object_type_statistics.items()
+                               if stats.objects_growth_rate > 0]
+
+        # get overall object growth rate in order to asses scenario # 2
+        # find first successful collection and count number of objects
+        unique_object_per_collection = [0] * self.total_number_of_collections
+        unique_object_per_collection[0] = len(self.collection_bundles[0]
+                                              .get_collection_statistics().obj_type_statistics)
+        unique_object_per_collection[-1] = len(self.long_object_type_statistics)
+
+        # Calculate growth threshold
+        num_collections = self.total_number_of_collections
+        # We calculate the growth rate of a new object every 4 collections
+        growth_threshold = (((
+                (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
+                                    1 / num_collections) - 1) * 100
+
+        highlights = Result()
+
+        if len(objects_with_growth):
+            for obj_type, growth in objects_with_growth:
+                if growth > growth_threshold:
+                    new_result = Result()
+                    new_result.with_error(f"Object of type {obj_type} displayed growth of {growth:.2f}")
+                    highlights += new_result
+                else:
+                    new_result = Result()
+                    new_result.with_warning(f"Object of type {obj_type} displayed negligible growth ({growth:.2f})")
+                    highlights += new_result
+
+        return highlights
+
+    def __str__(self):
         headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
                    "Event Growth", "Relationship Growth"]
         data = []
@@ -275,6 +322,9 @@ class LongCollectionStatistics:
             summary += "\n" + f"{len(longer_collections)} took longer than collection interval"
 
         return summary
+
+    def __repr__(self):
+        return self.__dict__
 
 
 class CollectionStatistics:
