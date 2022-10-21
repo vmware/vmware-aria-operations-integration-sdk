@@ -276,10 +276,10 @@ def ui_highlight(long_collection_stats, highlight_file_path: str, verbosity: str
     """
 
     # Highlight condition / filter objects_types with object growth to asses scenario # 1
-    objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
+    objects_with_growth = [(object_type, stats.objects_growth_rate) for
                            object_type, stats in
                            long_collection_stats.long_object_type_statistics.items()
-                           if get_growth_rate(stats.objects_stats.data_points) > 0]
+                           if stats.objects_growth_rate > 0]
 
     # get overall object growth rate in order to asses scenario # 2
     # find first successful collection and count number of objects
