@@ -44,5 +44,5 @@ class PTKHandler(Handler):
             print(text, style_class=style)
         except RecursionError:
             raise
-        except Exception as e:
+        except Exception:
             self.handleError(record)

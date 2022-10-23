@@ -54,7 +54,7 @@ def get_average(inputs: list):
     return sum(inputs) / len(inputs)
 
 
-# TODO: change signature to initial, final, and size
+# TODO: change signature to initial, final, and time
 def get_growth_rate(inputs: list):
     present = inputs[-1]
     past = inputs[0]

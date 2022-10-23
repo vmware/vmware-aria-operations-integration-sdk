@@ -28,8 +28,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
-from vrealize_operations_integration_sdk.stats import get_growth_rate
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -217,15 +216,9 @@ async def run(arguments):
     # TODO: Add UI code here
     # calculate_stats() ->all stats_object
     logger.info(result_bundle)
-    if type(result_bundle) is ResponseBundle:
-        # TODO: This logic should be performed in the UI
-        display_ui(result_bundle.validate(project),
-                   os.path.join(project.path, "logs", "validation.log"),
-                   verbosity)
-    elif type(result_bundle) is LongCollectionBundle:
-        display_ui(result_bundle.long_collection_statistics.highlight(),
-                   os.path.join(project.path, "logs", "highlight.log"),
-                   verbosity)
+    display_ui(result_bundle.validate(project),
+               os.path.join(project.path, "logs", "validation.log"),
+               verbosity)
 
 
 def get_method(arguments):
