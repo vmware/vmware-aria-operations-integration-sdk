@@ -15,6 +15,7 @@ from vrealize_operations_integration_sdk.validation.describe_checks import cross
 from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
     validate_endpoint
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
+from vrealize_operations_integration_sdk.validation.highlights import highlight_object_growth
 from vrealize_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -124,39 +125,14 @@ class LongCollectionBundle:
         :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
         """
         # Highlight condition / filter objects_types with object growth to asses scenario # 1
-        objects_with_growth = [(object_type, stats.objects_growth_rate) for
-                               object_type, stats in
-                               self.long_collection_statistics.long_object_type_statistics.items()
-                               if stats.objects_growth_rate > 0]
+        validators = list()
+        validators.append(highlight_object_growth)
 
-        # get overall object growth rate in order to asses scenario # 2
-        # find first successful collection and count number of objects
-        unique_object_per_collection = [0] * self.long_collection_statistics.total_number_of_collections
-        unique_object_per_collection[0] = len(self.collection_bundles[0]
-                                              .get_collection_statistics().obj_type_statistics)
-        unique_object_per_collection[-1] = len(self.long_collection_statistics.long_object_type_statistics)
+        result = Result()
+        for _validate in validators:
+            result += _validate(self.long_collection_statistics)
 
-        # Calculate growth threshold
-        num_collections = self.long_collection_statistics.total_number_of_collections
-        # We calculate the growth rate of a new object every 4 collections
-        growth_threshold = (((
-                (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
-                                    1 / num_collections) - 1) * 100
-
-        highlights = Result()
-
-        if len(objects_with_growth):
-            for obj_type, growth in objects_with_growth:
-                if growth > growth_threshold:
-                    new_result = Result()
-                    new_result.with_error(f"Object of type {obj_type} displayed growth of {growth:.2f}")
-                    highlights += new_result
-                else:
-                    new_result = Result()
-                    new_result.with_warning(f"Object of type {obj_type} displayed negligible growth ({growth:.2f})")
-                    highlights += new_result
-
-        return highlights
+        return result
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)
