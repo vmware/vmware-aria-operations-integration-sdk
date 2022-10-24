@@ -3,8 +3,8 @@ import json
 
 import pytest as pytest
 
+from validation.result import ResultLevel
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
-from vrealize_operations_integration_sdk.mp_test import ui_highlight
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, LongCollectionBundle
 from requests import Request
 
@@ -62,7 +62,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         response.text = json.dumps(pytest.JSON)
-        normal_collection = LongCollectionBundle(5)
+        normal_collection = LongCollectionBundle(5, 25)
         # Add ten identical collections
         for collection in range(10):
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -70,8 +70,8 @@ class TestHighlights:
             collection_bundle.collection_number = collection
             normal_collection.add(collection_bundle)
 
-        highlight = ui_highlight(normal_collection.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "No object growth detected" in highlight
+        highlight = normal_collection.validate()
+        assert len(highlight.messages) == 0
 
     def test_highlight_for_growing_unique_objects(self):
         """
@@ -82,7 +82,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
         for collection in range(10):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -91,8 +91,8 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}"
 
-        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object of type HighlightsMP::Growing Object displayed growth of 25.89" in highlight
+        highlight = growing_unique_objects_overtime.validate()
+        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_two(self):
         """
@@ -103,7 +103,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
         for collection in range(100):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -113,8 +113,8 @@ class TestHighlights:
             if collection % 3 == 0:
                 _json["result"][0]["key"]["name"] = f"{collection}"
 
-        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object of type HighlightsMP::Growing Object displayed growth of 3.59" in highlight
+        highlight = growing_unique_objects_overtime.validate()
+        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 15.15") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -125,7 +125,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
         for collection in range(10):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -134,8 +134,8 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 4 == 0 else "same_object"
 
-        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object displayed growth of 17.46" in highlight
+        highlight = growing_unique_objects_overtime.validate()
+        assert(ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 6.65") in highlight.messages
 
     def test_no_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -146,7 +146,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
         for collection in range(100):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -155,8 +155,8 @@ class TestHighlights:
             growing_unique_objects_overtime.add(collection_bundle)
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 9 == 0 else "same_object"
 
-        highlight = ui_highlight(growing_unique_objects_overtime.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object of type HighlightsMP::Growing Object displayed negligible growth (2.60)" in highlight
+        highlight = growing_unique_objects_overtime.validate()
+        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 10.80") in highlight.messages
 
     def test_highlight_for_high_number_of_growing_objects_per_collection(self):
         """
@@ -166,7 +166,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_objects_per_collection = LongCollectionBundle(5)
+        increasing_number_of_objects_per_collection = LongCollectionBundle(5, 25)
         for collection in range(10):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -177,8 +177,8 @@ class TestHighlights:
             new_object["key"]["name"] = f"{collection}"
             _json["result"].append(new_object)
 
-        highlight = ui_highlight(increasing_number_of_objects_per_collection.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object displayed growth of 25.89" in highlight
+        highlight = increasing_number_of_objects_per_collection.validate()
+        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
 
     def test_no_highlight_for_high_number_of_growing_objects_per_collection(self):
         """
@@ -188,7 +188,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_objects_per_collection = LongCollectionBundle(5)
+        increasing_number_of_objects_per_collection = LongCollectionBundle(5, 25)
         for collection in range(100):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -200,5 +200,5 @@ class TestHighlights:
                 new_object["key"]["name"] = f"{collection}"
                 _json["result"].append(new_object)
 
-        highlight = ui_highlight(increasing_number_of_objects_per_collection.long_collection_statistics, "file_name.txt", "verbosity")
-        assert "Object of type HighlightsMP::Growing Object displayed negligible growth (2.52)" in highlight
+        highlight = increasing_number_of_objects_per_collection.validate()
+        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 10.45") in highlight.messages

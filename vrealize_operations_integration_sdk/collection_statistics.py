@@ -46,7 +46,8 @@ class ObjectStatistics:
 
 class LongObjectTypeStatistics:
 
-    def __init__(self):
+    def __init__(self, long_run_duration):
+        self.long_run_duration = long_run_duration
         self.objects_stats = UniqueObjectTypeStatistics()
         self.metrics_stats = UniqueObjectTypeStatistics()
         self.properties_stats = UniqueObjectTypeStatistics()
@@ -84,37 +85,37 @@ class LongObjectTypeStatistics:
     def objects_growth_rate(self):
         return get_growth_rate(self.objects_stats.data_points[0],
                                self.objects_stats.data_points[-1],
-                               len(self.objects_stats.data_points))
+                               self.long_run_duration)
 
     @LazyAttribute
     def metrics_growth_rate(self):
         return get_growth_rate(self.metrics_stats.data_points[0],
                                self.metrics_stats.data_points[-1],
-                               len(self.metrics_stats.data_points))
+                               self.long_run_duration)
 
     @LazyAttribute
     def properties_growth_rate(self):
         return get_growth_rate(self.properties_stats.data_points[0],
                                self.properties_stats.data_points[-1],
-                               len(self.properties_stats.data_points))
+                               self.long_run_duration)
 
     @LazyAttribute
     def string_properties_growth_rate(self):
         return get_growth_rate(self.string_property_values_stats.data_points[0],
                                self.string_property_values_stats.data_points[-1],
-                               len(self.string_property_values_stats.data_points))
+                               self.long_run_duration)
 
     @LazyAttribute
     def events_growth_rate(self):
         return get_growth_rate(self.events_stats.data_points[0],
                                self.events_stats.data_points[-1],
-                               len(self.events_stats.data_points))
+                               self.long_run_duration)
 
     @LazyAttribute
     def relationships_growth_rate(self):
         return get_growth_rate(self.relationships_stats.data_points[0],
                                self.relationships_stats.data_points[-1],
-                               len(self.relationships_stats.data_points))
+                               self.long_run_duration)
 
 
 class ObjectTypeStatistics:
@@ -220,11 +221,12 @@ class ObjectTypeStatistics:
 
 
 class LongCollectionStatistics:
-    def __init__(self, collection_bundle_list, collection_interval):
+    def __init__(self, collection_bundle_list, collection_interval, long_run_duration):
         self.collection_interval = collection_interval
+        self.long_run_duration = long_run_duration
         self.collection_bundles = list()  # This is a duplicated from LongCollectionBundle
         self.total_number_of_collections = len(collection_bundle_list)
-        self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics())
+        self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics(long_run_duration))
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)
 

@@ -81,7 +81,7 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     # Wait for the container to finish starting *after* we've read in all the user input.
     await adapter_container.wait_for_container_startup()
 
-    long_collection_bundle = LongCollectionBundle(collection_interval)
+    long_collection_bundle = LongCollectionBundle(collection_interval, duration)
     for collection_no in range(1, times + 1):
         title = f"Running collection No. {collection_no} of {times}"
         collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)

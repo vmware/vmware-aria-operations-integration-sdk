@@ -102,16 +102,17 @@ class CollectionBundle(ResponseBundle):
 
 
 class LongCollectionBundle:
-    def __init__(self, collection_interval):
+    def __init__(self, collection_interval, long_run_duration):
         self.collection_bundles = list()
         self.collection_interval = collection_interval
+        self.long_run_duration = long_run_duration
 
     def __repr__(self):
         return str(self.long_collection_statistics)
 
     @LazyAttribute
     def long_collection_statistics(self) -> LongCollectionStatistics:
-        return LongCollectionStatistics(self.collection_bundles, self.collection_interval)
+        return LongCollectionStatistics(self.collection_bundles, self.collection_interval, self.long_run_duration)
 
     def validate(self, *args, **kwargs) -> [str]:
         """

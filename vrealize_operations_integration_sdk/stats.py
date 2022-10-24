@@ -55,13 +55,20 @@ def get_average(inputs: list):
 
 
 # TODO: change signature to initial, final, and time
-def get_growth_rate(initial, final, size):
+def get_growth_rate(initial, final, time):
+    """
+    Calculates average percent growth rate per hour
+    :param initial: the initial number of objects
+    :param final: the final number of objects / things
+    :param time: the total time period in seconds
+    :return: float that represents the percent of g
+    """
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
     if not (final and initial):
         initial += 1
         final += 1
 
-    return (((final / initial) ** (1 / size)) - 1) * 100
+    return (((final / initial) ** (1 / time)) - 1) * 100
 
 
 class UniqueObjectTypeStatistics:
