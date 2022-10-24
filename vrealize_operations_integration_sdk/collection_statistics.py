@@ -82,27 +82,39 @@ class LongObjectTypeStatistics:
 
     @LazyAttribute
     def objects_growth_rate(self):
-        return get_growth_rate(self.objects_stats.data_points)
+        return get_growth_rate(self.objects_stats.data_points[0],
+                               self.objects_stats.data_points[-1],
+                               len(self.objects_stats.data_points))
 
     @LazyAttribute
     def metrics_growth_rate(self):
-        return get_growth_rate(self.metrics_stats.data_points)
+        return get_growth_rate(self.metrics_stats.data_points[0],
+                               self.metrics_stats.data_points[-1],
+                               len(self.metrics_stats.data_points))
 
     @LazyAttribute
     def properties_growth_rate(self):
-        return get_growth_rate(self.properties_stats.data_points)
+        return get_growth_rate(self.properties_stats.data_points[0],
+                               self.properties_stats.data_points[-1],
+                               len(self.properties_stats.data_points))
 
     @LazyAttribute
     def string_properties_growth_rate(self):
-        return get_growth_rate(self.string_property_values_stats.data_points)
+        return get_growth_rate(self.string_property_values_stats.data_points[0],
+                               self.string_property_values_stats.data_points[-1],
+                               len(self.string_property_values_stats.data_points))
 
     @LazyAttribute
     def events_growth_rate(self):
-        return get_growth_rate(self.events_stats.data_points)
+        return get_growth_rate(self.events_stats.data_points[0],
+                               self.events_stats.data_points[-1],
+                               len(self.events_stats.data_points))
 
     @LazyAttribute
     def relationships_growth_rate(self):
-        return get_growth_rate(self.relationships_stats.data_points)
+        return get_growth_rate(self.relationships_stats.data_points[0],
+                               self.relationships_stats.data_points[-1],
+                               len(self.relationships_stats.data_points))
 
 
 class ObjectTypeStatistics:

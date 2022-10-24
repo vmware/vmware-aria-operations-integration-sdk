@@ -55,16 +55,13 @@ def get_average(inputs: list):
 
 
 # TODO: change signature to initial, final, and time
-def get_growth_rate(inputs: list):
-    present = inputs[-1]
-    past = inputs[0]
-
+def get_growth_rate(initial, final, size):
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
-    if not (present and past):
-        present += 1
-        past += 1
+    if not (final and initial):
+        initial += 1
+        final += 1
 
-    return (((present / past) ** (1 / len(inputs))) - 1) * 100
+    return (((final / initial) ** (1 / size)) - 1) * 100
 
 
 class UniqueObjectTypeStatistics:
