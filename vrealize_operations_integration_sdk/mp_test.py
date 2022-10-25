@@ -5,7 +5,6 @@ import argparse
 import asyncio
 import logging
 import os
-import pickle
 import time
 import traceback
 import xml.etree.ElementTree as ET
@@ -17,7 +16,6 @@ from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
-from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
@@ -30,8 +28,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle
-from vrealize_operations_integration_sdk.stats import get_growth_rate
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -84,7 +81,7 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     # Wait for the container to finish starting *after* we've read in all the user input.
     await adapter_container.wait_for_container_startup()
 
-    long_collection_bundle = LongCollectionBundle(collection_interval)
+    long_collection_bundle = LongCollectionBundle(collection_interval, duration)
     for collection_no in range(1, times + 1):
         title = f"Running collection No. {collection_no} of {times}"
         collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)
@@ -217,15 +214,11 @@ async def run(arguments):
         await adapter_container.stop()
 
     # TODO: Add UI code here
+    # calculate_stats() ->all stats_object
     logger.info(result_bundle)
-    if type(result_bundle) is ResponseBundle:
-        # TODO: This logic should be performed in the UI
-        ui_validation(result_bundle.validate(project),
-                      project,
-                      os.path.join(project.path, "logs", "validation.log"),
-                      verbosity)
-    elif type(result_bundle) is LongCollectionBundle:
-        ui_highlight(result_bundle, os.path.join(project.path, "logs", "highlights.log"), verbosity)
+    display_ui(result_bundle.validate(project),
+               os.path.join(project.path, "logs", "validation.log"),
+               verbosity)
 
 
 def get_method(arguments):
@@ -242,7 +235,7 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def ui_validation(result, project, validation_file_path, verbosity):
+def display_ui(result, validation_file_path, verbosity):
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -251,7 +244,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
-    validation_file_path = os.path.join(project.path, "logs", "validation.log")
     write_validation_log(validation_file_path, result)
 
     if len(result.messages) > 0:
@@ -262,57 +254,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.warning(f"Found {result.warning_count} warnings when validating response")
     if result.error_count + result.warning_count == 0:
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
-
-
-def ui_highlight(long_collection_bundle: LongCollectionBundle, highlight_file_path: str, verbosity: str):
-    """
-    Scenario 1: individual objects of a mame type are collected, but their identifier keeps changing which
-    causes for there to always be the same number of objects, each collection, but overall there is object  growth
-    overtime.
-
-    Scenario 2: Every collection returns more and more objects overtime
-    :param long_collection_bundle: The bundle contains all information about the long collection including its stats
-    :param highlight_file_path: In case we want to save the highlights in a file
-    :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
-    """
-    long_collection_stats = LongCollectionStatistics(long_collection_bundle.collection_bundles,
-                                                     long_collection_bundle.collection_interval)
-
-    # Highlight condition / filter objects_types with object growth to asses scenario # 1
-    objects_with_growth = [(object_type, get_growth_rate(stats.objects_stats.data_points)) for
-                           object_type, stats in
-                           long_collection_stats.long_object_type_statistics.items()
-                           if get_growth_rate(stats.objects_stats.data_points) > 0]
-
-    # get overall object growth rate in order to asses scenario # 2
-    # find first successful collection and count number of objects
-    unique_object_per_collection = [0] * len(long_collection_stats.collection_bundles)
-    unique_object_per_collection[0] = len(long_collection_stats.collection_bundles[0]
-                                          .get_collection_statistics().obj_type_statistics)
-    unique_object_per_collection[-1] = len(long_collection_stats.long_object_type_statistics)
-
-    overall_growth = get_growth_rate(unique_object_per_collection)
-
-    # Calculate growth threshold
-    num_collections = len(long_collection_bundle.collection_bundles)
-    # We calculate the growth rate of a new object every 4 collections
-    growth_threshold = (((
-                (unique_object_per_collection[0] + (num_collections / 4)) / unique_object_per_collection[0])) ** (
-                                    1 / num_collections) - 1) * 100
-
-    logger.info("Highlights")
-    if len(objects_with_growth):
-        for obj_type, growth in objects_with_growth:
-            if growth > growth_threshold:
-                logger.info(f"Object of type {obj_type} displayed growth of {growth}")
-                logger.info("Persistent object growth over time may lead to high storage and memory usage in VMware "
-                            "Aria Operations")
-    else:
-        if overall_growth > growth_threshold:
-            logger.info(f"There is an overall unique object growth overtime, which may lead to high memory usage in "
-                        f"in VMware Aria Operations")
-        else:
-            logger.debug("No object growth detected")
 
 
 # TODO: a new file inside of the validation module
