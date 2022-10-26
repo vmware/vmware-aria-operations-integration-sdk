@@ -15,7 +15,7 @@ from vrealize_operations_integration_sdk.validation.describe_checks import cross
 from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
     validate_endpoint
 from vrealize_operations_integration_sdk.validation.relationship_validator import validate_relationships
-from vrealize_operations_integration_sdk.validation.highlights import highlight_object_growth
+from vrealize_operations_integration_sdk.validation.highlights import highlight_object_growth, highlight_metric_growth
 from vrealize_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -125,12 +125,9 @@ class LongCollectionBundle:
         :param highlight_file_path: In case we want to save the highlights in a file
         :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
         """
-        # Highlight condition / filter objects_types with object growth to asses scenario # 1
-        validators = list()
-        validators.append(highlight_object_growth)
 
         result = Result()
-        for _validate in validators:
+        for _validate in [highlight_object_growth, highlight_metric_growth]:
             result += _validate(self.long_collection_statistics)
 
         return result

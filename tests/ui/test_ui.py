@@ -1,8 +1,11 @@
 import copy
 import json
+import random
 
 import pytest as pytest
 
+from validation.highlights import highlight_metric_growth, highlight_property_growth, highlight_property_value_growth, \
+    highlight_relationship_growth, highlight_event_growth
 from validation.result import ResultLevel
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, LongCollectionBundle
@@ -49,8 +52,20 @@ class TestHighlights:
                         "name": "fist",
                         "objectKind": "Growing Object"
                     },
-                    "metrics": [],
-                    "properties": []
+                    "metrics": [
+                        {
+                            "key": "stable number",
+                            "numberValue": 42.0,
+                            "timestamp": 1666796497855
+                        }
+                    ],
+                    "properties": [
+                        {
+                            "key": "stable_property",
+                            "stringValue": "I am stable",
+                            "timestamp": 1666813121048
+                        }
+                    ]
                 }
             ]
         }
@@ -92,7 +107,8 @@ class TestHighlights:
             _json["result"][0]["key"]["name"] = f"{collection}"
 
         highlight = growing_unique_objects_overtime.validate()
-        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_two(self):
         """
@@ -114,7 +130,8 @@ class TestHighlights:
                 _json["result"][0]["key"]["name"] = f"{collection}"
 
         highlight = growing_unique_objects_overtime.validate()
-        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 15.15") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 15.15") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -135,7 +152,8 @@ class TestHighlights:
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 4 == 0 else "same_object"
 
         highlight = growing_unique_objects_overtime.validate()
-        assert(ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 6.65") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 6.65") in highlight.messages
 
     def test_no_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -156,7 +174,8 @@ class TestHighlights:
             _json["result"][0]["key"]["name"] = f"{collection}" if collection % 9 == 0 else "same_object"
 
         highlight = growing_unique_objects_overtime.validate()
-        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 10.80") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 10.80") in highlight.messages
 
     def test_highlight_for_high_number_of_growing_objects_per_collection(self):
         """
@@ -178,11 +197,13 @@ class TestHighlights:
             _json["result"].append(new_object)
 
         highlight = increasing_number_of_objects_per_collection.validate()
-        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
 
+    # depecated
     def test_no_highlight_for_high_number_of_growing_objects_per_collection(self):
         """
-        Test object growth highlights is generated when the number of objects of the same type grows every collection
+        Test object growth highlights is generated when th#e number of objects of the same type grows every collection
         """
 
         response = TestObject()
@@ -201,4 +222,199 @@ class TestHighlights:
                 _json["result"].append(new_object)
 
         highlight = increasing_number_of_objects_per_collection.validate()
-        assert (ResultLevel.WARNING, "Object of type HighlightsMP::Growing Object displayed growth of 10.45") in highlight.messages
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed growth of 10.45") in highlight.messages
+
+    def test_metric_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        increasing_number_of_metrics_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            increasing_number_of_metrics_per_collection.add(collection_bundle)
+            new_metric = copy.deepcopy(pytest.JSON["result"][0]["metrics"][0])
+            new_metric["key"] = f"{collection}"
+            _json["result"][0]["metrics"].append(new_metric)
+
+        highlight = highlight_metric_growth(increasing_number_of_metrics_per_collection.long_collection_statistics)
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed metric growth of 9.65") in highlight.messages
+
+    def test_no_metric_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            changing_metric_value_per_collection.add(collection_bundle)
+            _json["result"][0]["metrics"][0]["numberValue"] = random.randint(0, 100)
+
+        highlight = highlight_metric_growth(changing_metric_value_per_collection.long_collection_statistics)
+        assert len(highlight.messages) == 0
+
+    def test_property_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        increasing_number_of_properties_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            increasing_number_of_properties_per_collection.add(collection_bundle)
+            new_property = copy.deepcopy(pytest.JSON["result"][0]["properties"][0])
+            new_property["key"] = f"{collection}"
+            _json["result"][0]["properties"].append(new_property)
+
+        highlight = highlight_property_growth(increasing_number_of_properties_per_collection.long_collection_statistics)
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed property growth of 9.65") in highlight.messages
+
+    def test_no_property_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        stable_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            stable_collection.add(collection_bundle)
+
+        highlight = highlight_property_growth(stable_collection.long_collection_statistics)
+        assert len(highlight.messages) == 0
+
+    def test_property_value_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            increasing_number_of_property_values_per_collection.add(collection_bundle)
+            _json["result"][0]["properties"][0]["stringValue"] = f"{collection}"
+
+        highlight = highlight_property_value_growth(
+            increasing_number_of_property_values_per_collection.long_collection_statistics)
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed property value growth of 9.65") in highlight.messages
+
+    def test_no_property_value_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            changing_metric_value_per_collection.add(collection_bundle)
+
+        highlight = highlight_property_value_growth(changing_metric_value_per_collection.long_collection_statistics)
+        assert len(highlight.messages) == 0
+
+    def test_relationship_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+        parent = {
+            "adapterKind": "HighlightsMP",
+            "identifiers": [],
+            "name": "Parent",
+            "objectKind": "Test Parent"
+        }
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            increasing_number_of_property_values_per_collection.add(collection_bundle)
+
+            children = [{
+                "adapterKind": "HighlightsMP",
+                "identifiers": [],
+                "name": f"child {collection % 2}",
+                "objectKind": "Test Children"
+            }]
+
+            _json["relationships"] = [{"parent": parent, "children": children}]
+
+        highlight = highlight_relationship_growth(
+            increasing_number_of_property_values_per_collection.long_collection_statistics)
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed relationship growth of 9.65") in highlight.messages
+
+    def test_no_relationship_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            changing_metric_value_per_collection.add(collection_bundle)
+
+        highlight = highlight_relationship_growth(changing_metric_value_per_collection.long_collection_statistics)
+        assert len(highlight.messages) == 0
+
+    def test_event_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            increasing_number_of_property_values_per_collection.add(collection_bundle)
+            events = collection * 10
+            for event in range(events, events + 10):
+                _json["result"][0]["events"].append(
+                    dict(message=f"New event {event}", criticality="critical", fault_key="fault_key"))
+
+        highlight = highlight_event_growth(
+            increasing_number_of_property_values_per_collection.long_collection_statistics)
+        assert (ResultLevel.WARNING,
+                "Object of type HighlightsMP::Growing Object displayed event growth of 19.77") in highlight.messages
+
+    def test_no_event_highlight(self):
+        response = TestObject()
+        response.is_success = True
+        _json = copy.deepcopy(pytest.JSON)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+
+        for collection in range(10):
+            response.text = json.dumps(_json)
+            collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
+                                                 pytest.CONTAINER_STATISTICS)
+            collection_bundle.collection_number = collection
+            changing_metric_value_per_collection.add(collection_bundle)
+
+        highlight = highlight_event_growth(changing_metric_value_per_collection.long_collection_statistics)
+        assert len(highlight.messages) == 0

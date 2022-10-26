@@ -100,6 +100,12 @@ class LongObjectTypeStatistics:
                                self.long_run_duration)
 
     @LazyAttribute
+    def property_values_growth_rate(self):
+        return get_growth_rate(self.string_property_values_stats.data_points[0],
+                               self.string_property_values_stats.data_points[-1],
+                               self.long_run_duration)
+
+    @LazyAttribute
     def string_properties_growth_rate(self):
         return get_growth_rate(self.string_property_values_stats.data_points[0],
                                self.string_property_values_stats.data_points[-1],
