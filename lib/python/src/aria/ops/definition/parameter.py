@@ -13,7 +13,7 @@ class Parameter(ABC):
                  key: str,
                  label: str = None,
                  description: str = None,
-                 default: str | int = None,
+                 default: str = None,
                  required: bool = True,
                  advanced: bool = False,
                  display_order: int = 0):
@@ -65,7 +65,7 @@ class IntParameter(Parameter):
     def to_json(self):
         return super().to_json() | {
             "type": "integer",
-            "default": int(self.default),
+            "default": str(self.default),
         }
 
 
@@ -88,7 +88,7 @@ class StringParameter(Parameter):
     def to_json(self):
         return super().to_json() | {
             "type": "string",
-            "length": self.max_length,
+            "length": int(self.max_length),
             "default": str(self.default)
         }
 
