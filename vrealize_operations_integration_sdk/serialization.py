@@ -9,7 +9,7 @@ from typing import Tuple, Optional
 
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.ui import Table
+from vrealize_operations_integration_sdk.validation.adapter_definition_validator import validate_adapter_definition
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response, \
     validate_definition_api_response
 from vrealize_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
@@ -181,7 +181,7 @@ def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
 
 class AdapterDefinitionBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_definition_api_response])
+        super().__init__(request, response, duration, container_statistics, [validate_definition_api_response, validate_adapter_definition])
 
     def __repr__(self):
         if not self.failed():

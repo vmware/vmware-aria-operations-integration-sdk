@@ -19,6 +19,8 @@ def validate_api_response(project, request, response):
 
 
 def validate_definition_api_response(project, request, response):
+    if response.status_code == 204:
+        return Result()
     return _validate_api_response(request, response, "integration-sdk-definition-endpoint.json")
 
 

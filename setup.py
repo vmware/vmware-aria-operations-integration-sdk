@@ -15,6 +15,7 @@ setup(
     },
     python_requires=">=3.9",
     install_requires=[
+        "aenum==3.1.11",
         "anyio==3.6.1",
         "attrs==22.1.0",
         "certifi==2022.6.15",
@@ -65,6 +66,9 @@ setup(
         "urwid==2.1.2",
         "urwidtrees==1.0.3",
         "validators==0.20.0",
+        # There seems to be no way to tell setuptools to use a different PyPi server. Until we get the lib onto the
+        # official PyPi repository, we will have to manually install this after installation is complete
+        # "vmware-aria-operations-integration-sdk-lib==0.3.0",
         "wcwidth==0.2.5",
         "websocket-client==1.3.3",
         "Werkzeug==2.2.2",

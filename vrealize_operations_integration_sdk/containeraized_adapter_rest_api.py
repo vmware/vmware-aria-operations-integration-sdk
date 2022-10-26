@@ -6,7 +6,7 @@ from httpx import ReadTimeout, Response
 from requests import Request
 
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT
-from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_instance
+from vrealize_operations_integration_sdk.describe import get_adapter_instance, Describe
 from vrealize_operations_integration_sdk.timer import timed
 
 
@@ -34,7 +34,7 @@ async def post(client, url, json, headers):
 async def send_post_to_adapter(client, project, connection, endpoint):
     try:
         request, response, elapsed_time = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-                                                     json=get_request_body(project, connection),
+                                                     json=await get_request_body(project, connection),
                                                      headers={"Accept": "application/json"})
     except ReadTimeout as timeout:
         # Translate the error to a standard request response format (for validation purposes)
@@ -62,8 +62,8 @@ async def send_get_to_adapter(client, endpoint):
     return request, response, elapsed_time
 
 
-def get_request_body(project, connection):
-    describe = get_describe(project.path)
+async def get_request_body(project, connection):
+    describe, resources = await Describe.get()
     adapter_instance = get_adapter_instance(describe)
 
     identifiers = []

@@ -8,8 +8,8 @@ from json import JSONDecodeError
 
 import xmlschema
 
-from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_kind, get_resource_kinds, ns, \
-    is_true
+from vrealize_operations_integration_sdk.describe import get_adapter_kind, get_resource_kinds, ns, \
+    is_true, Describe
 from vrealize_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -173,7 +173,10 @@ def cross_check_collection_with_describe(project, request, response):
         else:
             results = results["result"]
 
-        describe = get_describe(path)
+        # This is a bit dangerous. It will only work if 'Describe.get()' has already been called. The reason we do not
+        # call 'Describe.get()' here directly is that it would force this to be an async function, which would have
+        # cascading effects for a large number of functions.
+        describe = Describe._describe
         adapter_kind = get_adapter_kind(describe)
         resource_kinds = get_resource_kinds(describe)
 
@@ -224,7 +227,7 @@ def cross_check_collection_with_describe(project, request, response):
     return result
 
 
-def validate_describe(path):
+def validate_describe(path, describe):
     logger.info("Validating describe.xml")
     schema = xmlschema.XMLSchema11(os.path.join(path, "conf", "describeSchema.xsd"))
-    schema.validate(os.path.join(path, "conf", "describe.xml"))
+    schema.validate(describe)

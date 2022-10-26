@@ -2,6 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import asyncio
 import collections
 import json
 import logging
@@ -11,13 +12,19 @@ import time
 import traceback
 import zipfile
 
+import httpx
+
+from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_kind
+from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
+from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter
+from vrealize_operations_integration_sdk.describe import get_adapter_kind, Describe, write_describe
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
 from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir, rm
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project
+from vrealize_operations_integration_sdk.propertiesfile import write_properties
 from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
@@ -139,7 +146,7 @@ def fix_describe(describe_adapter_kind_key, manifest_file):
     return manifest
 
 
-def build_pak_file(project_path, insecure_communication):
+async def build_pak_file(project_path, insecure_communication):
     docker_client = init()
 
     manifest_file = os.path.join(project_path, "manifest.txt")
@@ -148,124 +155,147 @@ def build_pak_file(project_path, insecure_communication):
         manifest = json.load(manifest_fd)
 
     config_file = os.path.join(project_path, "config.json")
+    adapter_container = AdapterContainer(project_path)
+    adapter_container.start(1024)
     try:
-        describe_adapter_kind_key = get_adapter_kind(get_describe("."))
-    except Exception as e:
-        describe_adapter_kind_key = None
+        await adapter_container.wait_for_container_startup()
+        Describe.initialize(project_path, adapter_container)
+        try:
+            describe_adapter_kind_key = get_adapter_kind((await Describe.get())[0])
+        except Exception as e:
+            describe_adapter_kind_key = None
 
-    adapter_kinds = manifest.get("adapter_kinds", [])
-    if len(adapter_kinds) == 0:
-        logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
-        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
-        adapter_kinds = manifest["adapter_kinds"]
+        adapter_kinds = manifest.get("adapter_kinds", [])
+        if len(adapter_kinds) == 0:
+            logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
+            manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+            adapter_kinds = manifest["adapter_kinds"]
 
-    if len(adapter_kinds) > 1:
-        logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
-                     "kinds are specified in manifest.txt (key='adapter_kinds').")
-        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
-        adapter_kinds = manifest["adapter_kinds"]
-    adapter_kind_key = adapter_kinds[0]
+        if len(adapter_kinds) > 1:
+            logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
+                         "kinds are specified in manifest.txt (key='adapter_kinds').")
+            manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+            adapter_kinds = manifest["adapter_kinds"]
+        adapter_kind_key = adapter_kinds[0]
 
-    if describe_adapter_kind_key is not None and describe_adapter_kind_key != adapter_kind_key:
-        logger.error(f"The 'adapter_kinds' key in manifest.txt (\"adapter_kinds\": [\"{adapter_kind_key}\"]') must "
-                     f"contain a single item matching the adapter kind key in describe.xml: "
-                     f"'{describe_adapter_kind_key}'.")
-        manifest = fix_describe(describe_adapter_kind_key, manifest_file)
+        if describe_adapter_kind_key is not None and describe_adapter_kind_key != adapter_kind_key:
+            logger.error(f"The 'adapter_kinds' key in manifest.txt (\"adapter_kinds\": [\"{adapter_kind_key}\"]') must "
+                         f"contain a single item matching the adapter kind key in describe.xml: "
+                         f"'{describe_adapter_kind_key}'.")
+            manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
-    # We should ask the user for this before we populate them with default values
-    # Default values are only accessible for authorize members, so we might want to add a message about it
-    docker_registry = get_docker_registry(adapter_kind_key, config_file)
+        # We should ask the user for this before we populate them with default values
+        # Default values are only accessible for authorize members, so we might want to add a message about it
+        docker_registry = get_docker_registry(adapter_kind_key, config_file)
 
-    tag = manifest["version"] + "_" + str(time.time())
+        tag = manifest["version"] + "_" + str(time.time())
 
-    conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
+        conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
 
-    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+        # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
 
-    registry_tag = f"{docker_registry}:{tag}"
-    logger.debug(f"registry tag: {registry_tag}")
+        registry_tag = f"{docker_registry}:{tag}"
+        logger.debug(f"registry tag: {registry_tag}")
 
-    try:
-        build_image(docker_client, path=project_path, tag=f"{registry_tag}")
+        try:
+            build_image(docker_client, path=project_path, tag=f"{registry_tag}")
 
-        digest = push_image(docker_client, registry_tag)
+            digest = push_image(docker_client, registry_tag)
+        finally:
+            # We have to make sure the image was built, otherwise we can raise another exception
+            if docker_client.images.list(registry_tag):
+                docker_client.images.remove(registry_tag)
+
+        adapter_dir = adapter_kind_key + "_adapter3"
+        mkdir(adapter_dir)
+        shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
+        if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
+            describe, resources = await Describe.get()
+            write_describe(describe, os.path.join(adapter_dir, "conf", "describe.xml"))
+            mkdir(os.path.join(adapter_dir, "conf", "resources"))
+            write_properties(resources, os.path.join(adapter_dir, "conf", "resources", "resources.properties"))
+
+        with open(adapter_dir + ".conf", "w") as adapter_conf:
+            adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
+            api_version = "1.0.0"
+            try:
+                async with httpx.AsyncClient(timeout=30) as client:
+                    request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+                    if response.is_success:
+                        api = json.loads(response.text)
+                        api_version = f"{api['major']}.{api['minor']}.{api['maintenance']}"
+            except Exception as e:
+                logger.warning(f"Could not retrieve API version: {e}")
+                api_version = "1.0.0"
+                logger.warning(f"Using default API version: {api_version}")
+
+            adapter_conf.write(f"API_VERSION={api_version}\n")
+
+            if insecure_communication:
+                adapter_conf.write(f"API_PROTOCOL=http\n")
+                adapter_conf.write(f"API_PORT=8080\n")
+            else:
+                adapter_conf.write(f"API_PROTOCOL=https\n")
+                adapter_conf.write(f"API_PORT=443\n")
+
+            adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
+            adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
+            adapter_conf.write(f"DIGEST={digest}\n")
+
+        eula_file = manifest["eula_file"]
+        icon_file = manifest["pak_icon"]
+
+        with zipfile.ZipFile("adapter.zip", "w") as adapter:
+            zip_file(adapter, adapter_conf.name)
+            zip_file(adapter, "manifest.txt")
+            if eula_file:
+                zip_file(adapter, eula_file)
+            if icon_file:
+                zip_file(adapter, icon_file)
+
+            zip_dir(adapter, "resources")
+            zip_dir(adapter, adapter_dir)
+
+        rm(adapter_conf.name)
+        rmdir(adapter_dir)
+
+        name = manifest["name"] + "_" + manifest["version"]
+
+        # Every config file in dashboards and reports should be in its own subdirectory
+        build_subdirectories("content/dashboards")
+        build_subdirectories("content/reports")
+
+        pak_file = f"{name}.pak"
+        with zipfile.ZipFile(pak_file, "w") as pak:
+            zip_file(pak, "manifest.txt")
+
+            pak_validation_script = manifest["pak_validation_script"]["script"]
+            if pak_validation_script:
+                zip_file(pak, pak_validation_script)
+
+            post_install_script = manifest["adapter_post_script"]["script"]
+            if post_install_script:
+                zip_file(pak, post_install_script)
+
+            pre_install_script = manifest["adapter_pre_script"]["script"]
+            if pre_install_script:
+                zip_file(pak, pre_install_script)
+
+            if icon_file:
+                zip_file(pak, icon_file)
+
+            if eula_file:
+                zip_file(pak, eula_file)
+
+            zip_dir(pak, "resources")
+            zip_dir(pak, "content")
+            zip_file(pak, "adapter.zip")
+
+            rm("adapter.zip")
+
+            return pak_file
     finally:
-        # We have to make sure the image was built, otherwise we can raise another exception
-        if docker_client.images.list(registry_tag):
-            docker_client.images.remove(registry_tag)
-
-    adapter_dir = adapter_kind_key + "_adapter3"
-    mkdir(adapter_dir)
-    shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
-
-    with open(adapter_dir + ".conf", "w") as adapter_conf:
-        adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
-        # TODO: Need a way to determine the api version
-        adapter_conf.write(f"API_VERSION=1.0.0\n")
-
-        if insecure_communication:
-            adapter_conf.write(f"API_PROTOCOL=http\n")
-            adapter_conf.write(f"API_PORT=8080\n")
-        else:
-            adapter_conf.write(f"API_PROTOCOL=https\n")
-            adapter_conf.write(f"API_PORT=443\n")
-
-        adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
-        adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
-        adapter_conf.write(f"DIGEST={digest}\n")
-
-    eula_file = manifest["eula_file"]
-    icon_file = manifest["pak_icon"]
-
-    with zipfile.ZipFile("adapter.zip", "w") as adapter:
-        zip_file(adapter, adapter_conf.name)
-        zip_file(adapter, "manifest.txt")
-        if eula_file:
-            zip_file(adapter, eula_file)
-        if icon_file:
-            zip_file(adapter, icon_file)
-
-        zip_dir(adapter, "resources")
-        zip_dir(adapter, adapter_dir)
-
-    rm(adapter_conf.name)
-    rmdir(adapter_dir)
-
-    name = manifest["name"] + "_" + manifest["version"]
-
-    # Every config file in dashboards and reports should be in its own subdirectory
-    build_subdirectories("content/dashboards")
-    build_subdirectories("content/reports")
-
-    pak_file = f"{name}.pak"
-    with zipfile.ZipFile(pak_file, "w") as pak:
-        zip_file(pak, "manifest.txt")
-
-        pak_validation_script = manifest["pak_validation_script"]["script"]
-        if pak_validation_script:
-            zip_file(pak, pak_validation_script)
-
-        post_install_script = manifest["adapter_post_script"]["script"]
-        if post_install_script:
-            zip_file(pak, post_install_script)
-
-        pre_install_script = manifest["adapter_pre_script"]["script"]
-        if pre_install_script:
-            zip_file(pak, pre_install_script)
-
-        if icon_file:
-            zip_file(pak, icon_file)
-
-        if eula_file:
-            zip_file(pak, eula_file)
-
-        zip_dir(pak, "resources")
-        zip_dir(pak, "content")
-        zip_file(pak, "adapter.zip")
-
-        rm("adapter.zip")
-
-        return pak_file
+        await adapter_container.stop()
 
 
 def main():
@@ -323,7 +353,7 @@ def main():
 
             os.chdir(temp_dir)
 
-            pak_file = build_pak_file(project_dir, insecure_communication)
+            pak_file = asyncio.run(build_pak_file(project_dir, insecure_communication))
 
             if os.path.exists(os.path.join(build_dir, pak_file)):
                 # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
