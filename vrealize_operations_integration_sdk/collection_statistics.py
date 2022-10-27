@@ -3,8 +3,8 @@
 
 from collections import defaultdict
 
-from util import LazyAttribute
-from validation.result import Result
+from vrealize_operations_integration_sdk.validation.result import Result
+from vrealize_operations_integration_sdk.util import LazyAttribute
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.model import _get_object_id, ObjectId
 from vrealize_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats

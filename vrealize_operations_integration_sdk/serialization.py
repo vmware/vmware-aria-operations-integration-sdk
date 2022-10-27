@@ -7,7 +7,7 @@ import ssl
 import time
 from typing import Tuple, Optional
 
-from util import LazyAttribute
+from vrealize_operations_integration_sdk.util import LazyAttribute
 from vrealize_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.validation.api_response_validation import validate_api_response, \

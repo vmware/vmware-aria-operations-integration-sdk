@@ -1,6 +1,6 @@
-from collection_statistics import LongCollectionStatistics
-from stats import get_growth_rate
-from validation.result import Result
+from vrealize_operations_integration_sdk.collection_statistics import LongCollectionStatistics
+from vrealize_operations_integration_sdk.stats import get_growth_rate
+from vrealize_operations_integration_sdk.validation.result import Result
 
 
 def highlight_object_growth(long_collection_statistics: LongCollectionStatistics) -> Result:
