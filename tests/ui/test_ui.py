@@ -338,7 +338,18 @@ class TestHighlights:
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
         increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
-        parent = {
+        parent_object = {
+            "events": [],
+            "key": {
+                "adapterKind": "HighlightsMP",
+                "identifiers": [],
+                "name": "Parent",
+                "objectKind": "Test Parent"
+            },
+            "metrics": [],
+            "properties": []
+        }
+        parent_relationship = {
             "adapterKind": "HighlightsMP",
             "identifiers": [],
             "name": "Parent",
@@ -351,19 +362,23 @@ class TestHighlights:
             collection_bundle.collection_number = collection
             increasing_number_of_property_values_per_collection.add(collection_bundle)
 
-            children = [{
+            child_object = copy.deepcopy(parent_object)
+            child_object["key"]["name"] = f"child {collection % 2}"
+            child_object["key"]["objectKind"] = "Test Child"
+            child_relationship = [{
                 "adapterKind": "HighlightsMP",
                 "identifiers": [],
-                "name": f"child {collection % 2}",
-                "objectKind": "Test Children"
+                "name": child_object["key"]["name"],
+                "objectKind": "Test Child"
             }]
 
-            _json["relationships"] = [{"parent": parent, "children": children}]
+            _json["result"] = [parent_object, child_object]
+            _json["relationships"] = [{"parent": parent_relationship, "children": child_relationship}]
 
         highlight = highlight_relationship_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed relationship growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Test Parent displayed relationship growth of 2.81") in highlight.messages
 
     def test_no_relationship_highlight(self):
         response = TestObject()
