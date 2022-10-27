@@ -108,7 +108,7 @@ class TestHighlights:
 
         highlight = growing_unique_objects_overtime.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 9.65%") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_two(self):
         """
@@ -131,7 +131,7 @@ class TestHighlights:
 
         highlight = growing_unique_objects_overtime.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 15.15") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 15.15%") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -153,7 +153,7 @@ class TestHighlights:
 
         highlight = growing_unique_objects_overtime.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 6.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 6.65%") in highlight.messages
 
     def test_no_highlight_for_growing_unique_objects_with_low_object_growth(self):
         """
@@ -175,7 +175,7 @@ class TestHighlights:
 
         highlight = growing_unique_objects_overtime.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 10.80") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 10.80%") in highlight.messages
 
     def test_highlight_for_high_number_of_growing_objects_per_collection(self):
         """
@@ -198,7 +198,7 @@ class TestHighlights:
 
         highlight = increasing_number_of_objects_per_collection.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 9.65%") in highlight.messages
 
     # depecated
     def test_no_highlight_for_high_number_of_growing_objects_per_collection(self):
@@ -223,7 +223,7 @@ class TestHighlights:
 
         highlight = increasing_number_of_objects_per_collection.validate()
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 10.45") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed growth of 10.45%") in highlight.messages
 
     def test_metric_highlight(self):
         response = TestObject()
@@ -243,7 +243,7 @@ class TestHighlights:
 
         highlight = highlight_metric_growth(increasing_number_of_metrics_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed metric growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed metric growth of 9.65%") in highlight.messages
 
     def test_no_metric_highlight(self):
         response = TestObject()
@@ -280,7 +280,7 @@ class TestHighlights:
 
         highlight = highlight_property_growth(increasing_number_of_properties_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed property growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed property growth of 9.65%") in highlight.messages
 
     def test_no_property_highlight(self):
         response = TestObject()
@@ -315,7 +315,7 @@ class TestHighlights:
         highlight = highlight_property_value_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed property value growth of 9.65") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed property value growth of 9.65%") in highlight.messages
 
     def test_no_property_value_highlight(self):
         response = TestObject()
@@ -378,7 +378,7 @@ class TestHighlights:
         highlight = highlight_relationship_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Test Parent displayed relationship growth of 2.81") in highlight.messages
+                "Object of type HighlightsMP::Test Parent displayed relationship growth of 2.81%") in highlight.messages
 
     def test_no_relationship_highlight(self):
         response = TestObject()
@@ -416,7 +416,7 @@ class TestHighlights:
         highlight = highlight_event_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed event growth of 19.77") in highlight.messages
+                "Object of type HighlightsMP::Growing Object displayed event growth of 19.77%") in highlight.messages
 
     def test_no_event_highlight(self):
         response = TestObject()
