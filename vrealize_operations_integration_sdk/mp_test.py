@@ -3,7 +3,6 @@
 
 import argparse
 import asyncio
-import json
 import logging
 import os
 import time
@@ -23,13 +22,13 @@ from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import 
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true
-from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
+from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle, AdapterDefinitionBundle
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle,  AdapterDefinitionBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
@@ -82,7 +81,7 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     # Wait for the container to finish starting *after* we've read in all the user input.
     await adapter_container.wait_for_container_startup()
 
-    long_collection_bundle = LongCollectionBundle(collection_interval)
+    long_collection_bundle = LongCollectionBundle(collection_interval, duration)
     for collection_no in range(1, times + 1):
         title = f"Running collection No. {collection_no} of {times}"
         collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)
@@ -101,12 +100,14 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     return long_collection_bundle
 
 
-async def run_collect(timeout, project, connection, adapter_container, title="Running Collect", **kwargs) -> CollectionBundle:
+async def run_collect(timeout, project, connection, adapter_container, title="Running Collect",
+                      **kwargs) -> CollectionBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
-                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, COLLECT_ENDPOINT)
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             COLLECT_ENDPOINT)
             return CollectionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
@@ -115,11 +116,13 @@ async def run_connect(timeout, project, connection, adapter_container, title="Ru
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
-                request, response, elapsed_time = await send_post_to_adapter(client, project, connection, CONNECT_ENDPOINT)
+                request, response, elapsed_time = await send_post_to_adapter(client, project, connection,
+                                                                             CONNECT_ENDPOINT)
             return ConnectBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs", **kwargs):
+async def run_get_endpoint_urls(timeout, project, connection, adapter_container, title="Running Endpoint URLs",
+                                **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -220,13 +223,11 @@ async def run(arguments):
         await adapter_container.stop()
 
     # TODO: Add UI code here
+    # calculate_stats() ->all stats_object
     logger.info(result_bundle)
-    if type(result_bundle) is ResponseBundle:
-        # TODO: This logic should be performed in the UI
-        ui_validation(result_bundle.validate(project),
-                      project,
-                      os.path.join(project.path, "logs", "validation.log"),
-                      verbosity)
+    display_ui(result_bundle.validate(project),
+               os.path.join(project.path, "logs", "validation.log"),
+               verbosity)
 
 
 def get_method(arguments):
@@ -244,7 +245,7 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def ui_validation(result, project, validation_file_path, verbosity):
+def display_ui(result, validation_file_path, verbosity):
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -253,7 +254,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
-    validation_file_path = os.path.join(project.path, "logs", "validation.log")
     write_validation_log(validation_file_path, result)
 
     if len(result.messages) > 0:
@@ -266,7 +266,7 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
-# TODO: move this to UI
+# TODO: a new file inside of the validation module
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
