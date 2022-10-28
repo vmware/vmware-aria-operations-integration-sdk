@@ -3,7 +3,7 @@
 
 name: Aria Operations Integration SDK
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   sdk:
