@@ -7,7 +7,7 @@ import logging
 import os.path
 import subprocess
 import tempfile
-import threading
+import threading_temp
 
 import connexion
 

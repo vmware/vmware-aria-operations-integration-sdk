@@ -227,7 +227,7 @@ async def run(arguments):
     logger.info(result_bundle)
     display_ui(result_bundle.validate(project),
                os.path.join(project.path, "logs", "validation.log"),
-               verbosity)
+               verbosity,  type(result_bundle) is LongCollectionBundle)
 
 
 def get_method(arguments):
@@ -245,7 +245,10 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def display_ui(result, validation_file_path, verbosity):
+def display_ui(result, validation_file_path, verbosity, over_write_minimum_log_level):
+    if over_write_minimum_log_level and verbosity < 2:
+        verbosity = 2
+
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -262,6 +265,7 @@ def display_ui(result, validation_file_path, verbosity):
         logger.error(f"Found {result.error_count} errors when validating response")
     if result.warning_count > 0 and verbosity < 2:
         logger.warning(f"Found {result.warning_count} warnings when validating response")
+
     if result.error_count + result.warning_count == 0:
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 

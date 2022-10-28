@@ -89,8 +89,9 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
-        for collection in range(10):
+        NUMBER_OF_COLLECTIONS = 10
+        growing_unique_objects_overtime = LongCollectionBundle(NUMBER_OF_COLLECTIONS, 3600)
+        for collection in range(NUMBER_OF_COLLECTIONS):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
                                                  pytest.CONTAINER_STATISTICS)
@@ -100,7 +101,7 @@ class TestHighlights:
 
         highlight = highlight_object_growth(growing_unique_objects_overtime.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 9.65%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing' Object displayed average growth rate of 9.65% per hour") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_extreme_growth(self):
         response = TestObject()

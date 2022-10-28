@@ -54,21 +54,20 @@ def get_average(inputs: list):
     return sum(inputs) / len(inputs)
 
 
-# TODO: change signature to initial, final, and time
-def get_growth_rate(initial, final, time):
+def get_growth_rate(initial, final, total_number_of_periods):
     """
-    Calculates average percent growth rate per hour
+    Calculates average percent growth rate per period
     :param initial: the initial number of objects
     :param final: the final number of objects / things
-    :param time: the total time period in seconds
-    :return: float that represents the percent of g
+    :param total_number_of_periods: the total time period in any given unit
+    :return: float that represents the percent of growth per period unit
     """
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
     if not (final and initial):
         initial += 1
         final += 1
 
-    return (((final / initial) ** (1 / time)) - 1) * 100
+    return (((final / initial) ** (1 / total_number_of_periods)) - 1) * 100
 
 
 class UniqueObjectTypeStatistics:
