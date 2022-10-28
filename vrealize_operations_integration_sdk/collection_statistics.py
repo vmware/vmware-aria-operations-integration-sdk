@@ -100,7 +100,7 @@ class LongObjectTypeStatistics:
         hours = self.long_run_duration / 3600
         return get_growth_rate(self.properties_stats.data_points[0],
                                self.properties_stats.data_points[-1],
-                               self.long_run_duration)
+                               hours)
 
     @LazyAttribute
     def property_values_growth_rate(self):

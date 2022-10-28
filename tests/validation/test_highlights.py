@@ -74,7 +74,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         response.text = json.dumps(pytest.JSON)
-        normal_collection = LongCollectionBundle(5, 25)
+        normal_collection = LongCollectionBundle(5, 3600)
         # Add ten identical collections
         for collection in range(10):
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -101,13 +101,13 @@ class TestHighlights:
 
         highlight = highlight_object_growth(growing_unique_objects_overtime.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing' Object displayed average growth rate of 9.65% per hour") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed growth of 900.00% per hour.") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_extreme_growth(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 3600)
         for collection in range(100):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -119,13 +119,13 @@ class TestHighlights:
 
         highlight = highlight_object_growth(growing_unique_objects_overtime.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 15.15%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed growth of 3300.00% per hour.") in highlight.messages
 
     def test_highlight_for_growing_unique_objects_with_low_object_growth(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        growing_unique_objects_overtime = LongCollectionBundle(5, 25)
+        growing_unique_objects_overtime = LongCollectionBundle(5, 3600)
         for collection in range(10):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -136,13 +136,13 @@ class TestHighlights:
 
         highlight = highlight_object_growth(growing_unique_objects_overtime.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 6.65%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed growth of 400.00% per hour.") in highlight.messages
 
     def test_highlight_for_high_number_of_growing_objects_per_collection(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_objects_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_objects_per_collection = LongCollectionBundle(5, 3600)
         for collection in range(10):
             response.text = json.dumps(_json)
             collection_bundle = CollectionBundle(pytest.REQUEST, copy.deepcopy(response), pytest.DURATION,
@@ -155,13 +155,13 @@ class TestHighlights:
 
         highlight = highlight_object_growth(increasing_number_of_objects_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed growth of 9.65%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed growth of 900.00% per hour.") in highlight.messages
 
     def test_metric_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_metrics_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_metrics_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -175,13 +175,13 @@ class TestHighlights:
 
         highlight = highlight_metric_growth(increasing_number_of_metrics_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed metric growth of 9.65%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed metric growth of 900.00% per hour.") in highlight.messages
 
     def test_no_metric_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -198,7 +198,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_properties_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_properties_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -212,13 +212,13 @@ class TestHighlights:
 
         highlight = highlight_property_growth(increasing_number_of_properties_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed property growth of 9.65%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed property growth of 900.00% per hour") in highlight.messages
 
     def test_no_property_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        stable_collection = LongCollectionBundle(5, 25)
+        stable_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -234,7 +234,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -246,14 +246,14 @@ class TestHighlights:
 
         highlight = highlight_property_value_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
-        assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed property value growth of 9.65%") in highlight.messages
+        assert (ResultLevel.ERROR,
+                "Objects of type 'HighlightsMP::Growing Object' displayed excessive property value growth of 900.00% per hour.") in highlight.messages
 
     def test_no_property_value_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -269,7 +269,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 3600)
         parent_object = {
             "events": [],
             "key": {
@@ -310,13 +310,13 @@ class TestHighlights:
         highlight = highlight_relationship_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Test Parent displayed relationship growth of 2.81%") in highlight.messages
+                "Objects of type 'HighlightsMP::Test Parent' displayed relationship growth of 100.00% per hour.") in highlight.messages
 
     def test_no_relationship_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -332,7 +332,7 @@ class TestHighlights:
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 25)
+        increasing_number_of_property_values_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)
@@ -348,13 +348,13 @@ class TestHighlights:
         highlight = highlight_event_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Object of type HighlightsMP::Growing Object displayed event growth of 19.77%") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' displayed event growth of 9000.00% per hour.") in highlight.messages
 
     def test_no_event_highlight(self):
         response = TestObject()
         response.is_success = True
         _json = copy.deepcopy(pytest.JSON)
-        changing_metric_value_per_collection = LongCollectionBundle(5, 25)
+        changing_metric_value_per_collection = LongCollectionBundle(5, 3600)
 
         for collection in range(10):
             response.text = json.dumps(_json)

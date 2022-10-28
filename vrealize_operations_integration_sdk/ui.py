@@ -21,7 +21,7 @@ from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Frame, TextArea
 
-from vrealize_operations_integration_sdk.threading_temp import threaded
+from vrealize_operations_integration_sdk.threading import threaded
 
 style = Style.from_dict({
     # Prompts

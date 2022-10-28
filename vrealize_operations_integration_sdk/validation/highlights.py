@@ -59,7 +59,7 @@ def highlight_property_value_growth(long_collection_statistics: LongCollectionSt
         for obj_type, growth in objects_with_property_value_growth:
             if growth > threshold:
                 highlights.with_error(
-                    f"Objects of type '{obj_type}' displayed excessive property value growth of {growth:2f}%")
+                    f"Objects of type '{obj_type}' displayed excessive property value growth of {growth:.2f}% per hour.")
             else:
                 highlights.with_warning(f"Objects of type '{obj_type}' displayed property value growth of {growth:.2f}% per hour.")
 
