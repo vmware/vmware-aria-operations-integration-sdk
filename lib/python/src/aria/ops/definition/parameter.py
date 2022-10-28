@@ -71,13 +71,13 @@ class IntParameter(Parameter):
 
 class StringParameter(Parameter):
     def __init__(self, key: str, label: str = None, description: str = None, default: str = None,
-                 max_length: int = None, required: bool = True, advanced: bool = False, display_order: int = 0):
+                 max_length: int = 512, required: bool = True, advanced: bool = False, display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
         :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
         :param default: The default value of the parameter.
-        :param max_length: The max length of the parameter value.
+        :param max_length: The max length of the parameter value. Defaults to 512.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :param display_order: Determines the order parameters will be displayed in the UI.
