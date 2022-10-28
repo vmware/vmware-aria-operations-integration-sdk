@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 import httpx
 
 from aria.ops.definition.units import Units
+from vrealize_operations_integration_sdk.config import get_config_value
 from vrealize_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.propertiesfile import load_properties
@@ -47,7 +48,8 @@ class Describe:
             cls._resources = load_properties(os.path.join(cls._path, "conf", "resources", "resources.properties"))
         else:
             if not cls._adapter_container.started:
-                cls._adapter_container.start(1024)
+                memory_limit = get_config_value("default_memory_limit", 1024, os.path.join(cls._path, "config.json"))
+                cls._adapter_container.start(memory_limit)
                 await cls._adapter_container.wait_for_container_startup()
                 await cls._get_adapter_definition()
                 await cls._adapter_container.stop()

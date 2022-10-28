@@ -156,7 +156,8 @@ async def build_pak_file(project_path, insecure_communication):
 
     config_file = os.path.join(project_path, "config.json")
     adapter_container = AdapterContainer(project_path)
-    adapter_container.start(1024)
+    memory_limit = get_config_value("default_memory_limit", 1024, os.path.join(project_path, "config.json"))
+    adapter_container.start(memory_limit)
     try:
         await adapter_container.wait_for_container_startup()
         Describe.initialize(project_path, adapter_container)
