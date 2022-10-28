@@ -222,7 +222,7 @@ async def run(arguments):
 
     # TODO: Add UI code here
     logger.info(result_bundle)
-    if issubclass(type(result_bundle), ResponseBundle):
+    if type(result_bundle) is ResponseBundle:
         # TODO: This logic should be performed in the UI
         ui_validation(result_bundle.validate(project),
                       project,
