@@ -39,6 +39,7 @@ setup(
         "jsonschema==4.14.0",
         "jsonschema-spec==0.1.2",
         "lazy-object-proxy==1.7.1",
+        "lxml==4.9.1"
         "MarkupSafe==2.1.1",
         "mock==4.0.3",
         "more-itertools==8.14.0",

@@ -4,9 +4,9 @@ import random
 
 import pytest as pytest
 
-from validation.highlights import highlight_metric_growth, highlight_property_growth, highlight_property_value_growth, \
+from vrealize_operations_integration_sdk.validation.highlights import highlight_metric_growth, highlight_property_growth, highlight_property_value_growth, \
     highlight_relationship_growth, highlight_event_growth, highlight_object_growth
-from validation.result import ResultLevel
+from vrealize_operations_integration_sdk.validation.result import ResultLevel
 from vrealize_operations_integration_sdk.docker_wrapper import ContainerStats
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, LongCollectionBundle
 from requests import Request
