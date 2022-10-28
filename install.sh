@@ -88,19 +88,13 @@ if [ $STATUS -ne 0 ] ; then
 fi
 
 printf "%s* Installing SDK tools into Virtual Environment%s\n" "$MAGENTA" "$DEFAULT"
-  STATUS=0
+STATUS=0
 ## Install our package
 if [ $VERBOSE = 1 ] ; then
   pip install .
   STATUS=$((STATUS + $?))
-  # TODO: Remove this once we are on the official PyPi server
-  pip install -i https://test.pypi.org/simple/ vmware-aria-operations-integration-sdk-lib
-  STATUS=$((STATUS + $?))
 else
   pip install . > /dev/null
-  STATUS=$((STATUS + $?))
-  # TODO: Remove this once we are on the official PyPi server
-  pip install -i https://test.pypi.org/simple/ vmware-aria-operations-integration-sdk-lib > /dev/null
   STATUS=$((STATUS + $?))
 fi
 
