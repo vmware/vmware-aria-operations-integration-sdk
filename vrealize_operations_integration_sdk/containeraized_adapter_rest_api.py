@@ -1,5 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import json
 
 import httpx
 from httpx import ReadTimeout, Response
@@ -111,3 +112,17 @@ async def get_request_body(project, connection):
         request_body["credentialConfig"] = credential_config
 
     return request_body
+
+
+def get_failure_message(response):
+    message = ""
+    if not response.is_success:
+        message = f"{response.status_code} {response.reason_phrase}"
+        if hasattr(response, "text"):
+            encoded = response.text.encode('latin1', 'backslashreplace').strip(b'"')
+            message += "\n" + encoded.decode('unicode-escape')
+
+    elif "errorMessage" in response.text:
+        message = json.loads(response.text).get('errorMessage')
+
+    return message

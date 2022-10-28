@@ -60,9 +60,15 @@ class Describe:
         async with httpx.AsyncClient(timeout=30) as client:
             from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter
             request, response, elapsed_time = await send_get_to_adapter(client, ADAPTER_DEFINITION_ENDPOINT)
-            if not response.is_success or response.status_code == 204 or "errorMessage" in response.text:
-                logger.error(
-                    f"Could not find describe.xml file and adapterDefinition endpoint returned {response.status_code}.")
+            if not response.is_success:
+                from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import get_failure_message
+                logger.error(get_failure_message(response))
+                logger.error(f"adapterDefinition endpoint returned {response.status_code}.")
+                await cls._adapter_container.stop()
+                exit(1)
+            elif response.status_code == 204:
+                logger.error(f"adapterDefinition endpoint returned no response, indicating that the describe.xml file\n"
+                             f"should be used, but no describe.xml file was found.")
                 await cls._adapter_container.stop()
                 exit(1)
             ad = json.loads(response.text)
