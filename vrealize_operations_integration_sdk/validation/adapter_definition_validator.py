@@ -20,8 +20,13 @@ logger.addHandler(consoleHandler)
 
 def validate_adapter_definition(project, request, response):
     result = Result()
+    if not response.is_success:
+        # Failure case is already handled in first validator that AdapterDefinitionBundle calls
+        return result
     if response.status_code == 204:
-        result.with_error("No adapter description was returned by the adapter.")
+        result.with_warning("No adapter description was returned by the adapter. Note: This is the expected result \n"
+                            "when using a 'describe.xml' file rather than implementing the adapterDefinition endpoint\n"
+                            "in the adapter.")
         return result
     try:
         ad = json.loads(response.text)
