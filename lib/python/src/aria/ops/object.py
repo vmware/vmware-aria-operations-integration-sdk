@@ -177,7 +177,7 @@ class Object:
         self._key = key
         self._metrics = []
         self._properties = []
-        self._events = []
+        self._events = set()
         self._parents = set()
         self._children = set()
 
@@ -223,15 +223,13 @@ class Object:
         """
         self.add_metric(Metric(*args, **kwargs))
 
-    def get_metric(self, key) -> Optional[Metric]:
+    def get_metric(self, key) -> list[Metric]:
         """
 
         :param key: Metric key of the metric to return.
-        :return:
+        :return: All metrics matching the given key.
         """
-        # TODO: Optimize this?
-        # TODO: If multiple match, do we return all, a 'random' one, the last added, or the latest timestamp?
-        return next(filter(lambda metric: metric.key == key, self._metrics), None)
+        return list(filter(lambda metric: metric.key == key, self._metrics))
 
     def add_property(self, property_: Property) -> None:
         """ Method that adds a single Property value to this Object
@@ -258,15 +256,13 @@ class Object:
         """
         self.add_property(Property(*args, **kwargs))
 
-    def get_property(self, key) -> Optional[Property]:
+    def get_property(self, key) -> list[Property]:
         """
 
-        :param key: Metric key of the metric to return.
-        :return:
+        :param key: Property key of the property to return.
+        :return: All properties matching the given key
         """
-        # TODO: Optimize this?
-        # TODO: If multiple match, do we return all, a 'random' one, the last added, or the latest timestamp?
-        return next(filter(lambda property_: property_.key == key, self._properties), None)
+        return list(filter(lambda property_: property_.key == key, self._properties))
 
     def add_event(self, event: Event) -> None:
         """ Method that adds a single Event to this Object
@@ -274,7 +270,7 @@ class Object:
         :param event: An :class:`Event` to add to this Object
         :return: None
         """
-        self._events.append(event)
+        self._events.add(event)
 
     def add_events(self, events: list[Event]) -> None:
         """ Method that adds a list of Events to this Object
@@ -319,6 +315,12 @@ class Object:
         for parent in parents:
             self.add_parent(parent)
 
+    def get_parents(self) -> set[Object]:
+        """
+        :return: A set of all objects that are parents of this object
+        """
+        return self._parents
+
     def add_child(self, child: Object) -> None:
         """ Method that adds a child Object to this Object.
 
@@ -344,6 +346,12 @@ class Object:
         """
         for child in children:
             self.add_child(child)
+
+    def get_children(self) -> set[Object]:
+        """
+        :return: A set of all objects that are children of this object
+        """
+        return self._children
 
     def get_json(self) -> dict:
         """Get a JSON representation of this Object
