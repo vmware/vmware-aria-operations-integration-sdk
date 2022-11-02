@@ -333,8 +333,6 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            requirements.write("# Remove the following line once the vrops-integration library is in the main pypi"
-                               " repository.\n")
             requirements.write("psutil==5.9.0\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.4.*\n")
 
@@ -344,8 +342,8 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
             copy(src, dest)
 
         with open(os.path.join(path, project_directory, "constants.py"), "w") as constants:
-            constants.write(f'ADAPTER_KIND = "{adapter_kind}"')
-            constants.write(f'ADAPTER_NAME = "{name}"')
+            constants.write(f'ADAPTER_KIND = "{adapter_kind}"\n')
+            constants.write(f'ADAPTER_NAME = "{name}"\n')
 
     if language == "java":
         # TODO: copy a java class instead of generate it
