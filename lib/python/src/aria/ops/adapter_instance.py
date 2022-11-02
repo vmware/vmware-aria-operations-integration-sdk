@@ -18,7 +18,7 @@ class AdapterInstance(Object):
                              identifier in json["adapter_key"]["identifiers"]]))
 
         if type(json.get("credential_config")) is dict:
-            self.credential_type = json["credential_config"]["credentialKey"]
+            self.credential_type = json["credential_config"]["credential_key"]
             self.credentials = {credential.get("key"): credential.get("value")
                                 for credential in json["credential_config"]["credential_fields"]}
         else:

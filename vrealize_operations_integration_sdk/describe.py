@@ -131,7 +131,8 @@ def json_to_xml(json):
         add_credential_kind(credential_kinds, credential_kind, names)
 
     resource_kinds = SubElement(describe, ns("ResourceKinds"))
-    add_resource_kind(resource_kinds, json["adapter_instance"], names, type=7)
+    credential_types = map(lambda cred_type: cred_type["key"], json["credential_types"])
+    add_resource_kind(resource_kinds, json["adapter_instance"], names, type=7, credential_kinds=credential_types)
     for object_type in json["object_types"]:
         add_resource_kind(resource_kinds, object_type, names)
 
@@ -157,7 +158,7 @@ def add_credential_kind(parent, credential_kind_json, names):
             "nameKey": names.get_key(field["label"]),
             "required": str(field["required"]).lower(),
             "dispOrder": str(field["display_order"]),
-            "password": str(field["password"]),
+            "password": str(field["password"]).lower(),
             "enum": str(field["enum"]).lower(),
             "type": str(field["type"])
         })
