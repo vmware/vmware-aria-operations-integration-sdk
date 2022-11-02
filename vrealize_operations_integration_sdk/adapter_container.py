@@ -13,6 +13,12 @@ from vrealize_operations_integration_sdk.docker_wrapper import init, get_contain
 from vrealize_operations_integration_sdk.ui import Spinner
 
 
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
+logger.addHandler(consoleHandler)
+
 class AdapterContainer:
     def __init__(self, path):
         self.docker_client = init()
@@ -72,14 +78,11 @@ class AdapterContainer:
                         request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
                     version = json.loads(response.text)
                     self.started = True
-                    # logger.debug(f"HTTP Server started with api version "
-                    #              f"{version['major']}.{version['minor']}.{version['maintenance']}")
                 except (httpx.RequestError, httpx.HTTPStatusError) as e:
                     elapsed_time = time.perf_counter() - start_time
                     if elapsed_time > max_wait_time:
                         logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
                         exit(1)
-                    # logger.debug("Waiting for HTTP server to start...")
                     await asyncio.sleep(0.5)
 
 
