@@ -2,8 +2,9 @@
 #  SPDX-License-Identifier: Apache-2.0
 import asyncio
 import json
-import time
 import logging
+import os
+import time
 
 import httpx
 
@@ -11,6 +12,7 @@ from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
 from vrealize_operations_integration_sdk.docker_wrapper import init, get_container_image, run_image, stop_container, \
     ContainerStats
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.ui import Spinner
 
 logger = logging.getLogger(__name__)
