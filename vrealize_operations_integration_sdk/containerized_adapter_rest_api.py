@@ -94,9 +94,9 @@ async def get_request_body(project, connection):
             "credentialFields": fields,
         }
 
-    hostname = get_config_value("suite_api_hostname", "", os.path.join(project.path, "config.json"))
-    username = get_config_value("suite_api_username", "", os.path.join(project.path, "config.json"))
-    password = get_config_value("suite_api_password", "", os.path.join(project.path, "config.json"))
+    hostname = get_config_value("suite_api_hostname", "string", os.path.join(project.path, "config.json"))
+    username = get_config_value("suite_api_username", "string", os.path.join(project.path, "config.json"))
+    password = get_config_value("suite_api_password", "string", os.path.join(project.path, "config.json"))
 
     request_body = {
         "adapterKey": {
