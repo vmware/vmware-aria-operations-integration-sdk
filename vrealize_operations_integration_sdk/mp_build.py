@@ -17,7 +17,7 @@ import httpx
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
 from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
-from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter
+from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
 from vrealize_operations_integration_sdk.describe import get_adapter_kind, Describe, write_describe
 from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
