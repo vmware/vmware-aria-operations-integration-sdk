@@ -19,7 +19,7 @@ from xmlschema import XMLSchemaValidationError
 from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, ADAPTER_DEFINITION_ENDPOINT
-from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
+from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true, Describe

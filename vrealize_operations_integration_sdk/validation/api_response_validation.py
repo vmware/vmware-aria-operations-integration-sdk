@@ -11,7 +11,7 @@ from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAP
 from openapi_core.validation.response import openapi_response_validator
 
 from vrealize_operations_integration_sdk import api
-from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import get_failure_message
+from vrealize_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
 from vrealize_operations_integration_sdk.validation.result import Result
 
 
