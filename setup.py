@@ -67,7 +67,7 @@ setup(
         "urwid==2.1.2",
         "urwidtrees==1.0.3",
         "validators==0.20.0",
-        "vmware-aria-operations-integration-sdk-lib==0.4.0",
+        "vmware-aria-operations-integration-sdk-lib==0.4.1",
         "wcwidth==0.2.5",
         "websocket-client==1.3.3",
         "Werkzeug==2.2.2",
