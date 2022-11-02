@@ -5,7 +5,7 @@ import sys
 
 from aria.ops.object import Key, Identifier, Object
 from aria.ops.pipe_utils import read_from_pipe
-from aria.ops.suite_api_client import VROpsSuiteApiClient, SuiteApiConnectionParameters
+from aria.ops.suite_api_client import SuiteApiClient, SuiteApiConnectionParameters
 
 
 class AdapterInstance(Object):
@@ -26,7 +26,7 @@ class AdapterInstance(Object):
             self.credentials = {}
 
         if type(json.get("cluster_connection_info")) is dict:
-            self.suite_api_client = VROpsSuiteApiClient(SuiteApiConnectionParameters(
+            self.suite_api_client = SuiteApiClient(SuiteApiConnectionParameters(
                 username=json["cluster_connection_info"]["user_name"],
                 password=json["cluster_connection_info"]["password"],
                 host=json["cluster_connection_info"]["host_name"]
