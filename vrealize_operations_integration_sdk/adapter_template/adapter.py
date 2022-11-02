@@ -9,7 +9,7 @@ import psutil
 from aria.ops.definition.group import Group
 from constants import ADAPTER_KIND, ADAPTER_NAME
 from aria.ops.adapter_instance import AdapterInstance
-from aria.ops.attribute import Property, Metric
+from aria.ops.data import Property, Metric
 from aria.ops.definition.adapter_definition import AdapterDefinition
 from aria.ops.definition.units import Units
 from aria.ops.result import EndpointResult, CollectResult, TestResult
