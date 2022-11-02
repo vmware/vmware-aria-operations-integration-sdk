@@ -220,16 +220,12 @@ def main(argv):
     elif method == "collect":
         collect(AdapterInstance.from_input()).send_results()
     elif method == "adapter_definition":
-        print(dir())
-        # if "get_adapter_definition" in dir():
         result = get_adapter_definition()
         if type(result) is AdapterDefinition:
             result.send_results()
         else:
             logger.info("get_adapter_definition method did not return an AdapterDefinition")
-        # else:
-        #     logger.info("get_adapter_definition method is not defined")
-        exit(1)
+            exit(1)
     else:
         logger.debug(f"Command {method} not found")
         exit(1)
