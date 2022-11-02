@@ -13,12 +13,12 @@ from vrealize_operations_integration_sdk.docker_wrapper import init, get_contain
     ContainerStats
 from vrealize_operations_integration_sdk.ui import Spinner
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 consoleHandler = PTKHandler()
 consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
+
 
 class AdapterContainer:
     def __init__(self, path):
@@ -85,5 +85,3 @@ class AdapterContainer:
                         logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
                         exit(1)
                     await asyncio.sleep(0.5)
-
-
