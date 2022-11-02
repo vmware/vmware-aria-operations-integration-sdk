@@ -70,17 +70,17 @@ printf "%s* Creating Virtual Environment%s\n" "$MAGENTA" "$DEFAULT"
 # Add path to repo
 STATUS=0
 VROPS_SDK_REPO_PATH="$(realpath .)"
-STATUS=$(($STATUS + $?))
+STATUS=$((STATUS + $?))
 export VROPS_SDK_REPO_PATH
-STATUS=$(($STATUS + $?))
+STATUS=$((STATUS + $?))
 
 # Create virtual environment
 (python3 -m venv $VIRTUAL_ENV_FILE_NAME)
-STATUS=$(($STATUS + $?))
+STATUS=$((STATUS + $?))
 
 # Activate virtual environment to source
 source $VIRTUAL_ENV_FILE_NAME/bin/activate
-STATUS=$(($STATUS + $?))
+STATUS=$((STATUS + $?))
 if [ $STATUS -ne 0 ] ; then
   printf "\n"
   printf "%sError creating or activating the Virtual Environment%s\n" "$RED" "$DEFAULT"
@@ -88,14 +88,17 @@ if [ $STATUS -ne 0 ] ; then
 fi
 
 printf "%s* Installing SDK tools into Virtual Environment%s\n" "$MAGENTA" "$DEFAULT"
+STATUS=0
 ## Install our package
 if [ $VERBOSE = 1 ] ; then
   pip install .
-else 
+  STATUS=$((STATUS + $?))
+else
   pip install . > /dev/null
+  STATUS=$((STATUS + $?))
 fi
 
-if [ $? -ne 0 ] ; then
+if [ $STATUS -ne 0 ] ; then
   printf "\n"
   printf "%sError installing SDK tools or dependencies into Virtual Environment%s\n" "$RED" "$DEFAULT"
   exit 3

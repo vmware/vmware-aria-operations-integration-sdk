@@ -21,8 +21,8 @@ from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, E
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, ADAPTER_DEFINITION_ENDPOINT
 from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
-from vrealize_operations_integration_sdk.describe import get_describe, ns, get_adapter_instance, get_credential_kinds, \
-    get_identifiers, is_true
+from vrealize_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
+    get_identifiers, is_true, Describe
 from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
@@ -138,7 +138,7 @@ async def run_get_adapter_definition(timeout, project, connection, adapter_conta
             return AdapterDefinitionBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_get_server_version(timeout, adapter_container, title="Running Get Server Version", **kwargs):
+async def run_get_server_version(timeout, adapter_container, title="Running Get API Version", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -163,6 +163,7 @@ async def run(arguments):
     # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
     # the command line and there are interactive prompts, this can provide a noticeable speed increase.
     adapter_container = AdapterContainer(project.path)
+    Describe.initialize(project.path, adapter_container)
 
     # Set up logger, which requires project
     log_file_path = os.path.join(project.path, 'logs')
@@ -178,7 +179,7 @@ async def run(arguments):
     except Exception:
         logger.warning(f"Unable to save logs to {log_file_path}")
 
-    connection = get_connection(project, arguments)
+    connection = await get_connection(project, adapter_container, arguments)
 
     try:
         adapter_container.start(connection.get_memory_limit())
@@ -276,12 +277,8 @@ def write_validation_log(validation_file_path, result):
 
 # Helpers for creating the json payload ***************
 
-def get_connection(project, arguments):
+async def get_connection(project, adapter_container, arguments):
     connection_names = [(connection.name, connection.name) for connection in project.connections]
-    # We should ensure the describe is valid before parsing through it.
-    validate_describe(project.path)
-    describe = get_describe(project.path)
-    resources = load_properties(os.path.join(project.path, "conf", "resources", "resources.properties"))
 
     if (arguments.connection, arguments.connection) not in connection_names:
         connection_name = selection_prompt("Choose a connection: ",
@@ -296,6 +293,9 @@ def get_connection(project, arguments):
         logger.error(f"Cannot find connection with name '{connection_name}'.")
         exit(1)
 
+    # We should ensure the 'describe' file is valid before parsing through it.
+    describe, resources = await Describe.get()
+    validate_describe(project.path, describe)
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:
         logger.error("Cannot find adapter instance in conf/describe.xml.")

@@ -22,6 +22,13 @@ class TestResult:
         """
         self._error_message = None
 
+    def is_success(self):
+        """
+
+        :return: True if the TestResult represents a successful test
+        """
+        return self._error_message is None
+
     def with_error(self, error_message: str):
         """ Set the adapter instance connection test to failed, and display the given error message.
 
@@ -41,7 +48,7 @@ class TestResult:
 
         :return: A JSON representation of this TestResult
         """
-        if self._error_message is None:
+        if self.is_success():
             return {}
         else:
             return {
@@ -195,8 +202,8 @@ class CollectResult:
                 "relationships": [
                     {
                         "parent": obj.get_key().get_json(),
-                        "children": [child_key.get_json() for child_key in obj._children]
-                    } for obj in self.objects.values() if len(obj._children) > 0
+                        "children": [child_key.get_json() for child_key in obj.get_children()]
+                    } for obj in self.objects.values() if len(obj.get_children()) > 0
                 ],
                 "nonExistingObjects": [],
             }

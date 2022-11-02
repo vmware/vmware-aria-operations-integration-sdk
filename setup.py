@@ -15,6 +15,7 @@ setup(
     },
     python_requires=">=3.9",
     install_requires=[
+        "aenum==3.1.11",
         "anyio==3.6.1",
         "attrs==22.1.0",
         "certifi==2022.6.15",
@@ -39,6 +40,7 @@ setup(
         "jsonschema==4.14.0",
         "jsonschema-spec==0.1.2",
         "lazy-object-proxy==1.7.1",
+        "lxml==4.9.1",
         "MarkupSafe==2.1.1",
         "mock==4.0.3",
         "more-itertools==8.14.0",
@@ -65,6 +67,7 @@ setup(
         "urwid==2.1.2",
         "urwidtrees==1.0.3",
         "validators==0.20.0",
+        "vmware-aria-operations-integration-sdk-lib==0.4.0",
         "wcwidth==0.2.5",
         "websocket-client==1.3.3",
         "Werkzeug==2.2.2",

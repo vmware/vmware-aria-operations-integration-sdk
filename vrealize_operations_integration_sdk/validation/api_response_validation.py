@@ -11,6 +11,7 @@ from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAP
 from openapi_core.validation.response import openapi_response_validator
 
 from vrealize_operations_integration_sdk import api
+from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import get_failure_message
 from vrealize_operations_integration_sdk.validation.result import Result
 
 
@@ -19,6 +20,8 @@ def validate_api_response(project, request, response):
 
 
 def validate_definition_api_response(project, request, response):
+    if response.status_code == 204:
+        return Result()
     return _validate_api_response(request, response, "integration-sdk-definition-endpoint.json")
 
 
@@ -27,7 +30,7 @@ def _validate_api_response(request, response, schema_file):
     try:
         if not response.is_success:
             result.with_error(f"Unable to validate the response json. The '{request.url}' endpoint "
-                              f"response was: {response.status_code} {response.reason_phrase}")
+                              f"response was: \n {get_failure_message(response)}")
             return result
         with resources.path(api, schema_file) as schema_file:
             with open(schema_file, "r") as schema:

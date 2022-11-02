@@ -31,10 +31,20 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "No Adapter Definition returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "operationId": "definition",
-        "description": "Get Definition"
+        "description": "Get Adapter Definition"
       },
       "parameters": []
     }
@@ -54,8 +64,7 @@
           },
           "unit": {
             "type": "string",
-            "required": false,
-            "format": "nullable"
+            "nullable": true
           },
           "is_rate": {
             "type": "boolean",
@@ -87,7 +96,19 @@
           "is_property": {
             "type": "boolean"
           }
-        }
+        },
+        "required": [
+          "key",
+          "label",
+          "is_rate",
+          "is_discrete",
+          "is_kpi",
+          "is_impact",
+          "is_key_attribute",
+          "dashboard_order",
+          "data_type",
+          "is_property"
+        ]
       },
       "CredentialDefinition": {
         "type": "object",
@@ -127,12 +148,11 @@
                   "type": "array",
                   "items": {
                     "type": "string"
-                  },
-                  "required": false
+                  }
                 },
                 "default": {
                   "type": "string",
-                  "required": false
+                  "nullable": true
                 },
                 "display_order": {
                   "type": "integer",
@@ -142,7 +162,16 @@
                   "type": "string",
                   "default": "string"
                 }
-              }
+              },
+              "required": [
+                "key",
+                "label",
+                "required",
+                "password",
+                "enum",
+                "display_order",
+                "type"
+              ]
             }
           }
         }
@@ -159,8 +188,7 @@
             "type": "string"
           },
           "description": {
-            "type": "string",
-            "required": false
+            "type": "string"
           },
           "required": {
             "type": "boolean",
@@ -179,8 +207,7 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "required": false
+            }
           },
           "display_order": {
             "type": "integer",
@@ -190,14 +217,23 @@
             "type": "string"
           },
           "length": {
-            "type": "string",
-            "required": false
+            "type": "integer",
+            "nullable": true
           },
           "default": {
             "type": "string",
-            "required": false
+            "nullable": true
           }
-        }
+        },
+        "required":[
+          "key",
+          "label",
+          "required",
+          "ident_type",
+          "enum",
+          "display_order",
+          "type"
+        ]
       },
       "GroupDefinition": {
         "title": "Group Definition",
@@ -247,7 +283,13 @@
               "$ref": "#/components/schemas/GroupDefinition"
             }
           }
-        }
+        },
+        "required": [
+          "key",
+          "label",
+          "identifiers",
+          "groups"
+        ]
       },
       "AdapterDefinition": {
         "title": "Adapter Definition",
@@ -279,7 +321,15 @@
               "$ref": "#/components/schemas/ObjectDefinition"
             }
           }
-        }
+        },
+        "required": [
+          "adapter_key",
+          "adapter_label",
+          "describe_version",
+          "adapter_instance",
+          "credential_types",
+          "object_types"
+        ]
       }
     }
   }

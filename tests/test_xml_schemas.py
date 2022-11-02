@@ -100,11 +100,11 @@ class TestAlertsRecommendationsAndSymptoms:
 
     @pytest.fixture
     def modified_content(self):
-        yield etree.parse("res/modified_alert.xml")
+        yield etree.parse("tests/res/modified_alert.xml")
 
     @pytest.fixture
     def generated_content(self):
-        yield etree.parse("res/generated_alert.xml")
+        yield etree.parse("tests/res/generated_alert.xml")
 
     def test_valid_content_xml_generated_alert(self, content_xml_schema, generated_content):
         content_xml_schema.validate(generated_content)
@@ -181,7 +181,7 @@ class TestTraversals:
 
     @pytest.fixture
     def base_traversal_xml(self):
-        yield etree.parse("res/traversal.xml")
+        yield etree.parse("tests/res/traversal.xml")
 
     def test_valid_traversal_xml(self, traversal_schema, base_traversal_xml):
         traversal_schema.is_valid(base_traversal_xml)

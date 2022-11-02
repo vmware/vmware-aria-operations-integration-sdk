@@ -3,7 +3,7 @@
 
 name: Aria Operations Integration SDK
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   sdk:
@@ -70,7 +70,7 @@ jobs:
         flake8 lib/python --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test Python Library with pytest
       run: |
-        pytest -s tests
+        pytest -s lib/python/tests
     - name: Upload Python Library pytest test results
       uses: actions/upload-artifact@v3
       with:

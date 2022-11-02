@@ -106,67 +106,6 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
     return manifest
 
 
-def create_describe(path, adapter_key, name):
-    # TODO: This should be a template file, or dynamically generated
-    describe_file = os.path.join(path, "conf", "describe.xml")
-    with open(describe_file, "w") as describe_fd:
-        describe_fd.write(
-            f"""<?xml version = '1.0' encoding = 'UTF-8'?>
-<!-- <!DOCTYPE AdapterKind SYSTEM "describeSchema.xsd"> -->
-<AdapterKind key="{adapter_key}" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
-    <CredentialKinds>
-    </CredentialKinds>
-    <ResourceKinds>
-        <ResourceKind key="{adapter_key}_adapter_instance" nameKey="2" type="7">
-            <ResourceIdentifier dispOrder="1" key="ID" length="" nameKey="3" required="true" type="string" identType="1" enum="false" default=""></ResourceIdentifier>
-            <!-- The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to 
-            determine how much memory to allocate to the docker container running this adapter. It does not 
-            need to be read inside the adapter code. -->
-			<ResourceIdentifier dispOrder="2" key="container_memory_limit" nameKey="4" required="true" type="integer" identType="2" default="1024" />
-        </ResourceKind>
-        <ResourceKind key="CPU" nameKey="5">
-            <ResourceAttribute key="cpu_count" nameKey="6" dataType="float" isProperty="true"/>
-            <ResourceAttribute key="user_time" nameKey="7" dataType="float" unit="sec"/>
-            <ResourceAttribute key="nice_time" nameKey="8" dataType="float" keyAttribute="true" unit="sec"/>
-            <ResourceAttribute key="system_time" nameKey="9" dataType="float" unit="sec"/>
-            <ResourceAttribute key="idle_time" nameKey="10" dataType="float" unit="sec"/>
-        </ResourceKind>
-        <ResourceKind key="Disk" nameKey="11">
-            <ResourceAttribute key="partition" nameKey="12" dataType="string" isProperty="true"/>
-            <ResourceAttribute key="total_space" nameKey="13" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="used_space" nameKey="14" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="free_space" nameKey="15" dataType="float" unit="bytes"/>
-            <ResourceAttribute key="percent_used_space" nameKey = "16" dataType="float" keyAttribute="true" unit="percent"/>
-        </ResourceKind>
-        <ResourceKind key="System" nameKey="17">
-        </ResourceKind>
-    </ResourceKinds>
-</AdapterKind>""")
-    describe_resources_file = os.path.join(path, "conf", "resources", "resources.properties")
-    with open(describe_resources_file, "w") as describe_resources_fd:
-        describe_resources_fd.write(f"""version=1
-1={name}
-2={name} Adapter Instance
-3=ID
-3.description=Example identifier. Using a value of 'bad' will cause test connection to fail; any other value will pass.
-4=Adapter Memory Limit (MB)
-4.description=Sets the maximum amount of memory VMware Aria Operations can allocate to the container running this adapter instance.
-5=CPU
-6=CPU Count
-7=User Time
-8=Nice Time
-9=System Time
-10=Idle Time
-11=Disk
-12=Partition
-13=Total Space
-14=Used Space
-15=Free Space
-16=Disk Utilization
-17=System
-""")
-
-
 def build_content_directory(path):
     content_dir = mkdir(path, "content")
     add_git_keep_file(mkdir(content_dir, "policies"))
@@ -209,7 +148,6 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
     eula_file = create_eula_file(path, eula_file)
     icon_file = create_icon_file(path, icon_file)
     manifest = create_manifest_file(path, adapter_key, eula_file, icon_file)
-    create_describe(path, adapter_key, name)
 
     # This has to happen after the manifest.txt file is created, because this function only records a project if
     # it is an Integration SDK project. Currently, the method for determining this is to look for the manifest.txt
@@ -397,9 +335,8 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
         with open(requirements_file, "w") as requirements:
             requirements.write("# Remove the following line once the vrops-integration library is in the main pypi"
                                " repository.\n")
-            requirements.write("--extra-index-url https://testpypi.python.org/pypi\n")
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vmware-aria-operations-integration-sdk-lib==0.3.*\n")
+            requirements.write("vmware-aria-operations-integration-sdk-lib==0.4.*\n")
 
         # copy adapter.py into app directory
         with resources.path(adapter_template, "adapter.py") as src:
