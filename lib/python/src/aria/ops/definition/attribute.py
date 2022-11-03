@@ -17,7 +17,7 @@ class Attribute(ABC):
                  is_kpi: bool = False,
                  is_impact: bool = False,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -69,7 +69,7 @@ class MetricAttribute(Attribute):
                  is_kpi: bool = False,
                  is_impact: bool = False,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -105,7 +105,7 @@ class PropertyAttribute(Attribute):
                  is_kpi: bool = False,
                  is_impact: bool = False,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
