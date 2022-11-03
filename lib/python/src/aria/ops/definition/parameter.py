@@ -71,7 +71,7 @@ class IntParameter(Parameter):
     def to_json(self):
         return super().to_json() | {
             "type": "integer",
-            "default": str(self.default) if self.default else None,
+            "default": str(self.default) if self.default is not None else None,
         }
 
 

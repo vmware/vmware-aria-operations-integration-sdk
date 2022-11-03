@@ -186,8 +186,11 @@ def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kind
 
 
 def add_identifier(parent, identifier_json, names):
+    default = identifier_json.get("default")
+    if default is None:
+        default = ""
     identifier_xml = SubElement(parent, ns("ResourceIdentifier"), attrib={
-        "default": identifier_json.get("default") or "",
+        "default": str(default),
         "key": identifier_json["key"],
         "nameKey": names.get_key(identifier_json["label"], identifier_json.get("description")),
         "required": str(identifier_json["required"]).lower(),
