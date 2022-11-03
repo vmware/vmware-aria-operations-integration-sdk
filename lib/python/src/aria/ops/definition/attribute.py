@@ -1,6 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.units import Unit
@@ -9,8 +10,8 @@ from aria.ops.definition.units import Unit
 class Attribute(ABC):
     def __init__(self,
                  key: str,
-                 label: str = None,
-                 unit: Unit = None,
+                 label: Optional[str] = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,
@@ -65,8 +66,8 @@ class Attribute(ABC):
 
 class MetricAttribute(Attribute):
     def __init__(self, key: str,
-                 label: str = None,
-                 unit: Unit = None,
+                 label: Optional[str] = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,
@@ -103,9 +104,9 @@ class MetricAttribute(Attribute):
 
 class PropertyAttribute(Attribute):
     def __init__(self, key: str,
-                 label: str = None,
+                 label: Optional[str] = None,
                  is_string: bool = True,
-                 unit: Unit = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,

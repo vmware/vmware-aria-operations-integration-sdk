@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from collections import OrderedDict
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
@@ -17,7 +18,7 @@ class GroupType(ABC):
         self.attributes = OrderedDict()
         self.groups = OrderedDict()
 
-    def define_group(self, key: str, label: str = None) -> Group:
+    def define_group(self, key: str, label: Optional[str] = None) -> Group:
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
@@ -28,7 +29,7 @@ class GroupType(ABC):
         self.add_group(group)
         return group
 
-    def define_instanced_group(self, key: str, label: str = None, instance_required: bool = True) -> Group:
+    def define_instanced_group(self, key: str, label: Optional[str] = None, instance_required: bool = True) -> Group:
         """
         Create a new group that can hold attributes and subgroups. This group can be 'instanced', with a value, so that
         its subgroups and attributes can appear multiple times, once for each instance value. For example, a group
@@ -66,8 +67,8 @@ class GroupType(ABC):
         self.groups[key] = group
 
     def define_metric(self, key: str,
-                      label: str = None,
-                      unit: Unit = None,
+                      label: Optional[str] = None,
+                      unit: Optional[Unit] = None,
                       is_rate: bool = False,
                       is_discrete: bool = False,
                       is_kpi: bool = False,
@@ -96,8 +97,8 @@ class GroupType(ABC):
         return metric
 
     def define_string_property(self, key: str,
-                               label: str = None,
-                               unit: Unit = None,
+                               label: Optional[str] = None,
+                               unit: Optional[Unit] = None,
                                is_rate: bool = False,
                                is_discrete: bool = False,
                                is_kpi: bool = False,
@@ -126,8 +127,8 @@ class GroupType(ABC):
         return _property
 
     def define_numeric_property(self, key: str,
-                                label: str = None,
-                                unit: Unit = None,
+                                label: Optional[str] = None,
+                                unit: Optional[Unit] = None,
                                 is_rate: bool = False,
                                 is_discrete: bool = False,
                                 is_kpi: bool = False,
@@ -184,7 +185,7 @@ class GroupType(ABC):
 
 
 class Group(GroupType):
-    def __init__(self, key: str, label: str = None, instanced: bool = False, instance_required: bool = True):
+    def __init__(self, key: str, label: Optional[str] = None, instanced: bool = False, instance_required: bool = True):
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
