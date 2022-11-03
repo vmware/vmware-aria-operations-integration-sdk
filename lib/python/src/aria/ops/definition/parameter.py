@@ -65,7 +65,7 @@ class IntParameter(Parameter):
     def to_json(self):
         return super().to_json() | {
             "type": "integer",
-            "default": str(self.default),
+            "default": str(self.default) if self.default else None,
         }
 
 
@@ -89,7 +89,7 @@ class StringParameter(Parameter):
         return super().to_json() | {
             "type": "string",
             "length": int(self.max_length),
-            "default": str(self.default)
+            "default": self.default
         }
 
 
@@ -119,5 +119,5 @@ class EnumParameter(Parameter):
             "type": "string",
             "enum": True,
             "enum_values": [str(value) for value in self.values],
-            "default": str(self.default)
+            "default": self.default
         }
