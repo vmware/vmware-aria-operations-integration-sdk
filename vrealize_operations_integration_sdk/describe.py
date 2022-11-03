@@ -187,6 +187,7 @@ def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kind
 
 def add_identifier(parent, identifier_json, names):
     identifier_xml = SubElement(parent, ns("ResourceIdentifier"), attrib={
+        "default": identifier_json.get("default", ""),
         "key": identifier_json["key"],
         "nameKey": names.get_key(identifier_json["label"], identifier_json.get("description")),
         "required": str(identifier_json["required"]).lower(),
@@ -204,7 +205,7 @@ def add_enum_values(parent, identifier_json):
         for value in identifier_json["enum_values"]:
             SubElement(parent, ns("enum"), attrib={
                 "value": str(value),
-                "default": str(value == identifier_json.get("default", None)).lower()
+                "default": str(value == identifier_json.get("default", False)).lower()
             })
 
 
