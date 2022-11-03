@@ -16,7 +16,6 @@ class Attribute(ABC):
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
                  dashboard_order: int = None):
         """
@@ -32,7 +31,6 @@ class Attribute(ABC):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
@@ -45,7 +43,6 @@ class Attribute(ABC):
         self.is_discrete = is_discrete
         self.is_kpi = is_kpi
         self.is_impact = is_impact
-        self.dt_type = dt_type
         self.is_key_attribute = is_key_attribute
         self.dashboard_order = dashboard_order
 
@@ -58,7 +55,6 @@ class Attribute(ABC):
             "is_discrete": self.is_discrete,
             "is_kpi": self.is_kpi,
             "is_impact": self.is_impact,
-            "dt_type": self.dt_type,
             "is_key_attribute": self.is_key_attribute,
             "dashboard_order": self.dashboard_order,
         }
@@ -72,7 +68,6 @@ class MetricAttribute(Attribute):
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
                  dashboard_order: int = None):
         """
@@ -88,12 +83,10 @@ class MetricAttribute(Attribute):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, dt_type, is_key_attribute,
-                         dashboard_order)
+        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute, dashboard_order)
 
     def to_json(self):
         return super().to_json() | {
@@ -111,7 +104,6 @@ class PropertyAttribute(Attribute):
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
                  dashboard_order: int = None):
         """
@@ -128,11 +120,10 @@ class PropertyAttribute(Attribute):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, dt_type, is_key_attribute,
+        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute,
                          dashboard_order)
         self.is_string = is_string
 
