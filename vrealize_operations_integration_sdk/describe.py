@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 import logging
 import os
-from collections import OrderedDict
-
-from xml.etree.ElementTree import Element, SubElement
 import xml.etree.ElementTree as ET
+from collections import OrderedDict
+from xml.etree.ElementTree import Element, SubElement
 
 import httpx
 
@@ -16,7 +15,7 @@ from aria.ops.definition.units import Units
 from vrealize_operations_integration_sdk.config import get_config_value
 from vrealize_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.propertiesfile import load_properties, write_properties
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -73,8 +72,64 @@ class Describe:
                              f"should be used, but no describe.xml file was found.")
                 await cls._adapter_container.stop()
                 exit(1)
-            ad = json.loads(response.text)
-            cls._describe, cls._resources = json_to_xml(ad)
+            adapter_definition = json.loads(response.text)
+            describe, names = json_to_xml(adapter_definition)
+            cls.merge_xml_fragments(describe, names)
+            cls._describe = describe
+            cls._resources = names.properties
+
+    @classmethod
+    def merge_xml_fragments(cls, describe, names):
+        # Note: All fragments must contain a top-level 'AdapterKind' element, and have the default namespace set to
+        # 'http://schemas.vmware.com/vcops/schema'. Note: Any attributes on the 'AdapterKind' element itself will be
+        # ignored. The 'AdapterKind' element only serves to hold one or more of the following fragment elements:
+        elements = ["CustomGroupMetrics",
+                    "CapacityDefinitions",
+                    "Faults",
+                    "LaunchConfigurations",
+                    "BasePolicyAnalysisSettings",
+                    "OOTBPolicies",
+                    "FavoriteGroups"]
+
+        for file in os.listdir(os.path.join(cls._path, "conf")):
+            if file != "describe.xml" and file.endswith(".xml"):
+                logger.info("Adding describe fragment to describe.xml: " + os.path.join(cls._path, "conf", file))
+                fragment = ET.parse(os.path.join(cls._path, "conf", file))
+
+                # Names are handled separately because they will not be added to describe.xml, but instead
+                # added to resources.properties. All elements with a 'nameKey' attribute *must* have a matching
+                # /'Names'/'Name' element in the fragment. Name keys in each fragment will be remapped to ensure
+                # there are no collisions between fragments and the primary describe.
+                # Note: Support for Names in fragments is limited to the default translation/language
+                namekey_remap = {}
+                default_names = fragment.find(ns('Names'))  # Find first 'Names' element
+                if default_names is not None:
+                    fragment_names = default_names.findall(ns('Name'))
+                    if fragment_names is not None and len(fragment_names) > 0:
+                        for name in fragment_names:
+                            namekey_remap[name.get("key")] = names.get_key(name.get("shortName"))
+
+                for element in elements:
+                    fragment_elements = fragment.find(ns(element))
+                    if fragment_elements is not None and len(fragment_elements) > 0:
+                        target_element = describe.find(ns(element))
+                        if target_element is None:
+                            target_element = SubElement(describe, ns(element))
+                        cls.remap_namekeys(fragment_elements, namekey_remap)
+                        for fragment_element in fragment_elements:
+                            target_element.append(fragment_element)
+
+    @staticmethod
+    def remap_namekeys(element, namekey_map):
+        named_elements = element.findall(".//*[@nameKey]")  # Get all elements at any level with the attribute 'nameKey'
+        for named_element in named_elements:
+            new_key = namekey_map.get(named_element.get("nameKey"))
+            if new_key is not None:
+                named_element.set("nameKey", new_key)
+            else:
+                logger.warning(f"Fragment error: No 'Name' element found with key '{named_element.get('nameKey')}'")
+                logger.warning(f"Removing 'nameKey' from element {named_element.tag} {named_element.attrib}")
+                named_element.attrib.pop("nameKey")
 
 
 def ns(kind):
@@ -126,19 +181,31 @@ def json_to_xml(json):
         "version": str(json["describe_version"])
     })
 
+    # CredentialKinds
     credential_kinds = SubElement(describe, ns("CredentialKinds"))
     for credential_kind in json["credential_types"]:
         add_credential_kind(credential_kinds, credential_kind, names)
 
+    # ResourceKinds
     resource_kinds = SubElement(describe, ns("ResourceKinds"))
     credential_types = map(lambda cred_type: cred_type["key"], json["credential_types"])
     add_resource_kind(resource_kinds, json["adapter_instance"], names, type=7, credential_kinds=credential_types)
     for object_type in json["object_types"]:
         add_resource_kind(resource_kinds, object_type, names)
 
+    # CustomGroupMetrics
+    # CapacityDefinitions
+    # Faults
+    # LaunchConfigurations
+    # add_launch_configurations(describe, names)
+    # BasePolicyAnalysisSettings
+    # UnitDefinitions
     add_units(describe, names)
+    # OOTBPolicies
+    # Names
+    # FavoriteGroups
 
-    return describe, names.properties
+    return describe, names
 
 
 def write_describe(describe, filename: str):
