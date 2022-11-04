@@ -169,7 +169,7 @@ def get_adapter_definition() -> AdapterDefinition:
     definition.define_int_parameter("container_memory_limit",
                                     label="Adapter Memory Limit (MB)",
                                     description="Sets the maximum amount of memory VMware Aria Operations can "
-                                                "allocate to the container running this adapter instance.u",
+                                                "allocate to the container running this adapter instance.",
                                     required=True,
                                     advanced=True,
                                     default=1024)

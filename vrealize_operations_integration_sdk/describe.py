@@ -186,7 +186,11 @@ def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kind
 
 
 def add_identifier(parent, identifier_json, names):
+    default = identifier_json.get("default")
+    if default is None:
+        default = ""
     identifier_xml = SubElement(parent, ns("ResourceIdentifier"), attrib={
+        "default": str(default),
         "key": identifier_json["key"],
         "nameKey": names.get_key(identifier_json["label"], identifier_json.get("description")),
         "required": str(identifier_json["required"]).lower(),
@@ -204,7 +208,7 @@ def add_enum_values(parent, identifier_json):
         for value in identifier_json["enum_values"]:
             SubElement(parent, ns("enum"), attrib={
                 "value": str(value),
-                "default": str(value == identifier_json.get("default", None)).lower()
+                "default": str(value == identifier_json.get("default", False)).lower()
             })
 
 
@@ -212,7 +216,7 @@ def add_attribute(parent, attribute_json, names):
     attribute_xml = SubElement(parent, ns("ResourceAttribute"), attrib={
         "key": attribute_json["key"],
         "nameKey": names.get_key(attribute_json["label"]),
-        "unit": attribute_json["unit"] or "",
+        "unit": attribute_json.get("unit") or "",
         "dashboardOrder": str(attribute_json["dashboard_order"]),
         "dataType": str(attribute_json["data_type"]),
         "isProperty": str(attribute_json["is_property"]).lower(),

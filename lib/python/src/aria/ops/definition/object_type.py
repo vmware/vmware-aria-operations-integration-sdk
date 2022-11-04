@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
@@ -13,7 +14,7 @@ from aria.ops.definition.parameter import EnumParameter, IntParameter, StringPar
 class ObjectType(GroupType):
     def __init__(self,
                  key: str,
-                 label: str = None):
+                 label: Optional[str] = None):
         """
         Create a new object type definition
         :param key: The key of the object type
@@ -26,8 +27,11 @@ class ObjectType(GroupType):
         self.identifiers = OrderedDict()
         super().__init__()
 
-    def define_string_identifier(self, key: str, label: str = None, required: bool = True, is_part_of_uniqueness: bool = True,
-                                 default: str = None) -> ObjectType:
+    def define_string_identifier(self, key: str,
+                                 label: Optional[str] = None,
+                                 required: bool = True,
+                                 is_part_of_uniqueness: bool = True,
+                                 default: Optional[str] = None) -> ObjectType:
         """
         Create a new string identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the 
@@ -44,8 +48,11 @@ class ObjectType(GroupType):
         self.add_identifier(parameter)
         return self
 
-    def define_int_identifier(self, key: str, label: str = None, required: bool = True, is_part_of_uniqueness: bool = True,
-                              default: int = None) -> ObjectType:
+    def define_int_identifier(self, key: str,
+                              label: Optional[str] = None,
+                              required: bool = True,
+                              is_part_of_uniqueness: bool = True,
+                              default: Optional[int] = None) -> ObjectType:
         """
         Create a new int identifier and apply it to this object type definition.
         All identifiers marked 'part of uniqueness' are used to determine object identification. If none exist, the 
@@ -62,8 +69,12 @@ class ObjectType(GroupType):
         self.add_identifier(parameter)
         return self
 
-    def define_enum_identifier(self, key: str, values: list[str], label: str = None, required: bool = True,
-                               is_part_of_uniqueness: bool = True, default: str = None) -> ObjectType:
+    def define_enum_identifier(self, key: str,
+                               values: list[str],
+                               label: Optional[str] = None,
+                               required: bool = True,
+                               is_part_of_uniqueness: bool = True,
+                               default: Optional[str] = None) -> ObjectType:
         """
         Create a new enum identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the 

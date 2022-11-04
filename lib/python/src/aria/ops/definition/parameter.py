@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
@@ -11,9 +12,9 @@ from aria.ops.definition.exceptions import DuplicateKeyException
 class Parameter(ABC):
     def __init__(self,
                  key: str,
-                 label: str = None,
-                 description: str = None,
-                 default: str = None,
+                 label: Optional[str] = None,
+                 description: Optional[str] = None,
+                 default: Optional[str | int] = None,
                  required: bool = True,
                  advanced: bool = False,
                  display_order: int = 0):
@@ -49,8 +50,13 @@ class Parameter(ABC):
 
 
 class IntParameter(Parameter):
-    def __init__(self, key: str, label: str = None, description: str = None, default: int = None, required: bool = True,
-                 advanced: bool = False, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 description: Optional[str] = None,
+                 default: Optional[int] = None,
+                 required: bool = True,
+                 advanced: bool = False,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -65,13 +71,19 @@ class IntParameter(Parameter):
     def to_json(self):
         return super().to_json() | {
             "type": "integer",
-            "default": str(self.default),
+            "default": str(self.default) if self.default is not None else None,
         }
 
 
 class StringParameter(Parameter):
-    def __init__(self, key: str, label: str = None, description: str = None, default: str = None,
-                 max_length: int = 512, required: bool = True, advanced: bool = False, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 description: Optional[str] = None,
+                 default: Optional[str] = None,
+                 max_length: int = 512,
+                 required: bool = True,
+                 advanced: bool = False,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -89,13 +101,19 @@ class StringParameter(Parameter):
         return super().to_json() | {
             "type": "string",
             "length": int(self.max_length),
-            "default": str(self.default)
+            "default": self.default
         }
 
 
 class EnumParameter(Parameter):
-    def __init__(self, key: str, values: list[str], label: str = None, description: str = None,
-                 default: str = None, required: bool = True, advanced: bool = False, display_order: int = 0):
+    def __init__(self, key: str,
+                 values: list[str],
+                 label: Optional[str] = None,
+                 description: Optional[str] = None,
+                 default: Optional[str] = None,
+                 required: bool = True,
+                 advanced: bool = False,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
@@ -119,5 +137,5 @@ class EnumParameter(Parameter):
             "type": "string",
             "enum": True,
             "enum_values": [str(value) for value in self.values],
-            "default": str(self.default)
+            "default": self.default
         }

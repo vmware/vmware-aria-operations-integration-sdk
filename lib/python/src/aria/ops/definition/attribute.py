@@ -1,6 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.units import Unit
@@ -9,15 +10,14 @@ from aria.ops.definition.units import Unit
 class Attribute(ABC):
     def __init__(self,
                  key: str,
-                 label: str = None,
-                 unit: Unit = None,
+                 label: Optional[str] = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -31,7 +31,6 @@ class Attribute(ABC):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
@@ -44,7 +43,6 @@ class Attribute(ABC):
         self.is_discrete = is_discrete
         self.is_kpi = is_kpi
         self.is_impact = is_impact
-        self.dt_type = dt_type
         self.is_key_attribute = is_key_attribute
         self.dashboard_order = dashboard_order
 
@@ -57,7 +55,6 @@ class Attribute(ABC):
             "is_discrete": self.is_discrete,
             "is_kpi": self.is_kpi,
             "is_impact": self.is_impact,
-            "dt_type": self.dt_type,
             "is_key_attribute": self.is_key_attribute,
             "dashboard_order": self.dashboard_order,
         }
@@ -65,15 +62,14 @@ class Attribute(ABC):
 
 class MetricAttribute(Attribute):
     def __init__(self, key: str,
-                 label: str = None,
-                 unit: Unit = None,
+                 label: Optional[str] = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -87,12 +83,10 @@ class MetricAttribute(Attribute):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, dt_type, is_key_attribute,
-                         dashboard_order)
+        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute, dashboard_order)
 
     def to_json(self):
         return super().to_json() | {
@@ -103,16 +97,15 @@ class MetricAttribute(Attribute):
 
 class PropertyAttribute(Attribute):
     def __init__(self, key: str,
-                 label: str = None,
+                 label: Optional[str] = None,
                  is_string: bool = True,
-                 unit: Unit = None,
+                 unit: Optional[Unit] = None,
                  is_rate: bool = False,
                  is_discrete: bool = False,
                  is_kpi: bool = False,
                  is_impact: bool = False,
-                 dt_type: str = None,
                  is_key_attribute: bool = False,
-                 dashboard_order: int = None):
+                 dashboard_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -127,11 +120,10 @@ class PropertyAttribute(Attribute):
         'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
         :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
         proxy to a root cause, but not the root cause itself.
-        :param dt_type: The type of algorithm to use for dynamic thresholding.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, dt_type, is_key_attribute,
+        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute,
                          dashboard_order)
         self.is_string = is_string
 
