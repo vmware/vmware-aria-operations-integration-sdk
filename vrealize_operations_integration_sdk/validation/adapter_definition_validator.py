@@ -6,7 +6,7 @@ import logging
 import os
 from json import JSONDecodeError
 
-from vrealize_operations_integration_sdk.describe import json_to_xml
+from vrealize_operations_integration_sdk.describe import json_to_xml, Describe
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.result import Result
@@ -31,6 +31,9 @@ def validate_adapter_definition(project, request, response):
     try:
         ad = json.loads(response.text)
         describe, names = json_to_xml(ad)
+        Describe.initialize(project.path, None)
+        Describe.merge_xml_fragments(describe, names)
+
         validate_describe(project.path, describe)
     except JSONDecodeError as d:
         result.with_error(f"Unable to validate the response json. Returned result is not valid json: "
