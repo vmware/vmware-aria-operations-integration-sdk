@@ -135,7 +135,7 @@ class Describe:
 
 
 def ns(kind):
-    return "{http://schemas.vmware.com/vcops/schema}" + kind
+    return "{*}" + kind
 
 
 ns_map = {None: "http://schemas.vmware.com/vcops/schema"}
