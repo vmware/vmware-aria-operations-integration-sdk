@@ -180,7 +180,7 @@ def is_true(element, attr, default="false"):
 
 def json_to_xml(json):
     names = _Names()
-    describe = Element("AdapterKind", attrib={
+    describe = Element("{http://schemas.vmware.com/vcops/schema}AdapterKind", attrib={
         "key": json["adapter_key"],
         "nameKey": names.get_key(json["adapter_label"]),
         "version": str(json["describe_version"])
