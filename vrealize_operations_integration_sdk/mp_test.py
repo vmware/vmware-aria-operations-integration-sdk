@@ -3,12 +3,11 @@
 
 import argparse
 import asyncio
-import json
 import logging
 import os
 import time
 import traceback
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 import httpx
 import urllib3
@@ -23,11 +22,10 @@ from vrealize_operations_integration_sdk.containerized_adapter_rest_api import s
     send_post_to_adapter
 from vrealize_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true, Describe
-from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError, ContainerStats
+from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError
 from vrealize_operations_integration_sdk.filesystem import mkdir
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
-from vrealize_operations_integration_sdk.propertiesfile import load_properties
 from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
     EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle, AdapterDefinitionBundle
 from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
