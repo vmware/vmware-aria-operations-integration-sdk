@@ -26,6 +26,7 @@ from vrealize_operations_integration_sdk.logging_format import PTKHandler, Custo
 from vrealize_operations_integration_sdk.project import get_project
 from vrealize_operations_integration_sdk.propertiesfile import write_properties
 from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt
+from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
@@ -161,8 +162,11 @@ async def build_pak_file(project_path, insecure_communication):
     try:
         await adapter_container.wait_for_container_startup()
         Describe.initialize(project_path, adapter_container)
+        describe, resources = await Describe.get()
+        validate_describe(project_path, describe)
+
         try:
-            describe_adapter_kind_key = get_adapter_kind((await Describe.get())[0])
+            describe_adapter_kind_key = get_adapter_kind(describe)
         except Exception as e:
             describe_adapter_kind_key = None
 
@@ -387,6 +391,7 @@ def main():
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
+        logger.error(exception)
         traceback.print_tb(exception.__traceback__)
         exit(1)
 
