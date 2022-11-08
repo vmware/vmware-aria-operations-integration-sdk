@@ -6,9 +6,10 @@ import json
 import logging
 import os
 from collections import OrderedDict
+from typing import Optional
 
-from xml.etree.ElementTree import Element, SubElement
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
+from lxml.etree import Element, SubElement
 
 import httpx
 
@@ -16,7 +17,7 @@ from aria.ops.definition.units import Units
 from vrealize_operations_integration_sdk.config import get_config_value
 from vrealize_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.propertiesfile import load_properties
+from vrealize_operations_integration_sdk.propertiesfile import load_properties, write_properties
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -28,7 +29,7 @@ logger.addHandler(consoleHandler)
 class Describe:
     _path: str
     _adapter_container = None  # : AdapterContainer
-    _describe: Element | None
+    _describe: Optional[Element]
     _resources: {str: str}
 
     @classmethod
@@ -73,12 +74,77 @@ class Describe:
                              f"should be used, but no describe.xml file was found.")
                 await cls._adapter_container.stop()
                 exit(1)
-            ad = json.loads(response.text)
-            cls._describe, cls._resources = json_to_xml(ad)
+            adapter_definition = json.loads(response.text)
+            describe, names = json_to_xml(adapter_definition)
+            cls.merge_xml_fragments(describe, names)
+            cls._describe = describe
+            cls._resources = names.properties
+
+    @classmethod
+    def merge_xml_fragments(cls, describe, names):
+        # Note: All fragments must contain a top-level 'AdapterKind' element, and have the default namespace set to
+        # 'http://schemas.vmware.com/vcops/schema'. Note: Any attributes on the 'AdapterKind' element itself will be
+        # ignored. The 'AdapterKind' element only serves to hold one or more of the following fragment elements:
+        elements = ["CustomGroupMetrics",
+                    "CapacityDefinitions",
+                    "Faults",
+                    "LaunchConfigurations",
+                    "BasePolicyAnalysisSettings",
+                    "OOTBPolicies",
+                    "FavoriteGroups"]
+
+        for file in os.listdir(os.path.join(cls._path, "conf")):
+            if file != "describe.xml" and file.endswith(".xml"):
+                found_fragment = False
+                logger.info("Adding describe fragment to describe.xml: " + os.path.join(cls._path, "conf", file))
+                fragment = ET.parse(os.path.join(cls._path, "conf", file))
+
+                # Names are handled separately because they will not be added to describe.xml, but instead
+                # added to resources.properties. All elements with a 'nameKey' attribute *must* have a matching
+                # /'Names'/'Name' element in the fragment. Name keys in each fragment will be remapped to ensure
+                # there are no collisions between fragments and the primary describe.
+                # Note: Support for Names in fragments is limited to the default translation/language
+                namekey_remap = {}
+                default_names = fragment.find(ns('Names'))  # Find first 'Names' element
+                if default_names is not None:
+                    fragment_names = default_names.findall(ns('Name'))
+                    if fragment_names is not None and len(fragment_names) > 0:
+                        for name in fragment_names:
+                            namekey_remap[name.get("key")] = names.get_key(name.get("shortName"))
+
+                for element in elements:
+                    fragment_elements = fragment.find(ns(element))
+                    if fragment_elements is not None and len(fragment_elements) > 0:
+                        found_fragment = True
+                        target_element = describe.find(ns(element))
+                        if target_element is None:
+                            target_element = SubElement(describe, element, nsmap=ns_map)
+                        cls.remap_namekeys(fragment_elements, namekey_remap)
+                        for fragment_element in fragment_elements:
+                            target_element.append(fragment_element)
+                if not found_fragment:
+                    logger.warning(f"Ignoring file '{file}':")
+                    logger.warning(f"   XML file '{file}' did not contain any valid elements.")
+                    logger.warning(f"   Expected one or more of: {elements}")
+
+    @staticmethod
+    def remap_namekeys(element, namekey_map):
+        named_elements = element.findall(".//*[@nameKey]")  # Get all elements at any level with the attribute 'nameKey'
+        for named_element in named_elements:
+            new_key = namekey_map.get(named_element.get("nameKey"))
+            if new_key is not None:
+                named_element.set("nameKey", new_key)
+            else:
+                logger.warning(f"Fragment error: No 'Name' element found with key '{named_element.get('nameKey')}'")
+                logger.warning(f"Removing 'nameKey' from element {named_element.tag} {named_element.attrib}")
+                named_element.attrib.pop("nameKey")
 
 
 def ns(kind):
-    return "{http://schemas.vmware.com/vcops/schema}" + kind
+    return "{*}" + kind
+
+
+ns_map = {None: "http://schemas.vmware.com/vcops/schema"}
 
 
 def get_adapter_kind(describe):
@@ -120,25 +186,37 @@ def is_true(element, attr, default="false"):
 
 def json_to_xml(json):
     names = _Names()
-    describe = Element(ns("AdapterKind"), attrib={
+    describe = Element("{http://schemas.vmware.com/vcops/schema}AdapterKind", attrib={
         "key": json["adapter_key"],
         "nameKey": names.get_key(json["adapter_label"]),
         "version": str(json["describe_version"])
-    })
+    }, nsmap=ns_map)
 
-    credential_kinds = SubElement(describe, ns("CredentialKinds"))
+    # CredentialKinds
+    credential_kinds = SubElement(describe, "CredentialKinds", nsmap=ns_map)
     for credential_kind in json["credential_types"]:
         add_credential_kind(credential_kinds, credential_kind, names)
 
-    resource_kinds = SubElement(describe, ns("ResourceKinds"))
+    # ResourceKinds
+    resource_kinds = SubElement(describe, "ResourceKinds", nsmap=ns_map)
     credential_types = map(lambda cred_type: cred_type["key"], json["credential_types"])
     add_resource_kind(resource_kinds, json["adapter_instance"], names, type=7, credential_kinds=credential_types)
     for object_type in json["object_types"]:
         add_resource_kind(resource_kinds, object_type, names)
 
+    # CustomGroupMetrics
+    # CapacityDefinitions
+    # Faults
+    # LaunchConfigurations
+    # add_launch_configurations(describe, names)
+    # BasePolicyAnalysisSettings
+    # UnitDefinitions
     add_units(describe, names)
+    # OOTBPolicies
+    # Names
+    # FavoriteGroups
 
-    return describe, names.properties
+    return describe, names
 
 
 def write_describe(describe, filename: str):
@@ -148,12 +226,12 @@ def write_describe(describe, filename: str):
 
 
 def add_credential_kind(parent, credential_kind_json, names):
-    xml = SubElement(parent, ns("CredentialKind"), attrib={
+    xml = SubElement(parent, "CredentialKind", attrib={
         "key": credential_kind_json["key"],
         "nameKey": names.get_key(credential_kind_json["label"])
-    })
+    }, nsmap=ns_map)
     for field in credential_kind_json["fields"]:
-        field_xml = SubElement(xml, ns("CredentialField"), attrib={
+        field_xml = SubElement(xml, "CredentialField", attrib={
             "key": field["key"],
             "nameKey": names.get_key(field["label"]),
             "required": str(field["required"]).lower(),
@@ -161,7 +239,7 @@ def add_credential_kind(parent, credential_kind_json, names):
             "password": str(field["password"]).lower(),
             "enum": str(field["enum"]).lower(),
             "type": str(field["type"])
-        })
+        }, nsmap=ns_map)
         add_enum_values(field_xml, field)
     return xml
 
@@ -175,7 +253,7 @@ def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kind
     if credential_kinds:
         attributes["credentialKind"] = ",".join(credential_kinds)
 
-    resourcekind_xml = SubElement(parent, ns("ResourceKind"), attrib=attributes)
+    resourcekind_xml = SubElement(parent, "ResourceKind", attrib=attributes, nsmap=ns_map)
     for identifier in resource_kind_json["identifiers"]:
         add_identifier(resourcekind_xml, identifier, names)
     for attribute in resource_kind_json["attributes"]:
@@ -189,7 +267,7 @@ def add_identifier(parent, identifier_json, names):
     default = identifier_json.get("default")
     if default is None:
         default = ""
-    identifier_xml = SubElement(parent, ns("ResourceIdentifier"), attrib={
+    identifier_xml = SubElement(parent, "ResourceIdentifier", attrib={
         "default": str(default),
         "key": identifier_json["key"],
         "nameKey": names.get_key(identifier_json["label"], identifier_json.get("description")),
@@ -198,7 +276,7 @@ def add_identifier(parent, identifier_json, names):
         "enum": str(identifier_json["enum"]).lower(),
         "type": str(identifier_json["type"]),
         "identType": str(identifier_json["ident_type"])
-    })
+    }, nsmap=ns_map)
     add_enum_values(identifier_xml, identifier_json)
     return identifier_xml
 
@@ -206,14 +284,14 @@ def add_identifier(parent, identifier_json, names):
 def add_enum_values(parent, identifier_json):
     if "enum_values" in identifier_json:
         for value in identifier_json["enum_values"]:
-            SubElement(parent, ns("enum"), attrib={
+            SubElement(parent, "enum", attrib={
                 "value": str(value),
                 "default": str(value == identifier_json.get("default", False)).lower()
-            })
+            }, nsmap=ns_map)
 
 
 def add_attribute(parent, attribute_json, names):
-    attribute_xml = SubElement(parent, ns("ResourceAttribute"), attrib={
+    attribute_xml = SubElement(parent, "ResourceAttribute", attrib={
         "key": attribute_json["key"],
         "nameKey": names.get_key(attribute_json["label"]),
         "unit": attribute_json.get("unit") or "",
@@ -225,17 +303,17 @@ def add_attribute(parent, attribute_json, names):
         "isImpact": str(attribute_json["is_impact"]).lower(),
         "defaultMonitored": str(True).lower(),
         "keyAttribute": str(attribute_json["is_key_attribute"]).lower()
-    })
+    }, nsmap=ns_map)
     return attribute_xml
 
 
 def add_group(parent, group_json, names):
-    group_xml = SubElement(parent, ns("ResourceGroup"), attrib={
+    group_xml = SubElement(parent, "ResourceGroup", attrib={
         "key": group_json["key"],
         "nameKey": names.get_key(group_json["label"]),
         "instanced": str(group_json["instanced"]).lower(),
         "instanceRequired": str(group_json["instance_required"]).lower()
-    })
+    }, nsmap=ns_map)
     for subgroup in group_json.get("groups", []):
         add_group(group_xml, subgroup, names)
     for attribute in group_json.get("attributes", []):
@@ -244,7 +322,7 @@ def add_group(parent, group_json, names):
 
 
 def add_units(parent: Element, names):
-    unit_definitions = SubElement(parent, ns("UnitDefinitions"))
+    unit_definitions = SubElement(parent, "UnitDefinitions", nsmap=ns_map)
     add_unit_group(Units.RATIO, unit_definitions, names)
     add_unit_group(Units.TIME, unit_definitions, names)
     add_unit_group(Units.TIME_RATE, unit_definitions, names)
@@ -266,11 +344,12 @@ def add_units(parent: Element, names):
 def add_unit_group(cls, root: Element, names):
     subtypes = set(map(lambda item: item.value._subtype, cls))
     for subtype in subtypes:
-        unit_type = SubElement(root, ns("UnitType"), key=cls.__name__ + subtype)
+        unit_type = SubElement(root, "UnitType", key=cls.__name__ + subtype, nsmap=ns_map)
         for unit in cls:
             if unit.value._subtype == subtype:
-                SubElement(unit_type, ns("Unit"), key=unit.value.key, nameKey=names.get_key(unit.value.label),
-                           order=str(unit.value._order), conversionFactor=str(unit.value._conversion_factor))
+                SubElement(unit_type, "Unit", key=unit.value.key, nameKey=names.get_key(unit.value.label),
+                           order=str(unit.value._order), conversionFactor=str(unit.value._conversion_factor),
+                           nsmap=ns_map)
 
 
 class _Names:
