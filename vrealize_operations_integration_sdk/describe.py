@@ -95,6 +95,7 @@ class Describe:
 
         for file in os.listdir(os.path.join(cls._path, "conf")):
             if file != "describe.xml" and file.endswith(".xml"):
+                found_fragment = False
                 logger.info("Adding describe fragment to describe.xml: " + os.path.join(cls._path, "conf", file))
                 fragment = ET.parse(os.path.join(cls._path, "conf", file))
 
@@ -114,12 +115,17 @@ class Describe:
                 for element in elements:
                     fragment_elements = fragment.find(ns(element))
                     if fragment_elements is not None and len(fragment_elements) > 0:
+                        found_fragment = True
                         target_element = describe.find(ns(element))
                         if target_element is None:
                             target_element = SubElement(describe, element, nsmap=ns_map)
                         cls.remap_namekeys(fragment_elements, namekey_remap)
                         for fragment_element in fragment_elements:
                             target_element.append(fragment_element)
+                if not found_fragment:
+                    logger.warning(f"Ignoring file '{file}':")
+                    logger.warning(f"   XML file '{file}' did not contain any valid elements.")
+                    logger.warning(f"   Expected one or more of: {elements}")
 
     @staticmethod
     def remap_namekeys(element, namekey_map):
