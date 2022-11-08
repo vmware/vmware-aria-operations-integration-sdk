@@ -25,7 +25,8 @@ from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_f
 from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.project import get_project
 from vrealize_operations_integration_sdk.propertiesfile import write_properties
-from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt
+from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt, Spinner
+from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
 from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
@@ -161,8 +162,11 @@ async def build_pak_file(project_path, insecure_communication):
     try:
         await adapter_container.wait_for_container_startup()
         Describe.initialize(project_path, adapter_container)
+        describe, resources = await Describe.get()
+        validate_describe(project_path, describe)
+
         try:
-            describe_adapter_kind_key = get_adapter_kind((await Describe.get())[0])
+            describe_adapter_kind_key = get_adapter_kind(describe)
         except Exception as e:
             describe_adapter_kind_key = None
 
@@ -199,102 +203,104 @@ async def build_pak_file(project_path, insecure_communication):
         logger.debug(f"registry tag: {registry_tag}")
 
         try:
-            build_image(docker_client, path=project_path, tag=f"{registry_tag}")
+            with Spinner("Creating Adapter Image"):
+                build_image(docker_client, path=project_path, tag=f"{registry_tag}")
 
-            digest = push_image(docker_client, registry_tag)
+            with Spinner(f"Pushing Adapter Image to {registry_tag}"):
+                digest = push_image(docker_client, registry_tag)
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
             if docker_client.images.list(registry_tag):
                 docker_client.images.remove(registry_tag)
 
-        adapter_dir = adapter_kind_key + "_adapter3"
-        mkdir(adapter_dir)
-        shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
-        if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
-            describe, resources = await Describe.get()
-            write_describe(describe, os.path.join(adapter_dir, "conf", "describe.xml"))
-            mkdir(os.path.join(adapter_dir, "conf", "resources"))
-            write_properties(resources, os.path.join(adapter_dir, "conf", "resources", "resources.properties"))
+        with Spinner("Assembling Pak File"):
+            adapter_dir = adapter_kind_key + "_adapter3"
+            mkdir(adapter_dir)
+            shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
+            if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
+                write_describe(describe, os.path.join(adapter_dir, "conf", "describe.xml"))
+                mkdir(os.path.join(adapter_dir, "conf", "resources"))
+                write_properties(resources, os.path.join(adapter_dir, "conf", "resources", "resources.properties"))
 
-        with open(adapter_dir + ".conf", "w") as adapter_conf:
-            adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
-            api_version = "1.0.0"
-            try:
-                async with httpx.AsyncClient(timeout=30) as client:
-                    request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
-                    if response.is_success:
-                        api = json.loads(response.text)
-                        api_version = f"{api['major']}.{api['minor']}.{api['maintenance']}"
-            except Exception as e:
-                logger.warning(f"Could not retrieve API version: {e}")
+            with open(adapter_dir + ".conf", "w") as adapter_conf:
+                adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
                 api_version = "1.0.0"
-                logger.warning(f"Using default API version: {api_version}")
+                try:
+                    async with httpx.AsyncClient(timeout=30) as client:
+                        request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+                        if response.is_success:
+                            api = json.loads(response.text)
+                            api_version = f"{api['major']}.{api['minor']}.{api['maintenance']}"
+                except Exception as e:
+                    logger.warning(f"Could not retrieve API version: {e}")
+                    api_version = "1.0.0"
+                    logger.warning(f"Using default API version: {api_version}")
 
-            adapter_conf.write(f"API_VERSION={api_version}\n")
+                adapter_conf.write(f"API_VERSION={api_version}\n")
 
-            if insecure_communication:
-                adapter_conf.write(f"API_PROTOCOL=http\n")
-                adapter_conf.write(f"API_PORT=8080\n")
-            else:
-                adapter_conf.write(f"API_PROTOCOL=https\n")
-                adapter_conf.write(f"API_PORT=443\n")
+                if insecure_communication:
+                    adapter_conf.write(f"API_PROTOCOL=http\n")
+                    adapter_conf.write(f"API_PORT=8080\n")
+                else:
+                    adapter_conf.write(f"API_PROTOCOL=https\n")
+                    adapter_conf.write(f"API_PORT=443\n")
 
-            adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
-            adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
-            adapter_conf.write(f"DIGEST={digest}\n")
+                adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
+                adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
+                adapter_conf.write(f"DIGEST={digest}\n")
 
-        eula_file = manifest["eula_file"]
-        icon_file = manifest["pak_icon"]
+            eula_file = manifest["eula_file"]
+            icon_file = manifest["pak_icon"]
 
-        with zipfile.ZipFile("adapter.zip", "w") as adapter:
-            zip_file(adapter, adapter_conf.name)
-            zip_file(adapter, "manifest.txt")
-            if eula_file:
-                zip_file(adapter, eula_file)
-            if icon_file:
-                zip_file(adapter, icon_file)
+            with zipfile.ZipFile("adapter.zip", "w") as adapter:
+                zip_file(adapter, adapter_conf.name)
+                zip_file(adapter, "manifest.txt")
+                if eula_file:
+                    zip_file(adapter, eula_file)
+                if icon_file:
+                    zip_file(adapter, icon_file)
 
-            zip_dir(adapter, "resources")
-            zip_dir(adapter, adapter_dir)
+                zip_dir(adapter, "resources")
+                zip_dir(adapter, adapter_dir)
 
-        rm(adapter_conf.name)
-        rmdir(adapter_dir)
+            rm(adapter_conf.name)
+            rmdir(adapter_dir)
 
-        name = manifest["name"] + "_" + manifest["version"]
+            name = manifest["name"] + "_" + manifest["version"]
 
-        # Every config file in dashboards and reports should be in its own subdirectory
-        build_subdirectories("content/dashboards")
-        build_subdirectories("content/reports")
+            # Every config file in dashboards and reports should be in its own subdirectory
+            build_subdirectories("content/dashboards")
+            build_subdirectories("content/reports")
 
-        pak_file = f"{name}.pak"
-        with zipfile.ZipFile(pak_file, "w") as pak:
-            zip_file(pak, "manifest.txt")
+            pak_file = f"{name}.pak"
+            with zipfile.ZipFile(pak_file, "w") as pak:
+                zip_file(pak, "manifest.txt")
 
-            pak_validation_script = manifest["pak_validation_script"]["script"]
-            if pak_validation_script:
-                zip_file(pak, pak_validation_script)
+                pak_validation_script = manifest["pak_validation_script"]["script"]
+                if pak_validation_script:
+                    zip_file(pak, pak_validation_script)
 
-            post_install_script = manifest["adapter_post_script"]["script"]
-            if post_install_script:
-                zip_file(pak, post_install_script)
+                post_install_script = manifest["adapter_post_script"]["script"]
+                if post_install_script:
+                    zip_file(pak, post_install_script)
 
-            pre_install_script = manifest["adapter_pre_script"]["script"]
-            if pre_install_script:
-                zip_file(pak, pre_install_script)
+                pre_install_script = manifest["adapter_pre_script"]["script"]
+                if pre_install_script:
+                    zip_file(pak, pre_install_script)
 
-            if icon_file:
-                zip_file(pak, icon_file)
+                if icon_file:
+                    zip_file(pak, icon_file)
 
-            if eula_file:
-                zip_file(pak, eula_file)
+                if eula_file:
+                    zip_file(pak, eula_file)
 
-            zip_dir(pak, "resources")
-            zip_dir(pak, "content")
-            zip_file(pak, "adapter.zip")
+                zip_dir(pak, "resources")
+                zip_dir(pak, "content")
+                zip_file(pak, "adapter.zip")
 
-            rm("adapter.zip")
+                rm("adapter.zip")
 
-            return pak_file
+                return pak_file
     finally:
         await adapter_container.stop()
 
@@ -387,6 +393,7 @@ def main():
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
+        logger.error(exception)
         traceback.print_tb(exception.__traceback__)
         exit(1)
 
