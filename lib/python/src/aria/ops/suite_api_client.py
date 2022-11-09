@@ -128,6 +128,7 @@ class SuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
+        kwargs.setdefault("headers", {})
         kwargs["headers"].setdefault("Content-Type", "application/json")
         return self._request_wrapper(requests.post, url, **kwargs)
 
@@ -139,6 +140,7 @@ class SuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
+        kwargs.setdefault("headers", {})
         kwargs["headers"].setdefault("Content-Type", "application/json")
         return self._paged_request(requests.post, url, key, **kwargs)
 
