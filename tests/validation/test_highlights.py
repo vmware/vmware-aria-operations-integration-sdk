@@ -175,7 +175,7 @@ class TestHighlights:
 
         highlight = highlight_metric_growth(increasing_number_of_metrics_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing Object' displayed metric growth of 900.00% per hour.") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' grew at a rate of 900.00% per hour.") in highlight.messages
 
     def test_no_metric_highlight(self):
         response = TestObject()
@@ -212,7 +212,7 @@ class TestHighlights:
 
         highlight = highlight_property_growth(increasing_number_of_properties_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing Object' displayed property growth of 900.00% per hour") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' grew at a rate of 900.00% per hour") in highlight.messages
 
     def test_no_property_highlight(self):
         response = TestObject()
@@ -310,7 +310,7 @@ class TestHighlights:
         highlight = highlight_relationship_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Test Parent' displayed relationship growth of 100.00% per hour.") in highlight.messages
+                "Objects of type 'HighlightsMP::Test Parent' grew at a rate of 100.00% per hour.") in highlight.messages
 
     def test_no_relationship_highlight(self):
         response = TestObject()
@@ -348,7 +348,7 @@ class TestHighlights:
         highlight = highlight_event_growth(
             increasing_number_of_property_values_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing Object' displayed event growth of 9000.00% per hour.") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' grew at a rate of 9000.00% per hour.") in highlight.messages
 
     def test_no_event_highlight(self):
         response = TestObject()
