@@ -3,7 +3,7 @@
 import json
 import os.path
 
-from vrealize_operations_integration_sdk.docker_wrapper import init
+from vmware_aria_operations_integration_sdk import init
 
 
 def combine_swagger_files(base, extra):

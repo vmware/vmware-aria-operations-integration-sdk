@@ -41,7 +41,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
   go to [Docker's installation documentation](https://docs.docker.com/engine/install/), choose the OS you need and
   follow the instructions provided.
 * Python3 3.9.0 or later. Earlier versions of Python3 may also work, but updating to the latest stable version is
-  recommended. Python 3.6 and earlier (including Python2) are not supported. For instructions on installing Python, go
+  recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download), choose the OS you need
   and follow the instructions provided.
 * Pip. If Python3 is installed, pip is most likely also installed. For instructions on installing Pip, go
@@ -175,11 +175,11 @@ The test tool also asks for the method to test. There are four options:
 * Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that VMware Aria Operations can ask
   the end user to import into the TrustStore.
 * Version - This returns
-  the [VMware Aria Operations Collector API](vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json) version the
+  the [VMware Aria Operations Collector API](vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json) version the
   adapter implements. The implementation of this method is not generally handled by the developer.
 
 For more information on these endpoints, see
-the [Swagger API documentation](vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json). Each
+the [Swagger API documentation](vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json). Each
 response is validated against the API.
 
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).

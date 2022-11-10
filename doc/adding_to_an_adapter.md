@@ -128,7 +128,7 @@ password = adapter_instance.get_credential_value("password")
 For other languages, or using Python without the VMware Aria Operations Integration module, json representing the adapter instance is
 sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the filename of the named
 pipe. The adapter instance json is described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Adding an Object Type
@@ -180,7 +180,7 @@ result.send_result()
 
 For other languages, or using Python without the VMware Aria Operations Integration module, objects must be returned as json, described
 in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Adding an Attribute
@@ -229,7 +229,7 @@ database1.with_metric("session_count", 5)
 
 For other languages, or using Python without the VMware Aria Operations Integration module, metrics and properties are returned as json
 inside of objects, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Creating an Event
@@ -248,7 +248,7 @@ database1.with_event(
 
 For other languages, or using Python without the VMware Aria Operations Integration module, events are returned as json inside of
 objects, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Creating a Relationship
@@ -272,5 +272,5 @@ database2.add_parent(instance)
 
 For other languages, or using Python without the VMware Aria Operations Integration module, relationships are returned as json inside a
 collect result object, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json)
 .

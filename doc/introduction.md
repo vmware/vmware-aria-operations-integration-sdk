@@ -27,7 +27,7 @@ server but also include Java/PowerShell runtimes. The Python server is able to c
 language. Currently, Java and PowerShell projects are not supported by the `mp-init` tool. However, the `mp-test`
 and `mp-build` tools are language-agnostic, and depend only on the correct project file structure and a working
 Dockerfile that implements
-the [collector framework](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
+the [collector framework](../vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json).
 ### Libraries
 The SDK includes a Python library that simplifies communication with VMware Aria Operations, and provides a model for easily creating objects, adding properties, metrics, and events to objects, and creating relationships between objects.
 
