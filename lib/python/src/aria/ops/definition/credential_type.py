@@ -2,13 +2,17 @@
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
 from collections import OrderedDict
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
 
 
 class CredentialParameter(ABC):
-    def __init__(self, key: str, label: str = None, required: bool = True, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 required: bool = True,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -41,7 +45,10 @@ class CredentialIntParameter(CredentialParameter):
     :param display_order: Determines the order parameters will be displayed in the UI.
     """
 
-    def __init__(self, key: str, label: str = None, required: bool = True, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 required: bool = True,
+                 display_order: int = 0):
         super().__init__(key, label, required, display_order)
 
     def to_json(self):
@@ -51,7 +58,10 @@ class CredentialIntParameter(CredentialParameter):
 
 
 class CredentialStringParameter(CredentialParameter):
-    def __init__(self, key: str, label: str = None, required: bool = True, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 required: bool = True,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -67,7 +77,10 @@ class CredentialStringParameter(CredentialParameter):
 
 
 class CredentialPasswordParameter(CredentialParameter):
-    def __init__(self, key: str, label: str = None, required: bool = True, display_order: int = 0):
+    def __init__(self, key: str,
+                 label: Optional[str] = None,
+                 required: bool = True,
+                 display_order: int = 0):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -94,7 +107,11 @@ class CredentialEnumParameter(CredentialParameter):
     :param display_order: Determines the order parameters will be displayed in the UI.
     """
 
-    def __init__(self, key: str, values: list[str], label: str = None, default: str = None, required: bool = True,
+    def __init__(self, key: str,
+                 values: list[str],
+                 label: Optional[str] = None,
+                 default: Optional[str] = None,
+                 required: bool = True,
                  display_order: int = 0):
         super().__init__(key, label, required, display_order)
         self.values = values
@@ -112,7 +129,7 @@ class CredentialEnumParameter(CredentialParameter):
 
 
 class CredentialType:
-    def __init__(self, key, label=None):
+    def __init__(self, key: str, label: Optional[str] = None):
         self.key = validate_key(key, "Credential type")
         self.label = label
         if label is None:
@@ -131,7 +148,7 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_int_parameter(self, key: str, label: str = None, required: bool = True):
+    def define_int_parameter(self, key: str, label: Optional[str] = None, required: bool = True):
         """
         Create a new int credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -143,7 +160,7 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_password_parameter(self, key: str, label: str = None, required: bool = True):
+    def define_password_parameter(self, key: str, label: Optional[str] = None, required: bool = True):
         """
         Create a new password credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -155,7 +172,10 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_enum_parameter(self, key: str, values: list[str], label: str = None, default: str = None,
+    def define_enum_parameter(self, key: str,
+                              values: list[str],
+                              label: Optional[str] = None,
+                              default: Optional[str] = None,
                               required: bool = True):
         """
         Create a new enum credential parameter and apply it to this credential definition.

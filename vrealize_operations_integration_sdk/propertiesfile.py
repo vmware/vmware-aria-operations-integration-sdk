@@ -2,7 +2,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
-def load_properties(properties_file):
+def load_properties(properties_file: str):
     properties = {}
     try:
         with open(properties_file, "r") as f:
@@ -16,3 +16,10 @@ def load_properties(properties_file):
         # resources.properties file is not required to exist
         pass
     return properties
+
+
+def write_properties(properties: dict, filename: str):
+    with open(filename, "w") as f:
+        for _property in properties.keys():
+            f.write(str(_property) + " = " + str(properties[_property]) + "\n")
+    return True

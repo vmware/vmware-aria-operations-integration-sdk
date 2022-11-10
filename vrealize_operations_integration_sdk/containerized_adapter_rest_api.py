@@ -1,12 +1,15 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import json
+import os
 
 import httpx
 from httpx import ReadTimeout, Response
 from requests import Request
 
+from vrealize_operations_integration_sdk.config import get_config_value
 from vrealize_operations_integration_sdk.constant import DEFAULT_PORT
-from vrealize_operations_integration_sdk.describe import get_describe, get_adapter_instance
+from vrealize_operations_integration_sdk.describe import get_adapter_instance, Describe
 from vrealize_operations_integration_sdk.timer import timed
 
 
@@ -34,7 +37,7 @@ async def post(client, url, json, headers):
 async def send_post_to_adapter(client, project, connection, endpoint):
     try:
         request, response, elapsed_time = await post(client, url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
-                                                     json=get_request_body(project, connection),
+                                                     json=await get_request_body(project, connection),
                                                      headers={"Accept": "application/json"})
     except ReadTimeout as timeout:
         # Translate the error to a standard request response format (for validation purposes)
@@ -62,8 +65,8 @@ async def send_get_to_adapter(client, endpoint):
     return request, response, elapsed_time
 
 
-def get_request_body(project, connection):
-    describe = get_describe(project.path)
+async def get_request_body(project, connection):
+    describe, resources = await Describe.get()
     adapter_instance = get_adapter_instance(describe)
 
     identifiers = []
@@ -91,6 +94,10 @@ def get_request_body(project, connection):
             "credentialFields": fields,
         }
 
+    hostname = get_config_value("suite_api_hostname", "string", os.path.join(project.path, "config.json"))
+    username = get_config_value("suite_api_username", "string", os.path.join(project.path, "config.json"))
+    password = get_config_value("suite_api_password", "string", os.path.join(project.path, "config.json"))
+
     request_body = {
         "adapterKey": {
             "name": connection.name,
@@ -99,9 +106,9 @@ def get_request_body(project, connection):
             "identifiers": identifiers,
         },
         "clusterConnectionInfo": {
-            "userName": "string",
-            "password": "string",
-            "hostName": "string"
+            "userName": username,
+            "password": password,
+            "hostName": hostname,
         },
         "certificateConfig": {
             "certificates": connection.certificates or []
@@ -111,3 +118,17 @@ def get_request_body(project, connection):
         request_body["credentialConfig"] = credential_config
 
     return request_body
+
+
+def get_failure_message(response):
+    message = ""
+    if not response.is_success:
+        message = f"{response.status_code} {response.reason_phrase}"
+        if hasattr(response, "text"):
+            encoded = response.text.encode('latin1', 'backslashreplace').strip(b'"')
+            message += "\n" + encoded.decode('unicode-escape')
+
+    elif "errorMessage" in response.text:
+        message = json.loads(response.text).get('errorMessage')
+
+    return message

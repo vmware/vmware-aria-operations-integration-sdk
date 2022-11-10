@@ -190,6 +190,9 @@ def runcommand(command, body: AdapterConfig = None, good_response_code=200):
             reader_thread.join()
 
             message = "No result from adapter"
+            if len(out):
+                out = out.strip("\n")
+                message += f". Captured stdout:\n  {out}"
             if len(err):
                 err = err.strip("\n")
                 message += f". Captured stderr:\n  {err}"

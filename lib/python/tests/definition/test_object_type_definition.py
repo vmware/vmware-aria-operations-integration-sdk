@@ -65,7 +65,7 @@ def test_define_string_identifier():
         "default": "C",
         "display_order": 0,
         "type": "string",
-        "length": None
+        "length": 512
     }
 
 
@@ -79,7 +79,7 @@ def test_define_int_identifier():
         "ident_type": 1,
         "enum": False,
         "description": None,
-        "default": 9,
+        "default": '9',
         "display_order": 0,
         "type": "integer"
     }

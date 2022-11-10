@@ -1,6 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -13,43 +13,32 @@ class Criticality(Enum):
     AUTOMATIC = 5
 
 
+@dataclass(frozen=True)
 class Event:
     """ Represents a vROps Event
 
+    :param message: The message describes and identifies an event.
+    :param criticality: TODO
+    :param fault_key: TODO
+    :param auto_cancel: TODO
+    :param start_date: TODO
+    :param update_date: TODO
+    :param cancel_date: TODO
+    :param watch_wait_cycle: The number of times this event must be present in a collection before vROps surfaces it
+    in the UI.
+    :param cancel_wait_cycle: The number of times this event must be absent in a collection before vROps removes it
+    from the UI.
     """
+    message: str
+    criticality: Criticality = Criticality.NONE
+    fault_key: str = None,
+    auto_cancel: bool = False,
+    start_date: int = None,
+    update_date: int = None,
+    cancel_date: int = None,
+    watch_wait_cycle: int = 1,
+    cancel_wait_cycle: int = 3
 
-    def __init__(self, message: str,
-                 criticality: Criticality = Criticality.NONE,
-                 fault_key: str = None,
-                 auto_cancel: bool = False,
-                 start_date: int = None,
-                 update_date: int = None,
-                 cancel_date: int = None,
-                 watch_wait_cycle: int = 1,
-                 cancel_wait_cycle: int = 3):
-        """ Initialize a vROps Event
-
-        :param message: The message describes and identifies an event.
-        :param criticality: TODO
-        :param fault_key: TODO
-        :param auto_cancel: TODO
-        :param start_date: TODO
-        :param update_date: TODO
-        :param cancel_date: TODO
-        :param watch_wait_cycle: The number of times this event must be present in a collection before vROps surfaces it
-            in the UI.
-        :param cancel_wait_cycle: The number of times this event must be absent in a collection before vROps removes it
-            from the UI.
-        """
-        self.message = message
-        self.criticality = criticality
-        self.fault_key = fault_key
-        self.auto_cancel = auto_cancel
-        self.start_date = start_date
-        self.update_date = update_date
-        self.cancel_date = cancel_date
-        self.watch_wait_cycle = watch_wait_cycle
-        self.cancel_wait_cycle = cancel_wait_cycle
 
     def get_json(self):
         """ Get a JSON representation of this Event.

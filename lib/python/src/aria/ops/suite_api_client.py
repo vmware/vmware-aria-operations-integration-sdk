@@ -1,8 +1,8 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
+import json
 import logging
-import os
+import math
 
 import requests
 import urllib3
@@ -16,40 +16,29 @@ class SuiteApiConnectionParameters(object):
     def __init__(self, host: str, username: str, password: str, auth_source: str = "LOCAL"):
         """Initialize SuiteApi Connection Parameters
 
-        :param host: The host to use for connecting to the SuiteAPI. Should include "http://" or "https://"
+        :param host: The host to use for connecting to the SuiteAPI.
         :param username: Username used to authenticate to SuiteAPI
         :param password: Password used to authenticate to SuiteAPI
         :param auth_source: Source of authentication
         """
-        self.host = host
+        if "http" in host:
+            self.host = f"{host}/suite-api/"
+        else:
+            self.host = f"https://{host}/suite-api/"
         self.username = username
         self.password = password
         self.auth_source = auth_source
 
 
-def get_connection_params():
-    """
-    :return: Default SuiteApi credentials
-    """
-    return SuiteApiConnectionParameters(
-        # TODO switch to using the provided network instead of the static IP once that is added to the
-        #      collector framework api
-        #      https://confluence.eng.vmware.com/pages/viewpage.action?spaceKey=Platform&title=CF+2.0%3A+Adapter+to+cluster+communication
-        "https://172.17.0.1:443",
-        os.getenv("SUITE_API_USER"),
-        os.getenv("SUITE_API_PASSWORD")
-    )
-
-
-class VROpsSuiteApiClient(object):
+class SuiteApiClient(object):
     """Class for simplifying calls to the SuiteAPI
 
     Automatically handles:
     * Token based authentication
     * Required headers
     * Releasing tokens (when used in a 'with' statement)
+    * Paging (when using 'paged_get' or 'paged_post')
     * Logging requests
-    * TODO Paging
 
     This class is intended to be used in a with statement:
     with VROpsSuiteAPIClient() as suiteApiClient:
@@ -57,7 +46,7 @@ class VROpsSuiteApiClient(object):
         ...
     """
 
-    def __init__(self, connection_params: SuiteApiConnectionParameters = get_connection_params()):
+    def __init__(self, connection_params: SuiteApiConnectionParameters):
         """Initializes a SuiteAPI client.
 
         :param connection_params: Connection parameters for the Suite API.
@@ -120,7 +109,17 @@ class VROpsSuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
-        return self._request_wrapper(requests.get, "GET", url, **kwargs)
+        return self._request_wrapper(requests.get, url, **kwargs)
+
+    def paged_get(self, url, key: str, **kwargs):
+        """Send a GET request to the SuiteAPI that gets a paged response
+
+        :param url: URL to send GET request to
+        :param key: Json key that contains the paged data
+        :param kwargs: Additional keyword arguments to pass to request
+        :return: The API response
+        """
+        return self._paged_request(requests.get, url, key, **kwargs)
 
     def post(self, url, **kwargs):
         """Send a POST request to the SuiteAPI
@@ -129,7 +128,21 @@ class VROpsSuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
-        return self._request_wrapper(requests.post, "POST", url, **kwargs)
+        kwargs.setdefault("headers", {})
+        kwargs["headers"].setdefault("Content-Type", "application/json")
+        return self._request_wrapper(requests.post, url, **kwargs)
+
+    def paged_post(self, url, key, **kwargs):
+        """Send a POST request to the SuiteAPI that gets a paged response.
+
+        :param key: Json key that contains the paged data
+        :param url: URL to send POST request to
+        :param kwargs: Additional keyword arguments to pass to request
+        :return: The API response
+        """
+        kwargs.setdefault("headers", {})
+        kwargs["headers"].setdefault("Content-Type", "application/json")
+        return self._paged_request(requests.post, url, key, **kwargs)
 
     def put(self, url, **kwargs):
         """Send a PUT request to the SuiteAPI
@@ -138,7 +151,7 @@ class VROpsSuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
-        return self._request_wrapper(requests.put, "PUT", url, **kwargs)
+        return self._request_wrapper(requests.put, url, **kwargs)
 
     def patch(self, url, **kwargs):
         """Send a PATCH request to the SuiteAPI
@@ -147,7 +160,7 @@ class VROpsSuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
-        return self._request_wrapper(requests.patch, "PATCH", url, **kwargs)
+        return self._request_wrapper(requests.patch, url, **kwargs)
 
     def delete(self, url, **kwargs):
         """Send a DELETE request to the SuiteAPI
@@ -156,16 +169,54 @@ class VROpsSuiteApiClient(object):
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
-        return self._request_wrapper(requests.delete, "DELETE", url, **kwargs)
+        return self._request_wrapper(requests.delete, url, **kwargs)
 
-    def _request_wrapper(self, request_func, request_type, url, **kwargs):
-        # TODO: handle paged requests
+    def _add_paging(self, **kwargs):
+        kwargs.setdefault("params", {})
+        kwargs["params"].setdefault("page", 0)
+        kwargs["params"].setdefault("pageSize", 1000)
+
+        if "page" in kwargs:
+            kwargs["params"]["page"] = kwargs["page"]
+        if "pageSize" in kwargs:
+            kwargs["params"]["pageSize"] = kwargs["pageSize"]
+
+        return kwargs
+
+    def _paged_request(self, request_func, url, key: str, **kwargs):
+        """Send a request to the SuiteAPI that returns a paged response. Each response must have data returned in an
+        array at key 'key'. The array from the responses will be combined into a single array and returned in a map of
+        the form:
+        {
+           "{key}": [aggregated data]
+        }
+
+        :param url: URL to send request to
+        :param key: Json key that contains the paged data
+        :param kwargs: Additional keyword arguments to pass to request
+        :return: The API response
+        """
+        kwargs = self._add_paging(**kwargs)
+        page_0 = self._request_wrapper(request_func, url, **kwargs)
+        page_0_body = json.loads(page_0.text)
+        total_objects = int(page_0_body.get("pageInfo", {"totalCount": 1}).get("totalCount", 1))
+        page_size = kwargs["pageSize"]
+        remaining_pages = math.ceil(total_objects / page_size) - 1
+        objects = page_0_body.get("key", [])
+        while remaining_pages > 0:
+            kwargs = self._add_paging(page=remaining_pages)
+            page_n_body = json.loads(self._request_wrapper(request_func, url, **kwargs))
+            objects.extend(page_n_body.get("key", []))
+            remaining_pages -= 1
+        return {key: objects}
+
+    def _request_wrapper(self, request_func, url, **kwargs):
         kwargs = self._to_vrops_request(url, **kwargs)
         result = request_func(**kwargs)
         if result.ok:
-            logger.debug(request_type + " " + kwargs["url"] + ": OK (" + str(result.status_code) + ")")
+            logger.debug(request_func.__name__ + " " + kwargs["url"] + ": OK (" + str(result.status_code) + ")")
         else:
-            logger.warning(request_type + " " + kwargs["url"] + ": ERROR (" + str(result.status_code) + ")")
+            logger.warning(request_func.__name__ + " " + kwargs["url"] + ": ERROR (" + str(result.status_code) + ")")
             logger.debug(result.text)
         return result
 

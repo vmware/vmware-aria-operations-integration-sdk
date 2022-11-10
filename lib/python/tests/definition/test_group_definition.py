@@ -125,7 +125,7 @@ def test_duplicate_attribute_keys_not_allowed(group):
 
 
 def test_define_integer_metric(group):
-    group.define_metric("A", "B", Units.DATA_SIZE.BYTE, True, True, True, True, "multinomial", True)
+    group.define_metric("A", "B", Units.DATA_SIZE.BYTE, True, True, True, True, True)
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -136,7 +136,6 @@ def test_define_integer_metric(group):
         "data_type": "integer",  # derived from is_discrete = True
         "is_kpi": True,
         "is_impact": True,
-        "dt_type": "multinomial",
         "is_key_attribute": True,
         "is_property": False,
         "dashboard_order": 0
@@ -144,7 +143,7 @@ def test_define_integer_metric(group):
 
 
 def test_define_float_metric(group):
-    group.define_metric("A", "B", Units.RATIO.PERCENT, False, False, False, False, "polynomial", False)
+    group.define_metric("A", "B", Units.RATIO.PERCENT, False, False, False, False, False)
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -155,7 +154,6 @@ def test_define_float_metric(group):
         "data_type": "float",  # derived from is_discrete = False
         "is_kpi": False,
         "is_impact": False,
-        "dt_type": "polynomial",
         "is_key_attribute": False,
         "is_property": False,
         "dashboard_order": 0
@@ -163,7 +161,7 @@ def test_define_float_metric(group):
 
 
 def test_define_string_property(group):
-    group.define_string_property("A", "B", None, False, True, True, True, "multinomial", True)
+    group.define_string_property("A", "B", None, False, True, True, True, True)
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -174,7 +172,6 @@ def test_define_string_property(group):
         "data_type": "string",
         "is_kpi": True,
         "is_impact": True,
-        "dt_type": "multinomial",
         "is_key_attribute": True,
         "is_property": True,
         "dashboard_order": 0
@@ -182,7 +179,7 @@ def test_define_string_property(group):
 
 
 def test_define_numeric_property_1(group):
-    group.define_numeric_property("A", "B", Units.MISC.RACK_UNIT, False, True, True, True, "", True)
+    group.define_numeric_property("A", "B", Units.MISC.RACK_UNIT, False, True, True, True, True)
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -193,7 +190,6 @@ def test_define_numeric_property_1(group):
         "data_type": "integer",
         "is_kpi": True,
         "is_impact": True,
-        "dt_type": "",
         "is_key_attribute": True,
         "is_property": True,
         "dashboard_order": 0
@@ -201,7 +197,7 @@ def test_define_numeric_property_1(group):
 
 
 def test_define_numeric_property_2(group):
-    group.define_numeric_property("A", "B", Units.FREQUENCY.GIGAHERTZ, False, False, True, True, "polynomial", True)
+    group.define_numeric_property("A", "B", Units.FREQUENCY.GIGAHERTZ, False, False, True, True, True)
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -212,7 +208,6 @@ def test_define_numeric_property_2(group):
         "data_type": "float",
         "is_kpi": True,
         "is_impact": True,
-        "dt_type": "polynomial",
         "is_key_attribute": True,
         "is_property": True,
         "dashboard_order": 0

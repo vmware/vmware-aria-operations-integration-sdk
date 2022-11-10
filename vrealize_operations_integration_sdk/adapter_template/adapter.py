@@ -9,7 +9,7 @@ import psutil
 from aria.ops.definition.group import Group
 from constants import ADAPTER_KIND, ADAPTER_NAME
 from aria.ops.adapter_instance import AdapterInstance
-from aria.ops.attribute import Property, Metric
+from aria.ops.data import Property, Metric
 from aria.ops.definition.adapter_definition import AdapterDefinition
 from aria.ops.definition.units import Units
 from aria.ops.result import EndpointResult, CollectResult, TestResult
@@ -169,7 +169,7 @@ def get_adapter_definition() -> AdapterDefinition:
     definition.define_int_parameter("container_memory_limit",
                                     label="Adapter Memory Limit (MB)",
                                     description="Sets the maximum amount of memory VMware Aria Operations can "
-                                                "allocate to the container running this adapter instance.u",
+                                                "allocate to the container running this adapter instance.",
                                     required=True,
                                     advanced=True,
                                     default=1024)
@@ -220,16 +220,12 @@ def main(argv):
     elif method == "collect":
         collect(AdapterInstance.from_input()).send_results()
     elif method == "adapter_definition":
-        print(dir())
-        # if "get_adapter_definition" in dir():
         result = get_adapter_definition()
         if type(result) is AdapterDefinition:
             result.send_results()
         else:
             logger.info("get_adapter_definition method did not return an AdapterDefinition")
-        # else:
-        #     logger.info("get_adapter_definition method is not defined")
-        exit(1)
+            exit(1)
     else:
         logger.debug(f"Command {method} not found")
         exit(1)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from collections import OrderedDict
+from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.credential_type import CredentialType
@@ -17,9 +18,9 @@ from aria.ops.pipe_utils import write_to_pipe
 class AdapterDefinition(GroupType):
     def __init__(self,
                  key: str,
-                 label: str = None,
-                 adapter_instance_key: str = None,
-                 adapter_instance_label: str = None,
+                 label: Optional[str] = None,
+                 adapter_instance_key: Optional[str] = None,
+                 adapter_instance_label: Optional[str] = None,
                  version: int = 1):
         """
         :param key: The adapter key is used to identify the adapter and its object types. It must be unique across
@@ -82,8 +83,13 @@ class AdapterDefinition(GroupType):
         # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.to_json())
 
-    def define_string_parameter(self, key: str, label: str = None, description: str = None, default: str = None,
-                                required: bool = True, advanced: bool = False):
+    def define_string_parameter(self, key: str,
+                                label: Optional[str] = None,
+                                description: Optional[str] = None,
+                                default: Optional[str] = None,
+                                max_length: int = 512,
+                                required: bool = True,
+                                advanced: bool = False):
         """
         Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -91,17 +97,22 @@ class AdapterDefinition(GroupType):
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
         :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
         :param default: The default value of the parameter.
+        :param max_length: The max length of the parameter value. Defaults to 512.
         :param required: True if user is required to provide this parameter. Defaults to True.
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :return The created string parameter definition.
         """
-        parameter = StringParameter(key, label, description, default, required, advanced,
+        parameter = StringParameter(key, label, description, default, max_length, required, advanced,
                                     display_order=len(self.parameters))
         self.add_parameter(parameter)
         return parameter
 
-    def define_int_parameter(self, key: str, label: str = None, description: str = None,
-                             default: int = None, required: bool = True, advanced: bool = False):
+    def define_int_parameter(self, key: str,
+                             label: Optional[str] = None,
+                             description: Optional[str] = None,
+                             default: Optional[int] = None,
+                             required: bool = True,
+                             advanced: bool = False):
         """
         Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -118,8 +129,13 @@ class AdapterDefinition(GroupType):
         self.add_parameter(parameter)
         return parameter
 
-    def define_enum_parameter(self, key: str, values: list[str], label: str = None, description: str = None,
-                              default: str = None, required: bool = True, advanced: bool = False):
+    def define_enum_parameter(self, key: str,
+                              values: list[str],
+                              label: Optional[str] = None,
+                              description: Optional[str] = None,
+                              default: Optional[str] = None,
+                              required: bool = True,
+                              advanced: bool = False):
         """
         Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -150,7 +166,7 @@ class AdapterDefinition(GroupType):
             raise DuplicateKeyException(f"Parameter with key {key} already exists in adapter definition.")
         self.parameters[key] = parameter
 
-    def define_credential_type(self, key: str = "default_credential", label: str = None):
+    def define_credential_type(self, key: str = "default_credential", label: Optional[str] = None):
         """
         Create a new credential type and add it to this adapter instance. When more than one credential types are
         present, The user will be required to select the type and then fill in the parameters for that type, as only
@@ -185,7 +201,7 @@ class AdapterDefinition(GroupType):
             raise DuplicateKeyException(f"Credential type with key {key} already exists in adapter definition.")
         self.credentials[key] = credential_type
 
-    def define_object_type(self, key: str, label: str = None):
+    def define_object_type(self, key: str, label: Optional[str] = None):
         """
         Create a new object type definition and add it to this adapter definition.
         :param key: The object type

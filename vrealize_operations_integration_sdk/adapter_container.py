@@ -2,15 +2,24 @@
 #  SPDX-License-Identifier: Apache-2.0
 import asyncio
 import json
+import logging
+import os
 import time
 
 import httpx
 
 from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
-from vrealize_operations_integration_sdk.containeraized_adapter_rest_api import send_get_to_adapter
+from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
 from vrealize_operations_integration_sdk.docker_wrapper import init, get_container_image, run_image, stop_container, \
     ContainerStats
+from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 from vrealize_operations_integration_sdk.ui import Spinner
+
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
+logger.addHandler(consoleHandler)
 
 
 class AdapterContainer:
@@ -72,14 +81,9 @@ class AdapterContainer:
                         request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
                     version = json.loads(response.text)
                     self.started = True
-                    # logger.debug(f"HTTP Server started with api version "
-                    #              f"{version['major']}.{version['minor']}.{version['maintenance']}")
                 except (httpx.RequestError, httpx.HTTPStatusError) as e:
                     elapsed_time = time.perf_counter() - start_time
                     if elapsed_time > max_wait_time:
-                        # logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
+                        logger.error(f"HTTP Server did not start after {max_wait_time} seconds")
                         exit(1)
-                    # logger.debug("Waiting for HTTP server to start...")
                     await asyncio.sleep(0.5)
-
-
