@@ -45,7 +45,7 @@ def highlight_property_growth(long_collection_statistics: LongCollectionStatisti
     highlights = Result()
     if len(objects_with_property_growth):
         for obj_type, growth in objects_with_property_growth:
-            highlights.with_warning("Objects of type '{obj_type}' grew properties at a rate of {growth:.2f}% per hour")
+            highlights.with_warning(f"Objects of type '{obj_type}' grew properties at a rate of {growth:.2f}% per hour")
             highlights.with_information("""
 Property growth may lead to unstable object relationships. Most often, changing property keys cause property growth.
 Avoid mapping API keys to property keys and use constants to describe property keys.""")

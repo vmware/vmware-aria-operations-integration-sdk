@@ -175,7 +175,7 @@ class TestHighlights:
 
         highlight = highlight_metric_growth(increasing_number_of_metrics_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing Object' grew at a rate of 900.00% per hour.") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' grew metrics at a rate of 900.00% per hour.") in highlight.messages
 
     def test_no_metric_highlight(self):
         response = TestObject()
@@ -212,7 +212,7 @@ class TestHighlights:
 
         highlight = highlight_property_growth(increasing_number_of_properties_per_collection.long_collection_statistics)
         assert (ResultLevel.WARNING,
-                "Objects of type 'HighlightsMP::Growing Object' grew at a rate of 900.00% per hour") in highlight.messages
+                "Objects of type 'HighlightsMP::Growing Object' grew properties at a rate of 900.00% per hour") in highlight.messages
 
     def test_no_property_highlight(self):
         response = TestObject()
