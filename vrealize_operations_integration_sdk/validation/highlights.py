@@ -13,15 +13,10 @@ def highlight_object_growth(long_collection_statistics: LongCollectionStatistics
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
             highlights.with_warning(f"Objects of type '{obj_type}' displayed growth of {growth:.2f}% per hour.")
-            highlights.with_information("""High Object growth may afect Aria Operations performance overtime.
-                                        The main reason for unqanted object growth can be attributed for to the object identifiers not being unique
-                                        or the objects name/key not being constant. The two most common scenarios are:
-                                        1. An objects identifiers aren't unique which may lead to a collection always collecting the same amount of object
-                                        per colleciton, but their overall identifiers not matching with previously collected objects
-                                        to resolve this we would look at the objects identifiers and ensure they stay constant overtime
-
-                                        2. A collection returns more and more Objects every time(less common). Ususally this may be an actual bug in the adapter code, maybe a foor loop
-                                        naming objects overtime""") #NOTE: scenario two is much more unlikelly with our sdk since collection data is ephimeral to the container
+            highlights.with_information("""
+High Object growth may affect Aria Operations' performance over time.
+Most often, changing object identifiers cause object growth over time.
+Ensure object Identifiers are unique and constant.""") #NOTE: scenario two is much more unlikelly with our sdk since collection data is ephimeral to the container
     return highlights
 
 
@@ -35,10 +30,9 @@ def highlight_metric_growth(long_collection_statistics: LongCollectionStatistics
     if len(objects_with_metrics_growth):
         for obj_type, growth in objects_with_metrics_growth:
             highlights.with_warning(f"Objects of type '{obj_type}' grew metrics at a rate of {growth:.2f}% per hour.")
-            highlights.with_information("""High metric growth may afect Aria Operations avility to display accurate metric mapping overtime. 
-                                        A common cause of metric growth is when the metric's key isn't cosntant/unique.
-                                        A solution would be to create constatns for each metric key.
-                                        """) #Explain how we calculate metric growth so users don't assume that object growth will cause metric growth
+            highlights.with_information("""
+High metric growth may affect Aria Operations' ability to display accurate metric statistics.
+Most often, changing metric keys cause metric growth. To ensure metric keys are the same, use constants to describe their keys.""")
     return highlights
 
 
@@ -52,9 +46,9 @@ def highlight_property_growth(long_collection_statistics: LongCollectionStatisti
     if len(objects_with_property_growth):
         for obj_type, growth in objects_with_property_growth:
             highlights.with_warning("Objects of type '{obj_type}' grew properties at a rate of {growth:.2f}% per hour")
-            highlights.with_information("""Porperty growth may reduced performance in Aria Operation and may lead to unstable relationships.
-                                        A common cause of property growth is when the property's key isn't cosntant/unique.
-                                        A solution would be to create constatns for each property key.""")
+            highlights.with_information("""
+Property growth may lead to unstable object relationships. Most often, changing property keys cause property growth.
+Avoid mapping API keys to property keys and use constants to describe property keys.""")
 
     return highlights
 
@@ -74,12 +68,11 @@ def highlight_property_value_growth(long_collection_statistics: LongCollectionSt
             if growth >= threshold:
                 highlights.with_error(
                     f"Objects of type '{obj_type}' displayed excessive property value growth of {growth:.2f}% per hour.")
-                highlights.with_information("""Property value growth may cause reduced performance in Aria Operations.
-                                            A Commmon cause of property value growth is the use of time stamps or other similarly changing string as values. 
-                                            This practice is discourage by Aria Operations as property values should be reserved for small finite sets.
-                                            Creating enums for each property value may help aliviate execive property growth. At the same time if there is too many 
-                                            possible enumm/values for a property it might indicate that the value should not be considered a property
-                                            """)
+                highlights.with_information("""
+Property value growth may cause reduced Aria Operations performance. Most often, property value growth is driven by
+constantly changing property values. Property values should be finite and change infrequently. Creating enums for
+each property value may help establish a finite set of possible values. If the amount of possible enums is too large
+or the value changes frequently, consider a metric with a numeric value.""")
             else:
                 highlights.with_warning(f"Objects of type '{obj_type}' displayed property value growth of {growth:.2f}% per hour.")
 
@@ -97,12 +90,10 @@ def highlight_relationship_growth(long_collection_statistics: LongCollectionStat
         for obj_type, growth in objects_with_relationships_growth:
             highlights.with_warning(f"Objects of type '{obj_type}' grew at a rate of {growth:.2f}% per hour.")
             highlights.with_information("""
-                                        Relationship grwoth may be a sideefect of other types of growth as properties are oftentimes generated based on and objects existence
-                                        and a property value. However, there are also cases where property growth is not a sideefect of other types of growth in which case a common cause
-                                        is when a relationship between a parent an a child isn't consistent. Aria Ops expects relationships between parent and child to be reported 
-                                        every collection time there is a change, so it's important to ensure that relationships changes are reported every time, otherwise Aria Ops will 
-                                        assume the relationship no longer exists.
-                                        """)
+Relationship growth may be a side effect of other growth types. However, there are cases where relationship growth is not
+a side effect of other growths. Most often, poor relationship reporting is a cause of relationship growth. An adapter should
+report changed relationships only. Reporting the same relationships every cycle has the same effect as reporting the relationship
+once, and not reporting anything else. Aria Operations filters out unnecessary changes before writing to the database.""")
 
     return highlights
 
@@ -121,8 +112,7 @@ def highlight_event_growth(long_collection_statistics: LongCollectionStatistics)
             if growth > threshold:
                 highlights.with_warning(f"Objects of type '{obj_type}' grew at a rate of {growth:.2f}% per hour.")
                 highlights.with_information("""
-                                            Event gwoth is common in Aria Operations, however, execive number of events may be indicative of a bug or unwanted events being reported.
-                                            A common scenario of this is when an API returns all events instead of active events. By fitering events and ensuring there is no bungs during
-                                            the creation of event may help mitigate this warning 
-                                            """)
+Event growth is typical in Aria Operations; however, an exesive number of events may indicate a bug or over-reporting.
+Most often, overreporting occurs when an API reports all events instead of active events, and the Adapter creates more
+and more events each time. Filtering events based on status can fix this issue.""")
     return highlights
