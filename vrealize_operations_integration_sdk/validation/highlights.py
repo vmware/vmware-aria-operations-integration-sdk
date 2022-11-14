@@ -12,7 +12,7 @@ def highlight_object_growth(long_collection_statistics: LongCollectionStatistics
     highlights = Result()
     if len(objects_with_growth):
         for obj_type, growth in objects_with_growth:
-            highlights.with_warning(f"Objects of type '{obj_type}' displayed growth of {growth:.2f}% per hour.")
+            highlights.with_warning(f"Objects of type '{obj_type}' grew at a rate of {growth:.2f}% per hour.")
             highlights.with_information("""
 High Object growth may affect Aria Operations' performance over time.
 Most often, changing object identifiers cause object growth over time.
