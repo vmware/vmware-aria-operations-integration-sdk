@@ -85,25 +85,6 @@ days since last backup.""")
     return highlights
 
 
-def highlight_relationship_growth(long_collection_statistics: LongCollectionStatistics) -> Result:
-    objects_with_relationships_growth = [(object_type, stats.relationships_growth_rate) for
-                                         object_type, stats in
-                                         long_collection_statistics.long_object_type_statistics.items()
-                                         if stats.relationships_growth_rate > 0]
-
-    highlights = Result()
-    if len(objects_with_relationships_growth):
-        for obj_type, growth in objects_with_relationships_growth:
-            highlights.with_warning(f"Objects of type '{obj_type}' grew at a rate of {growth:.2f}% per hour.")
-            highlights.with_information("""
-Relationship growth may be a side effect of other growth types. However, there are cases where relationship growth is not
-a side effect of other growths. Most often, poor relationship reporting is a cause of relationship growth. An adapter should
-report changed relationships only. Reporting the same relationships every cycle has the same effect as reporting the relationship
-once, and not reporting anything else. Aria Operations filters out unnecessary changes before writing to the database.""")
-
-    return highlights
-
-
 def highlight_event_growth(long_collection_statistics: LongCollectionStatistics) -> Result:
     objects_with_event_growth = [(object_type, stats.events_growth_rate) for
                                  object_type, stats in
@@ -122,3 +103,5 @@ An excessive number of events may indicate a bug or over-reporting.
 Overreporting can occur when an API reports all events instead of active events, and the Adapter creates more
 and more events each time. Filtering events based on status or a time window may fix this issue.""")
     return highlights
+
+# TODO: highlight relationships
