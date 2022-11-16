@@ -5,14 +5,14 @@ import os
 
 import docker
 
-from vmware_aria_operations_integration_sdk.src import docker_wrapper
+from vmware_aria_operations_integration_sdk.src.aria.ops.tools import docker_wrapper
 from vmware_aria_operations_integration_sdk import get_config_value, set_config_value
-from vmware_aria_operations_integration_sdk.src.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
+from vmware_aria_operations_integration_sdk.src.aria.ops.tools.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
     CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk import login, init, push_image, BuildError, PushError
-from vmware_aria_operations_integration_sdk.src.ui import selection_prompt, multiselect_prompt, print_formatted as print
+from vmware_aria_operations_integration_sdk.src.aria.ops.tools.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
-VERSION_FILE = "../vmware_aria_operations_integration_sdk/src/container_versions.json"
+VERSION_FILE = "../vmware_aria_operations_integration_sdk/src/aria/ops/tools/container_versions.json"
 
 
 def update_version(update_type: str, current_version: str) -> str:

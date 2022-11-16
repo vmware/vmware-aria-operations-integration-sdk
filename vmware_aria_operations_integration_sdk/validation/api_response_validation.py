@@ -6,13 +6,12 @@ from importlib import resources
 from json import JSONDecodeError
 
 import openapi_core
-from flask import json
 from openapi_core.contrib.requests import RequestsOpenAPIRequest, RequestsOpenAPIResponse
 from openapi_core.validation.response import openapi_response_validator
 
-from vmware_aria_operations_integration_sdk.src import api
-from vmware_aria_operations_integration_sdk.src.containerized_adapter_rest_api import get_failure_message
-from vmware_aria_operations_integration_sdk.src.validation.result import Result
+import vmware_aria_operations_integration_sdk.api as api
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 def validate_api_response(project, request, response):

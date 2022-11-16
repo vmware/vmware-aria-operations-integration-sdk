@@ -3,10 +3,10 @@
 
 from collections import defaultdict
 
-from vmware_aria_operations_integration_sdk.src.docker_wrapper import ContainerStats
-from vmware_aria_operations_integration_sdk.src.model import _get_object_id, ObjectId
-from vmware_aria_operations_integration_sdk.src.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
-from vmware_aria_operations_integration_sdk.src.ui import Table
+from vmware_aria_operations_integration_sdk.docker_wrapper import ContainerStats
+from vmware_aria_operations_integration_sdk.model import _get_object_id, ObjectId
+from vmware_aria_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
+from vmware_aria_operations_integration_sdk.ui import Table
 
 
 class ObjectStatistics:

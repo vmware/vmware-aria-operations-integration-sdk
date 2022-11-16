@@ -4,22 +4,26 @@
 import json
 import logging
 import os
+import subprocess
+import sys
 import traceback
+import venv
 from importlib import resources
 from shutil import copy
 
+import pkg_resources
 from git import Repo
 
-from vmware_aria_operations_integration_sdk.src import adapter_template
-from vmware_aria_operations_integration_sdk.src.adapter_template import java
-from vmware_aria_operations_integration_sdk.src.adapter_template import powershell
-from vmware_aria_operations_integration_sdk.src.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME, \
+from vmware_aria_operations_integration_sdk import adapter_template
+from vmware_aria_operations_integration_sdk.adapter_template import java
+from vmware_aria_operations_integration_sdk.adapter_template import powershell
+from vmware_aria_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME, \
     CONTAINER_REGISTRY_PATH, CONTAINER_REGISTRY_HOST
-from vmware_aria_operations_integration_sdk.src.filesystem import mkdir, rmdir
-from vmware_aria_operations_integration_sdk.src.project import Project, record_project
-from vmware_aria_operations_integration_sdk.src.ui import print_formatted as print, path_prompt, prompt
-from vmware_aria_operations_integration_sdk.src.ui import selection_prompt
-from vmware_aria_operations_integration_sdk.src.validation.input_validators import NewProjectDirectoryValidator, \
+from vmware_aria_operations_integration_sdk.filesystem import mkdir, rmdir
+from vmware_aria_operations_integration_sdk.project import Project, record_project
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
+from vmware_aria_operations_integration_sdk.ui import selection_prompt
+from vmware_aria_operations_integration_sdk.validation.input_validators import NewProjectDirectoryValidator, \
     NotEmptyValidator, AdapterKeyValidator, EulaValidator, ImageValidator
 
 logger = logging.getLogger(__name__)
@@ -186,6 +190,7 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
         git_ignore_fd.write("logs\n")
         git_ignore_fd.write("build\n")
         git_ignore_fd.write("config.json\n")
+        git_ignore_fd.write("venv\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
     repo.index.commit("Initial commit.")
@@ -287,7 +292,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n")
         dockerfile.write(
             f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
-            f"tools/build_images.py\n")
+            f"images/build_images.py\n")
         dockerfile.write(
             f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
@@ -336,6 +341,26 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
         with open(requirements_file, "w") as requirements:
             requirements.write("psutil==5.9.0\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.4.*\n")
+
+        # create development requirements file
+        requirements_file = os.path.join(path, "requirements.txt")
+        with open(requirements_file, "w") as requirements:
+            package = "vmware-aria-operations-integration-sdk"
+            version = pkg_resources.get_distribution(package).version
+            requirements.write(f"{package}=={version}\n")
+
+        env_dir = os.path.join(path, "venv")
+        venv.create(env_dir, with_pip=True)
+
+        try:
+            # install requirements.txt into virtual environment
+            v_env = os.environ.copy()
+            v_env["VIRTUAL_ENV"] = env_dir
+            v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
+            subprocess.check_call(["pip", "install", "-r", f"{requirements_file}"], env=v_env)
+        except subprocess.CalledProcessError as e:
+            logger.error("Could not install sdk tools into the development virtual environment.")
+            logger.debug(e)
 
         # copy adapter.py into app directory
         with resources.path(adapter_template, "adapter.py") as src:

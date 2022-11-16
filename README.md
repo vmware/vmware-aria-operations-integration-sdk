@@ -59,44 +59,13 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 
 ### Installation
 
-To install the SDK, download the SDK Git repository and run the installation script.
-
-The installation script performs several steps:
-* Verifies the dependencies (currently macOS and Linux only)
-* Creates a config file (`~/.vrops-sdk/config.json` for macOS and Linux, and `%LocalAppData%\VMware\vROps Integration SDK\config.json` for Windows).
-* Generates a Python virtual environment
-* Installs several tools (`mp-init`, `mp-test`, and `mp-build`) and their requirements into the virtual environment using `Pip`.
-  > Note: By default only Pip's warnings and errors are displayed. For more detailed output about what is being installed, pass the `--verbose` flag to the installation script.
-
-For Mac and Linux:
+To install the SDK, use `pip` to install into the global Python environment, or `pipx` to install into a isolated environment.
 ```sh
-git clone https://www.github.com/vmware/vmware-aria-operations-integration-sdk
-cd vmware-aria-operations-integration-sdk
-./install.sh
+python3 -m pip install vmware-aria-operations-integration-sdk
 ```
-
-For Windows:
-```cmd
-git clone https://www.github.com/vmware/vmware-aria-operations-integration-sdk
-dir vmware-aria-operations-integration-sdk
-install.bat
-```
-
-To use the SDK, activate the virtual environment:
-
-For Mac and Linux:
-```sh
-source vrops_mp_sdk_venv/bin/activate
-```
-
-For Windows:
-```cmd
-vrops_mp_sdk_venv\Scripts\activate.bat
-```
-To exit the virtual environment, run `deactivate` in the virtual environment.
 
 ### Creating a Management Pack
-To create a new project, run `mp-init` in the virtual environment. This tool asks a series of questions that guides
+After the SDK is installed, create a new project, by running `mp-init`. This tool asks a series of questions that guides
 the creation of a new management pack project. 
 
 
@@ -155,6 +124,25 @@ the creation of a new management pack project.
 For complete documentation of the `mp-init` tool see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
 ### Testing a Management Pack
+
+In the Management Pack directory, the installation script writes a `requirements.txt` file containing the version of the
+SDK used to generate the project, and installs the SDK into a virtual environment named `venv`. Note that the packages
+in `requirements.txt` are _not_ installed into the adapter. To add a package to the adapter, specify it in the file
+`adapter_requirements.txt`. 
+
+To use the SDK, navigate to the newly-generated project directory and activate the virtual environment:
+
+For Mac and Linux:
+```sh
+source venv/bin/activate
+```
+
+For Windows:
+```cmd
+venv\Scripts\activate.bat
+```
+To exit the virtual environment, run `deactivate` in the virtual environment.
+
 To test a project, run `mp-test`  in the virtual environment.
 
 If `mp-test` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
@@ -175,11 +163,11 @@ The test tool also asks for the method to test. There are four options:
 * Endpoint URLs - This returns a list (possibly empty) of URLs that have distinct SSL certificates that VMware Aria Operations can ask
   the end user to import into the TrustStore.
 * Version - This returns
-  the [VMware Aria Operations Collector API](vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json) version the
+  the [VMware Aria Operations Collector API](vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json) version the
   adapter implements. The implementation of this method is not generally handled by the developer.
 
 For more information on these endpoints, see
-the [Swagger API documentation](vmware_aria_operations_integration_sdk/src/api/vmware-aria-operations-collector-fwk2.json). Each
+the [Swagger API documentation](vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json). Each
 response is validated against the API.
 
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).

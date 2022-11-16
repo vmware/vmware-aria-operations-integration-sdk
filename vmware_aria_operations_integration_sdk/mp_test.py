@@ -15,23 +15,23 @@ from docker.errors import ContainerError, APIError
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
-from vmware_aria_operations_integration_sdk.src.adapter_container import AdapterContainer
-from vmware_aria_operations_integration_sdk.src.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
+from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, ADAPTER_DEFINITION_ENDPOINT
-from vmware_aria_operations_integration_sdk.src.containerized_adapter_rest_api import send_get_to_adapter, \
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
-from vmware_aria_operations_integration_sdk.src.describe import ns, get_adapter_instance, get_credential_kinds, \
+from vmware_aria_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true, Describe
-from vmware_aria_operations_integration_sdk.src.docker_wrapper import DockerWrapperError
-from vmware_aria_operations_integration_sdk.src.filesystem import mkdir
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.src.project import get_project, Connection, record_project
-from vmware_aria_operations_integration_sdk.src.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
+from vmware_aria_operations_integration_sdk.docker_wrapper import DockerWrapperError
+from vmware_aria_operations_integration_sdk.filesystem import mkdir
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.project import get_project, Connection, record_project
+from vmware_aria_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
     EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle, AdapterDefinitionBundle
-from vmware_aria_operations_integration_sdk.src.ui import selection_prompt, print_formatted as print_formatted, prompt, \
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
-from vmware_aria_operations_integration_sdk.src.validation.describe_checks import validate_describe
-from vmware_aria_operations_integration_sdk.src.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
+from vmware_aria_operations_integration_sdk.validation.describe_checks import validate_describe
+from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator, TimeValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

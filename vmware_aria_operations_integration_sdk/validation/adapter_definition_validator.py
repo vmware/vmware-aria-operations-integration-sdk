@@ -6,10 +6,10 @@ import logging
 import os
 from json import JSONDecodeError
 
-from vmware_aria_operations_integration_sdk.src.describe import json_to_xml, Describe
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.src.validation.describe_checks import validate_describe
-from vmware_aria_operations_integration_sdk.src.validation.result import Result
+from vmware_aria_operations_integration_sdk.describe import json_to_xml, Describe
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.validation.describe_checks import validate_describe
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

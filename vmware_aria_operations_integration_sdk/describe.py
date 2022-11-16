@@ -14,10 +14,10 @@ from lxml.etree import Element, SubElement
 import httpx
 
 from aria.ops.definition.units import Units
-from vmware_aria_operations_integration_sdk.src.config import get_config_value
-from vmware_aria_operations_integration_sdk.src.constant import ADAPTER_DEFINITION_ENDPOINT
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.src.propertiesfile import load_properties
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -61,10 +61,10 @@ class Describe:
     @classmethod
     async def _get_adapter_definition(cls):
         async with httpx.AsyncClient(timeout=30) as client:
-            from vmware_aria_operations_integration_sdk.src.containerized_adapter_rest_api import send_get_to_adapter
+            from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
             request, response, elapsed_time = await send_get_to_adapter(client, ADAPTER_DEFINITION_ENDPOINT)
             if not response.is_success:
-                from vmware_aria_operations_integration_sdk.src.containerized_adapter_rest_api import get_failure_message
+                from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
                 logger.error(get_failure_message(response))
                 logger.error(f"adapterDefinition endpoint returned {response.status_code}.")
                 await cls._adapter_container.stop()

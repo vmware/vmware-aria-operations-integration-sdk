@@ -8,12 +8,12 @@ import time
 
 import httpx
 
-from vmware_aria_operations_integration_sdk.src.constant import API_VERSION_ENDPOINT
-from vmware_aria_operations_integration_sdk.src.containerized_adapter_rest_api import send_get_to_adapter
-from vmware_aria_operations_integration_sdk.src.docker_wrapper import init, get_container_image, run_image, stop_container, \
+from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
+from vmware_aria_operations_integration_sdk.docker_wrapper import init, get_container_image, run_image, stop_container, \
     ContainerStats
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.src.ui import Spinner
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.ui import Spinner
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

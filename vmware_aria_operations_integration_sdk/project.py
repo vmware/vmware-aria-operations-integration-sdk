@@ -6,12 +6,12 @@ import logging
 import os
 from typing import Optional
 
-from vmware_aria_operations_integration_sdk.src.config import get_config_value, set_config_value
-from vmware_aria_operations_integration_sdk.src.constant import DEFAULT_MEMORY_LIMIT
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.src.propertiesfile import load_properties
-from vmware_aria_operations_integration_sdk.src.ui import selection_prompt, path_prompt
-from vmware_aria_operations_integration_sdk.src.validation.input_validators import ProjectValidator
+from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, path_prompt
+from vmware_aria_operations_integration_sdk.validation.input_validators import ProjectValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

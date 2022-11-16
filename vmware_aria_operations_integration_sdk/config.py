@@ -9,7 +9,7 @@ from typing import Union
 # return the default value if provided. If no value exists and a default is not provided,
 # this function returns 'None'. If the value changed, the new value is stored back into
 # the config file.
-from vmware_aria_operations_integration_sdk.src.constant import GLOBAL_CONFIG_FILE
+from vmware_aria_operations_integration_sdk.constant import GLOBAL_CONFIG_FILE
 
 
 def get_config_value(key: str, default: any = None, config_file: str = GLOBAL_CONFIG_FILE) -> Union[

@@ -21,7 +21,7 @@ from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Frame, TextArea
 
-from vmware_aria_operations_integration_sdk.src.threading import threaded
+from vmware_aria_operations_integration_sdk.threading import threaded
 
 style = Style.from_dict({
     # Prompts
@@ -352,7 +352,7 @@ def countdown(duration, message=""):
 
     finally:
         # Clears the last statement print statement
-        print(re.sub("..", " ", message + f"{remaining}"), end="\r")
+        print(re.sub("", " ", message + f"{remaining}"), end="\r")
 
 
 class Table:

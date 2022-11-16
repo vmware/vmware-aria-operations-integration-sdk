@@ -5,8 +5,8 @@ import json
 from collections import defaultdict
 from json import JSONDecodeError
 
-from vmware_aria_operations_integration_sdk.src.model import _get_object_id
-from vmware_aria_operations_integration_sdk.src.validation.result import Result
+from vmware_aria_operations_integration_sdk.model import _get_object_id
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 class Cycle:

@@ -7,10 +7,10 @@ import httpx
 from httpx import ReadTimeout, Response
 from requests import Request
 
-from vmware_aria_operations_integration_sdk.src.config import get_config_value
-from vmware_aria_operations_integration_sdk.src.constant import DEFAULT_PORT
-from vmware_aria_operations_integration_sdk.src.describe import get_adapter_instance, Describe
-from vmware_aria_operations_integration_sdk.src.timer import timed
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.describe import get_adapter_instance, Describe
+from vmware_aria_operations_integration_sdk.timer import timed
 
 
 @timed

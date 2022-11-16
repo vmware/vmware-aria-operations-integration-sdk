@@ -5,7 +5,7 @@ import os
 import shutil
 import zipfile
 
-from vmware_aria_operations_integration_sdk.src.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

@@ -1,7 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
-from vmware_aria_operations_integration_sdk.src.validation.relationship_validator import Graph, Cycle
+from vmware_aria_operations_integration_sdk.validation.relationship_validator import Graph, Cycle
 
 
 def test_no_nodes():
