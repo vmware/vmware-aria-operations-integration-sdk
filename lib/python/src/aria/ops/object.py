@@ -264,6 +264,34 @@ class Object:
         """
         return list(filter(lambda property_: property_.key == key, self._properties))
 
+    def get_property_values(self, key) -> list[str]:
+        """
+
+        :param key: Property key of the property to return.
+        :return:  return a list the property values based on decending chronological order
+        """
+        # find matching properties
+        properties = self.get_property(key)
+
+        # sort properties by timestamp from newest to oldest 
+        properties.sort(key=lambda property: property.timestamp, reverse=True)
+
+        return [p.value for p in properties]
+
+    def get_last_property_value(self, key) -> str | None:
+        """
+
+        :param key: Property key of the property to return.
+        :return:  return the last value of the property with the matching key or None
+        if the property Key doesn't match any property
+        """
+        properties = self.get_property_values(key)
+
+        if not properties:
+            return None
+        else:
+            return properties[0]
+
     def add_event(self, event: Event) -> None:
         """ Method that adds a single Event to this Object
 
