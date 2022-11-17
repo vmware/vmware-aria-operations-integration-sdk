@@ -231,6 +231,33 @@ class Object:
         """
         return list(filter(lambda metric: metric.key == key, self._metrics))
 
+    def get_metric_values(self, key) -> list[float]:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return: A list of the metric values in chronological order.
+        """
+        # find matching metrics
+        metrics = self.get_metric(key)
+
+        # sort metrics by timestamp from oldest  to newest
+        metrics.sort(key=lambda metric: metric.timestamp)
+
+        return [m.value for m in metrics]
+
+    def get_last_metric_value(self, key) -> float| None:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return: The latest value of the metric or None if no metric exists with the given key.
+        """
+        metrics = self.get_metric_values(key)
+
+        if not metrics:
+            return None
+        else:
+            return metrics[-1]
+
     def add_property(self, property_: Property) -> None:
         """ Method that adds a single Property value to this Object
 
@@ -268,7 +295,7 @@ class Object:
         """
 
         :param key: Property key of the property to return.
-        :return:  return a list the property values based on chronological order
+        :return: A list of the property values in chronological order.
         """
         # find matching properties
         properties = self.get_property(key)
@@ -282,8 +309,7 @@ class Object:
         """
 
         :param key: Property key of the property to return.
-        :return:  return the last value of the property with the matching key or None
-        if the property Key doesn't match any property
+        :return: The latest value of the property or None if no property exists with the given key.
         """
         properties = self.get_property_values(key)
 
