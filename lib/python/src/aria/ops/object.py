@@ -268,13 +268,13 @@ class Object:
         """
 
         :param key: Property key of the property to return.
-        :return:  return a list the property values based on decending chronological order
+        :return:  return a list the property values based on chronological order
         """
         # find matching properties
         properties = self.get_property(key)
 
-        # sort properties by timestamp from newest to oldest 
-        properties.sort(key=lambda property: property.timestamp, reverse=True)
+        # sort properties by timestamp from oldest  to newest
+        properties.sort(key=lambda property: property.timestamp)
 
         return [p.value for p in properties]
 
@@ -290,7 +290,7 @@ class Object:
         if not properties:
             return None
         else:
-            return properties[0]
+            return properties[-1]
 
     def add_event(self, event: Event) -> None:
         """ Method that adds a single Event to this Object
