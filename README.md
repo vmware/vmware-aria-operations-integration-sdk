@@ -136,7 +136,7 @@ For Mac and Linux:
 ```sh
 source venv/bin/activate
 ```
-
+(This script is written for the bash shell. If you use the csh or fish shells, there are alternate activate.csh and activate.fish scripts you should use instead.)
 For Windows:
 ```cmd
 venv\Scripts\activate.bat
