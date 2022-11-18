@@ -12,10 +12,10 @@ from docker.models.containers import Container
 from docker.models.images import Image
 from sen.util import calculate_blkio_bytes, calculate_network_bytes
 
-from vrealize_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
-from vrealize_operations_integration_sdk.stats import convert_bytes, LongRunStats
-from vrealize_operations_integration_sdk.threading import threaded
-from vrealize_operations_integration_sdk.ui import Table, Spinner
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT, DEFAULT_MEMORY_LIMIT
+from vmware_aria_operations_integration_sdk.stats import convert_bytes, LongRunStats
+from vmware_aria_operations_integration_sdk.threading import threaded
+from vmware_aria_operations_integration_sdk.ui import Table
 
 
 def login(docker_registry):

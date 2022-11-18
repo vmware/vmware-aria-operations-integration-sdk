@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from vrealize_operations_integration_sdk.serialization import _extract_host_port_from_endpoint
+from vmware_aria_operations_integration_sdk.serialization import _extract_host_port_from_endpoint
 
 
 def test_host_port_from_valid_endpoint():

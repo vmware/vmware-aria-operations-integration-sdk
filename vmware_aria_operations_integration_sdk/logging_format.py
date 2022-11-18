@@ -4,7 +4,7 @@
 import logging
 from logging import Handler
 
-from vrealize_operations_integration_sdk.ui import print_formatted as print
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 
 
 # Use the same formatting classes as defined in ui.py, to use prompt_toolkit for coloring output.

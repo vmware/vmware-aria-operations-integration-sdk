@@ -8,9 +8,9 @@ from json import JSONDecodeError
 
 import xmlschema
 
-from vrealize_operations_integration_sdk.describe import get_adapter_kind, get_resource_kinds, ns, \
+from vmware_aria_operations_integration_sdk.describe import get_adapter_kind, get_resource_kinds, ns, \
     is_true, Describe
-from vrealize_operations_integration_sdk.validation.result import Result
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

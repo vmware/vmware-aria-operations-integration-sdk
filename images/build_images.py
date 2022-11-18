@@ -5,14 +5,14 @@ import os
 
 import docker
 
-from vrealize_operations_integration_sdk import docker_wrapper
-from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
+import vmware_aria_operations_integration_sdk.docker_wrapper
+from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
     CONTAINER_REGISTRY_HOST
-from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
-from vrealize_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
+from vmware_aria_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
 
-VERSION_FILE = "../vrealize_operations_integration_sdk/container_versions.json"
+VERSION_FILE = "../vmware_aria_operations_integration_sdk/container_versions.json"
 
 
 def update_version(update_type: str, current_version: str) -> str:

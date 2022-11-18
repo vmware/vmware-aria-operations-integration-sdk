@@ -14,20 +14,20 @@ import zipfile
 
 import httpx
 
-from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
-from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT
-from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
-from vrealize_operations_integration_sdk.describe import get_adapter_kind, Describe, write_describe
-from vrealize_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
+from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
+from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
+from vmware_aria_operations_integration_sdk.describe import get_adapter_kind, Describe, write_describe
+from vmware_aria_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
     DockerWrapperError, LoginError
-from vrealize_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir, rm
-from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.project import get_project
-from vrealize_operations_integration_sdk.propertiesfile import write_properties
-from vrealize_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt, Spinner
-from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
-from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator
+from vmware_aria_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir, rm
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.project import get_project
+from vmware_aria_operations_integration_sdk.propertiesfile import write_properties
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt, Spinner
+from vmware_aria_operations_integration_sdk.validation.describe_checks import validate_describe
+from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())

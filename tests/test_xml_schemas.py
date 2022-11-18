@@ -6,8 +6,8 @@ import pytest
 import xmlschema
 from lxml import etree
 
-from vrealize_operations_integration_sdk import adapter_template
-from vrealize_operations_integration_sdk.describe import ns, ns_map
+from vmware_aria_operations_integration_sdk import adapter_template
+from vmware_aria_operations_integration_sdk.describe import ns, ns_map
 
 
 class TestDescribe:
