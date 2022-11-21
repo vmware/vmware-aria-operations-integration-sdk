@@ -361,6 +361,8 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
     new_connection = Connection(name, identifiers, credentials, None, suite_api_credentials)
     project.connections.append(new_connection)
     record_project(project)
+    print_formatted(f"Saved connection '{name}' in '{os.path.join(project.path, 'config.json')}'.", "class:success")
+    print_formatted(f"The connection can be modified by manually editing this file.", "class:success")
     return new_connection
 
 
