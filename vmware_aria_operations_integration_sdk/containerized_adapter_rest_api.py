@@ -69,6 +69,10 @@ async def get_request_body(project, connection):
     describe, resources = await Describe.get()
     adapter_instance = get_adapter_instance(describe)
 
+    default_hostname = get_config_value("suite_api_hostname", "hostname", os.path.join(project.path, "config.json"))
+    default_username = get_config_value("suite_api_username", "username", os.path.join(project.path, "config.json"))
+    default_password = get_config_value("suite_api_password", "password", os.path.join(project.path, "config.json"))
+
     identifiers = []
     if connection.identifiers is not None:
         for key in connection.identifiers:
@@ -94,10 +98,6 @@ async def get_request_body(project, connection):
             "credentialFields": fields,
         }
 
-    hostname = get_config_value("suite_api_hostname", "string", os.path.join(project.path, "config.json"))
-    username = get_config_value("suite_api_username", "string", os.path.join(project.path, "config.json"))
-    password = get_config_value("suite_api_password", "string", os.path.join(project.path, "config.json"))
-
     request_body = {
         "adapterKey": {
             "name": connection.name,
@@ -106,9 +106,9 @@ async def get_request_body(project, connection):
             "identifiers": identifiers,
         },
         "clusterConnectionInfo": {
-            "userName": username,
-            "password": password,
-            "hostName": hostname,
+            "userName": connection.suite_api_username or default_username,
+            "password": connection.suite_api_password or default_password,
+            "hostName": connection.suite_api_hostname or default_hostname,
         },
         "certificateConfig": {
             "certificates": connection.certificates or []
