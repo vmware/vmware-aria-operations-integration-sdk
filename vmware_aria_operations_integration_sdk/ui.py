@@ -368,7 +368,7 @@ class Table:
         for col in range(len(self.headers)):
             size = len(self.headers[col])
             for row in self.data:
-                size = max(size, len(row[col]))
+                size = max(size, max([len(line) for line in row[col].splitlines()]))
             column_sizes.append("{:<" + str(size) + "}")
             horizontal_rule.append("-" * size)
         formatting = " | ".join(column_sizes)
@@ -376,6 +376,10 @@ class Table:
         output += formatting.format(*self.headers) + "\n"
         output += "-+-".join(horizontal_rule) + "\n"
         for row in self.data:
-            output += formatting.format(*row) + "\n"
+            columns = [col.splitlines() for col in row]
+            line_count = max(map(lambda _lines: len(_lines), columns))
+            for line_number in range(line_count):
+                line = map(lambda column: "" if line_number >= len(column) else column[line_number], columns)
+                output += formatting.format(*line) + "\n"
 
         return output
