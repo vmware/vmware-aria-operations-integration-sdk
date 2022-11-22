@@ -7,7 +7,7 @@ import pytest
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import ValidationError, Validator
 
-from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, AdapterKeyValidator, \
+from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator, AdapterKeyValidator, \
     IntegerValidator, TimeValidator, NewProjectDirectoryValidator, UniquenessValidator, ChainValidator, \
     ProjectValidator, EulaValidator, ImageValidator
 

@@ -6,7 +6,7 @@ from json import JSONDecodeError
 
 from validators import ValidationFailure
 
-from vrealize_operations_integration_sdk.validation.result import Result
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 def validate_endpoint(endpoint: str) -> Result:

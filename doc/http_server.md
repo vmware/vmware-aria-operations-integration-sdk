@@ -8,11 +8,11 @@ is an example of building a swagger-enabled Flask server.
 This example uses the [Connexion](https://github.com/zalando/connexion) library on top of Flask.
 
 ## Requirements
-Python 3.5.2+
+Python 3.9+
 
 ## Regenerate the server
 To regenerate the server, from the repository root directory, update the swagger api json file (s)
-in `vrealize_operations_integration_sdk/api` and run the following command from the `images` directory:
+in `vmware_aria_operations_integration_sdk/api` and run the following command from the `images` directory:
 ```
 python3 update-base-python-adapter-server.py
 ```

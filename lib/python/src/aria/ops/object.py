@@ -231,6 +231,33 @@ class Object:
         """
         return list(filter(lambda metric: metric.key == key, self._metrics))
 
+    def get_metric_values(self, key) -> list[float]:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return: A list of the metric values in chronological order.
+        """
+        # find matching metrics
+        metrics = self.get_metric(key)
+
+        # sort metrics by timestamp from oldest  to newest
+        metrics.sort(key=lambda metric: metric.timestamp)
+
+        return [m.value for m in metrics]
+
+    def get_last_metric_value(self, key) -> float| None:
+        """
+
+        :param key: Metric key of the metric to return.
+        :return: The latest value of the metric or None if no metric exists with the given key.
+        """
+        metrics = self.get_metric_values(key)
+
+        if not metrics:
+            return None
+        else:
+            return metrics[-1]
+
     def add_property(self, property_: Property) -> None:
         """ Method that adds a single Property value to this Object
 
@@ -263,6 +290,33 @@ class Object:
         :return: All properties matching the given key
         """
         return list(filter(lambda property_: property_.key == key, self._properties))
+
+    def get_property_values(self, key) -> list[str]:
+        """
+
+        :param key: Property key of the property to return.
+        :return: A list of the property values in chronological order.
+        """
+        # find matching properties
+        properties = self.get_property(key)
+
+        # sort properties by timestamp from oldest  to newest
+        properties.sort(key=lambda property: property.timestamp)
+
+        return [p.value for p in properties]
+
+    def get_last_property_value(self, key) -> str | None:
+        """
+
+        :param key: Property key of the property to return.
+        :return: The latest value of the property or None if no property exists with the given key.
+        """
+        properties = self.get_property_values(key)
+
+        if not properties:
+            return None
+        else:
+            return properties[-1]
 
     def add_event(self, event: Event) -> None:
         """ Method that adds a single Event to this Object

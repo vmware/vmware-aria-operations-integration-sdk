@@ -12,7 +12,7 @@ To define an adapter, use the top-level `AdapterKind` element in the `conf/descr
     <!-- optional CapacityDefinitions, TraversalSpecKinds, etc -->
 </AdapterKind>
 ```
-For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 
 ## Defining an Adapter Instance
 An adapter instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter must have exactly one adapter instance. Adapter instances are set by defining a `ResourceKind` element with attribute `type=7`.
@@ -47,7 +47,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
   <!-- ... -->
 </AdapterKind>
 ```
-For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 
 Adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type is `2`, the identifier is _non-identifying_, and will show up under the 'advanced' section of the configuration page.
 
@@ -74,7 +74,7 @@ To add a credential to the Adapter, add a `CredentialKind` element to `AdapterKi
   <!-- ... -->  
 </AdapterKind>
 ```
-For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 Once the credential is defined, it must be added to the Adapter Instance. The adapter instance is a special `ResourceKind` that is used to configure an adapter. It is marked with the xml attribute/value `type="7"`. To add the credential to the adapter instance, add an attribute `credentialKind` to the adapter instance's `ResourceKind` element, with a value of the `CredentialKind`'s `key` attribute.
 ```xml
 <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
@@ -128,7 +128,7 @@ password = adapter_instance.get_credential_value("password")
 For other languages, or using Python without the VMware Aria Operations Integration module, json representing the adapter instance is
 sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the filename of the named
 pipe. The adapter instance json is described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Adding an Object Type
@@ -149,7 +149,7 @@ In addition, an object type may have _identifiers_, which can distinguish betwee
   </ResourceKinds>
 </AdapterKind>
 ```
-For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 
 > Note: Identifiers can have an `identType` of `1` or `2`. A type of `1` is most common, and means the identifier will be used for determining uniqueness. If the type is `2`, the identifier is _non-identifying_, and will show up in the identifiers of an object but will not cause a new object to be created if it changes. If _all_ identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. 
 
@@ -180,7 +180,7 @@ result.send_result()
 
 For other languages, or using Python without the VMware Aria Operations Integration module, objects must be returned as json, described
 in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Adding an Attribute
@@ -208,7 +208,7 @@ Attributes can be grouped together in `ResourceGroup` elements, which can be nes
   </ResourceKinds>
 </AdapterKind>
 ```
-For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 
 Once an attribute is defined in the `describe.xml` file, it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
 
@@ -229,7 +229,7 @@ database1.with_metric("session_count", 5)
 
 For other languages, or using Python without the VMware Aria Operations Integration module, metrics and properties are returned as json
 inside of objects, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Creating an Event
@@ -248,7 +248,7 @@ database1.with_event(
 
 For other languages, or using Python without the VMware Aria Operations Integration module, events are returned as json inside of
 objects, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Creating a Relationship
@@ -272,5 +272,5 @@ database2.add_parent(instance)
 
 For other languages, or using Python without the VMware Aria Operations Integration module, relationships are returned as json inside a
 collect result object, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](../vrealize_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .

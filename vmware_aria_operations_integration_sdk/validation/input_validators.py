@@ -7,8 +7,6 @@ from PIL import Image, UnidentifiedImageError
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import Validator, ValidationError
 
-from vrealize_operations_integration_sdk import constant
-
 
 class NotEmptyValidator(Validator):
     def __init__(self, label):

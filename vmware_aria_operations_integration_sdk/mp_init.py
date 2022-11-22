@@ -4,26 +4,31 @@
 import json
 import logging
 import os
+import subprocess
 import traceback
+import venv
 from importlib import resources
 from shutil import copy
 
+import pkg_resources
 from git import Repo
-
-from vrealize_operations_integration_sdk import adapter_template
-from vrealize_operations_integration_sdk.adapter_template import java, powershell
-from vrealize_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME, \
+from vmware_aria_operations_integration_sdk import adapter_template
+from vmware_aria_operations_integration_sdk.adapter_template import java
+from vmware_aria_operations_integration_sdk.adapter_template import powershell
+from vmware_aria_operations_integration_sdk.constant import VERSION_FILE, REPO_NAME, CONTAINER_BASE_NAME, \
     CONTAINER_REGISTRY_PATH, CONTAINER_REGISTRY_HOST
-from vrealize_operations_integration_sdk.filesystem import mkdir, rmdir
-from vrealize_operations_integration_sdk.project import Project, record_project
-from vrealize_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
-from vrealize_operations_integration_sdk.ui import selection_prompt
-from vrealize_operations_integration_sdk.validation.input_validators import NewProjectDirectoryValidator, \
+from vmware_aria_operations_integration_sdk.filesystem import mkdir, rmdir
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.project import Project, record_project
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print, path_prompt, prompt
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, Spinner
+from vmware_aria_operations_integration_sdk.validation.input_validators import NewProjectDirectoryValidator, \
     NotEmptyValidator, AdapterKeyValidator, EulaValidator, ImageValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = logging.StreamHandler()
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
@@ -185,6 +190,7 @@ def create_project(path, name, adapter_key, description, vendor, eula_file, icon
         git_ignore_fd.write("logs\n")
         git_ignore_fd.write("build\n")
         git_ignore_fd.write("config.json\n")
+        git_ignore_fd.write(f"venv-{name}\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
     repo.index.commit("Initial commit.")
@@ -248,7 +254,8 @@ def main():
                                     description="The language for the Management Pack determines the language for the template\n"
                                                 "source and build files.")
         # create project_directory
-        create_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
+        with Spinner("Creating Project"):
+            create_project(path, name, adapter_key, description, vendor, eula_file, icon_file, language)
         print("")
         print("")
         print("project generation completed", "class:success")
@@ -269,7 +276,7 @@ def main():
 
 
 def create_dockerfile(language: str, root_directory: os.path, executable_directory_path: str):
-    logger.info("generating Dockerfile")
+    logger.debug("generating Dockerfile")
     images = []
     with resources.path(__package__, VERSION_FILE) as config_file:
         with open(config_file, "r") as config:
@@ -286,7 +293,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
             f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n")
         dockerfile.write(
             f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
-            f"tools/build_images.py\n")
+            f"images/build_images.py\n")
         dockerfile.write(
             f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n")
         dockerfile.write(f"COPY commands.cfg .\n")
@@ -301,7 +308,7 @@ def create_dockerfile(language: str, root_directory: os.path, executable_directo
 
 
 def create_commands_file(language: str, path: str, executable_directory_path: str):
-    logger.info("generating commands file")
+    logger.debug("generating commands file")
     with open(os.path.join(path, "commands.cfg"), "w") as commands:
 
         command_and_executable = ""
@@ -323,7 +330,7 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
 
 
 def build_project_structure(path: str, adapter_kind: str, name: str, language: str):
-    logger.info("generating project structure")
+    logger.debug("generating project structure")
     project_directory = ''  # this is where all the source code will reside
 
     if language == "python":
@@ -335,6 +342,30 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
         with open(requirements_file, "w") as requirements:
             requirements.write("psutil==5.9.0\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.4.*\n")
+
+        # create development requirements file
+        requirements_file = os.path.join(path, "requirements.txt")
+        with open(requirements_file, "w") as requirements:
+            package = "vmware-aria-operations-integration-sdk"
+            version = pkg_resources.get_distribution(package).version
+            requirements.write(f"{package}=={version}\n")
+
+        env_dir = os.path.join(path, f"venv-{name}")
+        venv.create(env_dir, with_pip=True)
+
+        # install requirements.txt into virtual environment
+        v_env = os.environ.copy()
+        v_env["VIRTUAL_ENV"] = env_dir
+        v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
+        result = subprocess.run(["pip", "install", "-r", f"{requirements_file}"], env=v_env,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        for line in result.stdout.decode("utf-8").splitlines():
+            logger.debug(line)
+        for line in result.stderr.decode("utf-8").splitlines():
+            logger.warning(line)
+        if result.returncode != 0:
+            logger.error("Could not install sdk tools into the development virtual environment.")
 
         # copy adapter.py into app directory
         with resources.path(adapter_template, "adapter.py") as src:
@@ -353,7 +384,7 @@ def build_project_structure(path: str, adapter_kind: str, name: str, language: s
 
         project_directory = "out"
         mkdir(path, project_directory)
-        java.compile(os.path.join(path, "src"), os.path.join(path, project_directory, ))
+        java.compile(os.path.join(path, ""), os.path.join(path, project_directory, ))
 
     if language == "powershell":
         # TODO: copy a powershell script  instead of generate it

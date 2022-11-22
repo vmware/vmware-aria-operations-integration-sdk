@@ -174,7 +174,7 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
    </TraversalSpecKinds>
 </AdapterKind>
 ```
-> For more information about the supported elements and attributes, see the [describe.xml documentation](describeSchema.xsd).
+> For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 
 When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:

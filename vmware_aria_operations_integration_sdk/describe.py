@@ -14,10 +14,10 @@ from lxml.etree import Element, SubElement
 import httpx
 
 from aria.ops.definition.units import Units
-from vrealize_operations_integration_sdk.config import get_config_value
-from vrealize_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
-from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.propertiesfile import load_properties, write_properties
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -61,10 +61,10 @@ class Describe:
     @classmethod
     async def _get_adapter_definition(cls):
         async with httpx.AsyncClient(timeout=30) as client:
-            from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
+            from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
             request, response, elapsed_time = await send_get_to_adapter(client, ADAPTER_DEFINITION_ENDPOINT)
             if not response.is_success:
-                from vrealize_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
+                from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
                 logger.error(get_failure_message(response))
                 logger.error(f"adapterDefinition endpoint returned {response.status_code}.")
                 await cls._adapter_container.stop()
@@ -86,7 +86,6 @@ class Describe:
         # 'http://schemas.vmware.com/vcops/schema'. Note: Any attributes on the 'AdapterKind' element itself will be
         # ignored. The 'AdapterKind' element only serves to hold one or more of the following fragment elements:
         elements = ["CustomGroupMetrics",
-                    "CapacityDefinitions",
                     "Faults",
                     "LaunchConfigurations",
                     "BasePolicyAnalysisSettings",

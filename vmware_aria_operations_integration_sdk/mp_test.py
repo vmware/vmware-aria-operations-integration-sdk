@@ -7,31 +7,32 @@ import logging
 import os
 import time
 import traceback
-import lxml.etree as ET
 
 import httpx
+import lxml.etree as ET
 import urllib3
 from docker.errors import ContainerError, APIError
 from prompt_toolkit.validation import ConditionalValidator, ValidationError
 from xmlschema import XMLSchemaValidationError
 
-from vrealize_operations_integration_sdk.adapter_container import AdapterContainer
-from vrealize_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
+from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
+from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT, ENDPOINTS_URLS_ENDPOINT, \
     CONNECT_ENDPOINT, COLLECT_ENDPOINT, ADAPTER_DEFINITION_ENDPOINT
-from vrealize_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter, \
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter, \
     send_post_to_adapter
-from vrealize_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
+from vmware_aria_operations_integration_sdk.describe import ns, get_adapter_instance, get_credential_kinds, \
     get_identifiers, is_true, Describe
-from vrealize_operations_integration_sdk.docker_wrapper import DockerWrapperError
-from vrealize_operations_integration_sdk.filesystem import mkdir
-from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.project import get_project, Connection, record_project
-from vrealize_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
-    EndpointURLsBundle, LongCollectionBundle, WaitBundle,  AdapterDefinitionBundle
-from vrealize_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
+from vmware_aria_operations_integration_sdk.docker_wrapper import DockerWrapperError
+from vmware_aria_operations_integration_sdk.filesystem import mkdir
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.project import get_project, Connection, record_project
+from vmware_aria_operations_integration_sdk.serialization import CollectionBundle, VersionBundle, ConnectBundle, \
+    EndpointURLsBundle, LongCollectionBundle, WaitBundle, ResponseBundle, AdapterDefinitionBundle
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, print_formatted as print_formatted, prompt, \
     countdown, Spinner
-from vrealize_operations_integration_sdk.validation.describe_checks import validate_describe
-from vrealize_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
+from vmware_aria_operations_integration_sdk.validation.describe_checks import validate_describe
+from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator, UniquenessValidator, \
     ChainValidator, IntegerValidator, TimeValidator
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -131,7 +132,8 @@ async def run_get_endpoint_urls(timeout, project, connection, adapter_container,
             return EndpointURLsBundle(request, response, elapsed_time, adapter_container.stats)
 
 
-async def run_get_adapter_definition(timeout, project, connection, adapter_container, title="Running Adapter Definition", **kwargs):
+async def run_get_adapter_definition(timeout, project, connection, adapter_container,
+                                     title="Running Adapter Definition", **kwargs):
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -347,6 +349,8 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
                 "password": is_true(credential_field, "password")
             }
 
+    suite_api_credentials = get_suite_api_connection_info(project)
+
     connection_names = [connection.name for connection in (project.connections or [])]
     connection_names.append("New Connection")
 
@@ -355,10 +359,41 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
                   validate_while_typing=False,
                   description="The connection name is used to identify this connection (parameters and credential) in\n"
                               "command line arguments or in the interactive prompt.")
-    new_connection = Connection(name, identifiers, credentials)
+    new_connection = Connection(name, identifiers, credentials, None, suite_api_credentials)
     project.connections.append(new_connection)
     record_project(project)
+    print_formatted(f"Saved connection '{name}' in '{os.path.join(project.path, 'config.json')}'.", "class:success")
+    print_formatted(f"The connection can be modified by manually editing this file.", "class:success")
     return new_connection
+
+
+def get_suite_api_connection_info(project):
+    suiteapi_hostname = get_config_value("suite_api_hostname", "hostname", os.path.join(project.path, "config.json"))
+    suiteapi_username = get_config_value("suite_api_username", "username", os.path.join(project.path, "config.json"))
+    suiteapi_password = get_config_value("suite_api_password", "password", os.path.join(project.path, "config.json"))
+    has_default = False if suiteapi_hostname == "hostname" else True
+    suite_api_prompt = "Set connection information for SuiteAPI calls? "
+    description = ""
+    if has_default:
+        suite_api_prompt = "Override default SuiteAPI connection information for SuiteAPI calls? "
+        description = f"Default SuiteAPI host/user is currently: '{suiteapi_hostname}'/'{suiteapi_username}'."
+    suite_api_response = selection_prompt(suite_api_prompt, [("yes", "Yes"), ("no", "No")], description)
+    if suite_api_response == "yes":
+        suiteapi_hostname = prompt("Suite API Hostname: ")
+        suiteapi_username = prompt("Suite API User Name: ")
+        suiteapi_password = prompt("Suite API Password: ", is_password=True)
+        if not has_default:
+            description = "Default SuiteAPI host/user is not currently set."
+        if selection_prompt("Set these as the default SuiteAPI connection? ", [("yes", "Yes"), ("no", "No")], description) == "yes":
+            set_config_value("suite_api_hostname", suiteapi_hostname, os.path.join(project.path, "config.json"))
+            set_config_value("suite_api_username", suiteapi_username, os.path.join(project.path, "config.json"))
+            set_config_value("suite_api_password", suiteapi_password, os.path.join(project.path, "config.json"))
+    else:
+        suiteapi_hostname = None
+        suiteapi_username = None
+        suiteapi_password = None
+
+    return suiteapi_hostname, suiteapi_username, suiteapi_password
 
 
 def input_parameter(parameter_type, parameter, resources):

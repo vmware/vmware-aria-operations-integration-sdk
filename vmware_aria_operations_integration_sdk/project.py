@@ -6,12 +6,12 @@ import logging
 import os
 from typing import Optional
 
-from vrealize_operations_integration_sdk.config import get_config_value, set_config_value
-from vrealize_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
-from vrealize_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vrealize_operations_integration_sdk.propertiesfile import load_properties
-from vrealize_operations_integration_sdk.ui import selection_prompt, path_prompt
-from vrealize_operations_integration_sdk.validation.input_validators import ProjectValidator
+from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
+from vmware_aria_operations_integration_sdk.ui import selection_prompt, path_prompt
+from vmware_aria_operations_integration_sdk.validation.input_validators import ProjectValidator
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -24,11 +24,15 @@ class Connection:
     def __init__(self, name: str,
                  identifiers: dict[str, any],
                  credential: dict[str, any],
-                 certificates: Optional[list[str]] = None):
+                 certificates: Optional[list[str]] = None,
+                 suite_api_connection: (str, str, str) = (None, None, None)):
         self.name = name
         self.identifiers = identifiers
         self.credential = credential
         self.certificates = certificates
+        self.suite_api_hostname = suite_api_connection[0]
+        self.suite_api_username = suite_api_connection[1]
+        self.suite_api_password = suite_api_connection[2]
 
     def get_memory_limit(self):
         memory_limit = self.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
@@ -53,7 +57,10 @@ class Connection:
         identifiers = json_connection["identifiers"]
         credential = json_connection["credential"]
         certificates = json_connection.get("certificates", None)
-        return Connection(name, identifiers, credential, certificates)
+        hostname = json_connection.get("suite_api_hostname", None)
+        username = json_connection.get("suite_api_username", None)
+        password = json_connection.get("suite_api_password", None)
+        return Connection(name, identifiers, credential, certificates, (hostname, username, password))
 
 
 class Project:

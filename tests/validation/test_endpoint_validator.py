@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 
 
-from vrealize_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint
+from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint
 
 
 def test_no_protocol():

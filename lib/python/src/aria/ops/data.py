@@ -15,7 +15,7 @@ class Metric:
          Current User Session Count
          Cumulative Data Received
     """
-    def __init__(self, key: str, value: float, timestamp: int = int(time.time() * 1000)):
+    def __init__(self, key: str, value: float, timestamp: int = None):
         """ Creates a Metric
 
         :param key: A string representing the type of metric. TODO: Describe how Keys work.
@@ -25,7 +25,11 @@ class Metric:
         """
         self.key = key
         self.value = value
-        self.timestamp = timestamp
+
+        if timestamp is None:
+            self.timestamp = int(time.time() * 1000)
+        else:
+            self.timestamp = timestamp
 
     def get_json(self):
         """ Get a JSON representation of this Metric.
@@ -51,7 +55,7 @@ class Property:
         Software Version
         CPU Core Count
     """
-    def __init__(self, key: str, value: Union[float, str], timestamp: int = int(time.time() * 1000)):
+    def __init__(self, key: str, value: Union[float, str], timestamp: int = None):
         """ Creates a Property.
 
         :param key: A string representing the type of property. TODO: Describe how Keys work.
@@ -61,7 +65,11 @@ class Property:
         """
         self.key = key
         self.value = value
-        self.timestamp = timestamp
+
+        if timestamp is None:
+            self.timestamp = int(time.time() * 1000)
+        else:
+            self.timestamp = timestamp
 
     def get_json(self):
         """ Get a JSON representation of this Property.
