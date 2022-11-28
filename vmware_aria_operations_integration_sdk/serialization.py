@@ -7,6 +7,7 @@ import ssl
 import time
 from typing import Tuple, Optional
 
+from vmware_aria_operations_integration_sdk.util import LazyAttribute
 from vmware_aria_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
@@ -16,7 +17,9 @@ from vmware_aria_operations_integration_sdk.validation.api_response_validation i
 from vmware_aria_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
 from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
     validate_endpoint
+
 from vmware_aria_operations_integration_sdk.validation.relationship_validator import validate_relationships
+from vmware_aria_operations_integration_sdk.validation.highlights import highlight_object_growth, highlight_metric_growth
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -93,12 +96,35 @@ class CollectionBundle(ResponseBundle):
 
 
 class LongCollectionBundle:
-    def __init__(self, collection_interval):
+    def __init__(self, collection_interval, long_run_duration):
         self.collection_bundles = list()
         self.collection_interval = collection_interval
+        self.long_run_duration = long_run_duration
 
     def __repr__(self):
-        return repr(LongCollectionStatistics(self.collection_bundles, self.collection_interval))
+        return str(self.long_collection_statistics)
+
+    @LazyAttribute
+    def long_collection_statistics(self) -> LongCollectionStatistics:
+        return LongCollectionStatistics(self.collection_bundles, self.collection_interval, self.long_run_duration)
+
+    def validate(self, *args, **kwargs) -> [str]:
+        """
+        Scenario 1: individual objects of the same type are collected, but their identifier keeps changing which
+        causes for there to always be the same number of objects, each collection, but overall there is object  growth
+        overtime.
+
+        Scenario 2: Every collection returns more and more objects overtime
+        :param long_collection_stats:  Contains all the long collections statistics necessary to generate highliights
+        :param highlight_file_path: In case we want to save the highlights in a file
+        :param verbosity: We should consider giving severity to the highlights just in case the user only wants to see extremely sever ones or all
+        """
+
+        result = Result()
+        for _validate in [highlight_object_growth, highlight_metric_growth]:
+            result += _validate(self.long_collection_statistics)
+
+        return result
 
     def add(self, collection_bundle):
         self.collection_bundles.append(collection_bundle)
@@ -111,7 +137,8 @@ class ConnectBundle(ResponseBundle):
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_api_response, validate_endpoint_urls])
+        super().__init__(request, response, duration, container_statistics,
+                         [validate_api_response, validate_endpoint_urls])
 
     def retrieve_certificates(self):
         if not self.response.is_success:

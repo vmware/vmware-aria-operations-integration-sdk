@@ -81,7 +81,7 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
     # Wait for the container to finish starting *after* we've read in all the user input.
     await adapter_container.wait_for_container_startup()
 
-    long_collection_bundle = LongCollectionBundle(collection_interval)
+    long_collection_bundle = LongCollectionBundle(collection_interval, duration)
     for collection_no in range(1, times + 1):
         title = f"Running collection No. {collection_no} of {times}"
         collection_bundle = await run_collect(timeout, project, connection, adapter_container, title=title)
@@ -225,13 +225,11 @@ async def run(arguments):
         await adapter_container.stop()
 
     # TODO: Add UI code here
+    # calculate_stats() ->all stats_object
     logger.info(result_bundle)
-    if issubclass(type(result_bundle), ResponseBundle):
-        # TODO: This logic should be performed in the UI
-        ui_validation(result_bundle.validate(project),
-                      project,
-                      os.path.join(project.path, "logs", "validation.log"),
-                      verbosity)
+    display_ui(result_bundle.validate(project),
+               os.path.join(project.path, "logs", "validation.log"),
+               verbosity,  type(result_bundle) is LongCollectionBundle)
 
 
 def get_method(arguments):
@@ -249,7 +247,10 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def ui_validation(result, project, validation_file_path, verbosity):
+def display_ui(result, validation_file_path, verbosity, over_write_minimum_log_level):
+    if over_write_minimum_log_level and verbosity < 2:
+        verbosity = 2
+
     for severity, message in result.messages:
         if severity.value <= verbosity:
             if severity.value == 1:
@@ -258,7 +259,6 @@ def ui_validation(result, project, validation_file_path, verbosity):
                 logger.warning(message)
             else:
                 logger.info(message)
-    validation_file_path = os.path.join(project.path, "logs", "validation.log")
     write_validation_log(validation_file_path, result)
 
     if len(result.messages) > 0:
@@ -267,11 +267,12 @@ def ui_validation(result, project, validation_file_path, verbosity):
         logger.error(f"Found {result.error_count} errors when validating response")
     if result.warning_count > 0 and verbosity < 2:
         logger.warning(f"Found {result.warning_count} warnings when validating response")
+
     if result.error_count + result.warning_count == 0:
         logger.info("Validation passed with no errors", extra={"style": "class:success"})
 
 
-# TODO: move this to UI
+# TODO: a new file inside of the validation module
 def write_validation_log(validation_file_path, result):
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:

@@ -263,11 +263,11 @@ def prompt(message, *args, description="", **kwargs) -> str:
     session: PromptSession[str] = PromptSession()
 
     return session.prompt(
-                    message, *args, **kwargs,
-                    bottom_toolbar=description,
-                    lexer=SimpleLexer('class:answer'),
-                    style=style,
-                    in_thread=True)
+        message, *args, **kwargs,
+        bottom_toolbar=description,
+        lexer=SimpleLexer('class:answer'),
+        style=style,
+        in_thread=True)
 
 
 class Spinner(FormattedTextControl):
@@ -337,6 +337,7 @@ class Spinner(FormattedTextControl):
         @bindings.add("c-d", eager=True)
         def _(event):
             event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
+
         return bindings
 
 
@@ -345,7 +346,6 @@ def countdown(duration, message=""):
     remaining = ""
     try:
         while time.time() < end_time:
-
             remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
             print(f"{message}{remaining}", end="\r")
             time.sleep(.2)
@@ -368,7 +368,7 @@ class Table:
         for col in range(len(self.headers)):
             size = len(self.headers[col])
             for row in self.data:
-                size = max(size, len(row[col]))
+                size = max(size, max([len(line) for line in row[col].splitlines()]))
             column_sizes.append("{:<" + str(size) + "}")
             horizontal_rule.append("-" * size)
         formatting = " | ".join(column_sizes)
@@ -376,6 +376,10 @@ class Table:
         output += formatting.format(*self.headers) + "\n"
         output += "-+-".join(horizontal_rule) + "\n"
         for row in self.data:
-            output += formatting.format(*row) + "\n"
+            columns = [col.splitlines() for col in row]
+            line_count = max(map(lambda _lines: len(_lines), columns))
+            for line_number in range(line_count):
+                line = map(lambda column: "" if line_number >= len(column) else column[line_number], columns)
+                output += formatting.format(*line) + "\n"
 
         return output

@@ -54,16 +54,20 @@ def get_average(inputs: list):
     return sum(inputs) / len(inputs)
 
 
-def get_growth_rate(inputs: list):
-    present = inputs[-1]
-    past = inputs[0]
-
+def get_growth_rate(initial, final, total_number_of_periods):
+    """
+    Calculates average percent growth rate per period
+    :param initial: the initial number of objects
+    :param final: the final number of objects / things
+    :param total_number_of_periods: the total time period in any given unit
+    :return: float that represents the percent of growth per period unit
+    """
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
-    if not (present and past):
-        present += 1
-        past += 1
+    if not (final and initial):
+        initial += 1
+        final += 1
 
-    return (((present / past) ** (1 / len(inputs))) - 1) * 100
+    return (((final / initial) ** (1 / total_number_of_periods)) - 1) * 100
 
 
 class UniqueObjectTypeStatistics:
@@ -76,4 +80,3 @@ class UniqueObjectTypeStatistics:
         self.running_collection.update(unique_items)
         self.data_points.append(len(self.running_collection))
         self.counts.append(total_items)
-
