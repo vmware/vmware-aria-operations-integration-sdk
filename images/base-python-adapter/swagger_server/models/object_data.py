@@ -1,19 +1,19 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.event import Event  # noqa: F401,E501
 from swagger_server.models.metric_data import MetricData  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
 from swagger_server.models.property_data import PropertyData  # noqa: F401,E501
-from swagger_server import util
 
 
 class ObjectData(Model):
@@ -21,7 +21,14 @@ class ObjectData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: ObjectKey=None, metrics: List[MetricData]=None, properties: List[PropertyData]=None, events: List[Event]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        key: ObjectKey = None,
+        metrics: List[MetricData] = None,
+        properties: List[PropertyData] = None,
+        events: List[Event] = None,
+    ):  # noqa: E501
         """ObjectData - a model defined in Swagger
 
         :param key: The key of this ObjectData.  # noqa: E501
@@ -34,17 +41,17 @@ class ObjectData(Model):
         :type events: List[Event]
         """
         self.swagger_types = {
-            'key': ObjectKey,
-            'metrics': List[MetricData],
-            'properties': List[PropertyData],
-            'events': List[Event]
+            "key": ObjectKey,
+            "metrics": List[MetricData],
+            "properties": List[PropertyData],
+            "events": List[Event],
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'metrics': 'metrics',
-            'properties': 'properties',
-            'events': 'events'
+            "key": "key",
+            "metrics": "metrics",
+            "properties": "properties",
+            "events": "events",
         }
         self._key = key
         self._metrics = metrics
@@ -52,7 +59,7 @@ class ObjectData(Model):
         self._events = events
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ObjectData':
+    def from_dict(cls, dikt) -> "ObjectData":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -81,7 +88,9 @@ class ObjectData(Model):
         :type key: ObjectKey
         """
         if key is None:
-            raise ValueError("Invalid value for `key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `key`, must not be `None`"
+            )  # noqa: E501
 
         self._key = key
 

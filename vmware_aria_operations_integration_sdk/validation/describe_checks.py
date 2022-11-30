@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import json
 import logging
 import os
@@ -8,8 +7,11 @@ from json import JSONDecodeError
 
 import xmlschema
 
-from vmware_aria_operations_integration_sdk.describe import get_adapter_kind, get_resource_kinds, ns, \
-    is_true, Describe
+from vmware_aria_operations_integration_sdk.describe import Describe
+from vmware_aria_operations_integration_sdk.describe import get_adapter_kind
+from vmware_aria_operations_integration_sdk.describe import get_resource_kinds
+from vmware_aria_operations_integration_sdk.describe import is_true
+from vmware_aria_operations_integration_sdk.describe import ns
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -23,7 +25,9 @@ def message_format(resource, message):
     return f"({resource_kind}: {resource_name}) > {message}"
 
 
-def cross_check_attribute(resource, collected_metric, attribute_type, key_, element) -> Result:
+def cross_check_attribute(
+    resource, collected_metric, attribute_type, key_, element
+) -> Result:
     result = Result()
     key, _, remaining_key = key_.partition("|")
     if remaining_key != "":
@@ -32,7 +36,7 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
         child_type = "ResourceAttribute"
 
     key, _, instance = key.partition(":")
-    instanced = (instance != "")
+    instanced = instance != ""
     children = element.findall(ns(child_type))
     match = next(filter(lambda c: c.get("key") == key, children), None)
 
@@ -41,7 +45,7 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
             message_format(
                 resource,
                 f"{attribute_type.capitalize()} '{collected_metric['key']}' is not defined in describe.xml. Could not "
-                f"find {child_type} '{key}'."
+                f"find {child_type} '{key}'.",
             )
         )
         return result
@@ -54,7 +58,7 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
                     message_format(
                         resource,
                         f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid key. It contains "
-                        f"non-instanced group '{key}', but that group is defined to require instances in describe.xml."
+                        f"non-instanced group '{key}', but that group is defined to require instances in describe.xml.",
                     )
                 )
         if instanced and not is_true(match, "instanced"):
@@ -62,37 +66,45 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
                 message_format(
                     resource,
                     f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid key. It contains "
-                    f"instanced group '{key}', but that group is not defined to allow instances in describe.xml."
+                    f"instanced group '{key}', but that group is not defined to allow instances in describe.xml.",
                 )
             )
-        result += cross_check_attribute(resource, collected_metric, attribute_type, remaining_key, match)
+        result += cross_check_attribute(
+            resource, collected_metric, attribute_type, remaining_key, match
+        )
         return result
 
     # attribute validation cases
     if is_true(match, "isProperty") != (attribute_type == "property"):
-        describe_attribute_type = "property" if is_true(match, "isProperty") else "metric"
+        describe_attribute_type = (
+            "property" if is_true(match, "isProperty") else "metric"
+        )
         result.with_warning(
             message_format(
                 resource,
                 f"{attribute_type.capitalize()} '{collected_metric['key']}' has a mismatched type. It was returned as a"
-                f" {attribute_type}, but the attribute is defined as a {describe_attribute_type} in describe.xml."
+                f" {attribute_type}, but the attribute is defined as a {describe_attribute_type} in describe.xml.",
             )
         )
 
-    if ("stringValue" in collected_metric) and (match.get("dataType", "float") != "string"):
+    if ("stringValue" in collected_metric) and (
+        match.get("dataType", "float") != "string"
+    ):
         result.with_error(
             message_format(
                 resource,
                 f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type. A string value "
-                f"was returned in the collection, but the attribute is defined as numeric in describe.xml."
+                f"was returned in the collection, but the attribute is defined as numeric in describe.xml.",
             )
         )
-    if ("numberValue" in collected_metric) and (match.get("type", "float").lower() == "string"):
+    if ("numberValue" in collected_metric) and (
+        match.get("type", "float").lower() == "string"
+    ):
         result.with_error(
             message_format(
                 resource,
                 f"{attribute_type.capitalize()} '{collected_metric['key']}' has an invalid data type. A numeric value "
-                f"was returned in the collection, but the attribute type is 'string' in describe.xml."
+                f"was returned in the collection, but the attribute type is 'string' in describe.xml.",
             )
         )
 
@@ -101,7 +113,9 @@ def cross_check_attribute(resource, collected_metric, attribute_type, key_, elem
 
 def cross_check_identifiers(resource, resource_kind_element) -> Result:
     collected_identifiers = resource["key"]["identifiers"]
-    described_identifiers = {i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))}
+    described_identifiers = {
+        i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))
+    }
 
     result = Result()
     for identifier in collected_identifiers:
@@ -109,26 +123,32 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
             result.with_warning(
                 message_format(
                     resource,
-                    f"Identifier '{identifier['key']}' is present on this resource, but is not defined in describe.xml."
+                    f"Identifier '{identifier['key']}' is present on this resource, but is not defined in describe.xml.",
                 )
             )
         else:
-            if identifier["isPartOfUniqueness"] and \
-                    described_identifiers[identifier["key"]].get("identType", "1") != "1":
+            if (
+                identifier["isPartOfUniqueness"]
+                and described_identifiers[identifier["key"]].get("identType", "1")
+                != "1"
+            ):
                 result.with_error(
                     message_format(
                         resource,
                         f"Identifier '{identifier['key']}' uniqueness mismatch. 'isPartOfUniqueness' is set to true "
-                        f"in the collection, which is inconsistent with 'identType=\"2\" in describe.xml."
+                        f'in the collection, which is inconsistent with \'identType="2" in describe.xml.',
                     )
                 )
-            elif not identifier["isPartOfUniqueness"] and described_identifiers[identifier["key"]].get(
-                    "identType", "1") != "2":
+            elif (
+                not identifier["isPartOfUniqueness"]
+                and described_identifiers[identifier["key"]].get("identType", "1")
+                != "2"
+            ):
                 result.with_error(
                     message_format(
                         resource,
                         f"Identifier '{identifier['key']}' uniqueness mismatch. 'isPartOfUniqueness' set to false in "
-                        f"the collection, which is inconsistent with 'identType=\"1\"' in describe.xml."
+                        f"the collection, which is inconsistent with 'identType=\"1\"' in describe.xml.",
                     )
                 )
 
@@ -140,7 +160,7 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
                 message_format(
                     resource,
                     f"Identifier '{described_identifier.get('key')}' is required in describe.xml, but it was not "
-                    f"found on this resource."
+                    f"found on this resource.",
                 )
             )
         else:
@@ -148,7 +168,7 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
                 message_format(
                     resource,
                     f"Identifier '{described_identifier.get('key')}' is optional in describe.xml, and was not found "
-                    f"on this resource."
+                    f"on this resource.",
                 )
             )
 
@@ -159,8 +179,10 @@ def cross_check_collection_with_describe(project, request, response):
     result = Result()
     try:
         if not response.is_success:
-            result.with_error(f"Unable to cross check collection against describe.xml. The '{request.url}' endpoint "
-                              f"response was: {response.status_code} {response.reason_phrase}")
+            result.with_error(
+                f"Unable to cross check collection against describe.xml. The '{request.url}' endpoint "
+                f"response was: {response.status_code} {response.reason_phrase}"
+            )
             return result
         path = project.path
         results = json.loads(response.text)
@@ -181,7 +203,9 @@ def cross_check_collection_with_describe(project, request, response):
         resource_kinds = get_resource_kinds(describe)
 
         # store all resourceKind keys in a dictionary for fast lookup
-        describe_resource_kinds = {resource_kind.get("key"): resource_kind for resource_kind in resource_kinds}
+        describe_resource_kinds = {
+            resource_kind.get("key"): resource_kind for resource_kind in resource_kinds
+        }
 
         # check Resource kinds
         for resource in results:
@@ -193,7 +217,7 @@ def cross_check_collection_with_describe(project, request, response):
                 result.with_warning(
                     message_format(
                         resource,
-                        f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. "
+                        f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. ",
                     )
                 )
 
@@ -202,7 +226,7 @@ def cross_check_collection_with_describe(project, request, response):
                 result.with_warning(
                     message_format(
                         resource,
-                        f"ResourceKind '{resource_kind}' was not found in describe.xml. "
+                        f"ResourceKind '{resource_kind}' was not found in describe.xml. ",
                     )
                 )
                 logger.debug(f"Skipping metric validation for '{resource_kind}'. ")
@@ -211,18 +235,26 @@ def cross_check_collection_with_describe(project, request, response):
                 resource_kind_element = describe_resource_kinds[resource_kind]
                 #            logger.info(f"Validating metrics for {resource_kind}")
                 for metric in resource["metrics"]:
-                    result += cross_check_attribute(resource, metric, "metric", metric["key"], resource_kind_element)
+                    result += cross_check_attribute(
+                        resource, metric, "metric", metric["key"], resource_kind_element
+                    )
                 for prop in resource["properties"]:
-                    result += cross_check_attribute(resource, prop, "property", prop["key"], resource_kind_element)
+                    result += cross_check_attribute(
+                        resource, prop, "property", prop["key"], resource_kind_element
+                    )
 
                 # identifiers validation
                 result += cross_check_identifiers(resource, resource_kind_element)
 
     except JSONDecodeError as d:
-        result.with_error(f"Unable to cross check collection against describe.xml. Returned result is not valid json: "
-                          f"'{repr(response.text)}' Error: '{d}'")
+        result.with_error(
+            f"Unable to cross check collection against describe.xml. Returned result is not valid json: "
+            f"'{repr(response.text)}' Error: '{d}'"
+        )
     except Exception as e:
-        result.with_error(f"Unable to cross check collection against describe.xml: '{e}'")
+        result.with_error(
+            f"Unable to cross check collection against describe.xml: '{e}'"
+        )
 
     return result
 

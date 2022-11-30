@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from enum import Enum
 
 
@@ -32,5 +31,3 @@ class Result:
 
     def with_information(self, information):
         self.messages.append((ResultLevel.INFORMATION, information))
-
-

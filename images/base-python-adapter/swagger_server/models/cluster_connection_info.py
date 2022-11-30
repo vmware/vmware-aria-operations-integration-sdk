@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class ClusterConnectionInfo(Model):
@@ -17,7 +17,10 @@ class ClusterConnectionInfo(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, user_name: str=None, password: str=None, host_name: str=None):  # noqa: E501
+
+    def __init__(
+        self, user_name: str = None, password: str = None, host_name: str = None
+    ):  # noqa: E501
         """ClusterConnectionInfo - a model defined in Swagger
 
         :param user_name: The user_name of this ClusterConnectionInfo.  # noqa: E501
@@ -27,23 +30,19 @@ class ClusterConnectionInfo(Model):
         :param host_name: The host_name of this ClusterConnectionInfo.  # noqa: E501
         :type host_name: str
         """
-        self.swagger_types = {
-            'user_name': str,
-            'password': str,
-            'host_name': str
-        }
+        self.swagger_types = {"user_name": str, "password": str, "host_name": str}
 
         self.attribute_map = {
-            'user_name': 'userName',
-            'password': 'password',
-            'host_name': 'hostName'
+            "user_name": "userName",
+            "password": "password",
+            "host_name": "hostName",
         }
         self._user_name = user_name
         self._password = password
         self._host_name = host_name
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ClusterConnectionInfo':
+    def from_dict(cls, dikt) -> "ClusterConnectionInfo":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -74,7 +73,9 @@ class ClusterConnectionInfo(Model):
         :type user_name: str
         """
         if user_name is None:
-            raise ValueError("Invalid value for `user_name`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `user_name`, must not be `None`"
+            )  # noqa: E501
 
         self._user_name = user_name
 
@@ -122,6 +123,8 @@ class ClusterConnectionInfo(Model):
         :type host_name: str
         """
         if host_name is None:
-            raise ValueError("Invalid value for `host_name`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `host_name`, must not be `None`"
+            )  # noqa: E501
 
         self._host_name = host_name

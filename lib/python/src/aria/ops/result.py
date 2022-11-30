@@ -1,25 +1,23 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import sys
 
-from aria.ops.object import Object, Key
+from aria.ops.object import Key
+from aria.ops.object import Object
 from aria.ops.pipe_utils import write_to_pipe
 
 
 class ObjectKeyAlreadyExistsException(Exception):
-    """ Exception when two objects with the same Key are added to the same :class:`Result`
-    """
+    """Exception when two objects with the same Key are added to the same :class:`Result`"""
+
     pass
 
 
 class TestResult:
-    """ Class for managing the results of an adapter instance connection test
-    """
+    """Class for managing the results of an adapter instance connection test"""
 
     def __init__(self):
-        """Initializes a Result
-        """
+        """Initializes a Result"""
         self._error_message = None
 
     def is_success(self):
@@ -30,7 +28,7 @@ class TestResult:
         return self._error_message is None
 
     def with_error(self, error_message: str):
-        """ Set the adapter instance connection test to failed, and display the given error message.
+        """Set the adapter instance connection test to failed, and display the given error message.
 
         If this method is called multiple times, only the most recent error message will be recorded.
         If error_message is set, the test is considered failed.
@@ -51,9 +49,7 @@ class TestResult:
         if self.is_success():
             return {}
         else:
-            return {
-                "errorMessage": self._error_message
-            }
+            return {"errorMessage": self._error_message}
 
     def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
@@ -65,7 +61,7 @@ class TestResult:
 
 
 class EndpointResult:
-    """ Class for managing the results of an adapter instance get endpoint URLs call
+    """Class for managing the results of an adapter instance get endpoint URLs call
 
     The result of this should be a set of urls that the adapter will connect to. vROps will then attempt
     to connect to each of these urls securely, and prompt the user to accept or reject the certificate
@@ -74,12 +70,11 @@ class EndpointResult:
     """
 
     def __init__(self):
-        """Initializes an EndpointResult
-        """
+        """Initializes an EndpointResult"""
         self.endpoints = []
 
     def with_endpoint(self, endpoint_url: str):
-        """ Adds an endpoint to the list of endpoints vROps will test for certificate validation
+        """Adds an endpoint to the list of endpoints vROps will test for certificate validation
 
         If this method is called multiple times, each url will be called by vROps
 
@@ -95,9 +90,7 @@ class EndpointResult:
 
         :return: A JSON representation of this EndpointResult
         """
-        return {
-            "endpointUrls": self.endpoints
-        }
+        return {"endpointUrls": self.endpoints}
 
     def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
@@ -109,8 +102,7 @@ class EndpointResult:
 
 
 class CollectResult:
-    """ Class for managing a collection of vROps Objects
-    """
+    """Class for managing a collection of vROps Objects"""
 
     def __init__(self, obj_list=None, target_definition=None):
         """Initializes a Result
@@ -126,7 +118,9 @@ class CollectResult:
             self.add_objects(obj_list)
         self._error_message = None
 
-    def object(self, adapter_kind: str, object_kind: str, name: str, identifiers=None) -> Object:
+    def object(
+        self, adapter_kind: str, object_kind: str, name: str, identifiers=None
+    ) -> Object:
         """Get or create the object with key specified by adapter_kind, object_kind, name, and identifiers.
 
         This is the preferred method for creating new Objects. If this method is used exclusively, all object references
@@ -161,7 +155,9 @@ class CollectResult:
         o = self.objects.setdefault(obj.get_key(), obj)
         if o is obj:
             return o
-        raise ObjectKeyAlreadyExistsException(f"A different object with key {obj.get_key()} already exists.")
+        raise ObjectKeyAlreadyExistsException(
+            f"A different object with key {obj.get_key()} already exists."
+        )
 
     def add_objects(self, obj_list: list[Object]) -> None:
         """Adds the given objects to the Result and returns it.
@@ -177,7 +173,7 @@ class CollectResult:
             self.add_object(obj)
 
     def with_error(self, error_message: str):
-        """ Set the Adapter Instance to an error state with the provided message.
+        """Set the Adapter Instance to an error state with the provided message.
 
         If this method is called multiple times, only the most recent error message will be recorded.
         If error_message is set, no results (objects, relationships) will be returned.
@@ -202,15 +198,17 @@ class CollectResult:
                 "relationships": [
                     {
                         "parent": obj.get_key().get_json(),
-                        "children": [child_key.get_json() for child_key in obj.get_children()]
-                    } for obj in self.objects.values() if len(obj.get_children()) > 0
+                        "children": [
+                            child_key.get_json() for child_key in obj.get_children()
+                        ],
+                    }
+                    for obj in self.objects.values()
+                    if len(obj.get_children()) > 0
                 ],
                 "nonExistingObjects": [],
             }
         else:
-            return {
-                "errorMessage": self._error_message
-            }
+            return {"errorMessage": self._error_message}
 
     def send_results(self, output_pipe=sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server

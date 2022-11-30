@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class TestResult(Model):
@@ -17,23 +17,20 @@ class TestResult(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, error_message: str=None):  # noqa: E501
+
+    def __init__(self, error_message: str = None):  # noqa: E501
         """TestResult - a model defined in Swagger
 
         :param error_message: The error_message of this TestResult.  # noqa: E501
         :type error_message: str
         """
-        self.swagger_types = {
-            'error_message': str
-        }
+        self.swagger_types = {"error_message": str}
 
-        self.attribute_map = {
-            'error_message': 'errorMessage'
-        }
+        self.attribute_map = {"error_message": "errorMessage"}
         self._error_message = error_message
 
     @classmethod
-    def from_dict(cls, dikt) -> 'TestResult':
+    def from_dict(cls, dikt) -> "TestResult":
         """Returns the dict as a model
 
         :param dikt: A dict.

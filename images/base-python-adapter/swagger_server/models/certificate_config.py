@@ -1,16 +1,16 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.certificate import Certificate  # noqa: F401,E501
-from swagger_server import util
 
 
 class CertificateConfig(Model):
@@ -18,23 +18,20 @@ class CertificateConfig(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, certificates: List[Certificate]=None):  # noqa: E501
+
+    def __init__(self, certificates: List[Certificate] = None):  # noqa: E501
         """CertificateConfig - a model defined in Swagger
 
         :param certificates: The certificates of this CertificateConfig.  # noqa: E501
         :type certificates: List[Certificate]
         """
-        self.swagger_types = {
-            'certificates': List[Certificate]
-        }
+        self.swagger_types = {"certificates": List[Certificate]}
 
-        self.attribute_map = {
-            'certificates': 'certificates'
-        }
+        self.attribute_map = {"certificates": "certificates"}
         self._certificates = certificates
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CertificateConfig':
+    def from_dict(cls, dikt) -> "CertificateConfig":
         """Returns the dict as a model
 
         :param dikt: A dict.

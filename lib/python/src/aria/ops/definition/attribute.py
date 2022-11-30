@@ -8,16 +8,18 @@ from aria.ops.definition.units import Unit
 
 
 class Attribute(ABC):
-    def __init__(self,
-                 key: str,
-                 label: Optional[str] = None,
-                 unit: Optional[Unit] = None,
-                 is_rate: bool = False,
-                 is_discrete: bool = False,
-                 is_kpi: bool = False,
-                 is_impact: bool = False,
-                 is_key_attribute: bool = False,
-                 dashboard_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+        dashboard_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -61,15 +63,18 @@ class Attribute(ABC):
 
 
 class MetricAttribute(Attribute):
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 unit: Optional[Unit] = None,
-                 is_rate: bool = False,
-                 is_discrete: bool = False,
-                 is_kpi: bool = False,
-                 is_impact: bool = False,
-                 is_key_attribute: bool = False,
-                 dashboard_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+        dashboard_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -86,26 +91,39 @@ class MetricAttribute(Attribute):
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute, dashboard_order)
+        super().__init__(
+            key,
+            label,
+            unit,
+            is_rate,
+            is_discrete,
+            is_kpi,
+            is_impact,
+            is_key_attribute,
+            dashboard_order,
+        )
 
     def to_json(self):
         return super().to_json() | {
             "data_type": "integer" if self.is_discrete else "float",
-            "is_property": False
+            "is_property": False,
         }
 
 
 class PropertyAttribute(Attribute):
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 is_string: bool = True,
-                 unit: Optional[Unit] = None,
-                 is_rate: bool = False,
-                 is_discrete: bool = False,
-                 is_kpi: bool = False,
-                 is_impact: bool = False,
-                 is_key_attribute: bool = False,
-                 dashboard_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        is_string: bool = True,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+        dashboard_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -123,13 +141,26 @@ class PropertyAttribute(Attribute):
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         :param dashboard_order: Determines the order parameters will be displayed in the UI.
         """
-        super().__init__(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute,
-                         dashboard_order)
+        super().__init__(
+            key,
+            label,
+            unit,
+            is_rate,
+            is_discrete,
+            is_kpi,
+            is_impact,
+            is_key_attribute,
+            dashboard_order,
+        )
         self.is_string = is_string
 
     def to_json(self):
         return super().to_json() | {
-            "data_type": "string" if self.is_string else "integer" if self.is_discrete else "float",
+            "data_type": "string"
+            if self.is_string
+            else "integer"
+            if self.is_discrete
+            else "float",
             "is_discrete": True if self.is_string else self.is_discrete,
-            "is_property": True
+            "is_property": True,
         }

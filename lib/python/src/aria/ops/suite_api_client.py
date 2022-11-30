@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class SuiteApiConnectionParameters(object):
-    def __init__(self, host: str, username: str, password: str, auth_source: str = "LOCAL"):
+    def __init__(
+        self, host: str, username: str, password: str, auth_source: str = "LOCAL"
+    ):
         """Initialize SuiteApi Connection Parameters
 
         :param host: The host to use for connecting to the SuiteAPI.
@@ -80,11 +82,14 @@ class SuiteApiClient(object):
         :return: The authentication token
         """
         if self.token == "":
-            token_response = self.post("/api/auth/token/acquire", json={
-                "username": self.credential.username,
-                "password": self.credential.password,
-                "authSource": self.credential.auth_source
-            })
+            token_response = self.post(
+                "/api/auth/token/acquire",
+                json={
+                    "username": self.credential.username,
+                    "password": self.credential.password,
+                    "authSource": self.credential.auth_source,
+                },
+            )
             if token_response.ok:
                 self.token = token_response.json()["token"]
                 logger.debug("Acquired token " + self.token)
@@ -199,7 +204,9 @@ class SuiteApiClient(object):
         kwargs = self._add_paging(**kwargs)
         page_0 = self._request_wrapper(request_func, url, **kwargs)
         page_0_body = json.loads(page_0.text)
-        total_objects = int(page_0_body.get("pageInfo", {"totalCount": 1}).get("totalCount", 1))
+        total_objects = int(
+            page_0_body.get("pageInfo", {"totalCount": 1}).get("totalCount", 1)
+        )
         page_size = kwargs["pageSize"]
         remaining_pages = math.ceil(total_objects / page_size) - 1
         objects = page_0_body.get("key", [])
@@ -214,9 +221,23 @@ class SuiteApiClient(object):
         kwargs = self._to_vrops_request(url, **kwargs)
         result = request_func(**kwargs)
         if result.ok:
-            logger.debug(request_func.__name__ + " " + kwargs["url"] + ": OK (" + str(result.status_code) + ")")
+            logger.debug(
+                request_func.__name__
+                + " "
+                + kwargs["url"]
+                + ": OK ("
+                + str(result.status_code)
+                + ")"
+            )
         else:
-            logger.warning(request_func.__name__ + " " + kwargs["url"] + ": ERROR (" + str(result.status_code) + ")")
+            logger.warning(
+                request_func.__name__
+                + " "
+                + kwargs["url"]
+                + ": ERROR ("
+                + str(result.status_code)
+                + ")"
+            )
             logger.debug(result.text)
         return result
 

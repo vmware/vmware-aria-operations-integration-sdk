@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import asyncio
 import functools
 import time
@@ -42,4 +41,5 @@ def timed(func):
             return *value, elapsed_time
         else:
             return value, elapsed_time
+
     return timed_fn

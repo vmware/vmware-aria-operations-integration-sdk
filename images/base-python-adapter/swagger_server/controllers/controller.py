@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import configparser
 import json
 import logging
@@ -10,7 +9,6 @@ import tempfile
 import threading
 
 import connexion
-
 from swagger_server.models import ApiVersion
 from swagger_server.models.adapter_config import AdapterConfig  # noqa: E501
 from swagger_server.models.collect_result import CollectResult  # noqa: E501
@@ -95,11 +93,7 @@ def api_version():  # noqa: E501
     """
     logger.info("Request: apiVersion")
     # This should match the version in swagger_server/swagger/swagger.yaml#/info/version
-    return ApiVersion(
-        major=1,
-        minor=0,
-        maintenance=0
-    )
+    return ApiVersion(major=1, minor=0, maintenance=0)
 
 
 def get_endpoint_urls(body=None):  # noqa: E501
@@ -147,15 +141,23 @@ def runcommand(command, body: AdapterConfig = None, good_response_code=200):
 
     # Pipe operations are blocking; to prevent deadlocks if the adapter fails to read or write either or both of the
     # pipes, the read/write operations are run in separate threads
-    writer_thread = threading.Thread(target=write_adapter_instance, args=(body, input_pipe))
-    reader_thread = threading.Thread(target=read_results, args=(output_pipe, result, good_response_code))
+    writer_thread = threading.Thread(
+        target=write_adapter_instance, args=(body, input_pipe)
+    )
+    reader_thread = threading.Thread(
+        target=read_results, args=(output_pipe, result, good_response_code)
+    )
 
     try:
         os.mkfifo(input_pipe)
         os.mkfifo(output_pipe)
         logger.debug("Finished making pipes")
-        process = subprocess.Popen(command + [input_pipe, output_pipe], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   universal_newlines=True)
+        process = subprocess.Popen(
+            command + [input_pipe, output_pipe],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
         logger.debug(f"Started process {process.args}")
     except OSError as e:
         logger.debug(f"Failed to create pipe {input_pipe} or {output_pipe}: {e}")
@@ -222,7 +224,9 @@ def write_adapter_instance(body, input_pipe):
             logger.debug(f"{json.dumps(body_dict, indent=3)}")
 
     except Exception as e:
-        logger.warning(f"Unknown server error when writing adapter instance to input pipe {input_pipe}: {e}")
+        logger.warning(
+            f"Unknown server error when writing adapter instance to input pipe {input_pipe}: {e}"
+        )
 
 
 def read_results(output_pipe, result, good_response_code):

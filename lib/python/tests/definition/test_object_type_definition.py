@@ -1,10 +1,11 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
-
-from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.exceptions import KeyException
 from aria.ops.definition.object_type import ObjectType
-from aria.ops.definition.parameter import IntParameter, StringParameter
+from aria.ops.definition.parameter import IntParameter
+from aria.ops.definition.parameter import StringParameter
 
 
 def test_object_type_definition_default_label():
@@ -65,7 +66,7 @@ def test_define_string_identifier():
         "default": "C",
         "display_order": 0,
         "type": "string",
-        "length": 512
+        "length": 512,
     }
 
 
@@ -79,9 +80,9 @@ def test_define_int_identifier():
         "ident_type": 1,
         "enum": False,
         "description": None,
-        "default": '9',
+        "default": "9",
         "display_order": 0,
-        "type": "integer"
+        "type": "integer",
     }
 
 
@@ -98,7 +99,7 @@ def test_define_enum_identifier():
         "description": None,
         "default": "E",
         "display_order": 0,
-        "type": "string"
+        "type": "string",
     }
 
 
@@ -108,14 +109,10 @@ def test_duplicate_enum_values_not_allowed():
         definition.define_enum_identifier("A", ["B", "C", "B"], "D", False, False, "E")
 
 
-
 def test_add_identifiers():
     definition = ObjectType("test")
     assert len(definition.identifiers) == 0
-    definition.add_identifiers([
-        IntParameter("key1"),
-        StringParameter("key2")
-    ])
+    definition.add_identifiers([IntParameter("key1"), StringParameter("key2")])
     assert "key1" in definition.identifiers
     assert "key2" in definition.identifiers
     assert len(definition.identifiers) == 2

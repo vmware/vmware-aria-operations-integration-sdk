@@ -1,19 +1,23 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
-from swagger_server.models.certificate_config import CertificateConfig  # noqa: F401,E501
-from swagger_server.models.cluster_connection_info import ClusterConnectionInfo  # noqa: F401,E501
+from swagger_server.models.certificate_config import (
+    CertificateConfig,
+)  # noqa: F401,E501
+from swagger_server.models.cluster_connection_info import (
+    ClusterConnectionInfo,
+)  # noqa: F401,E501
 from swagger_server.models.credential_config import CredentialConfig  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
-from swagger_server import util
 
 
 class AdapterConfig(Model):
@@ -21,7 +25,14 @@ class AdapterConfig(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, adapter_key: ObjectKey=None, credential_config: CredentialConfig=None, cluster_connection_info: ClusterConnectionInfo=None, certificate_config: CertificateConfig=None):  # noqa: E501
+
+    def __init__(
+        self,
+        adapter_key: ObjectKey = None,
+        credential_config: CredentialConfig = None,
+        cluster_connection_info: ClusterConnectionInfo = None,
+        certificate_config: CertificateConfig = None,
+    ):  # noqa: E501
         """AdapterConfig - a model defined in Swagger
 
         :param adapter_key: The adapter_key of this AdapterConfig.  # noqa: E501
@@ -34,17 +45,17 @@ class AdapterConfig(Model):
         :type certificate_config: CertificateConfig
         """
         self.swagger_types = {
-            'adapter_key': ObjectKey,
-            'credential_config': CredentialConfig,
-            'cluster_connection_info': ClusterConnectionInfo,
-            'certificate_config': CertificateConfig
+            "adapter_key": ObjectKey,
+            "credential_config": CredentialConfig,
+            "cluster_connection_info": ClusterConnectionInfo,
+            "certificate_config": CertificateConfig,
         }
 
         self.attribute_map = {
-            'adapter_key': 'adapterKey',
-            'credential_config': 'credentialConfig',
-            'cluster_connection_info': 'clusterConnectionInfo',
-            'certificate_config': 'certificateConfig'
+            "adapter_key": "adapterKey",
+            "credential_config": "credentialConfig",
+            "cluster_connection_info": "clusterConnectionInfo",
+            "certificate_config": "certificateConfig",
         }
         self._adapter_key = adapter_key
         self._credential_config = credential_config
@@ -52,7 +63,7 @@ class AdapterConfig(Model):
         self._certificate_config = certificate_config
 
     @classmethod
-    def from_dict(cls, dikt) -> 'AdapterConfig':
+    def from_dict(cls, dikt) -> "AdapterConfig":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -81,7 +92,9 @@ class AdapterConfig(Model):
         :type adapter_key: ObjectKey
         """
         if adapter_key is None:
-            raise ValueError("Invalid value for `adapter_key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `adapter_key`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_key = adapter_key
 

@@ -1,14 +1,17 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from collections import defaultdict
 
-from vmware_aria_operations_integration_sdk.validation.result import Result
-from vmware_aria_operations_integration_sdk.util import LazyAttribute
 from vmware_aria_operations_integration_sdk.docker_wrapper import ContainerStats
-from vmware_aria_operations_integration_sdk.model import _get_object_id, ObjectId
-from vmware_aria_operations_integration_sdk.stats import UniqueObjectTypeStatistics, LongRunStats, get_growth_rate, Stats
+from vmware_aria_operations_integration_sdk.model import _get_object_id
+from vmware_aria_operations_integration_sdk.model import ObjectId
+from vmware_aria_operations_integration_sdk.stats import get_growth_rate
+from vmware_aria_operations_integration_sdk.stats import LongRunStats
+from vmware_aria_operations_integration_sdk.stats import Stats
+from vmware_aria_operations_integration_sdk.stats import UniqueObjectTypeStatistics
 from vmware_aria_operations_integration_sdk.ui import Table
+from vmware_aria_operations_integration_sdk.util import LazyAttribute
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 class ObjectStatistics:
@@ -16,9 +19,14 @@ class ObjectStatistics:
         self.key = _get_object_id(json.get("key"))
         self.events = set(event.get("message") for event in json.get("events", []))
         self.metrics = set(metric.get("key") for metric in json.get("metrics", []))
-        self.properties = set(property.get("key") for property in json.get("properties", []))
-        self.string_properties = {property.get("key"): property.get("stringValue") for property in
-                                  json.get("properties", []) if "stringValue" in property}
+        self.properties = set(
+            property.get("key") for property in json.get("properties", [])
+        )
+        self.string_properties = {
+            property.get("key"): property.get("stringValue")
+            for property in json.get("properties", [])
+            if "stringValue" in property
+        }
         self.parents = set()
         self.children = set()
 
@@ -45,7 +53,6 @@ class ObjectStatistics:
 
 
 class LongObjectTypeStatistics:
-
     def __init__(self, long_run_duration):
         self.long_run_duration = long_run_duration
         self.objects_stats = UniqueObjectTypeStatistics()
@@ -58,19 +65,25 @@ class LongObjectTypeStatistics:
     def add(self, _object):
         self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
         self.metrics_stats.add(_object.get_unique_metrics(), _object.get_metric_count())
-        self.properties_stats.add(_object.get_unique_properties(), _object.get_property_count())
+        self.properties_stats.add(
+            _object.get_unique_properties(), _object.get_property_count()
+        )
         self.events_stats.add(_object.get_unique_events(), _object.get_event_count())
         unique_relationships = _object.get_unique_relationships()
         self.relationships_stats.add(unique_relationships, len(unique_relationships))
-        self.string_property_values_stats.add(_object.get_unique_string_property_values(), 0)
+        self.string_property_values_stats.add(
+            _object.get_unique_string_property_values(), 0
+        )
 
     def get_growth_rates(self):
-        return [f"{self.objects_growth_rate:.2f} %",
-                f"{self.metrics_growth_rate:.2f} %",
-                f"{self.properties_growth_rate:.2f} %",
-                f"{self.string_properties_growth_rate:.2f} %",
-                f"{self.events_growth_rate:.2f} %",
-                f"{self.relationships_growth_rate:.2f} %"]
+        return [
+            f"{self.objects_growth_rate:.2f} %",
+            f"{self.metrics_growth_rate:.2f} %",
+            f"{self.properties_growth_rate:.2f} %",
+            f"{self.string_properties_growth_rate:.2f} %",
+            f"{self.events_growth_rate:.2f} %",
+            f"{self.relationships_growth_rate:.2f} %",
+        ]
 
     def get_summary(self):
         return {
@@ -84,51 +97,59 @@ class LongObjectTypeStatistics:
     @LazyAttribute
     def objects_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.objects_stats.data_points[0],
-                               self.objects_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.objects_stats.data_points[0], self.objects_stats.data_points[-1], hours
+        )
 
     @LazyAttribute
     def metrics_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.metrics_stats.data_points[0],
-                               self.metrics_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.metrics_stats.data_points[0], self.metrics_stats.data_points[-1], hours
+        )
 
     @LazyAttribute
     def properties_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.properties_stats.data_points[0],
-                               self.properties_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.properties_stats.data_points[0],
+            self.properties_stats.data_points[-1],
+            hours,
+        )
 
     @LazyAttribute
     def property_values_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.string_property_values_stats.data_points[0],
-                               self.string_property_values_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.string_property_values_stats.data_points[0],
+            self.string_property_values_stats.data_points[-1],
+            hours,
+        )
 
     @LazyAttribute
     def string_properties_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.string_property_values_stats.data_points[0],
-                               self.string_property_values_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.string_property_values_stats.data_points[0],
+            self.string_property_values_stats.data_points[-1],
+            hours,
+        )
 
     @LazyAttribute
     def events_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.events_stats.data_points[0],
-                               self.events_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.events_stats.data_points[0], self.events_stats.data_points[-1], hours
+        )
 
     @LazyAttribute
     def relationships_growth_rate(self):
         hours = self.long_run_duration / 3600
-        return get_growth_rate(self.relationships_stats.data_points[0],
-                               self.relationships_stats.data_points[-1],
-                               hours)
+        return get_growth_rate(
+            self.relationships_stats.data_points[0],
+            self.relationships_stats.data_points[-1],
+            hours,
+        )
 
 
 class ObjectTypeStatistics:
@@ -181,8 +202,12 @@ class ObjectTypeStatistics:
     def get_unique_relationships(self):
         unique_relationships = set()
         for _object in self.objects:
-            unique_relationships.update([(parent, _object.key) for parent in _object.parents])
-            unique_relationships.update([(_object.key, child) for child in _object.children])
+            unique_relationships.update(
+                [(parent, _object.key) for parent in _object.parents]
+            )
+            unique_relationships.update(
+                [(_object.key, child) for child in _object.children]
+            )
 
         return unique_relationships
 
@@ -229,7 +254,7 @@ class ObjectTypeStatistics:
             "metrics": Stats(self.get_metric_counts()),
             "properties": Stats(self.get_property_counts()),
             "parents": Stats(self.get_parent_counts()),
-            "children": Stats(self.get_children_counts())
+            "children": Stats(self.get_children_counts()),
         }
 
 
@@ -237,9 +262,13 @@ class LongCollectionStatistics:
     def __init__(self, collection_bundle_list, collection_interval, long_run_duration):
         self.collection_interval = collection_interval
         self.long_run_duration = long_run_duration
-        self.collection_bundles = list()  # This is a duplicated from LongCollectionBundle
+        self.collection_bundles = (
+            list()
+        )  # This is a duplicated from LongCollectionBundle
         self.total_number_of_collections = len(collection_bundle_list)
-        self.long_object_type_statistics = defaultdict(lambda: LongObjectTypeStatistics(long_run_duration))
+        self.long_object_type_statistics = defaultdict(
+            lambda: LongObjectTypeStatistics(long_run_duration)
+        )
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)
 
@@ -251,21 +280,47 @@ class LongCollectionStatistics:
                 self.long_object_type_statistics[object_type].add(object_type_stat)
 
     def __str__(self):
-        headers = ["Object Type", "Object Growth", "Metric Growth", "Property Growth", "Property Values Growth",
-                   "Event Growth", "Relationship Growth"]
+        headers = [
+            "Object Type",
+            "Object Growth",
+            "Metric Growth",
+            "Property Growth",
+            "Property Values Growth",
+            "Event Growth",
+            "Relationship Growth",
+        ]
         data = []
-        for object_type, obj_type_statistics in self.long_object_type_statistics.items():
-            data.append(
-                [object_type, *obj_type_statistics.get_growth_rates()])
+        for (
+            object_type,
+            obj_type_statistics,
+        ) in self.long_object_type_statistics.items():
+            data.append([object_type, *obj_type_statistics.get_growth_rates()])
         growth_table = str(Table(headers, data))
 
-        headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Relationships"]
+        headers = [
+            "Object Type",
+            "Count",
+            "Metrics",
+            "Properties",
+            "Events",
+            "Relationships",
+        ]
         data = []
-        for object_type, obj_type_statistics in self.long_object_type_statistics.items():
+        for (
+            object_type,
+            obj_type_statistics,
+        ) in self.long_object_type_statistics.items():
             summary = obj_type_statistics.get_summary()
             data.append(
-                [object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
-                 summary["relationships"]])
+                [
+                    object_type,
+                    summary["objects"],
+                    summary["metrics"],
+                    summary["properties"],
+                    summary["events"],
+                    summary["relationships"],
+                ]
+            )
         obj_table = str(Table(headers, data))
 
         headers = ["Collection", "Duration", *ContainerStats.get_summary_headers()]
@@ -280,27 +335,49 @@ class LongCollectionStatistics:
                 failed_collections.append(collection_stat)
 
                 # If the connection timeout then we should also include it in the longer_collections
-                if "408" in collection_stat.get_failure_message() and collection_stat.duration > self.collection_interval:
+                if (
+                    "408" in collection_stat.get_failure_message()
+                    and collection_stat.duration > self.collection_interval
+                ):
                     longer_collections.append(collection_stat)
 
             elif collection_stat.duration > self.collection_interval:
                 number = f"{number} (longer than collection interval)"
                 longer_collections.append(collection_stat)
             data.append(
-                [number, f"{collection_stat.duration:.2f} s", *collection_stat.container_statistics.get_summary()])
+                [
+                    number,
+                    f"{collection_stat.duration:.2f} s",
+                    *collection_stat.container_statistics.get_summary(),
+                ]
+            )
         collection_table = str(Table(headers, data))
 
-        summary = "Long Collection summary:\n\n" + obj_table + "\n" + growth_table + "\n" + collection_table
+        summary = (
+            "Long Collection summary:\n\n"
+            + obj_table
+            + "\n"
+            + growth_table
+            + "\n"
+            + collection_table
+        )
         if len(failed_collections):
             headers = ["Collection", "Failure Reason"]
             data = []
             for failed_collection in failed_collections:
-                data.append([failed_collection.collection_number, failed_collection.get_failure_message()])
+                data.append(
+                    [
+                        failed_collection.collection_number,
+                        failed_collection.get_failure_message(),
+                    ]
+                )
 
             summary += "\n" + str(Table(headers, data))
             summary += "\n" + f"{len(failed_collections)} failed collections"
         if len(longer_collections):
-            summary += "\n" + f"{len(longer_collections)} took longer than collection interval"
+            summary += (
+                "\n" + f"{len(longer_collections)} took longer than collection interval"
+            )
 
         return summary
 
@@ -334,19 +411,37 @@ class CollectionStatistics:
                     self.obj_statistics[child].add_parent(parent)
 
     def __repr__(self):
-        headers = ["Object Type", "Count", "Metrics", "Properties", "Events", "Parents", "Children"]
+        headers = [
+            "Object Type",
+            "Count",
+            "Metrics",
+            "Properties",
+            "Events",
+            "Parents",
+            "Children",
+        ]
         data = []
 
         for stats in list(self.obj_type_statistics.values()):
             summary = stats.get_summary()
             data.append(
-                [stats.object_type, summary["objects"], summary["metrics"], summary["properties"], summary["events"],
-                 summary["parents"], summary["children"]])
+                [
+                    stats.object_type,
+                    summary["objects"],
+                    summary["metrics"],
+                    summary["properties"],
+                    summary["events"],
+                    summary["parents"],
+                    summary["children"],
+                ]
+            )
         obj_table = str(Table(headers, data))
 
         headers = ["Parent Type", "Child Type", "Count"]
         data = []
-        for (parent_object_type, child_object_type), count in list(self.rel_statistics.items()):
+        for (parent_object_type, child_object_type), count in list(
+            self.rel_statistics.items()
+        ):
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 

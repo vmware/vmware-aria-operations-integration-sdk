@@ -5,11 +5,39 @@ from pathlib import Path
 
 import pytest
 from prompt_toolkit.document import Document
-from prompt_toolkit.validation import ValidationError, Validator
+from prompt_toolkit.validation import ValidationError
+from prompt_toolkit.validation import Validator
 
-from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator, AdapterKeyValidator, \
-    IntegerValidator, TimeValidator, NewProjectDirectoryValidator, UniquenessValidator, ChainValidator, \
-    ProjectValidator, EulaValidator, ImageValidator
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    AdapterKeyValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ChainValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    EulaValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ImageValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    IntegerValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    NewProjectDirectoryValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    NotEmptyValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ProjectValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    TimeValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    UniquenessValidator,
+)
 
 rel_path = Path(__file__).resolve().parent
 
@@ -236,11 +264,15 @@ def test_chain_validator_fail():
 
 
 def test_chain_validator_pass_document_pass():
-    cv = ChainValidator([ConstValidator(True), ConstValidator(True), NotEmptyValidator("NEV")])
+    cv = ChainValidator(
+        [ConstValidator(True), ConstValidator(True), NotEmptyValidator("NEV")]
+    )
     cv.validate(Document("Not Empty"))
 
 
 def test_chain_validator_pass_document_fail():
-    cv = ChainValidator([ConstValidator(True), ConstValidator(True), NotEmptyValidator("NEV")])
+    cv = ChainValidator(
+        [ConstValidator(True), ConstValidator(True), NotEmptyValidator("NEV")]
+    )
     with pytest.raises(ValidationError):
         cv.validate(Document(""))

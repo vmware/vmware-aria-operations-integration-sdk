@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import argparse
 import asyncio
 import collections
@@ -15,19 +14,40 @@ import zipfile
 import httpx
 
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
-from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
-from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import send_get_to_adapter
-from vmware_aria_operations_integration_sdk.describe import get_adapter_kind, Describe, write_describe
-from vmware_aria_operations_integration_sdk.docker_wrapper import login, init, push_image, build_image, \
-    DockerWrapperError, LoginError
-from vmware_aria_operations_integration_sdk.filesystem import zip_dir, mkdir, zip_file, rmdir, rm
-from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
+    send_get_to_adapter,
+)
+from vmware_aria_operations_integration_sdk.describe import Describe
+from vmware_aria_operations_integration_sdk.describe import get_adapter_kind
+from vmware_aria_operations_integration_sdk.describe import write_describe
+from vmware_aria_operations_integration_sdk.docker_wrapper import build_image
+from vmware_aria_operations_integration_sdk.docker_wrapper import DockerWrapperError
+from vmware_aria_operations_integration_sdk.docker_wrapper import init
+from vmware_aria_operations_integration_sdk.docker_wrapper import login
+from vmware_aria_operations_integration_sdk.docker_wrapper import LoginError
+from vmware_aria_operations_integration_sdk.docker_wrapper import push_image
+from vmware_aria_operations_integration_sdk.filesystem import mkdir
+from vmware_aria_operations_integration_sdk.filesystem import rm
+from vmware_aria_operations_integration_sdk.filesystem import rmdir
+from vmware_aria_operations_integration_sdk.filesystem import zip_dir
+from vmware_aria_operations_integration_sdk.filesystem import zip_file
+from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import get_project
 from vmware_aria_operations_integration_sdk.propertiesfile import write_properties
-from vmware_aria_operations_integration_sdk.ui import print_formatted as print, prompt, selection_prompt, Spinner
-from vmware_aria_operations_integration_sdk.validation.describe_checks import validate_describe
-from vmware_aria_operations_integration_sdk.validation.input_validators import NotEmptyValidator
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print
+from vmware_aria_operations_integration_sdk.ui import prompt
+from vmware_aria_operations_integration_sdk.ui import selection_prompt
+from vmware_aria_operations_integration_sdk.ui import Spinner
+from vmware_aria_operations_integration_sdk.validation.describe_checks import (
+    validate_describe,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    NotEmptyValidator,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -48,7 +68,11 @@ def build_subdirectories(directory: str):
     if not os.path.exists(directory):
         return
 
-    content_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
+    content_files = [
+        file
+        for file in os.listdir(directory)
+        if os.path.isfile(os.path.join(directory, file))
+    ]
 
     for file in content_files:
         file_ext = os.path.splitext(file)[1].lower()
@@ -57,14 +81,17 @@ def build_subdirectories(directory: str):
             logger.info(
                 f"If a {os.path.basename(directory).removesuffix('s')} requires a '.properties' file, move the {os.path.basename(directory).removesuffix('s')}"
                 f"into a subdirectory inside the {directory} directory, and move the properties"
-                "file to a 'resources' directory that is also inside that subdirectory.")
+                "file to a 'resources' directory that is also inside that subdirectory."
+            )
             logger.info("")
             logger.info("The result should look like this: ")
             logger.info(
-                f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}")
+                f"{directory}/myContent/myContent.{'json' if 'dashboards' == os.path.basename(directory) else 'xml'}"
+            )
             logger.info(f"{directory}/myContent/resources/myContent.properties")
             logger.info(
-                f"For detailed information, consult the documentation in VMware Aria Operations Integration SDK -> Guides -> Adding Content.")
+                f"For detailed information, consult the documentation in VMware Aria Operations Integration SDK -> Guides -> Adding Content."
+            )
             exit(1)
 
     for file in content_files:
@@ -75,7 +102,7 @@ def build_subdirectories(directory: str):
 
 
 def get_registry_components(docker_registry: str) -> (str, str):
-    components = docker_registry.split('/')
+    components = docker_registry.split("/")
     host = components[0]
     path = "/".join(components[1:])
     return host, path
@@ -91,18 +118,19 @@ def is_valid_registry(docker_registry) -> bool:
 
 
 def registry_prompt(default):
-    return prompt("Enter the tag for the Docker registry: ",
-                  default=default,
-                  validator=NotEmptyValidator("Host"),
-                  description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
-                              "three parts: domain, port, and path. For example:\n"
-                              "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter breaks into\n"
-                              "domain: projects.registry.vmware.com\n"
-                              "port: 443\n"
-                              "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-                              "Domain is optional, and defaults to Docker Hub (docker.io)\n"
-                              "Port number is optional, and defaults to 443."
-                  )
+    return prompt(
+        "Enter the tag for the Docker registry: ",
+        default=default,
+        validator=NotEmptyValidator("Host"),
+        description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
+        "three parts: domain, port, and path. For example:\n"
+        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter breaks into\n"
+        "domain: projects.registry.vmware.com\n"
+        "port: 443\n"
+        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
+        "Domain is optional, and defaults to Docker Hub (docker.io)\n"
+        "Port number is optional, and defaults to 443.",
+    )
 
 
 def get_docker_registry(adapter_kind_key, config_file):
@@ -110,10 +138,13 @@ def get_docker_registry(adapter_kind_key, config_file):
 
     original_value = docker_registry
     if docker_registry is None:
-        print("mp-build needs to configure a Docker registry to store the adapter container image.",
-              "class:information")
+        print(
+            "mp-build needs to configure a Docker registry to store the adapter container image.",
+            "class:information",
+        )
         docker_registry = registry_prompt(
-            default=f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}")
+            default=f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
+        )
 
     first_time = True
     while not is_valid_registry(docker_registry):
@@ -123,7 +154,9 @@ def get_docker_registry(adapter_kind_key, config_file):
         docker_registry = registry_prompt(default=docker_registry)
 
     if original_value != docker_registry:
-        set_config_value(key="docker_registry", value=docker_registry, config_file=config_file)
+        set_config_value(
+            key="docker_registry", value=docker_registry, config_file=config_file
+        )
 
     return docker_registry
 
@@ -132,10 +165,11 @@ def fix_describe(describe_adapter_kind_key, manifest_file):
     if describe_adapter_kind_key is None:
         exit(1)
     if not selection_prompt(
-            f"Update manifest.txt with adapter kind from describe.xml ('{describe_adapter_kind_key}')?",
-            [(True, "Yes"), (False, "No")],
-            "Select 'Yes' to update the 'manifest.txt' file and continue with the build. Select 'No' to exit without "
-            "building and fix the issue manually."):
+        f"Update manifest.txt with adapter kind from describe.xml ('{describe_adapter_kind_key}')?",
+        [(True, "Yes"), (False, "No")],
+        "Select 'Yes' to update the 'manifest.txt' file and continue with the build. Select 'No' to exit without "
+        "building and fix the issue manually.",
+    ):
         exit(1)
     with open(manifest_file) as manifest_fd:
         # use ordered dictionary to preserve the key order in the file
@@ -157,7 +191,9 @@ async def build_pak_file(project_path, insecure_communication):
 
     config_file = os.path.join(project_path, "config.json")
     adapter_container = AdapterContainer(project_path)
-    memory_limit = get_config_value("default_memory_limit", 1024, os.path.join(project_path, "config.json"))
+    memory_limit = get_config_value(
+        "default_memory_limit", 1024, os.path.join(project_path, "config.json")
+    )
     adapter_container.start(memory_limit)
     try:
         await adapter_container.wait_for_container_startup()
@@ -172,21 +208,30 @@ async def build_pak_file(project_path, insecure_communication):
 
         adapter_kinds = manifest.get("adapter_kinds", [])
         if len(adapter_kinds) == 0:
-            logger.error("Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds').")
+            logger.error(
+                "Management Pack has no adapter kind specified in manifest.txt (key='adapter_kinds')."
+            )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
             adapter_kinds = manifest["adapter_kinds"]
 
         if len(adapter_kinds) > 1:
-            logger.error("The build tool does not support Management Packs with multiple adapters, but multiple adapter "
-                         "kinds are specified in manifest.txt (key='adapter_kinds').")
+            logger.error(
+                "The build tool does not support Management Packs with multiple adapters, but multiple adapter "
+                "kinds are specified in manifest.txt (key='adapter_kinds')."
+            )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
             adapter_kinds = manifest["adapter_kinds"]
         adapter_kind_key = adapter_kinds[0]
 
-        if describe_adapter_kind_key is not None and describe_adapter_kind_key != adapter_kind_key:
-            logger.error(f"The 'adapter_kinds' key in manifest.txt (\"adapter_kinds\": [\"{adapter_kind_key}\"]') must "
-                         f"contain a single item matching the adapter kind key in describe.xml: "
-                         f"'{describe_adapter_kind_key}'.")
+        if (
+            describe_adapter_kind_key is not None
+            and describe_adapter_kind_key != adapter_kind_key
+        ):
+            logger.error(
+                f'The \'adapter_kinds\' key in manifest.txt ("adapter_kinds": ["{adapter_kind_key}"]\') must '
+                f"contain a single item matching the adapter kind key in describe.xml: "
+                f"'{describe_adapter_kind_key}'."
+            )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
         # We should ask the user for this before we populate them with default values
@@ -218,19 +263,30 @@ async def build_pak_file(project_path, insecure_communication):
             mkdir(adapter_dir)
             shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
             if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
-                write_describe(describe, os.path.join(adapter_dir, "conf", "describe.xml"))
+                write_describe(
+                    describe, os.path.join(adapter_dir, "conf", "describe.xml")
+                )
                 mkdir(os.path.join(adapter_dir, "conf", "resources"))
-                write_properties(resources, os.path.join(adapter_dir, "conf", "resources", "resources.properties"))
+                write_properties(
+                    resources,
+                    os.path.join(
+                        adapter_dir, "conf", "resources", "resources.properties"
+                    ),
+                )
 
             with open(adapter_dir + ".conf", "w") as adapter_conf:
                 adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")
                 api_version = "1.0.0"
                 try:
                     async with httpx.AsyncClient(timeout=30) as client:
-                        request, response, elapsed_time = await send_get_to_adapter(client, API_VERSION_ENDPOINT)
+                        request, response, elapsed_time = await send_get_to_adapter(
+                            client, API_VERSION_ENDPOINT
+                        )
                         if response.is_success:
                             api = json.loads(response.text)
-                            api_version = f"{api['major']}.{api['minor']}.{api['maintenance']}"
+                            api_version = (
+                                f"{api['major']}.{api['minor']}.{api['maintenance']}"
+                            )
                 except Exception as e:
                     logger.warning(f"Could not retrieve API version: {e}")
                     api_version = "1.0.0"
@@ -311,36 +367,44 @@ def main():
         parser = argparse.ArgumentParser(description=description)
 
         # General options
-        parser.add_argument("-p", "--path",
-                            help="Path to root directory of project. Defaults to the current directory, "
-                                 "or prompts if current directory is not a project.")
+        parser.add_argument(
+            "-p",
+            "--path",
+            help="Path to root directory of project. Defaults to the current directory, "
+            "or prompts if current directory is not a project.",
+        )
 
-        parser.add_argument("-i", "--insecure-collector-communication",
-                            help="If this flag is present, communication between the collector (Cloud Proxy) and the "
-                                 "adapter will be unencrypted. If using a custom server with this option, the server "
-                                 "must be configured to listen on port 8080.",
-                            action="store_true")
+        parser.add_argument(
+            "-i",
+            "--insecure-collector-communication",
+            help="If this flag is present, communication between the collector (Cloud Proxy) and the "
+            "adapter will be unencrypted. If using a custom server with this option, the server "
+            "must be configured to listen on port 8080.",
+            action="store_true",
+        )
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
 
-        log_file_path = os.path.join(project.path, 'logs')
+        log_file_path = os.path.join(project.path, "logs")
         mkdir(log_file_path)
 
         try:
-            logging.basicConfig(filename=os.path.join(log_file_path, "build.log"),
-                                filemode="a",
-                                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-                                datefmt="%H:%M:%S",
-                                level=logging.DEBUG)
+            logging.basicConfig(
+                filename=os.path.join(log_file_path, "build.log"),
+                filemode="a",
+                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                datefmt="%H:%M:%S",
+                level=logging.DEBUG,
+            )
         except Exception:
             logger.warning(f"Unable to save logs to {log_file_path}")
 
         project_dir = project.path
         # We want to store pak files in the build dir
-        build_dir = os.path.join(project_dir, 'build')
+        build_dir = os.path.join(project_dir, "build")
         # Any artifacts for generating the pak file should be stored here
-        temp_dir = os.path.join(build_dir, 'tmp')
+        temp_dir = os.path.join(build_dir, "tmp")
 
         # Clean old builds
         if os.path.exists(build_dir):
@@ -353,9 +417,16 @@ def main():
             shutil.copytree(
                 project.path,
                 temp_dir,
-                ignore=shutil.ignore_patterns("build", "logs", "Dockerfile", "adapter_requirements", "commands.cfg",
-                                              ".git", ".gitignore"),
-                dirs_exist_ok=True
+                ignore=shutil.ignore_patterns(
+                    "build",
+                    "logs",
+                    "Dockerfile",
+                    "adapter_requirements",
+                    "commands.cfg",
+                    ".git",
+                    ".gitignore",
+                ),
+                dirs_exist_ok=True,
             )
 
             os.chdir(temp_dir)

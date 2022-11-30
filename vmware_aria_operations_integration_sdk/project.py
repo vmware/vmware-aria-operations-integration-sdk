@@ -1,17 +1,21 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import json
 import logging
 import os
 from typing import Optional
 
-from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
-from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
-from vmware_aria_operations_integration_sdk.ui import selection_prompt, path_prompt
-from vmware_aria_operations_integration_sdk.validation.input_validators import ProjectValidator
+from vmware_aria_operations_integration_sdk.ui import path_prompt
+from vmware_aria_operations_integration_sdk.ui import selection_prompt
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ProjectValidator,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -21,11 +25,14 @@ logger.addHandler(consoleHandler)
 
 
 class Connection:
-    def __init__(self, name: str,
-                 identifiers: dict[str, any],
-                 credential: dict[str, any],
-                 certificates: Optional[list[str]] = None,
-                 suite_api_connection: (str, str, str) = (None, None, None)):
+    def __init__(
+        self,
+        name: str,
+        identifiers: dict[str, any],
+        credential: dict[str, any],
+        certificates: Optional[list[str]] = None,
+        suite_api_connection: (str, str, str) = (None, None, None),
+    ):
         self.name = name
         self.identifiers = identifiers
         self.credential = credential
@@ -35,14 +42,18 @@ class Connection:
         self.suite_api_password = suite_api_connection[2]
 
     def get_memory_limit(self):
-        memory_limit = self.identifiers.get("container_memory_limit", DEFAULT_MEMORY_LIMIT)
+        memory_limit = self.identifiers.get(
+            "container_memory_limit", DEFAULT_MEMORY_LIMIT
+        )
         if type(memory_limit) is dict:
             memory_limit = memory_limit.get("value", DEFAULT_MEMORY_LIMIT)
 
         try:
             memory_limit = int(memory_limit)
             if memory_limit < 6:
-                logger.warning(f"'container_memory_limit' of {memory_limit} MB is below the 6MB docker limit.")
+                logger.warning(
+                    f"'container_memory_limit' of {memory_limit} MB is below the 6MB docker limit."
+                )
                 logger.warning(f"Using minimum value: 6 MB")
                 memory_limit = 6
         except ValueError as e:
@@ -60,11 +71,15 @@ class Connection:
         hostname = json_connection.get("suite_api_hostname", None)
         username = json_connection.get("suite_api_username", None)
         password = json_connection.get("suite_api_password", None)
-        return Connection(name, identifiers, credential, certificates, (hostname, username, password))
+        return Connection(
+            name, identifiers, credential, certificates, (hostname, username, password)
+        )
 
 
 class Project:
-    def __init__(self, path: str, connections: list[Connection] = None, docker_port: int = 8080):
+    def __init__(
+        self, path: str, connections: list[Connection] = None, docker_port: int = 8080
+    ):
         if connections is None:
             connections = []
         self.path = os.path.abspath(path)
@@ -76,7 +91,9 @@ class Project:
 
     def record(self):
         config_file = os.path.join(self.path, "config.json")
-        set_config_value("connections", [conn.__dict__ for conn in self.connections], config_file)
+        set_config_value(
+            "connections", [conn.__dict__ for conn in self.connections], config_file
+        )
         set_config_value("docker_port", self.docker_port, config_file)
 
     @classmethod
@@ -88,7 +105,10 @@ class Project:
 
         with open(local_config_file, "r") as config:
             json_config = json.load(config)
-            connections = [Connection.extract(connection) for connection in json_config.get("connections", [])]
+            connections = [
+                Connection.extract(connection)
+                for connection in json_config.get("connections", [])
+            ]
             docker_port = json_config.get("docker_port", 8080)
             return Project(path, connections, docker_port)
 
@@ -114,11 +134,19 @@ def get_project(arguments):
 
     # Finally, prompt the user for the project
     project_paths = get_config_value("projects", [])
-    path = selection_prompt("Select a project: ",
-                            [(path, get_project_name(path)) for path in project_paths if
-                             ProjectValidator.is_project_dir(path)] + [("Other", "Other")])
+    path = selection_prompt(
+        "Select a project: ",
+        [
+            (path, get_project_name(path))
+            for path in project_paths
+            if ProjectValidator.is_project_dir(path)
+        ]
+        + [("Other", "Other")],
+    )
     if path == "Other":
-        path = path_prompt("Enter the path to the project: ", validator=ProjectValidator())
+        path = path_prompt(
+            "Enter the path to the project: ", validator=ProjectValidator()
+        )
 
     return _find_project_by_path(path)
 
@@ -142,5 +170,15 @@ def _find_project_by_path(path):
 def _add_and_update_project_paths(path):
     project_paths = set(get_config_value("projects", []))
     project_paths.add(path)
-    set_config_value("projects",
-                     sorted(list([path for path in project_paths if ProjectValidator.is_project_dir(path)])))
+    set_config_value(
+        "projects",
+        sorted(
+            list(
+                [
+                    path
+                    for path in project_paths
+                    if ProjectValidator.is_project_dir(path)
+                ]
+            )
+        ),
+    )

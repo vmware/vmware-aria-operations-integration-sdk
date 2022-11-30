@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class CredentialDefinitionFields(Model):
@@ -17,7 +17,19 @@ class CredentialDefinitionFields(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, required: bool=True, password: bool=False, enum: bool=False, enum_values: List[str]=None, default: str=None, display_order: int=None, type: str='string'):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        label: str = None,
+        required: bool = True,
+        password: bool = False,
+        enum: bool = False,
+        enum_values: List[str] = None,
+        default: str = None,
+        display_order: int = None,
+        type: str = "string",
+    ):  # noqa: E501
         """CredentialDefinitionFields - a model defined in Swagger
 
         :param key: The key of this CredentialDefinitionFields.  # noqa: E501
@@ -40,27 +52,27 @@ class CredentialDefinitionFields(Model):
         :type type: str
         """
         self.swagger_types = {
-            'key': str,
-            'label': str,
-            'required': bool,
-            'password': bool,
-            'enum': bool,
-            'enum_values': List[str],
-            'default': str,
-            'display_order': int,
-            'type': str
+            "key": str,
+            "label": str,
+            "required": bool,
+            "password": bool,
+            "enum": bool,
+            "enum_values": List[str],
+            "default": str,
+            "display_order": int,
+            "type": str,
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'required': 'required',
-            'password': 'password',
-            'enum': 'enum',
-            'enum_values': 'enum_values',
-            'default': 'default',
-            'display_order': 'display_order',
-            'type': 'type'
+            "key": "key",
+            "label": "label",
+            "required": "required",
+            "password": "password",
+            "enum": "enum",
+            "enum_values": "enum_values",
+            "default": "default",
+            "display_order": "display_order",
+            "type": "type",
         }
         self._key = key
         self._label = label
@@ -73,7 +85,7 @@ class CredentialDefinitionFields(Model):
         self._type = type
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CredentialDefinitionFields':
+    def from_dict(cls, dikt) -> "CredentialDefinitionFields":
         """Returns the dict as a model
 
         :param dikt: A dict.

@@ -1,6 +1,6 @@
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+
 
 def load_properties(properties_file: str):
     properties = {}

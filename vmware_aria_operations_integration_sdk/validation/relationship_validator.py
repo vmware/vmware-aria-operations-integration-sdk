@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import json
 from collections import defaultdict
 from json import JSONDecodeError
@@ -45,7 +44,11 @@ class Cycle:
 
     def __repr__(self):
         if len(self.cycle) > 0:
-            return str(self.cycle[-1]) + " -> " + " -> ".join(str(node) for node in self.cycle)
+            return (
+                str(self.cycle[-1])
+                + " -> "
+                + " -> ".join(str(node) for node in self.cycle)
+            )
         return ""
 
 
@@ -87,8 +90,10 @@ def validate_relationships(project, request, response):
     result = Result()
     try:
         if not response.is_success:
-            result.with_error(f"Unable to validate relationships. The '{request.url}' endpoint response was: "
-                              f"{response.status_code} {response.reason_phrase}")
+            result.with_error(
+                f"Unable to validate relationships. The '{request.url}' endpoint response was: "
+                f"{response.status_code} {response.reason_phrase}"
+            )
             return result
 
         results = json.loads(response.text)
@@ -117,8 +122,10 @@ def validate_relationships(project, request, response):
                 result.with_error(f"Found relationship cycle: {cycle}")
 
     except JSONDecodeError as d:
-        result.with_error(f"Unable to validate relationships. Returned result is not valid json: "
-                          f"'{repr(response.text)}' Error: '{d}'")
+        result.with_error(
+            f"Unable to validate relationships. Returned result is not valid json: "
+            f"'{repr(response.text)}' Error: '{d}'"
+        )
     except Exception as e:
         result.with_error(f"Unable to validate relationships: '{e}'")
     return result

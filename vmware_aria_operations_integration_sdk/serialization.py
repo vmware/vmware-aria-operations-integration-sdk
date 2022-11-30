@@ -5,21 +5,48 @@ import logging
 import os
 import ssl
 import time
-from typing import Tuple, Optional
+from typing import Optional
+from typing import Tuple
 
+from vmware_aria_operations_integration_sdk.collection_statistics import (
+    CollectionStatistics,
+)
+from vmware_aria_operations_integration_sdk.collection_statistics import (
+    LongCollectionStatistics,
+)
+from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
+    get_failure_message,
+)
+from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.util import LazyAttribute
-from vmware_aria_operations_integration_sdk.collection_statistics import CollectionStatistics, LongCollectionStatistics
-from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import get_failure_message
-from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
-from vmware_aria_operations_integration_sdk.validation.adapter_definition_validator import validate_adapter_definition
-from vmware_aria_operations_integration_sdk.validation.api_response_validation import validate_api_response, \
-    validate_definition_api_response
-from vmware_aria_operations_integration_sdk.validation.describe_checks import cross_check_collection_with_describe
-from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator import validate_endpoint_urls, \
-    validate_endpoint
-
-from vmware_aria_operations_integration_sdk.validation.relationship_validator import validate_relationships
-from vmware_aria_operations_integration_sdk.validation.highlights import highlight_object_growth, highlight_metric_growth
+from vmware_aria_operations_integration_sdk.validation.adapter_definition_validator import (
+    validate_adapter_definition,
+)
+from vmware_aria_operations_integration_sdk.validation.api_response_validation import (
+    validate_api_response,
+)
+from vmware_aria_operations_integration_sdk.validation.api_response_validation import (
+    validate_definition_api_response,
+)
+from vmware_aria_operations_integration_sdk.validation.describe_checks import (
+    cross_check_collection_with_describe,
+)
+from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator import (
+    validate_endpoint,
+)
+from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator import (
+    validate_endpoint_urls,
+)
+from vmware_aria_operations_integration_sdk.validation.highlights import (
+    highlight_metric_growth,
+)
+from vmware_aria_operations_integration_sdk.validation.highlights import (
+    highlight_object_growth,
+)
+from vmware_aria_operations_integration_sdk.validation.relationship_validator import (
+    validate_relationships,
+)
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
@@ -53,11 +80,16 @@ class ResponseBundle:
 
     def __repr__(self):
         if not self.failed():
-            _str = json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n\n"
+            _str = (
+                json.dumps(json.loads(self.response.text), sort_keys=True, indent=4)
+                + "\n\n"
+            )
         else:
             _str = f"Failed: {self.get_failure_message()}\n\n"
 
-        if self.response.status_code != 500:  # Allows the error message to be highlighted
+        if (
+            self.response.status_code != 500
+        ):  # Allows the error message to be highlighted
             _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Request completed in {self.duration:0.2f} seconds.\n"
 
@@ -69,26 +101,41 @@ class ResponseBundle:
 
 class CollectionBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics,
-                         validators=[
-                             validate_api_response,
-                             cross_check_collection_with_describe,
-                             validate_relationships])
+        super().__init__(
+            request,
+            response,
+            duration,
+            container_statistics,
+            validators=[
+                validate_api_response,
+                cross_check_collection_with_describe,
+                validate_relationships,
+            ],
+        )
         self.collection_number = 1
         self.time_stamp = time.time()
 
     def get_collection_statistics(self):
-        return None if self.failed() else CollectionStatistics(json.loads(self.response.text))
+        return (
+            None
+            if self.failed()
+            else CollectionStatistics(json.loads(self.response.text))
+        )
 
     def __repr__(self):
         _str = ""
         if not self.failed():
-            _str += json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n"
+            _str += (
+                json.dumps(json.loads(self.response.text), sort_keys=True, indent=4)
+                + "\n"
+            )
             _str += repr(self.get_collection_statistics()) + "\n\n"
         else:
             _str += f"Collection Failed: {self.get_failure_message()}\n\n"
 
-        if self.response.status_code != 500:  # Allows the error message to be highlighted
+        if (
+            self.response.status_code != 500
+        ):  # Allows the error message to be highlighted
             _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
 
@@ -106,7 +153,9 @@ class LongCollectionBundle:
 
     @LazyAttribute
     def long_collection_statistics(self) -> LongCollectionStatistics:
-        return LongCollectionStatistics(self.collection_bundles, self.collection_interval, self.long_run_duration)
+        return LongCollectionStatistics(
+            self.collection_bundles, self.collection_interval, self.long_run_duration
+        )
 
     def validate(self, *args, **kwargs) -> [str]:
         """
@@ -132,13 +181,20 @@ class LongCollectionBundle:
 
 class ConnectBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_api_response])
+        super().__init__(
+            request, response, duration, container_statistics, [validate_api_response]
+        )
 
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics,
-                         [validate_api_response, validate_endpoint_urls])
+        super().__init__(
+            request,
+            response,
+            duration,
+            container_statistics,
+            [validate_api_response, validate_endpoint_urls],
+        )
 
     def retrieve_certificates(self):
         if not self.response.is_success:
@@ -161,7 +217,9 @@ class EndpointURLsBundle(ResponseBundle):
 def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
     result = validate_endpoint(endpoint)
     if result.error_count > 0:
-        logger.warning(f"Could not retrieve certificate for {endpoint}: {' '.join([m[1] for m in result.messages])}")
+        logger.warning(
+            f"Could not retrieve certificate for {endpoint}: {' '.join([m[1] for m in result.messages])}"
+        )
         return None
     url, port = _extract_host_port_from_endpoint(endpoint)
     try:
@@ -174,7 +232,7 @@ def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
             # config.json file. (It's not clear in what circumstances they
             # will change in VMware Aria Operations)
             "isInvalidHostnameAccepted": False,
-            "isExpiredCertificateAccepted": True
+            "isExpiredCertificateAccepted": True,
         }
     except ssl.SSLError as e:
         logger.warning(f"Could not retrieve certificate for {endpoint}: {e}")
@@ -199,18 +257,29 @@ def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
 
 class AdapterDefinitionBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_definition_api_response, validate_adapter_definition])
+        super().__init__(
+            request,
+            response,
+            duration,
+            container_statistics,
+            [validate_definition_api_response, validate_adapter_definition],
+        )
 
     def __repr__(self):
         if not self.failed():
             if self.response.status_code == 204:
                 _str = "No adapter definition returned.\n\n"
             else:
-                _str = json.dumps(json.loads(self.response.text), sort_keys=True, indent=4) + "\n\n"
+                _str = (
+                    json.dumps(json.loads(self.response.text), sort_keys=True, indent=4)
+                    + "\n\n"
+                )
         else:
             _str = f"Failed: {self.get_failure_message()}\n\n"
 
-        if self.response.status_code != 500:  # Allows the error message to be highlighted
+        if (
+            self.response.status_code != 500
+        ):  # Allows the error message to be highlighted
             _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Request completed in {self.duration:0.2f} seconds.\n"
 
@@ -219,7 +288,9 @@ class AdapterDefinitionBundle(ResponseBundle):
 
 class VersionBundle(ResponseBundle):
     def __init__(self, request, response, duration, container_statistics):
-        super().__init__(request, response, duration, container_statistics, [validate_api_response])
+        super().__init__(
+            request, response, duration, container_statistics, [validate_api_response]
+        )
 
 
 class WaitBundle:

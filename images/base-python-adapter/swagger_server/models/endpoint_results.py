@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class EndpointResults(Model):
@@ -17,23 +17,20 @@ class EndpointResults(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, endpoint_urls: List[str]=None):  # noqa: E501
+
+    def __init__(self, endpoint_urls: List[str] = None):  # noqa: E501
         """EndpointResults - a model defined in Swagger
 
         :param endpoint_urls: The endpoint_urls of this EndpointResults.  # noqa: E501
         :type endpoint_urls: List[str]
         """
-        self.swagger_types = {
-            'endpoint_urls': List[str]
-        }
+        self.swagger_types = {"endpoint_urls": List[str]}
 
-        self.attribute_map = {
-            'endpoint_urls': 'endpointUrls'
-        }
+        self.attribute_map = {"endpoint_urls": "endpointUrls"}
         self._endpoint_urls = endpoint_urls
 
     @classmethod
-    def from_dict(cls, dikt) -> 'EndpointResults':
+    def from_dict(cls, dikt) -> "EndpointResults":
         """Returns the dict as a model
 
         :param dikt: A dict.

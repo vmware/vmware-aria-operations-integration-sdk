@@ -1,11 +1,12 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import os
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
+from PIL import UnidentifiedImageError
 from prompt_toolkit.document import Document
-from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.validation import ValidationError
+from prompt_toolkit.validation import Validator
 
 
 class NotEmptyValidator(Validator):
@@ -27,13 +28,15 @@ class AdapterKeyValidator(NotEmptyValidator):
         super().validate(document)
         string = document.text
         if string != self._strip_special_characters(string):
-            raise ValidationError(message=f"{self.label} cannot contain special characters.")
+            raise ValidationError(
+                message=f"{self.label} cannot contain special characters."
+            )
         if string[0].isdigit():
             raise ValidationError(message=f"{self.label} cannot begin with a digit.")
 
     @classmethod
     def _strip_special_characters(cls, string):
-        return ''.join(e for e in string if e.isalnum() or e == '_')
+        return "".join(e for e in string if e.isalnum() or e == "_")
 
     @classmethod
     def default(cls, string):
@@ -79,11 +82,15 @@ class TimeValidator(NotEmptyValidator):
             else:  # no unit specified, default to minutes
                 seconds = float(time_str) * 60
             if seconds <= 0:
-                raise ValidationError(message=f"Invalid time. {label} cannot be zero or negative.")
+                raise ValidationError(
+                    message=f"Invalid time. {label} cannot be zero or negative."
+                )
             return seconds
         except ValueError:
-            raise ValidationError(message=f"Invalid time. {label} should be a numeric value in minutes, or a numeric value "
-                                          "followed by the unit 'h', 'm', or 's'.")
+            raise ValidationError(
+                message=f"Invalid time. {label} should be a numeric value in minutes, or a numeric value "
+                "followed by the unit 'h', 'm', or 's'."
+            )
 
 
 class NewProjectDirectoryValidator(NotEmptyValidator):
@@ -96,7 +103,9 @@ class NewProjectDirectoryValidator(NotEmptyValidator):
         if os.path.exists(directory) and os.path.isfile(directory):
             raise ValidationError(message=f"{self.label} must be a directory.")
         if os.path.exists(directory) and len(os.listdir(directory)) > 0:
-            raise ValidationError(message=f"{self.label} must be empty if it is an existing directory.")
+            raise ValidationError(
+                message=f"{self.label} must be empty if it is an existing directory."
+            )
 
 
 class UniquenessValidator(NotEmptyValidator):
@@ -108,7 +117,9 @@ class UniquenessValidator(NotEmptyValidator):
         super().validate(document)
         string = document.text
         if string in self.existing:
-            raise ValidationError(message=f"A {self.label.lower()} with that name already exists.")
+            raise ValidationError(
+                message=f"A {self.label.lower()} with that name already exists."
+            )
 
 
 class EulaValidator(Validator):
@@ -133,13 +144,18 @@ class ImageValidator(Validator):
             image = Image.open(img, formats=["PNG"])
             if image.size != (256, 256):
                 raise ValidationError(
-                    message=f"Image must be 256x256 pixels (selected image is {image.size[0]}x{image.size[1]} pixels).")
+                    message=f"Image must be 256x256 pixels (selected image is {image.size[0]}x{image.size[1]} pixels)."
+                )
         except FileNotFoundError:
             raise ValidationError(message="Could not find image file.")
         except TypeError:
-            raise ValidationError(message="Image must be in PNG format and 256x256 pixels.")
+            raise ValidationError(
+                message="Image must be in PNG format and 256x256 pixels."
+            )
         except UnidentifiedImageError as e:
-            raise ValidationError(message=f"{e}. Image must be in PNG format and 256x256 pixels.")
+            raise ValidationError(
+                message=f"{e}. Image must be in PNG format and 256x256 pixels."
+            )
 
 
 class ProjectValidator(NotEmptyValidator):
@@ -149,14 +165,18 @@ class ProjectValidator(NotEmptyValidator):
     def validate(self, document: Document) -> None:
         super().validate(document)
         if not self.is_project_dir(document.text):
-            raise ValidationError(message="Path must be a valid Management Pack project directory.")
+            raise ValidationError(
+                message="Path must be a valid Management Pack project directory."
+            )
 
     @classmethod
     def is_project_dir(cls, path):
         if path is None:
             return False
         path = os.path.expanduser(path)
-        return os.path.isdir(path) and os.path.isfile(os.path.join(path, "manifest.txt"))
+        return os.path.isdir(path) and os.path.isfile(
+            os.path.join(path, "manifest.txt")
+        )
 
 
 class ChainValidator(Validator):
@@ -166,4 +186,3 @@ class ChainValidator(Validator):
     def validate(self, document: Document) -> None:
         for validator in self.validators:
             validator.validate(document)
-

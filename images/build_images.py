@@ -1,16 +1,23 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import os
 
 import docker
 
 import vmware_aria_operations_integration_sdk.docker_wrapper
-from vmware_aria_operations_integration_sdk.config import get_config_value, set_config_value
-from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME, CONTAINER_REGISTRY_PATH, \
-    CONTAINER_REGISTRY_HOST
-from vmware_aria_operations_integration_sdk.docker_wrapper import login, init, push_image, BuildError, PushError
-from vmware_aria_operations_integration_sdk.ui import selection_prompt, multiselect_prompt, print_formatted as print
+from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.config import set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
+from vmware_aria_operations_integration_sdk.docker_wrapper import BuildError
+from vmware_aria_operations_integration_sdk.docker_wrapper import init
+from vmware_aria_operations_integration_sdk.docker_wrapper import login
+from vmware_aria_operations_integration_sdk.docker_wrapper import push_image
+from vmware_aria_operations_integration_sdk.docker_wrapper import PushError
+from vmware_aria_operations_integration_sdk.ui import multiselect_prompt
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print
+from vmware_aria_operations_integration_sdk.ui import selection_prompt
 
 VERSION_FILE = "../vmware_aria_operations_integration_sdk/container_versions.json"
 
@@ -40,8 +47,9 @@ def should_update_version(language: str, current_version: str) -> str:
             ("major", "Major"),
             ("minor", "Minor"),
             ("patch", "Patch"),
-            ("no_update", "No Update")
-        ])
+            ("no_update", "No Update"),
+        ],
+    )
 
 
 def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
@@ -52,8 +60,8 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
     choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
 
     images = multiselect_prompt(
-        message="Select one or more images to build:",
-        items=choices)
+        message="Select one or more images to build:", items=choices
+    )
 
     if len(images) == 0:
         print("No images were selected to build. Exiting.")
@@ -66,7 +74,11 @@ def main():
     client = init()
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
-    registry_url = get_config_value("registry_url", default=f"{CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}", config_file=VERSION_FILE)
+    registry_url = get_config_value(
+        "registry_url",
+        default=f"{CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}",
+        config_file=VERSION_FILE,
+    )
 
     base_image, secondary_images = get_latest_aria_ops_container_versions()
 
@@ -76,7 +88,9 @@ def main():
         update = should_update_version(image["language"], image["version"])
 
         if update != "no_update":
-            image["version"] = update_version(update_type=update, current_version=image["version"])
+            image["version"] = update_version(
+                update_type=update, current_version=image["version"]
+            )
 
     # Update the versions of the images
     if base_image in images_to_build:
@@ -85,9 +99,8 @@ def main():
         set_config_value("secondary_images", secondary_images, VERSION_FILE)
 
     push_to_registry: bool = selection_prompt(
-        message=f"Push images to {registry_url}?",
-        items=[(True, "Yes"),
-               (False, "No")])
+        message=f"Push images to {registry_url}?", items=[(True, "Yes"), (False, "No")]
+    )
 
     if push_to_registry:
         login(registry_url)
@@ -98,7 +111,7 @@ def main():
                 client=client,
                 language=image["language"].lower(),
                 version=image["version"],
-                path=image["path"]
+                path=image["path"],
             )
 
             if push_to_registry:
@@ -113,7 +126,9 @@ def get_latest_aria_ops_container_versions() -> (dict, [dict]):
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     base_image: dict = get_config_value("base_image", config_file=VERSION_FILE)
-    secondary_images: [dict] = get_config_value("secondary_images", config_file=VERSION_FILE)
+    secondary_images: [dict] = get_config_value(
+        "secondary_images", config_file=VERSION_FILE
+    )
 
     # TODO: validate each key, if the key doesn't exist, or doesn't have a value, ask user
 
@@ -127,10 +142,9 @@ def build_image(client: docker.client, language: str, version: str, path: str):
 
     # TODO use Low level API to show user build progress
     print(f"building {language} image:{CONTAINER_BASE_NAME}:{language}-{version}...")
-    image, _ = docker_wrapper.build_image(client,
-                                          path=build_path,
-                                          tag=f"{CONTAINER_BASE_NAME}:{language}-{version}"
-                                          )
+    image, _ = docker_wrapper.build_image(
+        client, path=build_path, tag=f"{CONTAINER_BASE_NAME}:{language}-{version}"
+    )
     # TODO try pulling/building base image
 
     add_stable_tags(image, language, version)
@@ -142,7 +156,7 @@ def build_image(client: docker.client, language: str, version: str, path: str):
 def add_stable_tags(image, language: str, version: str):
     tags = [
         f"{CONTAINER_BASE_NAME}:{language}-{version.split('.')[0]}",
-        f"{CONTAINER_BASE_NAME}:{language}-latest"
+        f"{CONTAINER_BASE_NAME}:{language}-latest",
     ]
 
     for tag in tags:

@@ -1,6 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
+
 class LazyAttribute(object):
     def __init__(self, computation_function):
         self.computation_function = computation_function

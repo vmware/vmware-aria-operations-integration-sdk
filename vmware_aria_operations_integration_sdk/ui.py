@@ -1,57 +1,67 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import unicode_literals
 
 import os
 import re
 import time
 
-from prompt_toolkit import print_formatted_text, PromptSession
+from prompt_toolkit import print_formatted_text
+from prompt_toolkit import PromptSession
 from prompt_toolkit.application import Application
 from prompt_toolkit.completion import PathCompleter
-from prompt_toolkit.filters import IsDone, Condition
+from prompt_toolkit.filters import Condition
+from prompt_toolkit.filters import IsDone
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout import Layout, FormattedTextControl
-from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
-from prompt_toolkit.layout.dimension import LayoutDimension, Dimension
+from prompt_toolkit.layout import FormattedTextControl
+from prompt_toolkit.layout import Layout
+from prompt_toolkit.layout.containers import ConditionalContainer
+from prompt_toolkit.layout.containers import HSplit
+from prompt_toolkit.layout.containers import Window
+from prompt_toolkit.layout.dimension import Dimension
+from prompt_toolkit.layout.dimension import LayoutDimension
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Frame, TextArea
+from prompt_toolkit.widgets import Frame
+from prompt_toolkit.widgets import TextArea
 
 from vmware_aria_operations_integration_sdk.threading import threaded
 
-style = Style.from_dict({
-    # Prompts
-    "disabled": "fg:ansidarkgray italic",
-    "selected": "reverse",
-    "message": "",
-    "answer": "fg:ansidarkgreen",
-    "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",  # 'bottom-toolbar' is 'reverse' by default
-
-    # Log message defaults
-    "debug": "fg:ansidarkgray",
-    "info": "",
-    "warning": "fg:ansiyellow",
-    "error": "fg:ansired",
-    "critical": "fg:ansired bold",
-
-    # Misc messages in UI
-    "information": "bg:ansiblue fg:ansiblack",
-    "important": "bg:ansidarkred fg:ansiblack",
-    "success": "fg:ansigreen",
-})
+style = Style.from_dict(
+    {
+        # Prompts
+        "disabled": "fg:ansidarkgray italic",
+        "selected": "reverse",
+        "message": "",
+        "answer": "fg:ansidarkgreen",
+        "bottom-toolbar": "noreverse bg:ansiyellow fg:ansiblack",  # 'bottom-toolbar' is 'reverse' by default
+        # Log message defaults
+        "debug": "fg:ansidarkgray",
+        "info": "",
+        "warning": "fg:ansiyellow",
+        "error": "fg:ansired",
+        "critical": "fg:ansired bold",
+        # Misc messages in UI
+        "information": "bg:ansiblue fg:ansiblack",
+        "important": "bg:ansidarkred fg:ansiblack",
+        "success": "fg:ansigreen",
+    }
+)
 
 FULL_WIDTH = "FULL_WIDTH"
 
 
 def print_formatted(text="", style_class="", frame=False):
     if frame == FULL_WIDTH:
-        print_container(TextArea(text=text, wrap_lines=True, style=style_class), style=style)
+        print_container(
+            TextArea(text=text, wrap_lines=True, style=style_class), style=style
+        )
     elif frame:
-        print_container(Frame(TextArea(text=text, wrap_lines=True), style=style_class), style=style)
+        print_container(
+            Frame(TextArea(text=text, wrap_lines=True), style=style_class), style=style
+        )
     else:
         print_formatted_text(FormattedText([(style_class, text)]), style=style)
 
@@ -128,7 +138,7 @@ class ListControlBase(FormattedTextControl):
             if self._is_disabled(index):
                 tokens.append(("class:disabled", f"{item[1]} ({item[2]})"))
             else:
-                highlighted = (index == self.highlight_index)
+                highlighted = index == self.highlight_index
                 tokens.append(("class:selected" if highlighted else "", str(item[1])))
             tokens.append(("", "\n"))
 
@@ -142,7 +152,12 @@ class ListControlBase(FormattedTextControl):
                 if len(self._get_selection()) == 1:
                     tokens.append(("class:answer", str(self._get_selection()[0][1])))
                 else:
-                    tokens.append(("class:answer", str([item[1] for item in self._get_selection()])))
+                    tokens.append(
+                        (
+                            "class:answer",
+                            str([item[1] for item in self._get_selection()]),
+                        )
+                    )
             else:
                 tokens.append(("", ""))
             return tokens
@@ -151,30 +166,33 @@ class ListControlBase(FormattedTextControl):
         def has_description():
             return bool(self.description)
 
-        return Layout(HSplit([
-            Window(height=LayoutDimension.exact(1), content=FormattedTextControl(build_prompt, show_cursor=False)),
-            ConditionalContainer(
-                Window(self),
-                filter=~IsDone()
-            ),
-            ConditionalContainer(
-                Window(
-                    FormattedTextControl(
-                        lambda: self.description, style="class:bottom-toolbar.text"
+        return Layout(
+            HSplit(
+                [
+                    Window(
+                        height=LayoutDimension.exact(1),
+                        content=FormattedTextControl(build_prompt, show_cursor=False),
                     ),
-                    style="class:bottom-toolbar",
-                    wrap_lines=True,
-                    height=Dimension(min=1),
-                ),
-                filter=~IsDone() & has_description
+                    ConditionalContainer(Window(self), filter=~IsDone()),
+                    ConditionalContainer(
+                        Window(
+                            FormattedTextControl(
+                                lambda: self.description,
+                                style="class:bottom-toolbar.text",
+                            ),
+                            style="class:bottom-toolbar",
+                            wrap_lines=True,
+                            height=Dimension(min=1),
+                        ),
+                        filter=~IsDone() & has_description,
+                    ),
+                ]
             )
-        ]))
+        )
 
     def run(self):
         return Application(
-            layout=self._get_layout(),
-            key_bindings=self._bindings(),
-            style=style
+            layout=self._get_layout(), key_bindings=self._bindings(), style=style
         ).run(in_thread=True)
 
 
@@ -218,7 +236,9 @@ def selection_prompt(message, items, description=""):
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return key of selected item
     """
-    items = list(map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items))
+    items = list(
+        map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items)
+    )
     return SelectControl(message, description, items).run()[0]
 
 
@@ -229,7 +249,9 @@ def multiselect_prompt(message, items, description=""):
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return list of keys of selected item(s)
     """
-    items = list(map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items))
+    items = list(
+        map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items)
+    )
     return MultiSelectControl(message, description, items).run()
 
 
@@ -240,12 +262,14 @@ def path_prompt(message, validator, description=""):
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return: absolute path that conforms to the validator
     """
-    path = prompt(message,
-                  description=description,
-                  validator=validator,
-                  validate_while_typing=False,
-                  completer=PathCompleter(expanduser=True),
-                  complete_in_thread=True)
+    path = prompt(
+        message,
+        description=description,
+        validator=validator,
+        validate_while_typing=False,
+        completer=PathCompleter(expanduser=True),
+        complete_in_thread=True,
+    )
     if path == "":
         return ""
     else:
@@ -263,11 +287,14 @@ def prompt(message, *args, description="", **kwargs) -> str:
     session: PromptSession[str] = PromptSession()
 
     return session.prompt(
-        message, *args, **kwargs,
+        message,
+        *args,
+        **kwargs,
         bottom_toolbar=description,
-        lexer=SimpleLexer('class:answer'),
+        lexer=SimpleLexer("class:answer"),
         style=style,
-        in_thread=True)
+        in_thread=True,
+    )
 
 
 class Spinner(FormattedTextControl):
@@ -283,7 +310,7 @@ class Spinner(FormattedTextControl):
             layout=self._get_layout(),
             key_bindings=self._bindings(),
             style=style,
-            refresh_interval=0.1
+            refresh_interval=0.1,
         )
         self._application_task = self._start_application()
         while not self.application.is_running:
@@ -320,14 +347,21 @@ class Spinner(FormattedTextControl):
             if not self._finished:
                 return [("class:message", self.spinner_text + " " + spinner)]
             else:
-                return [("class:message", self.spinner_text + " "), ("class:answer", "[Finished]")]
+                return [
+                    ("class:message", self.spinner_text + " "),
+                    ("class:answer", "[Finished]"),
+                ]
 
-        return Layout(HSplit([
-            Window(
-                height=LayoutDimension.exact(1),
-                content=FormattedTextControl(get_text, show_cursor=False)
+        return Layout(
+            HSplit(
+                [
+                    Window(
+                        height=LayoutDimension.exact(1),
+                        content=FormattedTextControl(get_text, show_cursor=False),
+                    )
+                ]
             )
-        ]))
+        )
 
     def _bindings(self):
         bindings = KeyBindings()
@@ -348,7 +382,7 @@ def countdown(duration, message=""):
         while time.time() < end_time:
             remaining = time.strftime("%H:%M:%S", time.gmtime(end_time - time.time()))
             print(f"{message}{remaining}", end="\r")
-            time.sleep(.2)
+            time.sleep(0.2)
 
     finally:
         # Clears the last statement print statement
@@ -379,7 +413,12 @@ class Table:
             columns = [col.splitlines() for col in row]
             line_count = max(map(lambda _lines: len(_lines), columns))
             for line_number in range(line_count):
-                line = map(lambda column: "" if line_number >= len(column) else column[line_number], columns)
+                line = map(
+                    lambda column: ""
+                    if line_number >= len(column)
+                    else column[line_number],
+                    columns,
+                )
                 output += formatting.format(*line) + "\n"
 
         return output

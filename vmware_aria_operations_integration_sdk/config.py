@@ -1,19 +1,20 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
 from typing import Union
+
+from vmware_aria_operations_integration_sdk.constant import GLOBAL_CONFIG_FILE
 
 # Given a config key, return the value associated with it, or if no value exists,
 # return the default value if provided. If no value exists and a default is not provided,
 # this function returns 'None'. If the value changed, the new value is stored back into
 # the config file.
-from vmware_aria_operations_integration_sdk.constant import GLOBAL_CONFIG_FILE
 
 
-def get_config_value(key: str, default: any = None, config_file: str = GLOBAL_CONFIG_FILE) -> Union[
-    dict, list, str, int]:
+def get_config_value(
+    key: str, default: any = None, config_file: str = GLOBAL_CONFIG_FILE
+) -> Union[dict, list, str, int]:
     defaults = {key: default}
     if default is None:
         defaults = None
@@ -25,7 +26,9 @@ def get_config_value(key: str, default: any = None, config_file: str = GLOBAL_CO
 # and a default is not provided, the function returns 'None'. If a value changed (e.g., a default
 # was set where previously no key/value pair existed), the new key/value pair is stored back into
 # the config file.
-def get_config_values(*keys: [str], defaults: dict[str, any] = None, config_file: str = GLOBAL_CONFIG_FILE):
+def get_config_values(
+    *keys: [str], defaults: dict[str, any] = None, config_file: str = GLOBAL_CONFIG_FILE
+):
     if defaults is None:
         defaults = {}
 

@@ -7,7 +7,9 @@ from collections import OrderedDict
 from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
-from aria.ops.definition.attribute import PropertyAttribute, MetricAttribute, Attribute
+from aria.ops.definition.attribute import Attribute
+from aria.ops.definition.attribute import MetricAttribute
+from aria.ops.definition.attribute import PropertyAttribute
 from aria.ops.definition.exceptions import DuplicateKeyException
 from aria.ops.definition.units import Unit
 
@@ -29,7 +31,9 @@ class GroupType(ABC):
         self.add_group(group)
         return group
 
-    def define_instanced_group(self, key: str, label: Optional[str] = None, instance_required: bool = True) -> Group:
+    def define_instanced_group(
+        self, key: str, label: Optional[str] = None, instance_required: bool = True
+    ) -> Group:
         """
         Create a new group that can hold attributes and subgroups. This group can be 'instanced', with a value, so that
         its subgroups and attributes can appear multiple times, once for each instance value. For example, a group
@@ -63,17 +67,22 @@ class GroupType(ABC):
         """
         key = group.key
         if key in self.groups:
-            raise DuplicateKeyException(f"Group with key {key} already exists in {type(self)} {self.key}.")
+            raise DuplicateKeyException(
+                f"Group with key {key} already exists in {type(self)} {self.key}."
+            )
         self.groups[key] = group
 
-    def define_metric(self, key: str,
-                      label: Optional[str] = None,
-                      unit: Optional[Unit] = None,
-                      is_rate: bool = False,
-                      is_discrete: bool = False,
-                      is_kpi: bool = False,
-                      is_impact: bool = False,
-                      is_key_attribute: bool = False) -> MetricAttribute:
+    def define_metric(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+    ) -> MetricAttribute:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -89,19 +98,31 @@ class GroupType(ABC):
         proxy to a root cause, but not the root cause itself.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         """
-        metric = MetricAttribute(key, label, unit, is_rate, is_discrete, is_kpi, is_impact, is_key_attribute,
-                                 dashboard_order=len(self.attributes))
+        metric = MetricAttribute(
+            key,
+            label,
+            unit,
+            is_rate,
+            is_discrete,
+            is_kpi,
+            is_impact,
+            is_key_attribute,
+            dashboard_order=len(self.attributes),
+        )
         self.add_attribute(metric)
         return metric
 
-    def define_string_property(self, key: str,
-                               label: Optional[str] = None,
-                               unit: Optional[Unit] = None,
-                               is_rate: bool = False,
-                               is_discrete: bool = False,
-                               is_kpi: bool = False,
-                               is_impact: bool = False,
-                               is_key_attribute: bool = False) -> PropertyAttribute:
+    def define_string_property(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+    ) -> PropertyAttribute:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -117,19 +138,32 @@ class GroupType(ABC):
         proxy to a root cause, but not the root cause itself.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         """
-        _property = PropertyAttribute(key, label, True, unit, is_rate, is_discrete, is_kpi, is_impact,
-                                      is_key_attribute, dashboard_order=len(self.attributes))
+        _property = PropertyAttribute(
+            key,
+            label,
+            True,
+            unit,
+            is_rate,
+            is_discrete,
+            is_kpi,
+            is_impact,
+            is_key_attribute,
+            dashboard_order=len(self.attributes),
+        )
         self.add_attribute(_property)
         return _property
 
-    def define_numeric_property(self, key: str,
-                                label: Optional[str] = None,
-                                unit: Optional[Unit] = None,
-                                is_rate: bool = False,
-                                is_discrete: bool = False,
-                                is_kpi: bool = False,
-                                is_impact: bool = False,
-                                is_key_attribute: bool = False) -> PropertyAttribute:
+    def define_numeric_property(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        unit: Optional[Unit] = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+    ) -> PropertyAttribute:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -145,8 +179,18 @@ class GroupType(ABC):
         proxy to a root cause, but not the root cause itself.
         :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
         """
-        _property = PropertyAttribute(key, label, False, unit, is_rate, is_discrete, is_kpi, is_impact,
-                                      is_key_attribute, dashboard_order=len(self.attributes))
+        _property = PropertyAttribute(
+            key,
+            label,
+            False,
+            unit,
+            is_rate,
+            is_discrete,
+            is_kpi,
+            is_impact,
+            is_key_attribute,
+            dashboard_order=len(self.attributes),
+        )
         self.add_attribute(_property)
         return _property
 
@@ -167,19 +211,29 @@ class GroupType(ABC):
         """
         key = attribute.key
         if key in self.attributes:
-            raise DuplicateKeyException(f"Attribute with key {key} already exists in {type(self)} {self.key}.")
+            raise DuplicateKeyException(
+                f"Attribute with key {key} already exists in {type(self)} {self.key}."
+            )
 
         self.attributes[key] = attribute
 
     def to_json(self):
         return {
-            "attributes": [attribute.to_json() for attribute in self.attributes.values()],
-            "groups": [group.to_json() for group in self.groups.values()]
+            "attributes": [
+                attribute.to_json() for attribute in self.attributes.values()
+            ],
+            "groups": [group.to_json() for group in self.groups.values()],
         }
 
 
 class Group(GroupType):
-    def __init__(self, key: str, label: Optional[str] = None, instanced: bool = False, instance_required: bool = True):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        instanced: bool = False,
+        instance_required: bool = True,
+    ):
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
@@ -202,8 +256,8 @@ class Group(GroupType):
 
     def to_json(self):
         return {
-                   "key": self.key,
-                   "label": self.label,
-                   "instanced": self.instanced,
-                   "instance_required": self.instance_required
-               } | super().to_json()
+            "key": self.key,
+            "label": self.label,
+            "instanced": self.instanced,
+            "instance_required": self.instance_required,
+        } | super().to_json()

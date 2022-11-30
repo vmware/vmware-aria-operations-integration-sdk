@@ -1,9 +1,9 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from dataclasses import dataclass
 
-from aenum import Enum, skip
+from aenum import Enum
+from aenum import skip
 
 
 # All units should be standardized to ISO 80000 (International System of Quantities) abbreviations.
@@ -26,6 +26,7 @@ class Unit:
 
 class UnitGroup(Enum):
     pass
+
 
 @skip
 class Ratio(UnitGroup):
@@ -104,8 +105,9 @@ class DataSize(UnitGroup):
     ZEBIBIT = Unit("zebibit", "Zibit", 8, 1024, "bits_base_2")
     YOBIBIT = Unit("yobibit", "Yibit", 9, 1024, "bits_base_2")
     BIBYTE = Unit("bibyte", "b", 1, 1, "bytes_base_2")
-    KIBIBYTE = Unit("kibibyte", "KiB", 2, 1024,
-                  "bytes_base_2")  # per ISO 80000, this does not follow the convention of lower-case k for kilo
+    KIBIBYTE = Unit(
+        "kibibyte", "KiB", 2, 1024, "bytes_base_2"
+    )  # per ISO 80000, this does not follow the convention of lower-case k for kilo
     MEBIBYTE = Unit("mebibyte", "MiB", 3, 1024, "bytes_base_2")
     GIBIBYTE = Unit("gibibyte", "GiB", 4, 1024, "bytes_base_2")
     TEBIBYTE = Unit("tebibyte", "TiB", 5, 1024, "bytes_base_2")
@@ -117,43 +119,92 @@ class DataSize(UnitGroup):
 
 @skip
 class DataRate(UnitGroup):
-    BIT_PER_SECOND= Unit("bitps", "bit/s", 1, 1, "bits_base_10", is_rate=True)
-    KILOBIT_PER_SECOND= Unit("kbitps", "kbit/s", 2, 1000, "bits_base_10", is_rate=True)
-    MEGABIT_PER_SECOND= Unit("mbitps", "Mbit/s", 3, 1000, "bits_base_10", is_rate=True)
-    GIGABIT_PER_SECOND= Unit("gbitps", "Gbit/s", 4, 1000, "bits_base_10", is_rate=True)
-    TERABIT_PER_SECOND= Unit("tbitps", "Tbit/s", 5, 1000, "bits_base_10", is_rate=True)
-    PETABIT_PER_SECOND= Unit("pbitps", "Pbit/s", 6, 1000, "bits_base_10", is_rate=True)
-    EXABIT_PER_SECOND= Unit("ebitps", "Ebit/s", 7, 1000, "bits_base_10", is_rate=True)
-    ZETTABIT_PER_SECOND= Unit("zbitps", "Zbit/s", 8, 1000, "bits_base_10", is_rate=True)
-    YOTTABIT_PER_SECOND= Unit("ybitps", "Ybit/s", 9, 1000, "bits_base_10", is_rate=True)
-    BYTE_PER_SECOND= Unit("byteps", "B/s", 1, 1, "bytes_base_10", is_rate=True)
-    KILOBYTE_PER_SECOND= Unit("kbyteps", "kB/s", 2, 1000, "bytes_base_10", is_rate=True)
-    MEGABYTE_PER_SECOND= Unit("mbyteps", "MB/s", 3, 1000, "bytes_base_10", is_rate=True)
-    GIGABYTE_PER_SECOND= Unit("gbyteps", "GB/s", 4, 1000, "bytes_base_10", is_rate=True)
-    TERABYTE_PER_SECOND= Unit("tbyteps", "TB/s", 5, 1000, "bytes_base_10", is_rate=True)
-    PETABYTE_PER_SECOND= Unit("pbyteps", "PB/s", 6, 1000, "bytes_base_10", is_rate=True)
-    EXABYTE_PER_SECOND= Unit("ebyteps", "EB/s", 7, 1000, "bytes_base_10", is_rate=True)
-    ZETTABYTE_PER_SECOND= Unit("zbyteps", "ZB/s", 8, 1000, "bytes_base_10", is_rate=True)
-    YOTTABYTE_PER_SECOND= Unit("ybyteps", "YB/s", 9, 1000, "bytes_base_10", is_rate=True)
-    BIBIT_PER_SECOND= Unit("bibitps", "bit/s", 1, 1, "bits_base_2", is_rate=True)
-    KIBIBIT_PER_SECOND= Unit("kibibitps", "kibit/s", 2, 1024, "bits_base_2", is_rate=True)
-    MEBIBIT_PER_SECOND= Unit("mebibitps", "Mibit/s", 3, 1024, "bits_base_2", is_rate=True)
-    GIBIBIT_PER_SECOND= Unit("gibibitps", "Gibit/s", 4, 1024, "bits_base_2", is_rate=True)
-    TEBIBIT_PER_SECOND= Unit("tebibitps", "Tibit/s", 5, 1024, "bits_base_2", is_rate=True)
-    PEBIBIT_PER_SECOND= Unit("pebibitps", "Pibit/s", 6, 1024, "bits_base_2", is_rate=True)
-    EXBIBIT_PER_SECOND= Unit("exbibitps", "Eibit/s", 7, 1024, "bits_base_2", is_rate=True)
-    ZEBIBIT_PER_SECOND= Unit("zebibitps", "Zibit/s", 8, 1024, "bits_base_2", is_rate=True)
-    YOBIBIT_PER_SECOND= Unit("yobibitps", "Yibit/s", 9, 1024, "bits_base_2", is_rate=True)
-    BIBYTE_PER_SECOND= Unit("bibyteps", "B/s", 1, 1, "bytes_base_2", is_rate=True)
-    KIBIBYTE_PER_SECOND= Unit("kibibyteps", "KiB/s", 2, 1024,
-                    "bytes_base_2", is_rate=True)  # per ISO 80000, this does not follow the convention of lower-case k for kilo
-    MEBIBYTE_PER_SECOND= Unit("mebibyteps", "MiB/s", 3, 1024, "bytes_base_2", is_rate=True)
-    GIBIBYTE_PER_SECOND= Unit("gibibyteps", "GiB/s", 4, 1024, "bytes_base_2", is_rate=True)
-    TEBIBYTE_PER_SECOND= Unit("tebibyteps", "TiB/s", 5, 1024, "bytes_base_2", is_rate=True)
-    PEBIBYTE_PER_SECOND= Unit("pebibyteps", "PiB/s", 6, 1024, "bytes_base_2", is_rate=True)
-    EXBIBYTE_PER_SECOND= Unit("exbibyteps", "EiB/s", 7, 1024, "bytes_base_2", is_rate=True)
-    ZEBIBYTE_PER_SECOND= Unit("zebibyteps", "ZiB/s", 8, 1024, "bytes_base_2", is_rate=True)
-    YOBIBYTE_PER_SECOND= Unit("yobibyteps", "YiB/s", 9, 1024, "bytes_base_2", is_rate=True)
+    BIT_PER_SECOND = Unit("bitps", "bit/s", 1, 1, "bits_base_10", is_rate=True)
+    KILOBIT_PER_SECOND = Unit("kbitps", "kbit/s", 2, 1000, "bits_base_10", is_rate=True)
+    MEGABIT_PER_SECOND = Unit("mbitps", "Mbit/s", 3, 1000, "bits_base_10", is_rate=True)
+    GIGABIT_PER_SECOND = Unit("gbitps", "Gbit/s", 4, 1000, "bits_base_10", is_rate=True)
+    TERABIT_PER_SECOND = Unit("tbitps", "Tbit/s", 5, 1000, "bits_base_10", is_rate=True)
+    PETABIT_PER_SECOND = Unit("pbitps", "Pbit/s", 6, 1000, "bits_base_10", is_rate=True)
+    EXABIT_PER_SECOND = Unit("ebitps", "Ebit/s", 7, 1000, "bits_base_10", is_rate=True)
+    ZETTABIT_PER_SECOND = Unit(
+        "zbitps", "Zbit/s", 8, 1000, "bits_base_10", is_rate=True
+    )
+    YOTTABIT_PER_SECOND = Unit(
+        "ybitps", "Ybit/s", 9, 1000, "bits_base_10", is_rate=True
+    )
+    BYTE_PER_SECOND = Unit("byteps", "B/s", 1, 1, "bytes_base_10", is_rate=True)
+    KILOBYTE_PER_SECOND = Unit(
+        "kbyteps", "kB/s", 2, 1000, "bytes_base_10", is_rate=True
+    )
+    MEGABYTE_PER_SECOND = Unit(
+        "mbyteps", "MB/s", 3, 1000, "bytes_base_10", is_rate=True
+    )
+    GIGABYTE_PER_SECOND = Unit(
+        "gbyteps", "GB/s", 4, 1000, "bytes_base_10", is_rate=True
+    )
+    TERABYTE_PER_SECOND = Unit(
+        "tbyteps", "TB/s", 5, 1000, "bytes_base_10", is_rate=True
+    )
+    PETABYTE_PER_SECOND = Unit(
+        "pbyteps", "PB/s", 6, 1000, "bytes_base_10", is_rate=True
+    )
+    EXABYTE_PER_SECOND = Unit("ebyteps", "EB/s", 7, 1000, "bytes_base_10", is_rate=True)
+    ZETTABYTE_PER_SECOND = Unit(
+        "zbyteps", "ZB/s", 8, 1000, "bytes_base_10", is_rate=True
+    )
+    YOTTABYTE_PER_SECOND = Unit(
+        "ybyteps", "YB/s", 9, 1000, "bytes_base_10", is_rate=True
+    )
+    BIBIT_PER_SECOND = Unit("bibitps", "bit/s", 1, 1, "bits_base_2", is_rate=True)
+    KIBIBIT_PER_SECOND = Unit(
+        "kibibitps", "kibit/s", 2, 1024, "bits_base_2", is_rate=True
+    )
+    MEBIBIT_PER_SECOND = Unit(
+        "mebibitps", "Mibit/s", 3, 1024, "bits_base_2", is_rate=True
+    )
+    GIBIBIT_PER_SECOND = Unit(
+        "gibibitps", "Gibit/s", 4, 1024, "bits_base_2", is_rate=True
+    )
+    TEBIBIT_PER_SECOND = Unit(
+        "tebibitps", "Tibit/s", 5, 1024, "bits_base_2", is_rate=True
+    )
+    PEBIBIT_PER_SECOND = Unit(
+        "pebibitps", "Pibit/s", 6, 1024, "bits_base_2", is_rate=True
+    )
+    EXBIBIT_PER_SECOND = Unit(
+        "exbibitps", "Eibit/s", 7, 1024, "bits_base_2", is_rate=True
+    )
+    ZEBIBIT_PER_SECOND = Unit(
+        "zebibitps", "Zibit/s", 8, 1024, "bits_base_2", is_rate=True
+    )
+    YOBIBIT_PER_SECOND = Unit(
+        "yobibitps", "Yibit/s", 9, 1024, "bits_base_2", is_rate=True
+    )
+    BIBYTE_PER_SECOND = Unit("bibyteps", "B/s", 1, 1, "bytes_base_2", is_rate=True)
+    KIBIBYTE_PER_SECOND = Unit(
+        "kibibyteps", "KiB/s", 2, 1024, "bytes_base_2", is_rate=True
+    )  # per ISO 80000, this does not follow the convention of lower-case k for kilo
+    MEBIBYTE_PER_SECOND = Unit(
+        "mebibyteps", "MiB/s", 3, 1024, "bytes_base_2", is_rate=True
+    )
+    GIBIBYTE_PER_SECOND = Unit(
+        "gibibyteps", "GiB/s", 4, 1024, "bytes_base_2", is_rate=True
+    )
+    TEBIBYTE_PER_SECOND = Unit(
+        "tebibyteps", "TiB/s", 5, 1024, "bytes_base_2", is_rate=True
+    )
+    PEBIBYTE_PER_SECOND = Unit(
+        "pebibyteps", "PiB/s", 6, 1024, "bytes_base_2", is_rate=True
+    )
+    EXBIBYTE_PER_SECOND = Unit(
+        "exbibyteps", "EiB/s", 7, 1024, "bytes_base_2", is_rate=True
+    )
+    ZEBIBYTE_PER_SECOND = Unit(
+        "zebibyteps", "ZiB/s", 8, 1024, "bytes_base_2", is_rate=True
+    )
+    YOBIBYTE_PER_SECOND = Unit(
+        "yobibyteps", "YiB/s", 9, 1024, "bytes_base_2", is_rate=True
+    )
 
 
 @skip
@@ -255,22 +306,34 @@ class RotationRate(UnitGroup):
 @skip
 class Misc(UnitGroup):
     BLOCKS = Unit("blocks", "blocks", 1, 1, "Blocks")
-    BLOCKS_PER_SECOND = Unit("blocksps", "blocks/s", 1, 1, "BlocksPerSecond", is_rate=True)
+    BLOCKS_PER_SECOND = Unit(
+        "blocksps", "blocks/s", 1, 1, "BlocksPerSecond", is_rate=True
+    )
     PAGES = Unit("pages", "pages", 1, 1, "Pages")
     PAGES_PER_SECOND = Unit("pagesps", "pages/s", 1, 1, "PagesPerSecond", is_rate=True)
     PACKETS = Unit("packets", "packets", 1, 1, "Packets")
-    PACKETS_PER_SECOND = Unit("packetsps", "packets/s", 1, 1, "PacketsPerSecond", is_rate=True)
+    PACKETS_PER_SECOND = Unit(
+        "packetsps", "packets/s", 1, 1, "PacketsPerSecond", is_rate=True
+    )
     FRAMES = Unit("frames", "frames", 1, 1, "Frames")
-    FRAMES_PER_SECOND = Unit("framesps", "frames/s", 1, 1, "FramesPerSecond", is_rate=True)
+    FRAMES_PER_SECOND = Unit(
+        "framesps", "frames/s", 1, 1, "FramesPerSecond", is_rate=True
+    )
     OPERATIONS = Unit("operations", "operations", 1, 1, "Operations")
-    OPERATIONS_PER_SECOND = Unit("operationsps", "operations/s", 1, 1, "OperationsPerSecond", is_rate=True)
+    OPERATIONS_PER_SECOND = Unit(
+        "operationsps", "operations/s", 1, 1, "OperationsPerSecond", is_rate=True
+    )
     IO_OPERATIONS_PER_SECOND = Unit("iops", "IOPS", 1, 1, "IOPS")
     REQUESTS = Unit("requests", "requests", 1, 1, "Requests")
-    REQUESTS_PER_SECOND = Unit("requestsps", "requests/s", 1, 1, "RequestsPerSecond", is_rate=True)
+    REQUESTS_PER_SECOND = Unit(
+        "requestsps", "requests/s", 1, 1, "RequestsPerSecond", is_rate=True
+    )
     CALLS = Unit("calls", "calls", 1, 1, "Calls")
     CALLS_PER_SECOND = Unit("callsps", "calls/s", 1, 1, "CallsPerSecond", is_rate=True)
     ERRORS = Unit("errors", "errors", 1, 1, "Errors")
-    ERRORS_PER_SECOND = Unit("errorsps", "errors/s", 1, 1, "ErrorsPerSecond", is_rate=True)
+    ERRORS_PER_SECOND = Unit(
+        "errorsps", "errors/s", 1, 1, "ErrorsPerSecond", is_rate=True
+    )
     FLOPS = Unit("flops", "flops", 1, 1, "FLOPS", is_rate=True)
     KILOFLOPS = Unit("kiloflops", "kiloflops", 2, 1000, "FLOPS", is_rate=True)
     MEGAFLOPS = Unit("megaflops", "megaflops", 3, 1000, "FLOPS", is_rate=True)
@@ -281,38 +344,58 @@ class Misc(UnitGroup):
     RACK_UNIT = Unit("rackunit", "rack unit", 1, 1, "RackUnits")
     SESSIONS = Unit("sessions", "sessions", 1, 1, "Sessions")
     CONNECTIONS = Unit("connections", "connections", 1, 1, "Connections")
-    CONNECTIONS_PER_SECOND = Unit("connectionsps", "connections/s", 1, 1, "ConnectionsPerSecond", is_rate=True)
+    CONNECTIONS_PER_SECOND = Unit(
+        "connectionsps", "connections/s", 1, 1, "ConnectionsPerSecond", is_rate=True
+    )
     DISKS = Unit("disks", "disks", 1, 1, "Disks")
     PURGES = Unit("purges", "purges", 1, 1, "Purges")
-    PURGES_PER_SECOND = Unit("purgesps", "purges/s", 1, 1, "PurgesPerSecond", is_rate=True)
+    PURGES_PER_SECOND = Unit(
+        "purgesps", "purges/s", 1, 1, "PurgesPerSecond", is_rate=True
+    )
     READS = Unit("reads", "reads", 1, 1, "Reads")
     READS_PER_SECOND = Unit("readsps", "reads/s", 1, 1, "ReadsPerSecond", is_rate=True)
     SEARCHES = Unit("searches", "searches", 1, 1, "Searches")
-    SEARCHES_PER_SECOND = Unit("searchesps", "searches/s", 1, 1, "SearchesPerSecond", is_rate=True)
+    SEARCHES_PER_SECOND = Unit(
+        "searchesps", "searches/s", 1, 1, "SearchesPerSecond", is_rate=True
+    )
     SLOTS = Unit("slots", "slots", 1, 1, "Slots")
     SLOTS_PER_SECOND = Unit("slotsps", "slots/s", 1, 1, "SlotsPerSecond", is_rate=True)
     THREADS = Unit("threads", "threads", 1, 1, "Threads")
     WAITS = Unit("waits", "waits", 1, 1, "Waits")
     WAITS_PER_SECOND = Unit("waitsps", "waits/s", 1, 1, "WaitsPerSecond", is_rate=True)
     WRITES = Unit("writes", "writes", 1, 1, "Writes")
-    WRITES_PER_SECOND = Unit("writesps", "writes/s", 1, 1, "WritesPerSecond", is_rate=True)
+    WRITES_PER_SECOND = Unit(
+        "writesps", "writes/s", 1, 1, "WritesPerSecond", is_rate=True
+    )
     ATTEMPTS = Unit("attempts", "attempts", 1, 1, "Attempts")
-    ATTEMPTS_PER_SECOND = Unit("attemptsps", "attempts/s", 1, 1, "AttemptsPerSecond", is_rate=True)
+    ATTEMPTS_PER_SECOND = Unit(
+        "attemptsps", "attempts/s", 1, 1, "AttemptsPerSecond", is_rate=True
+    )
     BATCHES = Unit("batches", "batches", 1, 1, "Batches")
-    BATCHES_PER_SECOND = Unit("batchesps", "batches/s", 1, 1, "BatchesPerSecond", is_rate=True)
+    BATCHES_PER_SECOND = Unit(
+        "batchesps", "batches/s", 1, 1, "BatchesPerSecond", is_rate=True
+    )
     INDEXES = Unit("indexes", "indexes", 1, 1, "Indexes")
-    INDEXES_PER_SECOND = Unit("indexesps", "indexes/s", 1, 1, "IndexesPerSecond", is_rate=True)
+    INDEXES_PER_SECOND = Unit(
+        "indexesps", "indexes/s", 1, 1, "IndexesPerSecond", is_rate=True
+    )
     LOCKS = Unit("locks", "locks", 1, 1, "Locks")
     LOCKS_PER_SECOND = Unit("locksps", "locks/s", 1, 1, "LocksPerSecond", is_rate=True)
     MERGES = Unit("merges", "merges", 1, 1, "Merges")
-    MERGES_PER_SECOND = Unit("mergesps", "merges/s", 1, 1, "MergesPerSecond", is_rate=True)
+    MERGES_PER_SECOND = Unit(
+        "mergesps", "merges/s", 1, 1, "MergesPerSecond", is_rate=True
+    )
     CHECKPOINTS = Unit("checkpoints", "checkpoints", 1, 1, "Checkpoints")
-    CHECKPOINTS_PER_SECOND = Unit("checkpointsps", "checkpoints/s", 1, 1, "CheckpointsPerSecond", is_rate=True)
+    CHECKPOINTS_PER_SECOND = Unit(
+        "checkpointsps", "checkpoints/s", 1, 1, "CheckpointsPerSecond", is_rate=True
+    )
     ROWS = Unit("rows", "rows", 1, 1, "Rows")
     ROWS_PER_SECOND = Unit("rowsps", "rows/s", 1, 1, "RowsPerSecond", is_rate=True)
     TABLES = Unit("tables", "tables", 1, 1, "Tables")
     TRANSACTIONS = Unit("transactions", "transactions", 1, 1, "Transactions")
-    TRANSACTIONS_PER_SECOND = Unit("transactionsps", "transactions/s", 1, 1, "TransactionsPerSecond", is_rate=True)
+    TRANSACTIONS_PER_SECOND = Unit(
+        "transactionsps", "transactions/s", 1, 1, "TransactionsPerSecond", is_rate=True
+    )
 
 
 class Units(Enum):

@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from dataclasses import dataclass
 from typing import Optional
 
@@ -52,7 +51,9 @@ def _get_identifiers(json) -> tuple[Identifier]:
         return tuple()
     identifiers = json.get("identifiers", [])
     identifiers = [_get_identifier(identifier) for identifier in identifiers]
-    identifiers = tuple(sorted([id for id in identifiers if id is not None], key=lambda id: id.key))
+    identifiers = tuple(
+        sorted([id for id in identifiers if id is not None], key=lambda id: id.key)
+    )
     return identifiers
 
 

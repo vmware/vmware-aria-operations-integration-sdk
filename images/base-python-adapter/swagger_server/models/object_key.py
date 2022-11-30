@@ -1,16 +1,16 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.identifier import Identifier  # noqa: F401,E501
-from swagger_server import util
 
 
 class ObjectKey(Model):
@@ -18,7 +18,14 @@ class ObjectKey(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, name: str=None, adapter_kind: str=None, object_kind: str=None, identifiers: List[Identifier]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        name: str = None,
+        adapter_kind: str = None,
+        object_kind: str = None,
+        identifiers: List[Identifier] = None,
+    ):  # noqa: E501
         """ObjectKey - a model defined in Swagger
 
         :param name: The name of this ObjectKey.  # noqa: E501
@@ -31,17 +38,17 @@ class ObjectKey(Model):
         :type identifiers: List[Identifier]
         """
         self.swagger_types = {
-            'name': str,
-            'adapter_kind': str,
-            'object_kind': str,
-            'identifiers': List[Identifier]
+            "name": str,
+            "adapter_kind": str,
+            "object_kind": str,
+            "identifiers": List[Identifier],
         }
 
         self.attribute_map = {
-            'name': 'name',
-            'adapter_kind': 'adapterKind',
-            'object_kind': 'objectKind',
-            'identifiers': 'identifiers'
+            "name": "name",
+            "adapter_kind": "adapterKind",
+            "object_kind": "objectKind",
+            "identifiers": "identifiers",
         }
         self._name = name
         self._adapter_kind = adapter_kind
@@ -49,7 +56,7 @@ class ObjectKey(Model):
         self._identifiers = identifiers
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ObjectKey':
+    def from_dict(cls, dikt) -> "ObjectKey":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -80,7 +87,9 @@ class ObjectKey(Model):
         :type name: str
         """
         if name is None:
-            raise ValueError("Invalid value for `name`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `name`, must not be `None`"
+            )  # noqa: E501
 
         self._name = name
 
@@ -105,7 +114,9 @@ class ObjectKey(Model):
         :type adapter_kind: str
         """
         if adapter_kind is None:
-            raise ValueError("Invalid value for `adapter_kind`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `adapter_kind`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_kind = adapter_kind
 
@@ -130,7 +141,9 @@ class ObjectKey(Model):
         :type object_kind: str
         """
         if object_kind is None:
-            raise ValueError("Invalid value for `object_kind`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `object_kind`, must not be `None`"
+            )  # noqa: E501
 
         self._object_kind = object_kind
 

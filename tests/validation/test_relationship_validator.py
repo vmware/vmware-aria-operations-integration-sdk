@@ -1,7 +1,11 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
-from vmware_aria_operations_integration_sdk.validation.relationship_validator import Graph, Cycle
+from vmware_aria_operations_integration_sdk.validation.relationship_validator import (
+    Cycle,
+)
+from vmware_aria_operations_integration_sdk.validation.relationship_validator import (
+    Graph,
+)
 
 
 def test_no_nodes():
@@ -57,7 +61,11 @@ def test_has_cycle_4():
     nodes = {1, 2, 3, 4, 5, 6}
     adj = {1: [2], 2: [3], 3: [5], 5: [4], 4: [1, 2, 6], 6: [5]}
     graph = Graph(nodes, adj)
-    assert graph.get_cycles() == {Cycle([1, 2, 3, 5, 4]), Cycle([2, 3, 5, 4]), Cycle([4, 6, 5])}
+    assert graph.get_cycles() == {
+        Cycle([1, 2, 3, 5, 4]),
+        Cycle([2, 3, 5, 4]),
+        Cycle([4, 6, 5]),
+    }
 
 
 def test_cycle_equality_1():

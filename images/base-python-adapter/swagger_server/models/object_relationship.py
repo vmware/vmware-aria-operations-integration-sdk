@@ -1,16 +1,16 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
-from swagger_server import util
 
 
 class ObjectRelationship(Model):
@@ -18,7 +18,14 @@ class ObjectRelationship(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, parent: ObjectKey=None, children: List[ObjectKey]=None, add: bool=True, clear_first: bool=True):  # noqa: E501
+
+    def __init__(
+        self,
+        parent: ObjectKey = None,
+        children: List[ObjectKey] = None,
+        add: bool = True,
+        clear_first: bool = True,
+    ):  # noqa: E501
         """ObjectRelationship - a model defined in Swagger
 
         :param parent: The parent of this ObjectRelationship.  # noqa: E501
@@ -31,17 +38,17 @@ class ObjectRelationship(Model):
         :type clear_first: bool
         """
         self.swagger_types = {
-            'parent': ObjectKey,
-            'children': List[ObjectKey],
-            'add': bool,
-            'clear_first': bool
+            "parent": ObjectKey,
+            "children": List[ObjectKey],
+            "add": bool,
+            "clear_first": bool,
         }
 
         self.attribute_map = {
-            'parent': 'parent',
-            'children': 'children',
-            'add': 'add',
-            'clear_first': 'clearFirst'
+            "parent": "parent",
+            "children": "children",
+            "add": "add",
+            "clear_first": "clearFirst",
         }
         self._parent = parent
         self._children = children
@@ -49,7 +56,7 @@ class ObjectRelationship(Model):
         self._clear_first = clear_first
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ObjectRelationship':
+    def from_dict(cls, dikt) -> "ObjectRelationship":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -78,7 +85,9 @@ class ObjectRelationship(Model):
         :type parent: ObjectKey
         """
         if parent is None:
-            raise ValueError("Invalid value for `parent`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `parent`, must not be `None`"
+            )  # noqa: E501
 
         self._parent = parent
 

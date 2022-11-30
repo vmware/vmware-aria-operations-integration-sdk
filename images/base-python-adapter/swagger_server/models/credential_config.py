@@ -1,16 +1,16 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.credential_field import CredentialField  # noqa: F401,E501
-from swagger_server import util
 
 
 class CredentialConfig(Model):
@@ -18,7 +18,12 @@ class CredentialConfig(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, credential_key: str=None, credential_fields: List[CredentialField]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        credential_key: str = None,
+        credential_fields: List[CredentialField] = None,
+    ):  # noqa: E501
         """CredentialConfig - a model defined in Swagger
 
         :param credential_key: The credential_key of this CredentialConfig.  # noqa: E501
@@ -27,19 +32,19 @@ class CredentialConfig(Model):
         :type credential_fields: List[CredentialField]
         """
         self.swagger_types = {
-            'credential_key': str,
-            'credential_fields': List[CredentialField]
+            "credential_key": str,
+            "credential_fields": List[CredentialField],
         }
 
         self.attribute_map = {
-            'credential_key': 'credentialKey',
-            'credential_fields': 'credentialFields'
+            "credential_key": "credentialKey",
+            "credential_fields": "credentialFields",
         }
         self._credential_key = credential_key
         self._credential_fields = credential_fields
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CredentialConfig':
+    def from_dict(cls, dikt) -> "CredentialConfig":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -70,7 +75,9 @@ class CredentialConfig(Model):
         :type credential_key: str
         """
         if credential_key is None:
-            raise ValueError("Invalid value for `credential_key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `credential_key`, must not be `None`"
+            )  # noqa: E501
 
         self._credential_key = credential_key
 
@@ -95,6 +102,8 @@ class CredentialConfig(Model):
         :type credential_fields: List[CredentialField]
         """
         if credential_fields is None:
-            raise ValueError("Invalid value for `credential_fields`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `credential_fields`, must not be `None`"
+            )  # noqa: E501
 
         self._credential_fields = credential_fields

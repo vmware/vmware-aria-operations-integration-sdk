@@ -1,13 +1,13 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import os
+
 
 def build_template(path: str, root_directory: str):
 
-    with open(os.path.join(path, root_directory, "collector.ps1"),'w') as collector:
+    with open(os.path.join(path, root_directory, "collector.ps1"), "w") as collector:
         collector.write(
-"""
+            """
 if ($args.count -eq 0){
 	Write-host "No arguments"
 }elseif ($args[0] -eq "collect"){

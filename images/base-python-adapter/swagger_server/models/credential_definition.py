@@ -1,16 +1,18 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
-from swagger_server.models.credential_definition_fields import CredentialDefinitionFields  # noqa: F401,E501
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
+from swagger_server.models.credential_definition_fields import (
+    CredentialDefinitionFields,
+)  # noqa: F401,E501
 
 
 class CredentialDefinition(Model):
@@ -18,7 +20,13 @@ class CredentialDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, fields: List[CredentialDefinitionFields]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        label: str = None,
+        fields: List[CredentialDefinitionFields] = None,
+    ):  # noqa: E501
         """CredentialDefinition - a model defined in Swagger
 
         :param key: The key of this CredentialDefinition.  # noqa: E501
@@ -29,22 +37,18 @@ class CredentialDefinition(Model):
         :type fields: List[CredentialDefinitionFields]
         """
         self.swagger_types = {
-            'key': str,
-            'label': str,
-            'fields': List[CredentialDefinitionFields]
+            "key": str,
+            "label": str,
+            "fields": List[CredentialDefinitionFields],
         }
 
-        self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'fields': 'fields'
-        }
+        self.attribute_map = {"key": "key", "label": "label", "fields": "fields"}
         self._key = key
         self._label = label
         self._fields = fields
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CredentialDefinition':
+    def from_dict(cls, dikt) -> "CredentialDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

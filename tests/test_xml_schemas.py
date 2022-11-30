@@ -7,11 +7,11 @@ import xmlschema
 from lxml import etree
 
 from vmware_aria_operations_integration_sdk import adapter_template
-from vmware_aria_operations_integration_sdk.describe import ns, ns_map
+from vmware_aria_operations_integration_sdk.describe import ns
+from vmware_aria_operations_integration_sdk.describe import ns_map
 
 
 class TestDescribe:
-
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
         with resources.path(adapter_template, "describeSchema.xsd") as schema:
@@ -19,15 +19,21 @@ class TestDescribe:
 
     @pytest.fixture
     def base_describe_xml(self):
-        root = xml.Element("{http://schemas.vmware.com/vcops/schema}AdapterKind",
-                           attrib={"key": "TestAdapter",
-                                   "nameKey": "1",
-                                   "version": "1"}, nsmap=ns_map)
+        root = xml.Element(
+            "{http://schemas.vmware.com/vcops/schema}AdapterKind",
+            attrib={"key": "TestAdapter", "nameKey": "1", "version": "1"},
+            nsmap=ns_map,
+        )
         resource_kinds = xml.SubElement(root, "ResourceKinds", nsmap=ns_map)
-        xml.SubElement(resource_kinds, "ResourceKind",
-                       attrib={"key": "test_resource",
-                               "nameKey": "3",
-                               }, nsmap=ns_map)
+        xml.SubElement(
+            resource_kinds,
+            "ResourceKind",
+            attrib={
+                "key": "test_resource",
+                "nameKey": "3",
+            },
+            nsmap=ns_map,
+        )
         yield root
 
     def test_valid_describe_xml(self, xml_schema, base_describe_xml):
@@ -40,8 +46,12 @@ class TestDescribe:
 
     def test_duplicate_resource_kind_key(self, xml_schema, base_describe_xml):
         resource_kinds = base_describe_xml.find(ns("ResourceKinds"))
-        first = xml.Element("ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map)
-        duplicate = xml.Element("ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map)
+        first = xml.Element(
+            "ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map
+        )
+        duplicate = xml.Element(
+            "ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map
+        )
         resource_kinds.insert(0, first)
         resource_kinds.insert(0, duplicate)
 
@@ -50,23 +60,47 @@ class TestDescribe:
         assert "duplicated value ('duplicate',)" in str(duplicate.value)
 
     def test_duplicate_resource_attribute_key(self, xml_schema, base_describe_xml):
-        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
-        resource_kind.insert(0, xml.Element("ResourceAttribute", attrib={"key": "test_attribute", "nameKey": "0"},
-                                            nsmap=ns_map))
-        resource_kind.insert(0, xml.Element("ResourceAttribute", attrib={"key": "test_attribute", "nameKey": "1"},
-                                            nsmap=ns_map))
+        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(
+            ns("ResourceKind")
+        )
+        resource_kind.insert(
+            0,
+            xml.Element(
+                "ResourceAttribute",
+                attrib={"key": "test_attribute", "nameKey": "0"},
+                nsmap=ns_map,
+            ),
+        )
+        resource_kind.insert(
+            0,
+            xml.Element(
+                "ResourceAttribute",
+                attrib={"key": "test_attribute", "nameKey": "1"},
+                nsmap=ns_map,
+            ),
+        )
 
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as duplicate:
             xml_schema.validate(base_describe_xml)
         assert "duplicated value ('test_attribute',)" in str(duplicate.value)
 
-    def test_resource_attribute_key_inside_of_resource_group(self, xml_schema, base_describe_xml):
-        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
-        resource_group = xml.Element("ResourceGroup", attrib={"key": "test_group", "nameKey": "4"}, nsmap=ns_map)
+    def test_resource_attribute_key_inside_of_resource_group(
+        self, xml_schema, base_describe_xml
+    ):
+        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(
+            ns("ResourceKind")
+        )
+        resource_group = xml.Element(
+            "ResourceGroup", attrib={"key": "test_group", "nameKey": "4"}, nsmap=ns_map
+        )
         resource_kind.append(resource_group)
 
-        attribute = xml.Element("ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map)
-        duplicate = xml.Element("ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map)
+        attribute = xml.Element(
+            "ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map
+        )
+        duplicate = xml.Element(
+            "ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map
+        )
 
         resource_kind.insert(0, attribute)
         resource_group.insert(0, duplicate)
@@ -74,17 +108,32 @@ class TestDescribe:
         assert xml_schema.is_valid(base_describe_xml)
 
     def test_string_property(self, xml_schema, base_describe_xml):
-        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
-        xml.SubElement(resource_kind, "ResourceAttribute",
-                       attrib={"key": "attribute", "nameKey": "0", "dataType": "string", "isProperty": "true"},
-                       nsmap=ns_map)
+        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(
+            ns("ResourceKind")
+        )
+        xml.SubElement(
+            resource_kind,
+            "ResourceAttribute",
+            attrib={
+                "key": "attribute",
+                "nameKey": "0",
+                "dataType": "string",
+                "isProperty": "true",
+            },
+            nsmap=ns_map,
+        )
 
         assert xml_schema.is_valid(base_describe_xml)
 
     def test_string_metric_not_allowed(self, xml_schema, base_describe_xml):
-        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(ns("ResourceKind"))
-        _property = xml.Element("ResourceAttribute",
-                                attrib={"key": "attribute", "nameKey": "0", "dataType": "string"}, nsmap=ns_map)
+        resource_kind = base_describe_xml.find(ns("ResourceKinds")).find(
+            ns("ResourceKind")
+        )
+        _property = xml.Element(
+            "ResourceAttribute",
+            attrib={"key": "attribute", "nameKey": "0", "dataType": "string"},
+            nsmap=ns_map,
+        )
         resource_kind.insert(0, _property)
 
         assert not xml_schema.is_valid(base_describe_xml)
@@ -104,13 +153,19 @@ class TestAlertsRecommendationsAndSymptoms:
     def generated_content(self):
         yield etree.parse("tests/res/generated_alert.xml")
 
-    def test_valid_content_xml_generated_alert(self, content_xml_schema, generated_content):
+    def test_valid_content_xml_generated_alert(
+        self, content_xml_schema, generated_content
+    ):
         content_xml_schema.validate(generated_content)
 
-    def test_valid_content_xml_modified_alert(self, content_xml_schema, modified_content):
+    def test_valid_content_xml_modified_alert(
+        self, content_xml_schema, modified_content
+    ):
         content_xml_schema.validate(modified_content)
 
-    def test_invalid_element_on_content_xml(self, content_xml_schema, generated_content, modified_content):
+    def test_invalid_element_on_content_xml(
+        self, content_xml_schema, generated_content, modified_content
+    ):
         invalid_element = etree.Element("NotGood")
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError):
             generated_content.getroot().append(invalid_element)
@@ -130,19 +185,33 @@ class TestAlertsRecommendationsAndSymptoms:
 
         assert "duplicated" in str(duplicate.value)
 
-    def test_alert_definition_missing_properties(self, content_xml_schema, generated_content):
-        alert_definition = generated_content.find("AlertDefinitions").find("AlertDefinition")
+    def test_alert_definition_missing_properties(
+        self, content_xml_schema, generated_content
+    ):
+        alert_definition = generated_content.find("AlertDefinitions").find(
+            "AlertDefinition"
+        )
         alert_definition.clear()
 
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
             content_xml_schema.validate(generated_content)
         assert "missing required attribute" in str(missing.value)
 
-    def test_missing_state_element_from_alert_definition(self, content_xml_schema, generated_content):
-        alert_definition = etree.Element("AlertDefinition",
-                                         attrib=dict(adapterKind="TestAdapterKind", description="120",
-                                                     id="AlertDefinition-New", name="New Alert",
-                                                     resourceKind="TestResourceKind", subType="18", type="15"))
+    def test_missing_state_element_from_alert_definition(
+        self, content_xml_schema, generated_content
+    ):
+        alert_definition = etree.Element(
+            "AlertDefinition",
+            attrib=dict(
+                adapterKind="TestAdapterKind",
+                description="120",
+                id="AlertDefinition-New",
+                name="New Alert",
+                resourceKind="TestResourceKind",
+                subType="18",
+                type="15",
+            ),
+        )
 
         alert_definitions = generated_content.find("AlertDefinitions")
         alert_definitions.insert(0, alert_definition)
@@ -150,9 +219,14 @@ class TestAlertsRecommendationsAndSymptoms:
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
             content_xml_schema.validate(generated_content)
 
-        assert "The content of element 'AlertDefinition' is not complete. Tag 'State' expected" in str(missing)
+        assert (
+            "The content of element 'AlertDefinition' is not complete. Tag 'State' expected"
+            in str(missing)
+        )
 
-    def test_symptom_definition_id_duplicate(self, content_xml_schema, generated_content):
+    def test_symptom_definition_id_duplicate(
+        self, content_xml_schema, generated_content
+    ):
         symptom_definitions = generated_content.find("SymptomDefinitions")
         symptom_definition = symptom_definitions.find("SymptomDefinition")
         symptom_definitions.insert(0, copy.deepcopy(symptom_definition))
@@ -162,8 +236,12 @@ class TestAlertsRecommendationsAndSymptoms:
 
         assert "attribute id" in str(duplicate)
 
-    def test_symptom_definition_missing_properties(self, content_xml_schema, generated_content):
-        symptom_definition: xml.Element = generated_content.find("SymptomDefinitions").find("SymptomDefinition")
+    def test_symptom_definition_missing_properties(
+        self, content_xml_schema, generated_content
+    ):
+        symptom_definition: xml.Element = generated_content.find(
+            "SymptomDefinitions"
+        ).find("SymptomDefinition")
         symptom_definition.clear()
 
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError) as missing:
@@ -195,15 +273,22 @@ class TestTraversals:
 
     def test_add_valid_traversal(self, traversal_schema, base_traversal_xml):
         traversal_spec_kinds = base_traversal_xml.find("TraversalSpecKinds")
-        new_traversal = etree.Element("TraversalSpecKind",
-                                      attrib=dict(name="New Traversal"),
-                                      rootAdapterKind="ContentTestMP",
-                                      rootResourceKind="System",
-                                      usedFor="ENV",
-                                      description="New Traversal description")
-        new_traversal.insert(0, etree.Element("ResourcePath",
-                                              attrib={"path": "ContentTestMP::System||ContentTestMP::CPU::child"},
-                                              nsmap=ns_map))
+        new_traversal = etree.Element(
+            "TraversalSpecKind",
+            attrib=dict(name="New Traversal"),
+            rootAdapterKind="ContentTestMP",
+            rootResourceKind="System",
+            usedFor="ENV",
+            description="New Traversal description",
+        )
+        new_traversal.insert(
+            0,
+            etree.Element(
+                "ResourcePath",
+                attrib={"path": "ContentTestMP::System||ContentTestMP::CPU::child"},
+                nsmap=ns_map,
+            ),
+        )
         traversal_spec_kinds.insert(0, new_traversal)
 
         traversal_schema.validate(base_traversal_xml)

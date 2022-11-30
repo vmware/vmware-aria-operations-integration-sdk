@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class ApiVersion(Model):
@@ -17,7 +17,10 @@ class ApiVersion(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, major: int=1, minor: int=0, maintenance: int=0):  # noqa: E501
+
+    def __init__(
+        self, major: int = 1, minor: int = 0, maintenance: int = 0
+    ):  # noqa: E501
         """ApiVersion - a model defined in Swagger
 
         :param major: The major of this ApiVersion.  # noqa: E501
@@ -27,23 +30,19 @@ class ApiVersion(Model):
         :param maintenance: The maintenance of this ApiVersion.  # noqa: E501
         :type maintenance: int
         """
-        self.swagger_types = {
-            'major': int,
-            'minor': int,
-            'maintenance': int
-        }
+        self.swagger_types = {"major": int, "minor": int, "maintenance": int}
 
         self.attribute_map = {
-            'major': 'major',
-            'minor': 'minor',
-            'maintenance': 'maintenance'
+            "major": "major",
+            "minor": "minor",
+            "maintenance": "maintenance",
         }
         self._major = major
         self._minor = minor
         self._maintenance = maintenance
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ApiVersion':
+    def from_dict(cls, dikt) -> "ApiVersion":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -72,7 +71,9 @@ class ApiVersion(Model):
         :type major: int
         """
         if major is None:
-            raise ValueError("Invalid value for `major`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `major`, must not be `None`"
+            )  # noqa: E501
 
         self._major = major
 
@@ -95,7 +96,9 @@ class ApiVersion(Model):
         :type minor: int
         """
         if minor is None:
-            raise ValueError("Invalid value for `minor`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `minor`, must not be `None`"
+            )  # noqa: E501
 
         self._minor = minor
 
@@ -118,6 +121,8 @@ class ApiVersion(Model):
         :type maintenance: int
         """
         if maintenance is None:
-            raise ValueError("Invalid value for `maintenance`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `maintenance`, must not be `None`"
+            )  # noqa: E501
 
         self._maintenance = maintenance

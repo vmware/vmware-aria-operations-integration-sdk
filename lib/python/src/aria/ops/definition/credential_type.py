@@ -9,10 +9,13 @@ from aria.ops.definition.exceptions import DuplicateKeyException
 
 
 class CredentialParameter(ABC):
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 required: bool = True,
-                 display_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        required: bool = True,
+        display_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -33,7 +36,7 @@ class CredentialParameter(ABC):
             "required": self.required,
             "password": False,
             "enum": False,
-            "display_order": self.display_order
+            "display_order": self.display_order,
         }
 
 
@@ -45,10 +48,13 @@ class CredentialIntParameter(CredentialParameter):
     :param display_order: Determines the order parameters will be displayed in the UI.
     """
 
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 required: bool = True,
-                 display_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        required: bool = True,
+        display_order: int = 0,
+    ):
         super().__init__(key, label, required, display_order)
 
     def to_json(self):
@@ -58,10 +64,13 @@ class CredentialIntParameter(CredentialParameter):
 
 
 class CredentialStringParameter(CredentialParameter):
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 required: bool = True,
-                 display_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        required: bool = True,
+        display_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -77,10 +86,13 @@ class CredentialStringParameter(CredentialParameter):
 
 
 class CredentialPasswordParameter(CredentialParameter):
-    def __init__(self, key: str,
-                 label: Optional[str] = None,
-                 required: bool = True,
-                 display_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        required: bool = True,
+        display_order: int = 0,
+    ):
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -107,12 +119,15 @@ class CredentialEnumParameter(CredentialParameter):
     :param display_order: Determines the order parameters will be displayed in the UI.
     """
 
-    def __init__(self, key: str,
-                 values: list[str],
-                 label: Optional[str] = None,
-                 default: Optional[str] = None,
-                 required: bool = True,
-                 display_order: int = 0):
+    def __init__(
+        self,
+        key: str,
+        values: list[str],
+        label: Optional[str] = None,
+        default: Optional[str] = None,
+        required: bool = True,
+        display_order: int = 0,
+    ):
         super().__init__(key, label, required, display_order)
         self.values = values
         self.default = default
@@ -124,7 +139,7 @@ class CredentialEnumParameter(CredentialParameter):
             "type": "string",
             "default": self.default,
             "enum": True,
-            "enum_values": [str(value) for value in self.values]
+            "enum_values": [str(value) for value in self.values],
         }
 
 
@@ -136,7 +151,9 @@ class CredentialType:
             self.label = key
         self.credential_parameters = OrderedDict()
 
-    def define_string_parameter(self, key: str, label: str = None, required: bool = True):
+    def define_string_parameter(
+        self, key: str, label: str = None, required: bool = True
+    ):
         """
         Create a new string credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -148,7 +165,9 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_int_parameter(self, key: str, label: Optional[str] = None, required: bool = True):
+    def define_int_parameter(
+        self, key: str, label: Optional[str] = None, required: bool = True
+    ):
         """
         Create a new int credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -160,7 +179,9 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_password_parameter(self, key: str, label: Optional[str] = None, required: bool = True):
+    def define_password_parameter(
+        self, key: str, label: Optional[str] = None, required: bool = True
+    ):
         """
         Create a new password credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -172,11 +193,14 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def define_enum_parameter(self, key: str,
-                              values: list[str],
-                              label: Optional[str] = None,
-                              default: Optional[str] = None,
-                              required: bool = True):
+    def define_enum_parameter(
+        self,
+        key: str,
+        values: list[str],
+        label: Optional[str] = None,
+        default: Optional[str] = None,
+        required: bool = True,
+    ):
         """
         Create a new enum credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -206,7 +230,9 @@ class CredentialType:
         """
         key = credential_parameter.key
         if key in self.credential_parameters:
-            raise DuplicateKeyException(f"Credential field with key {key} already exists in adapter definition.")
+            raise DuplicateKeyException(
+                f"Credential field with key {key} already exists in adapter definition."
+            )
         credential_parameter.display_order = len(self.credential_parameters)
         self.credential_parameters[key] = credential_parameter
 
@@ -214,5 +240,7 @@ class CredentialType:
         return {
             "key": self.key,
             "label": self.label,
-            "fields": [field.to_json() for field in self.credential_parameters.values()]
+            "fields": [
+                field.to_json() for field in self.credential_parameters.values()
+            ],
         }

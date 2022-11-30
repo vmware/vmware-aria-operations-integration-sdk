@@ -1,16 +1,19 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import absolute_import
+from __future__ import annotations
 
-from __future__ import absolute_import, annotations
-from datetime import date, datetime  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from typing import List, Dict  # noqa: F401
-
-from swagger_server.models.base_model_ import Model
-from swagger_server.models.attribute_definition import AttributeDefinition  # noqa: F401,E501
 from swagger_server import util
+from swagger_server.models.attribute_definition import (
+    AttributeDefinition,
+)  # noqa: F401,E501
+from swagger_server.models.base_model_ import Model
 
 
 class GroupDefinition(Model):
@@ -18,7 +21,12 @@ class GroupDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, attributes: List[AttributeDefinition]=None, groups: List[GroupDefinition]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        attributes: List[AttributeDefinition] = None,
+        groups: List[GroupDefinition] = None,
+    ):  # noqa: E501
         """GroupDefinition - a model defined in Swagger
 
         :param attributes: The attributes of this GroupDefinition.  # noqa: E501
@@ -27,19 +35,16 @@ class GroupDefinition(Model):
         :type groups: List[GroupDefinition]
         """
         self.swagger_types = {
-            'attributes': List[AttributeDefinition],
-            'groups': List[GroupDefinition]
+            "attributes": List[AttributeDefinition],
+            "groups": List[GroupDefinition],
         }
 
-        self.attribute_map = {
-            'attributes': 'attributes',
-            'groups': 'groups'
-        }
+        self.attribute_map = {"attributes": "attributes", "groups": "groups"}
         self._attributes = attributes
         self._groups = groups
 
     @classmethod
-    def from_dict(cls, dikt) -> 'GroupDefinition':
+    def from_dict(cls, dikt) -> "GroupDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

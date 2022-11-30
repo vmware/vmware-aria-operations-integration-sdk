@@ -1,18 +1,20 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
+from swagger_server import util
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.object_data import ObjectData  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
-from swagger_server.models.object_relationship import ObjectRelationship  # noqa: F401,E501
-from swagger_server import util
+from swagger_server.models.object_relationship import (
+    ObjectRelationship,
+)  # noqa: F401,E501
 
 
 class CollectResult(Model):
@@ -20,7 +22,14 @@ class CollectResult(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, result: List[ObjectData]=None, relationships: List[ObjectRelationship]=None, not_existing_objects: List[ObjectKey]=None, error_message: str=None):  # noqa: E501
+
+    def __init__(
+        self,
+        result: List[ObjectData] = None,
+        relationships: List[ObjectRelationship] = None,
+        not_existing_objects: List[ObjectKey] = None,
+        error_message: str = None,
+    ):  # noqa: E501
         """CollectResult - a model defined in Swagger
 
         :param result: The result of this CollectResult.  # noqa: E501
@@ -33,17 +42,17 @@ class CollectResult(Model):
         :type error_message: str
         """
         self.swagger_types = {
-            'result': List[ObjectData],
-            'relationships': List[ObjectRelationship],
-            'not_existing_objects': List[ObjectKey],
-            'error_message': str
+            "result": List[ObjectData],
+            "relationships": List[ObjectRelationship],
+            "not_existing_objects": List[ObjectKey],
+            "error_message": str,
         }
 
         self.attribute_map = {
-            'result': 'result',
-            'relationships': 'relationships',
-            'not_existing_objects': 'notExistingObjects',
-            'error_message': 'errorMessage'
+            "result": "result",
+            "relationships": "relationships",
+            "not_existing_objects": "notExistingObjects",
+            "error_message": "errorMessage",
         }
         self._result = result
         self._relationships = relationships
@@ -51,7 +60,7 @@ class CollectResult(Model):
         self._error_message = error_message
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CollectResult':
+    def from_dict(cls, dikt) -> "CollectResult":
         """Returns the dict as a model
 
         :param dikt: A dict.

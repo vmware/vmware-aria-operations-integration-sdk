@@ -1,6 +1,5 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import logging
 from logging import Handler
 
@@ -17,7 +16,7 @@ class CustomFormatter(logging.Formatter):
         logging.INFO: "class:info",
         logging.WARNING: "class:warning",
         logging.ERROR: "class:error",
-        logging.CRITICAL: "class:critical"
+        logging.CRITICAL: "class:critical",
     }
 
     def format(self, record):
@@ -32,6 +31,7 @@ class PTKHandler(Handler):
     """
     A handler class which writes logging records, appropriately formatted, to prompt-toolkit print statements
     """
+
     def __init__(self, stream=None):
         Handler.__init__(self)
 

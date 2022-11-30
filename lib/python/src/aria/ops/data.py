@@ -1,22 +1,22 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import time
 from typing import Union
 
 
 class Metric:
-    """ Class representing a Metric Data Point.
+    """Class representing a Metric Data Point.
 
-     Metrics are numeric values that represent data at a particular point in time. These are stored as time series data.
-     Examples:
-         CPU Utilization
-         Disk Capacity
-         Current User Session Count
-         Cumulative Data Received
+    Metrics are numeric values that represent data at a particular point in time. These are stored as time series data.
+    Examples:
+        CPU Utilization
+        Disk Capacity
+        Current User Session Count
+        Cumulative Data Received
     """
+
     def __init__(self, key: str, value: float, timestamp: int = None):
-        """ Creates a Metric
+        """Creates a Metric
 
         :param key: A string representing the type of metric. TODO: Describe how Keys work.
         :param value: The value of the Metric. Must be type float.
@@ -32,7 +32,7 @@ class Metric:
             self.timestamp = timestamp
 
     def get_json(self):
-        """ Get a JSON representation of this Metric.
+        """Get a JSON representation of this Metric.
 
         Returns a JSON representation of this Metric in the format required by vROps.
 
@@ -41,12 +41,12 @@ class Metric:
         return {
             "key": self.key,
             "numberValue": float(self.value),
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp,
         }
 
 
 class Property:
-    """ Class representing a Property value.
+    """Class representing a Property value.
 
     A Property is a value, usually a string, that will change infrequently or not at all. Only the current value is
     important.
@@ -55,8 +55,9 @@ class Property:
         Software Version
         CPU Core Count
     """
+
     def __init__(self, key: str, value: Union[float, str], timestamp: int = None):
-        """ Creates a Property.
+        """Creates a Property.
 
         :param key: A string representing the type of property. TODO: Describe how Keys work.
         :param value: The value of the property. Can be str or float.
@@ -72,7 +73,7 @@ class Property:
             self.timestamp = timestamp
 
     def get_json(self):
-        """ Get a JSON representation of this Property.
+        """Get a JSON representation of this Property.
 
         Returns a JSON representation of this Property in the format required by vROps.
 
@@ -84,8 +85,4 @@ class Property:
             label = "numberValue"
             self.value = float(self.value)
 
-        return {
-            "key": self.key,
-            label: self.value,
-            "timestamp": self.timestamp
-        }
+        return {"key": self.key, label: self.value, "timestamp": self.timestamp}

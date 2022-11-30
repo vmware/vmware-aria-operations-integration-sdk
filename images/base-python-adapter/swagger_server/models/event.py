@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class Event(Model):
@@ -17,7 +17,19 @@ class Event(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, criticality: int=0, message: str=None, fault_key: str=None, auto_cancel: bool=False, start_date: int=None, update_date: int=None, cancel_date: int=None, watch_wait_cycle: int=1, cancel_wait_cycle: int=3):  # noqa: E501
+
+    def __init__(
+        self,
+        criticality: int = 0,
+        message: str = None,
+        fault_key: str = None,
+        auto_cancel: bool = False,
+        start_date: int = None,
+        update_date: int = None,
+        cancel_date: int = None,
+        watch_wait_cycle: int = 1,
+        cancel_wait_cycle: int = 3,
+    ):  # noqa: E501
         """Event - a model defined in Swagger
 
         :param criticality: The criticality of this Event.  # noqa: E501
@@ -40,27 +52,27 @@ class Event(Model):
         :type cancel_wait_cycle: int
         """
         self.swagger_types = {
-            'criticality': int,
-            'message': str,
-            'fault_key': str,
-            'auto_cancel': bool,
-            'start_date': int,
-            'update_date': int,
-            'cancel_date': int,
-            'watch_wait_cycle': int,
-            'cancel_wait_cycle': int
+            "criticality": int,
+            "message": str,
+            "fault_key": str,
+            "auto_cancel": bool,
+            "start_date": int,
+            "update_date": int,
+            "cancel_date": int,
+            "watch_wait_cycle": int,
+            "cancel_wait_cycle": int,
         }
 
         self.attribute_map = {
-            'criticality': 'criticality',
-            'message': 'message',
-            'fault_key': 'faultKey',
-            'auto_cancel': 'autoCancel',
-            'start_date': 'startDate',
-            'update_date': 'updateDate',
-            'cancel_date': 'cancelDate',
-            'watch_wait_cycle': 'watchWaitCycle',
-            'cancel_wait_cycle': 'cancelWaitCycle'
+            "criticality": "criticality",
+            "message": "message",
+            "fault_key": "faultKey",
+            "auto_cancel": "autoCancel",
+            "start_date": "startDate",
+            "update_date": "updateDate",
+            "cancel_date": "cancelDate",
+            "watch_wait_cycle": "watchWaitCycle",
+            "cancel_wait_cycle": "cancelWaitCycle",
         }
         self._criticality = criticality
         self._message = message
@@ -73,7 +85,7 @@ class Event(Model):
         self._cancel_wait_cycle = cancel_wait_cycle
 
     @classmethod
-    def from_dict(cls, dikt) -> 'Event':
+    def from_dict(cls, dikt) -> "Event":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -123,7 +135,9 @@ class Event(Model):
         :type message: str
         """
         if message is None:
-            raise ValueError("Invalid value for `message`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `message`, must not be `None`"
+            )  # noqa: E501
 
         self._message = message
 

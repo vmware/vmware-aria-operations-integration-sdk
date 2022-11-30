@@ -1,18 +1,22 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
-from swagger_server.models.attribute_definition import AttributeDefinition  # noqa: F401,E501
-from swagger_server.models.group_definition import GroupDefinition  # noqa: F401,E501
-from swagger_server.models.identifier_definition import IdentifierDefinition  # noqa: F401,E501
 from swagger_server import util
+from swagger_server.models.attribute_definition import (
+    AttributeDefinition,
+)  # noqa: F401,E501
+from swagger_server.models.base_model_ import Model
+from swagger_server.models.group_definition import GroupDefinition  # noqa: F401,E501
+from swagger_server.models.identifier_definition import (
+    IdentifierDefinition,
+)  # noqa: F401,E501
 
 
 class ObjectDefinition(Model):
@@ -20,7 +24,15 @@ class ObjectDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, identifiers: List[IdentifierDefinition]=None, attributes: List[AttributeDefinition]=None, groups: List[GroupDefinition]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        label: str = None,
+        identifiers: List[IdentifierDefinition] = None,
+        attributes: List[AttributeDefinition] = None,
+        groups: List[GroupDefinition] = None,
+    ):  # noqa: E501
         """ObjectDefinition - a model defined in Swagger
 
         :param key: The key of this ObjectDefinition.  # noqa: E501
@@ -35,19 +47,19 @@ class ObjectDefinition(Model):
         :type groups: List[GroupDefinition]
         """
         self.swagger_types = {
-            'key': str,
-            'label': str,
-            'identifiers': List[IdentifierDefinition],
-            'attributes': List[AttributeDefinition],
-            'groups': List[GroupDefinition]
+            "key": str,
+            "label": str,
+            "identifiers": List[IdentifierDefinition],
+            "attributes": List[AttributeDefinition],
+            "groups": List[GroupDefinition],
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'identifiers': 'identifiers',
-            'attributes': 'attributes',
-            'groups': 'groups'
+            "key": "key",
+            "label": "label",
+            "identifiers": "identifiers",
+            "attributes": "attributes",
+            "groups": "groups",
         }
         self._key = key
         self._label = label
@@ -56,7 +68,7 @@ class ObjectDefinition(Model):
         self._groups = groups
 
     @classmethod
-    def from_dict(cls, dikt) -> 'ObjectDefinition':
+    def from_dict(cls, dikt) -> "ObjectDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

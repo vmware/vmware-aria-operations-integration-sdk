@@ -1,9 +1,8 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
 NAME = "swagger_server"
 VERSION = "1.0.0"
@@ -14,10 +13,7 @@ VERSION = "1.0.0"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = [
-    "connexion",
-    "swagger-ui-bundle>=0.0.2"
-]
+REQUIRES = ["connexion", "swagger-ui-bundle>=0.0.2"]
 
 setup(
     name=NAME,
@@ -28,11 +24,10 @@ setup(
     keywords=["Swagger", "Adapter API"],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={'': ['swagger/swagger.yaml']},
+    package_data={"": ["swagger/swagger.yaml"]},
     include_package_data=True,
-    entry_points={
-        'console_scripts': ['swagger_server=swagger_server.__main__:main']},
+    entry_points={"console_scripts": ["swagger_server=swagger_server.__main__:main"]},
     long_description="""\
     The API contract is defined using a standard OpenAPI specification to simplify adapter development.
-    """
+    """,
 )

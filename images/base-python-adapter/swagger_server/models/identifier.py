@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class Identifier(Model):
@@ -17,7 +17,10 @@ class Identifier(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, value: str=None, is_part_of_uniqueness: bool=False):  # noqa: E501
+
+    def __init__(
+        self, key: str = None, value: str = None, is_part_of_uniqueness: bool = False
+    ):  # noqa: E501
         """Identifier - a model defined in Swagger
 
         :param key: The key of this Identifier.  # noqa: E501
@@ -27,23 +30,19 @@ class Identifier(Model):
         :param is_part_of_uniqueness: The is_part_of_uniqueness of this Identifier.  # noqa: E501
         :type is_part_of_uniqueness: bool
         """
-        self.swagger_types = {
-            'key': str,
-            'value': str,
-            'is_part_of_uniqueness': bool
-        }
+        self.swagger_types = {"key": str, "value": str, "is_part_of_uniqueness": bool}
 
         self.attribute_map = {
-            'key': 'key',
-            'value': 'value',
-            'is_part_of_uniqueness': 'isPartOfUniqueness'
+            "key": "key",
+            "value": "value",
+            "is_part_of_uniqueness": "isPartOfUniqueness",
         }
         self._key = key
         self._value = value
         self._is_part_of_uniqueness = is_part_of_uniqueness
 
     @classmethod
-    def from_dict(cls, dikt) -> 'Identifier':
+    def from_dict(cls, dikt) -> "Identifier":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -74,7 +73,9 @@ class Identifier(Model):
         :type key: str
         """
         if key is None:
-            raise ValueError("Invalid value for `key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `key`, must not be `None`"
+            )  # noqa: E501
 
         self._key = key
 

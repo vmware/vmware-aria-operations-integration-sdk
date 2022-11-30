@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-#  Copyright 2022 VMware, Inc.
-#  SPDX-License-Identifier: Apache-2.0
-
 import copy
 from typing import Optional
 
-from aria.ops.data import Metric, Property
+from aria.ops.data import Metric
+from aria.ops.data import Property
 from aria.ops.event import Event
+
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
 
 
 class Key:
-    """ Object's Key class, used for identifying Objects
+    """Object's Key class, used for identifying Objects
 
     Objects are identified by the Adapter Kind, Object Kind, and one or more Identifiers.
 
@@ -27,8 +28,14 @@ class Key:
     'is_part_of_uniqueness' set to True.
     """
 
-    def __init__(self, adapter_kind: str, object_kind: str, name: str, identifiers: list[Identifier] = None) -> None:
-        """ Initializes a Key, which uniquely identifies a vROps Object
+    def __init__(
+        self,
+        adapter_kind: str,
+        object_kind: str,
+        name: str,
+        identifiers: list[Identifier] = None,
+    ) -> None:
+        """Initializes a Key, which uniquely identifies a vROps Object
 
         :param adapter_kind: The Adapter Kind this Object is associated with.
         :param object_kind: The Object Kind (e.g., class) of this Object.
@@ -51,7 +58,7 @@ class Key:
         # Sort all identifiers by 'key' that are part of uniqueness
         unique_identifiers = sorted(
             filter(lambda id_: id_.is_part_of_uniqueness, self.identifiers.values()),
-            key=lambda id_: id_.key
+            key=lambda id_: id_.key,
         )
         if len(unique_identifiers) == 0:
             # If there are no identifiers, or if all identifiers are not part of uniqueness, the name is used as
@@ -73,7 +80,7 @@ class Key:
         return hash(self.__key())
 
     def get_identifier(self, key):
-        """ Return the value for the given identifier key
+        """Return the value for the given identifier key
 
         :param key: The identifier key
         :return: The value associated with the identifier, or 'None' if the identifier key does not exist
@@ -83,7 +90,7 @@ class Key:
         return None
 
     def get_json(self) -> dict:
-        """ Get a JSON representation of this Key
+        """Get a JSON representation of this Key
 
         Returns a JSON representation of this Key in the format required by vROps.
 
@@ -93,23 +100,27 @@ class Key:
             "name": self.name,
             "adapterKind": self.adapter_kind,
             "objectKind": self.object_kind,
-            "identifiers": [identifier.get_json() for identifier in self.identifiers.values()],
+            "identifiers": [
+                identifier.get_json() for identifier in self.identifiers.values()
+            ],
         }
 
 
 class IdentifierUniquenessException(Exception):
-    """ Exception when two Objects of the same type have the same identifier but the `is_part_of_uniqueness` attribute
+    """Exception when two Objects of the same type have the same identifier but the `is_part_of_uniqueness` attribute
     does not match.
     """
+
     pass
 
 
 class Identifier:
-    """ Represents a piece of data that identifies an Object.
-    """
+    """Represents a piece of data that identifies an Object."""
 
-    def __init__(self, key: str, value: str, is_part_of_uniqueness: bool = True) -> None:
-        """ Creates an identifier which is used as part of an Object's identification in a :class:`Key`
+    def __init__(
+        self, key: str, value: str, is_part_of_uniqueness: bool = True
+    ) -> None:
+        """Creates an identifier which is used as part of an Object's identification in a :class:`Key`
 
         Represents a piece of data that identifies an Object. If `is_part_of_uniqueness` is False, this data can
         change over time without creating a new Object. This is primarily used for human-readable values that are useful
@@ -136,9 +147,14 @@ class Identifier:
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Identifier):
-            if self.key == other.key and self.is_part_of_uniqueness != other.is_part_of_uniqueness:
+            if (
+                self.key == other.key
+                and self.is_part_of_uniqueness != other.is_part_of_uniqueness
+            ):
                 # TODO: is there a better way we can handle this case?
-                raise IdentifierUniquenessException(f"Identifier '{self.key}' has an inconsistent uniqueness attribute")
+                raise IdentifierUniquenessException(
+                    f"Identifier '{self.key}' has an inconsistent uniqueness attribute"
+                )
             return self.__key() == other.__key()
         return False
 
@@ -155,7 +171,7 @@ class Identifier:
         return {
             "key": self.key,
             "value": self.value,
-            "isPartOfUniqueness": self.is_part_of_uniqueness
+            "isPartOfUniqueness": self.is_part_of_uniqueness,
         }
 
 
@@ -167,7 +183,7 @@ class Object:
     """
 
     def __init__(self, key: Key) -> None:
-        """ Create a new Object with a given Key.
+        """Create a new Object with a given Key.
 
         The preferred way to create a new Object is to call the :class:`Result.object` method on the :class:`Result`
         class, which ensures that for a given key only one Object exists.
@@ -182,7 +198,7 @@ class Object:
         self._children = set()
 
     def get_key(self):
-        """ Get a copy of the Object's Key.
+        """Get a copy of the Object's Key.
 
         An object's Key cannot change after it has been created.
 
@@ -191,7 +207,7 @@ class Object:
         return copy.deepcopy(self._key)
 
     def get_identifier_value(self, identifier_key):
-        """ Retrieve the value of a given identifier
+        """Retrieve the value of a given identifier
 
         :param identifier_key: Key of the identifier
         :return: value associated with the identifier, or None if identifier does not exist
@@ -199,7 +215,7 @@ class Object:
         return self._key.get_identifier(identifier_key)
 
     def add_metric(self, metric: Metric) -> None:
-        """ Method that adds a single Metric data point to this Object
+        """Method that adds a single Metric data point to this Object
 
         :param metric: A :class:`Metric` data point to add to this Object
         :return: None
@@ -207,7 +223,7 @@ class Object:
         self._metrics.append(metric)
 
     def add_metrics(self, metrics: list[Metric]) -> None:
-        """ Method that adds a list of Metric data points to this Object
+        """Method that adds a list of Metric data points to this Object
 
         :param metrics: A list of :class:`Metric` data points to add to this Object
         :return: None
@@ -216,7 +232,7 @@ class Object:
             self.add_metric(metric)
 
     def with_metric(self, *args, **kwargs) -> None:
-        """ Method that handles creating a :class:`Metric` data point, and adding to this Object.
+        """Method that handles creating a :class:`Metric` data point, and adding to this Object.
 
         The signature matches :class:`Metric.__init__`.
         :return: None
@@ -245,7 +261,7 @@ class Object:
 
         return [m.value for m in metrics]
 
-    def get_last_metric_value(self, key) -> float| None:
+    def get_last_metric_value(self, key) -> float | None:
         """
 
         :param key: Metric key of the metric to return.
@@ -259,7 +275,7 @@ class Object:
             return metrics[-1]
 
     def add_property(self, property_: Property) -> None:
-        """ Method that adds a single Property value to this Object
+        """Method that adds a single Property value to this Object
 
         :param property_: A :class:`Property` value to add to this Object
         :return: None
@@ -267,7 +283,7 @@ class Object:
         self._properties.append(property_)
 
     def add_properties(self, properties: list[Property]) -> None:
-        """ Method that adds a list of Property values to this Object
+        """Method that adds a list of Property values to this Object
 
         :param properties: A list of :class:`Property` values to add to this Object
         :return: None
@@ -276,7 +292,7 @@ class Object:
             self.add_property(property_)
 
     def with_property(self, *args, **kwargs) -> None:
-        """ Method that handles creating a :class:`Property` value, and adding to this Object.
+        """Method that handles creating a :class:`Property` value, and adding to this Object.
 
         The signature matches :class:`Property.__init__`.
         :return: None
@@ -319,7 +335,7 @@ class Object:
             return properties[-1]
 
     def add_event(self, event: Event) -> None:
-        """ Method that adds a single Event to this Object
+        """Method that adds a single Event to this Object
 
         :param event: An :class:`Event` to add to this Object
         :return: None
@@ -327,7 +343,7 @@ class Object:
         self._events.add(event)
 
     def add_events(self, events: list[Event]) -> None:
-        """ Method that adds a list of Events to this Object
+        """Method that adds a list of Events to this Object
 
         :param events: A list of :class:`Event` to add to this Object
         :return: None
@@ -336,7 +352,7 @@ class Object:
             self.add_event(event)
 
     def with_event(self, *args, **kwargs) -> None:
-        """ Method that handles creating an :class:`Event`, and adding to this Object.
+        """Method that handles creating an :class:`Event`, and adding to this Object.
 
         The signature matches :class:`Event.__init__`.
         :return: None
@@ -344,7 +360,7 @@ class Object:
         self.add_event(Event(*args, **kwargs))
 
     def add_parent(self, parent: Object) -> None:
-        """ Method that adds a parent Object to this Object.
+        """Method that adds a parent Object to this Object.
 
         This Object will also be added as a child to the parent.
 
@@ -357,7 +373,7 @@ class Object:
         parent._children.add(self._key)
 
     def add_parents(self, parents: list[Object]) -> None:
-        """ Method that adds a list of parent Objects to this Object.
+        """Method that adds a list of parent Objects to this Object.
 
         This Object will also be added as a child to each of the parents.
 
@@ -376,7 +392,7 @@ class Object:
         return self._parents
 
     def add_child(self, child: Object) -> None:
-        """ Method that adds a child Object to this Object.
+        """Method that adds a child Object to this Object.
 
         This Object will also be added as a parent to the child.
 
@@ -389,7 +405,7 @@ class Object:
         child._parents.add(self._key)
 
     def add_children(self, children: list[Object]) -> None:
-        """ Method that adds a list of child Objects to this Object.
+        """Method that adds a list of child Objects to this Object.
 
         This Object will also be added as a parent to each of the children.
 
@@ -418,5 +434,5 @@ class Object:
             "key": self._key.get_json(),
             "metrics": [metric.get_json() for metric in self._metrics],
             "properties": [prop.get_json() for prop in self._properties],
-            "events": [event.get_json() for event in self._events]
+            "events": [event.get_json() for event in self._events],
         }

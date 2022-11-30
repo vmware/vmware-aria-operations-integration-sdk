@@ -8,20 +8,26 @@ from typing import Optional
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.credential_type import CredentialType
-from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.exceptions import KeyException
 from aria.ops.definition.group import GroupType
 from aria.ops.definition.object_type import ObjectType
-from aria.ops.definition.parameter import StringParameter, IntParameter, EnumParameter, Parameter
+from aria.ops.definition.parameter import EnumParameter
+from aria.ops.definition.parameter import IntParameter
+from aria.ops.definition.parameter import Parameter
+from aria.ops.definition.parameter import StringParameter
 from aria.ops.pipe_utils import write_to_pipe
 
 
 class AdapterDefinition(GroupType):
-    def __init__(self,
-                 key: str,
-                 label: Optional[str] = None,
-                 adapter_instance_key: Optional[str] = None,
-                 adapter_instance_label: Optional[str] = None,
-                 version: int = 1):
+    def __init__(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        adapter_instance_key: Optional[str] = None,
+        adapter_instance_label: Optional[str] = None,
+        version: int = 1,
+    ):
         """
         :param key: The adapter key is used to identify the adapter and its object types. It must be unique across
                all Management Packs.
@@ -38,7 +44,9 @@ class AdapterDefinition(GroupType):
         if len(key.split()) > 1:
             raise KeyException("Adapter key cannot contain whitespace.")
         if not all(c.isalnum() or c == "_" for c in key):
-            raise KeyException("Adapter key cannot contain special characters besides '_'.")
+            raise KeyException(
+                "Adapter key cannot contain special characters besides '_'."
+            )
 
         self.key = key
 
@@ -67,12 +75,20 @@ class AdapterDefinition(GroupType):
             "adapter_label": self.label,
             "describe_version": self.version,
             "adapter_instance": {
-                                    "key": self.adapter_instance_key,
-                                    "label": self.adapter_instance_label,
-                                    "identifiers": [identifier.to_json() for identifier in self.parameters.values()],
-                                } | super().to_json(),
-            "credential_types": [credential_type.to_json() for credential_type in self.credentials.values()],
-            "object_types": [object_type.to_json() for object_type in self.object_types.values()]
+                "key": self.adapter_instance_key,
+                "label": self.adapter_instance_label,
+                "identifiers": [
+                    identifier.to_json() for identifier in self.parameters.values()
+                ],
+            }
+            | super().to_json(),
+            "credential_types": [
+                credential_type.to_json()
+                for credential_type in self.credentials.values()
+            ],
+            "object_types": [
+                object_type.to_json() for object_type in self.object_types.values()
+            ],
         }
 
     def send_results(self, output_pipe=sys.argv[-1]) -> None:
@@ -83,13 +99,16 @@ class AdapterDefinition(GroupType):
         # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.to_json())
 
-    def define_string_parameter(self, key: str,
-                                label: Optional[str] = None,
-                                description: Optional[str] = None,
-                                default: Optional[str] = None,
-                                max_length: int = 512,
-                                required: bool = True,
-                                advanced: bool = False):
+    def define_string_parameter(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        description: Optional[str] = None,
+        default: Optional[str] = None,
+        max_length: int = 512,
+        required: bool = True,
+        advanced: bool = False,
+    ):
         """
         Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -102,17 +121,28 @@ class AdapterDefinition(GroupType):
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :return The created string parameter definition.
         """
-        parameter = StringParameter(key, label, description, default, max_length, required, advanced,
-                                    display_order=len(self.parameters))
+        parameter = StringParameter(
+            key,
+            label,
+            description,
+            default,
+            max_length,
+            required,
+            advanced,
+            display_order=len(self.parameters),
+        )
         self.add_parameter(parameter)
         return parameter
 
-    def define_int_parameter(self, key: str,
-                             label: Optional[str] = None,
-                             description: Optional[str] = None,
-                             default: Optional[int] = None,
-                             required: bool = True,
-                             advanced: bool = False):
+    def define_int_parameter(
+        self,
+        key: str,
+        label: Optional[str] = None,
+        description: Optional[str] = None,
+        default: Optional[int] = None,
+        required: bool = True,
+        advanced: bool = False,
+    ):
         """
         Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -124,18 +154,28 @@ class AdapterDefinition(GroupType):
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :return The created int parameter definition.
         """
-        parameter = IntParameter(key, label, description, default, required, advanced,
-                                 display_order=len(self.parameters))
+        parameter = IntParameter(
+            key,
+            label,
+            description,
+            default,
+            required,
+            advanced,
+            display_order=len(self.parameters),
+        )
         self.add_parameter(parameter)
         return parameter
 
-    def define_enum_parameter(self, key: str,
-                              values: list[str],
-                              label: Optional[str] = None,
-                              description: Optional[str] = None,
-                              default: Optional[str] = None,
-                              required: bool = True,
-                              advanced: bool = False):
+    def define_enum_parameter(
+        self,
+        key: str,
+        values: list[str],
+        label: Optional[str] = None,
+        description: Optional[str] = None,
+        default: Optional[str] = None,
+        required: bool = True,
+        advanced: bool = False,
+    ):
         """
         Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -149,8 +189,16 @@ class AdapterDefinition(GroupType):
         :param advanced: True if the parameter should be collapsed by default. Defaults to False.
         :return The created enum parameter definition.
         """
-        parameter = EnumParameter(key, values, label, description, default, required, advanced,
-                                  display_order=len(self.parameters))
+        parameter = EnumParameter(
+            key,
+            values,
+            label,
+            description,
+            default,
+            required,
+            advanced,
+            display_order=len(self.parameters),
+        )
         self.add_parameter(parameter)
         return parameter
 
@@ -163,10 +211,14 @@ class AdapterDefinition(GroupType):
         """
         key = parameter.key
         if key in self.parameters:
-            raise DuplicateKeyException(f"Parameter with key {key} already exists in adapter definition.")
+            raise DuplicateKeyException(
+                f"Parameter with key {key} already exists in adapter definition."
+            )
         self.parameters[key] = parameter
 
-    def define_credential_type(self, key: str = "default_credential", label: Optional[str] = None):
+    def define_credential_type(
+        self, key: str = "default_credential", label: Optional[str] = None
+    ):
         """
         Create a new credential type and add it to this adapter instance. When more than one credential types are
         present, The user will be required to select the type and then fill in the parameters for that type, as only
@@ -198,7 +250,9 @@ class AdapterDefinition(GroupType):
         """
         key = credential_type.key
         if key in self.credentials:
-            raise DuplicateKeyException(f"Credential type with key {key} already exists in adapter definition.")
+            raise DuplicateKeyException(
+                f"Credential type with key {key} already exists in adapter definition."
+            )
         self.credentials[key] = credential_type
 
     def define_object_type(self, key: str, label: Optional[str] = None):
@@ -229,5 +283,7 @@ class AdapterDefinition(GroupType):
         """
         key = object_type.key
         if key in self.object_types:
-            raise DuplicateKeyException(f"Object type with key {key} already exists in adapter definition.")
+            raise DuplicateKeyException(
+                f"Object type with key {key} already exists in adapter definition."
+            )
         self.object_types[key] = object_type

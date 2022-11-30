@@ -5,7 +5,8 @@ import os
 import shutil
 import zipfile
 
-from vmware_aria_operations_integration_sdk.logging_format import PTKHandler, CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -50,4 +51,3 @@ def files_in_directory(directory):
         yield root
         for filename in files:
             yield os.path.join(root, filename)
-

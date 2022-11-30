@@ -15,7 +15,7 @@ class Criticality(Enum):
 
 @dataclass(frozen=True)
 class Event:
-    """ Represents a vROps Event
+    """Represents a vROps Event
 
     :param message: The message describes and identifies an event.
     :param criticality: TODO
@@ -29,19 +29,19 @@ class Event:
     :param cancel_wait_cycle: The number of times this event must be absent in a collection before vROps removes it
     from the UI.
     """
+
     message: str
     criticality: Criticality = Criticality.NONE
-    fault_key: str = None,
-    auto_cancel: bool = False,
-    start_date: int = None,
-    update_date: int = None,
-    cancel_date: int = None,
-    watch_wait_cycle: int = 1,
+    fault_key: str = (None,)
+    auto_cancel: bool = (False,)
+    start_date: int = (None,)
+    update_date: int = (None,)
+    cancel_date: int = (None,)
+    watch_wait_cycle: int = (1,)
     cancel_wait_cycle: int = 3
 
-
     def get_json(self):
-        """ Get a JSON representation of this Event.
+        """Get a JSON representation of this Event.
 
         Returns a JSON representation of this Event in the format required by vROps.
 

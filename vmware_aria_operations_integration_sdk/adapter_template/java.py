@@ -1,12 +1,12 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import os
 
+
 def build_template(path: str, root_directory: str):
-    with open(os.path.join(path, root_directory, "Collector.java"),'w') as collector:
+    with open(os.path.join(path, root_directory, "Collector.java"), "w") as collector:
         collector.write(
-"""
+            """
 public class Collector {
     public static void main(String[] args) {
         if (args.length == 0) {
@@ -23,6 +23,7 @@ public class Collector {
 
 """
         )
+
 
 def compile(source_directory: str, output_directory: str):
     # compile class

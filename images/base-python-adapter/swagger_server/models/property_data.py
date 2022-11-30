@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class PropertyData(Model):
@@ -17,7 +17,14 @@ class PropertyData(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, string_value: str=None, number_value: float=None, timestamp: int=-1):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        string_value: str = None,
+        number_value: float = None,
+        timestamp: int = -1,
+    ):  # noqa: E501
         """PropertyData - a model defined in Swagger
 
         :param key: The key of this PropertyData.  # noqa: E501
@@ -30,17 +37,17 @@ class PropertyData(Model):
         :type timestamp: int
         """
         self.swagger_types = {
-            'key': str,
-            'string_value': str,
-            'number_value': float,
-            'timestamp': int
+            "key": str,
+            "string_value": str,
+            "number_value": float,
+            "timestamp": int,
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'string_value': 'stringValue',
-            'number_value': 'numberValue',
-            'timestamp': 'timestamp'
+            "key": "key",
+            "string_value": "stringValue",
+            "number_value": "numberValue",
+            "timestamp": "timestamp",
         }
         self._key = key
         self._string_value = string_value
@@ -48,7 +55,7 @@ class PropertyData(Model):
         self._timestamp = timestamp
 
     @classmethod
-    def from_dict(cls, dikt) -> 'PropertyData':
+    def from_dict(cls, dikt) -> "PropertyData":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -79,7 +86,9 @@ class PropertyData(Model):
         :type key: str
         """
         if key is None:
-            raise ValueError("Invalid value for `key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `key`, must not be `None`"
+            )  # noqa: E501
 
         self._key = key
 

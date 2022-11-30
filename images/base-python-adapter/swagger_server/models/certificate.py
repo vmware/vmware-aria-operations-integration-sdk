@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class Certificate(Model):
@@ -17,7 +17,13 @@ class Certificate(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, cert_pem_string: str=None, is_invalid_hostname_accepted: bool=False, is_expired_certificate_accepted: bool=False):  # noqa: E501
+
+    def __init__(
+        self,
+        cert_pem_string: str = None,
+        is_invalid_hostname_accepted: bool = False,
+        is_expired_certificate_accepted: bool = False,
+    ):  # noqa: E501
         """Certificate - a model defined in Swagger
 
         :param cert_pem_string: The cert_pem_string of this Certificate.  # noqa: E501
@@ -28,22 +34,22 @@ class Certificate(Model):
         :type is_expired_certificate_accepted: bool
         """
         self.swagger_types = {
-            'cert_pem_string': str,
-            'is_invalid_hostname_accepted': bool,
-            'is_expired_certificate_accepted': bool
+            "cert_pem_string": str,
+            "is_invalid_hostname_accepted": bool,
+            "is_expired_certificate_accepted": bool,
         }
 
         self.attribute_map = {
-            'cert_pem_string': 'certPemString',
-            'is_invalid_hostname_accepted': 'isInvalidHostnameAccepted',
-            'is_expired_certificate_accepted': 'isExpiredCertificateAccepted'
+            "cert_pem_string": "certPemString",
+            "is_invalid_hostname_accepted": "isInvalidHostnameAccepted",
+            "is_expired_certificate_accepted": "isExpiredCertificateAccepted",
         }
         self._cert_pem_string = cert_pem_string
         self._is_invalid_hostname_accepted = is_invalid_hostname_accepted
         self._is_expired_certificate_accepted = is_expired_certificate_accepted
 
     @classmethod
-    def from_dict(cls, dikt) -> 'Certificate':
+    def from_dict(cls, dikt) -> "Certificate":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -72,7 +78,9 @@ class Certificate(Model):
         :type cert_pem_string: str
         """
         if cert_pem_string is None:
-            raise ValueError("Invalid value for `cert_pem_string`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `cert_pem_string`, must not be `None`"
+            )  # noqa: E501
 
         self._cert_pem_string = cert_pem_string
 

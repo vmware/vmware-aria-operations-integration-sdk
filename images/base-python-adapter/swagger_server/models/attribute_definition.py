@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class AttributeDefinition(Model):
@@ -17,7 +17,21 @@ class AttributeDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, unit: str=None, is_rate: bool=False, is_discrete: bool=False, is_kpi: bool=False, is_impact: bool=False, is_key_attribute: bool=False, dashboard_order: int=None, data_type: str=None, is_property: bool=None):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        label: str = None,
+        unit: str = None,
+        is_rate: bool = False,
+        is_discrete: bool = False,
+        is_kpi: bool = False,
+        is_impact: bool = False,
+        is_key_attribute: bool = False,
+        dashboard_order: int = None,
+        data_type: str = None,
+        is_property: bool = None,
+    ):  # noqa: E501
         """AttributeDefinition - a model defined in Swagger
 
         :param key: The key of this AttributeDefinition.  # noqa: E501
@@ -44,31 +58,31 @@ class AttributeDefinition(Model):
         :type is_property: bool
         """
         self.swagger_types = {
-            'key': str,
-            'label': str,
-            'unit': str,
-            'is_rate': bool,
-            'is_discrete': bool,
-            'is_kpi': bool,
-            'is_impact': bool,
-            'is_key_attribute': bool,
-            'dashboard_order': int,
-            'data_type': str,
-            'is_property': bool
+            "key": str,
+            "label": str,
+            "unit": str,
+            "is_rate": bool,
+            "is_discrete": bool,
+            "is_kpi": bool,
+            "is_impact": bool,
+            "is_key_attribute": bool,
+            "dashboard_order": int,
+            "data_type": str,
+            "is_property": bool,
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'unit': 'unit',
-            'is_rate': 'is_rate',
-            'is_discrete': 'is_discrete',
-            'is_kpi': 'is_kpi',
-            'is_impact': 'is_impact',
-            'is_key_attribute': 'is_key_attribute',
-            'dashboard_order': 'dashboard_order',
-            'data_type': 'data_type',
-            'is_property': 'is_property'
+            "key": "key",
+            "label": "label",
+            "unit": "unit",
+            "is_rate": "is_rate",
+            "is_discrete": "is_discrete",
+            "is_kpi": "is_kpi",
+            "is_impact": "is_impact",
+            "is_key_attribute": "is_key_attribute",
+            "dashboard_order": "dashboard_order",
+            "data_type": "data_type",
+            "is_property": "is_property",
         }
         self._key = key
         self._label = label
@@ -83,7 +97,7 @@ class AttributeDefinition(Model):
         self._is_property = is_property
 
     @classmethod
-    def from_dict(cls, dikt) -> 'AttributeDefinition':
+    def from_dict(cls, dikt) -> "AttributeDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

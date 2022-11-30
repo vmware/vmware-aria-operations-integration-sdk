@@ -1,17 +1,19 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
-from swagger_server.models.credential_definition import CredentialDefinition  # noqa: F401,E501
-from swagger_server.models.object_definition import ObjectDefinition  # noqa: F401,E501
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
+from swagger_server.models.credential_definition import (
+    CredentialDefinition,
+)  # noqa: F401,E501
+from swagger_server.models.object_definition import ObjectDefinition  # noqa: F401,E501
 
 
 class AdapterDefinition(Model):
@@ -19,7 +21,16 @@ class AdapterDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, adapter_key: str=None, adapter_label: str=None, describe_version: int=None, adapter_instance: ObjectDefinition=None, credential_types: List[CredentialDefinition]=None, object_types: List[ObjectDefinition]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        adapter_key: str = None,
+        adapter_label: str = None,
+        describe_version: int = None,
+        adapter_instance: ObjectDefinition = None,
+        credential_types: List[CredentialDefinition] = None,
+        object_types: List[ObjectDefinition] = None,
+    ):  # noqa: E501
         """AdapterDefinition - a model defined in Swagger
 
         :param adapter_key: The adapter_key of this AdapterDefinition.  # noqa: E501
@@ -36,21 +47,21 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         self.swagger_types = {
-            'adapter_key': str,
-            'adapter_label': str,
-            'describe_version': int,
-            'adapter_instance': ObjectDefinition,
-            'credential_types': List[CredentialDefinition],
-            'object_types': List[ObjectDefinition]
+            "adapter_key": str,
+            "adapter_label": str,
+            "describe_version": int,
+            "adapter_instance": ObjectDefinition,
+            "credential_types": List[CredentialDefinition],
+            "object_types": List[ObjectDefinition],
         }
 
         self.attribute_map = {
-            'adapter_key': 'adapter_key',
-            'adapter_label': 'adapter_label',
-            'describe_version': 'describe_version',
-            'adapter_instance': 'adapter_instance',
-            'credential_types': 'credential_types',
-            'object_types': 'object_types'
+            "adapter_key": "adapter_key",
+            "adapter_label": "adapter_label",
+            "describe_version": "describe_version",
+            "adapter_instance": "adapter_instance",
+            "credential_types": "credential_types",
+            "object_types": "object_types",
         }
         self._adapter_key = adapter_key
         self._adapter_label = adapter_label
@@ -60,7 +71,7 @@ class AdapterDefinition(Model):
         self._object_types = object_types
 
     @classmethod
-    def from_dict(cls, dikt) -> 'AdapterDefinition':
+    def from_dict(cls, dikt) -> "AdapterDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

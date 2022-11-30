@@ -1,15 +1,15 @@
 # coding: utf-8
-
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class IdentifierDefinition(Model):
@@ -17,7 +17,21 @@ class IdentifierDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, description: str=None, required: bool=True, ident_type: int=1, enum: bool=False, enum_values: List[str]=None, display_order: int=None, type: str=None, length: str=None, default: str=None):  # noqa: E501
+
+    def __init__(
+        self,
+        key: str = None,
+        label: str = None,
+        description: str = None,
+        required: bool = True,
+        ident_type: int = 1,
+        enum: bool = False,
+        enum_values: List[str] = None,
+        display_order: int = None,
+        type: str = None,
+        length: str = None,
+        default: str = None,
+    ):  # noqa: E501
         """IdentifierDefinition - a model defined in Swagger
 
         :param key: The key of this IdentifierDefinition.  # noqa: E501
@@ -44,31 +58,31 @@ class IdentifierDefinition(Model):
         :type default: str
         """
         self.swagger_types = {
-            'key': str,
-            'label': str,
-            'description': str,
-            'required': bool,
-            'ident_type': int,
-            'enum': bool,
-            'enum_values': List[str],
-            'display_order': int,
-            'type': str,
-            'length': str,
-            'default': str
+            "key": str,
+            "label": str,
+            "description": str,
+            "required": bool,
+            "ident_type": int,
+            "enum": bool,
+            "enum_values": List[str],
+            "display_order": int,
+            "type": str,
+            "length": str,
+            "default": str,
         }
 
         self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'description': 'description',
-            'required': 'required',
-            'ident_type': 'ident_type',
-            'enum': 'enum',
-            'enum_values': 'enum_values',
-            'display_order': 'display_order',
-            'type': 'type',
-            'length': 'length',
-            'default': 'default'
+            "key": "key",
+            "label": "label",
+            "description": "description",
+            "required": "required",
+            "ident_type": "ident_type",
+            "enum": "enum",
+            "enum_values": "enum_values",
+            "display_order": "display_order",
+            "type": "type",
+            "length": "length",
+            "default": "default",
         }
         self._key = key
         self._label = label
@@ -83,7 +97,7 @@ class IdentifierDefinition(Model):
         self._default = default
 
     @classmethod
-    def from_dict(cls, dikt) -> 'IdentifierDefinition':
+    def from_dict(cls, dikt) -> "IdentifierDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.

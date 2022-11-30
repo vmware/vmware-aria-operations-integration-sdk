@@ -1,10 +1,11 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
-
 from aria.ops.definition.adapter_definition import AdapterDefinition
-from aria.ops.definition.attribute import PropertyAttribute, MetricAttribute
-from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.attribute import MetricAttribute
+from aria.ops.definition.attribute import PropertyAttribute
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.exceptions import KeyException
 from aria.ops.definition.group import Group
 from aria.ops.definition.object_type import ObjectType
 from aria.ops.definition.units import Units
@@ -51,7 +52,7 @@ def test_define_group(group):
         "attributes": [],
         "groups": [],
         "instanced": False,
-        "instance_required": True
+        "instance_required": True,
     }
 
 
@@ -71,7 +72,7 @@ def test_define_instanced_group(group):
         "attributes": [],
         "groups": [],
         "instanced": True,
-        "instance_required": False
+        "instance_required": False,
     }
 
 
@@ -92,7 +93,7 @@ def test_add_groups(group):
         "attributes": [],
         "groups": [],
         "instanced": True,
-        "instance_required": False
+        "instance_required": False,
     }
     assert group.groups["C"].to_json() == {
         "key": "C",
@@ -100,7 +101,7 @@ def test_add_groups(group):
         "attributes": [],
         "groups": [],
         "instanced": False,
-        "instance_required": True
+        "instance_required": True,
     }
 
 
@@ -114,7 +115,7 @@ def test_add_group(group):
         "attributes": [],
         "groups": [],
         "instanced": True,
-        "instance_required": True
+        "instance_required": True,
     }
 
 
@@ -138,12 +139,14 @@ def test_define_integer_metric(group):
         "is_impact": True,
         "is_key_attribute": True,
         "is_property": False,
-        "dashboard_order": 0
+        "dashboard_order": 0,
     }
 
 
 def test_define_float_metric(group):
-    group.define_metric("A", "B", Units.RATIO.PERCENT, False, False, False, False, False)
+    group.define_metric(
+        "A", "B", Units.RATIO.PERCENT, False, False, False, False, False
+    )
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -156,7 +159,7 @@ def test_define_float_metric(group):
         "is_impact": False,
         "is_key_attribute": False,
         "is_property": False,
-        "dashboard_order": 0
+        "dashboard_order": 0,
     }
 
 
@@ -174,12 +177,14 @@ def test_define_string_property(group):
         "is_impact": True,
         "is_key_attribute": True,
         "is_property": True,
-        "dashboard_order": 0
+        "dashboard_order": 0,
     }
 
 
 def test_define_numeric_property_1(group):
-    group.define_numeric_property("A", "B", Units.MISC.RACK_UNIT, False, True, True, True, True)
+    group.define_numeric_property(
+        "A", "B", Units.MISC.RACK_UNIT, False, True, True, True, True
+    )
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -192,12 +197,14 @@ def test_define_numeric_property_1(group):
         "is_impact": True,
         "is_key_attribute": True,
         "is_property": True,
-        "dashboard_order": 0
+        "dashboard_order": 0,
     }
 
 
 def test_define_numeric_property_2(group):
-    group.define_numeric_property("A", "B", Units.FREQUENCY.GIGAHERTZ, False, False, True, True, True)
+    group.define_numeric_property(
+        "A", "B", Units.FREQUENCY.GIGAHERTZ, False, False, True, True, True
+    )
     assert len(group.attributes) == 1
     assert group.attributes["A"].to_json() == {
         "key": "A",
@@ -210,7 +217,7 @@ def test_define_numeric_property_2(group):
         "is_impact": True,
         "is_key_attribute": True,
         "is_property": True,
-        "dashboard_order": 0
+        "dashboard_order": 0,
     }
 
 
@@ -225,4 +232,3 @@ def test_add_attribute(group):
     attribute1 = PropertyAttribute("key1")
     group.add_attribute(attribute1)
     assert len(group.attributes) == 1
-

@@ -1,18 +1,20 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
 import logging
 import sys
 
 import psutil
-
-from aria.ops.definition.group import Group
-from constants import ADAPTER_KIND, ADAPTER_NAME
 from aria.ops.adapter_instance import AdapterInstance
-from aria.ops.data import Property, Metric
+from aria.ops.data import Metric
+from aria.ops.data import Property
 from aria.ops.definition.adapter_definition import AdapterDefinition
+from aria.ops.definition.group import Group
 from aria.ops.definition.units import Units
-from aria.ops.result import EndpointResult, CollectResult, TestResult
+from aria.ops.result import CollectResult
+from aria.ops.result import EndpointResult
+from aria.ops.result import TestResult
+from constants import ADAPTER_KIND
+from constants import ADAPTER_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -152,41 +154,58 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
 def get_adapter_definition() -> AdapterDefinition:
     """
     The adapter definition defines the object types and attribute types (metric/property) that are present
-    in a collection. Setting these object types and attribute types helps VMware Aria Operations to 
+    in a collection. Setting these object types and attribute types helps VMware Aria Operations to
     validate, process, and display the data correctly.
     :return: AdapterDefinition
     """
     definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
 
-    definition.define_string_parameter("ID",
-                                       label="ID",
-                                       description="Example identifier. Using a value of 'bad' will cause "
-                                                   "test connection to fail; any other value will pass.",
-                                       required=True)
+    definition.define_string_parameter(
+        "ID",
+        label="ID",
+        description="Example identifier. Using a value of 'bad' will cause "
+        "test connection to fail; any other value will pass.",
+        required=True,
+    )
     # The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
     # determine how much memory to allocate to the docker container running this adapter. It does not
     # need to be read inside the adapter code.
-    definition.define_int_parameter("container_memory_limit",
-                                    label="Adapter Memory Limit (MB)",
-                                    description="Sets the maximum amount of memory VMware Aria Operations can "
-                                                "allocate to the container running this adapter instance.",
-                                    required=True,
-                                    advanced=True,
-                                    default=1024)
+    definition.define_int_parameter(
+        "container_memory_limit",
+        label="Adapter Memory Limit (MB)",
+        description="Sets the maximum amount of memory VMware Aria Operations can "
+        "allocate to the container running this adapter instance.",
+        required=True,
+        advanced=True,
+        default=1024,
+    )
 
     cpu = definition.define_object_type("cpu", "CPU")
     cpu.define_numeric_property("cpu_count", "CPU Count", is_discrete=True)
     cpu.define_metric("user_time", "User Time", Units.TIME.SECONDS)
-    cpu.define_metric("nice_time", "Nice Time", Units.TIME.SECONDS, is_key_attribute=True)
+    cpu.define_metric(
+        "nice_time", "Nice Time", Units.TIME.SECONDS, is_key_attribute=True
+    )
     cpu.define_metric("system_time", "System Time", Units.TIME.SECONDS)
     cpu.define_metric("idle_time", "Idle Time", Units.TIME.SECONDS)
 
     disk = definition.define_object_type("disk", "Disk")
     disk.define_string_property("partition", "Partition")
-    disk.define_metric("total_space", "Total Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
-    disk.define_metric("used_space", "Used Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
-    disk.define_metric("free_space", "Free Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE)
-    disk.define_metric("percent_used_space", "Disk Utilization", unit=Units.RATIO.PERCENT, is_key_attribute=True)
+    disk.define_metric(
+        "total_space", "Total Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
+    )
+    disk.define_metric(
+        "used_space", "Used Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
+    )
+    disk.define_metric(
+        "free_space", "Free Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
+    )
+    disk.define_metric(
+        "percent_used_space",
+        "Disk Utilization",
+        unit=Units.RATIO.PERCENT,
+        is_key_attribute=True,
+    )
 
     system = definition.define_object_type("system", "System")
 
@@ -196,11 +215,13 @@ def get_adapter_definition() -> AdapterDefinition:
 # Main entry point of the adapter. You should not need to modify anything below this line.
 def main(argv):
     try:
-        logging.basicConfig(filename="/var/log/adapter.log",
-                            filemode="a",
-                            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-                            datefmt="%H:%M:%S",
-                            level=logging.DEBUG)
+        logging.basicConfig(
+            filename="/var/log/adapter.log",
+            filemode="a",
+            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+            datefmt="%H:%M:%S",
+            level=logging.DEBUG,
+        )
     except Exception as e:
         logging.basicConfig(level=logging.CRITICAL + 1)
 
@@ -224,7 +245,9 @@ def main(argv):
         if type(result) is AdapterDefinition:
             result.send_results()
         else:
-            logger.info("get_adapter_definition method did not return an AdapterDefinition")
+            logger.info(
+                "get_adapter_definition method did not return an AdapterDefinition"
+            )
             exit(1)
     else:
         logger.debug(f"Command {method} not found")

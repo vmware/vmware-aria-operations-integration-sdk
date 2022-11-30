@@ -1,10 +1,12 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
-
 from aria.ops.definition.adapter_definition import AdapterDefinition
-from aria.ops.definition.credential_type import CredentialStringParameter, CredentialPasswordParameter, CredentialType
-from aria.ops.definition.exceptions import KeyException, DuplicateKeyException
+from aria.ops.definition.credential_type import CredentialPasswordParameter
+from aria.ops.definition.credential_type import CredentialStringParameter
+from aria.ops.definition.credential_type import CredentialType
+from aria.ops.definition.exceptions import DuplicateKeyException
+from aria.ops.definition.exceptions import KeyException
 from aria.ops.definition.object_type import ObjectType
 
 
@@ -102,7 +104,9 @@ def test_parameter_order():
 
 def test_enum_default_included():
     definition = AdapterDefinition("key")
-    definition.define_enum_parameter("param1", values=["Item1", "Item2"], default="Item1")
+    definition.define_enum_parameter(
+        "param1", values=["Item1", "Item2"], default="Item1"
+    )
     identifiers = definition.to_json()["adapter_instance"]["identifiers"]
     param1 = list(filter(lambda i: i["key"] == "param1", identifiers))[0]
     assert len(param1["enum_values"]) == 2
@@ -110,7 +114,9 @@ def test_enum_default_included():
 
 def test_enum_default_not_included():
     definition = AdapterDefinition("key")
-    definition.define_enum_parameter("param1", values=["Item1", "Item2"], default="Item3")
+    definition.define_enum_parameter(
+        "param1", values=["Item1", "Item2"], default="Item3"
+    )
     identifiers = definition.to_json()["adapter_instance"]["identifiers"]
     param1 = list(filter(lambda i: i["key"] == "param1", identifiers))[0]
     assert len(param1["enum_values"]) == 3
@@ -148,7 +154,9 @@ def test_duplicate_credential_parameter_keys_not_allowed():
 def test_credential_enum_default_included():
     definition = AdapterDefinition("key")
     credential = definition.define_credential_type()
-    credential.define_enum_parameter("param1", values=["Item1", "Item2"], default="Item1")
+    credential.define_enum_parameter(
+        "param1", values=["Item1", "Item2"], default="Item1"
+    )
     fields = definition.to_json()["credential_types"][0]["fields"]
     param1 = list(filter(lambda i: i["key"] == "param1", fields))[0]
     assert len(param1["enum_values"]) == 2
@@ -157,7 +165,9 @@ def test_credential_enum_default_included():
 def test_credential_enum_default_not_included():
     definition = AdapterDefinition("key")
     credential = definition.define_credential_type()
-    credential.define_enum_parameter("param1", values=["Item1", "Item2"], default="Item3")
+    credential.define_enum_parameter(
+        "param1", values=["Item1", "Item2"], default="Item3"
+    )
     fields = definition.to_json()["credential_types"][0]["fields"]
     param1 = list(filter(lambda i: i["key"] == "param1", fields))[0]
     assert len(param1["enum_values"]) == 3
@@ -199,20 +209,40 @@ def test_adapter_definition_example():
     definition = AdapterDefinition("adapter_key", "Adapter Label")
 
     definition.define_string_parameter("Host", description="Hostname of the target.")
-    definition.define_int_parameter("Port", required=False, description="Port to connect to on the target.", default=443)
-    definition.define_enum_parameter("API Version", advanced=True, values=["1.1", "1.2", "2+"], default="2+", description="Select the API version the target supports.")
+    definition.define_int_parameter(
+        "Port",
+        required=False,
+        description="Port to connect to on the target.",
+        default=443,
+    )
+    definition.define_enum_parameter(
+        "API Version",
+        advanced=True,
+        values=["1.1", "1.2", "2+"],
+        default="2+",
+        description="Select the API version the target supports.",
+    )
 
     credential = definition.define_credential_type()
     credential.define_string_parameter("Username", label="User Name")
     credential.define_password_parameter("Password")
-    credential.define_enum_parameter("Authentication Source", values=["Local", "LDAP"], default="Local")
+    credential.define_enum_parameter(
+        "Authentication Source", values=["Local", "LDAP"], default="Local"
+    )
 
 
 def test_adapter_definition_example_multiple_credential_types():
     definition = AdapterDefinition("adapter_key", "Adapter Label")
     definition.define_string_parameter("Host", description="Hostname of the target.")
-    definition.define_int_parameter("Port", description="Port to connect to on the target.", default=443)
-    definition.define_enum_parameter("API Version", values=["1.1", "1.2", "2+"], default="2+", description="Select the API version the target supports.")
+    definition.define_int_parameter(
+        "Port", description="Port to connect to on the target.", default=443
+    )
+    definition.define_enum_parameter(
+        "API Version",
+        values=["1.1", "1.2", "2+"],
+        default="2+",
+        description="Select the API version the target supports.",
+    )
 
     local_credential = definition.define_credential_type("Local")
     local_credential.define_string_parameter("Username")

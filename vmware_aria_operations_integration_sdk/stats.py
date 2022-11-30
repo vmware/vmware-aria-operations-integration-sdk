@@ -1,8 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-
-
-from statistics import median, stdev
+from statistics import median
+from statistics import stdev
 
 
 def convert_bytes(bytes_number):
