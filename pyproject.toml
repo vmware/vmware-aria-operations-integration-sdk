@@ -1,6 +1,13 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.bandit]
+exclude_dirs = ["tests", "lib/python/tests"]
+
 [tool.poetry]
 name = "vmware_aria_operations_integration_sdk"
-version = "0.4.0"
+version = "0.5.0"
 description = "A set of tools to help users create, test, and build containerized management packs for VMware Aria Operations"
 authors = ["Kyle Rokos <krokos@vmware.com>", "Santiago Quiroga Cubillos <squirogacubi@vmware.com>"]
 license = "APACHE-2.0"
@@ -15,12 +22,6 @@ include = [
     "vmware_aria_operations_integration_sdk/container_versions.json",
 ]
 repository = "https://github.com/vmware/vrealize-operations-integration-sdk"
-
-[tool.poetry.scripts]
-mp-init = "vmware_aria_operations_integration_sdk.mp_init:main"
-mp-test = "vmware_aria_operations_integration_sdk.mp_test:main"
-mp-build = "vmware_aria_operations_integration_sdk.mp_build:main"
-
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -44,7 +45,11 @@ validators = "^0.20.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
+mypy = "^0.991"
+black = "^22.10.0"
+pre-commit = "^2.20.0"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.scripts]
+mp-init = "vmware_aria_operations_integration_sdk.mp_init:main"
+mp-test = "vmware_aria_operations_integration_sdk.mp_test:main"
+mp-build = "vmware_aria_operations_integration_sdk.mp_build:main"

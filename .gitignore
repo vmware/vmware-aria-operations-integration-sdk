@@ -35,6 +35,10 @@ lib/python/dist
 images/base-python-adapter/pip-log.txt
 images/base-python-adapter/pip-delete-this-directory.txt
 
+# PyTest
+.pytest_cache
+.cache
+
 # Unit test / coverage reports
 images/base-python-adapter/htmlcov/
 images/base-python-adapter/.tox/
@@ -47,6 +51,10 @@ images/base-python-adapter/coverage.xml
 images/base-python-adapter/.hypothesis/
 images/base-python-adapter/venv/
 images/base-python-adapter/.python-version
+
+# MyPy
+/.mypy_cache/*
+/.dmypy.json
 
 # Translations
 *.mo
