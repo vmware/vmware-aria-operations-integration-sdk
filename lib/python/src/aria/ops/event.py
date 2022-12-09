@@ -32,12 +32,12 @@ class Event:
 
     message: str
     criticality: Criticality = Criticality.NONE
-    fault_key: str = (None,)
-    auto_cancel: bool = (False,)
-    start_date: int = (None,)
-    update_date: int = (None,)
-    cancel_date: int = (None,)
-    watch_wait_cycle: int = (1,)
+    fault_key: str = None
+    auto_cancel: bool = False
+    start_date: int = None
+    update_date: int = None
+    cancel_date: int = None
+    watch_wait_cycle: int = 1
     cancel_wait_cycle: int = 3
 
     def get_json(self):
