@@ -1,5 +1,7 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## 0.5.6 (12-9-2022)
+* Fix a bug where default values for Events were not set correctly
 
 ## 0.4.5 (11-17-2022)
 * Add getters to Object class:
