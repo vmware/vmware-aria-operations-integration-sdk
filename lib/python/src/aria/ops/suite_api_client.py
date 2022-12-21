@@ -1,11 +1,19 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import json
 import logging
 import math
+from types import TracebackType
+from typing import Any
+from typing import Callable
+from typing import Optional
+from typing import Type
 
 import requests
 import urllib3
+from requests import Response
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -56,7 +64,7 @@ class SuiteApiClient(object):
         self.credential = connection_params
         self.token = ""
 
-    def __enter__(self):
+    def __enter__(self) -> SuiteApiClient:
         """Acquire a token upon entering the 'with' context
 
         :return: self
@@ -64,7 +72,12 @@ class SuiteApiClient(object):
         self.token = self.get_token()
         return self
 
-    def __exit__(self, exception_type, exception_value, traceback):
+    def __exit__(
+        self,
+        exception_type: Optional[Type[BaseException]],
+        exception_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
         """Release the token upon exiting the 'with' context
 
         :param exception_type: Unused
@@ -74,7 +87,7 @@ class SuiteApiClient(object):
         """
         self.release_token()
 
-    def get_token(self):
+    def get_token(self) -> str:
         """Get the authentication token
 
         Gets the current authentication token. If no current token exists, acquires an authentication token first.
@@ -98,7 +111,7 @@ class SuiteApiClient(object):
 
         return self.token
 
-    def release_token(self):
+    def release_token(self) -> None:
         """Release the authentication token, if it exists
 
         :return: None
@@ -107,7 +120,7 @@ class SuiteApiClient(object):
             self.post("auth/token/release")
             self.token = ""
 
-    def get(self, url, **kwargs):
+    def get(self, url: str, **kwargs: Any) -> Response:
         """Send a GET request to the SuiteAPI
 
         :param url: URL to send GET request to
@@ -116,7 +129,7 @@ class SuiteApiClient(object):
         """
         return self._request_wrapper(requests.get, url, **kwargs)
 
-    def paged_get(self, url, key: str, **kwargs):
+    def paged_get(self, url: str, key: str, **kwargs: Any) -> dict:
         """Send a GET request to the SuiteAPI that gets a paged response
 
         :param url: URL to send GET request to
@@ -126,7 +139,7 @@ class SuiteApiClient(object):
         """
         return self._paged_request(requests.get, url, key, **kwargs)
 
-    def post(self, url, **kwargs):
+    def post(self, url: str, **kwargs: Any) -> Response:
         """Send a POST request to the SuiteAPI
 
         :param url: URL to send POST request to
@@ -137,11 +150,11 @@ class SuiteApiClient(object):
         kwargs["headers"].setdefault("Content-Type", "application/json")
         return self._request_wrapper(requests.post, url, **kwargs)
 
-    def paged_post(self, url, key, **kwargs):
+    def paged_post(self, url: str, key: str, **kwargs: Any) -> dict:
         """Send a POST request to the SuiteAPI that gets a paged response.
 
-        :param key: Json key that contains the paged data
         :param url: URL to send POST request to
+        :param key: Json key that contains the paged data
         :param kwargs: Additional keyword arguments to pass to request
         :return: The API response
         """
@@ -149,7 +162,7 @@ class SuiteApiClient(object):
         kwargs["headers"].setdefault("Content-Type", "application/json")
         return self._paged_request(requests.post, url, key, **kwargs)
 
-    def put(self, url, **kwargs):
+    def put(self, url: str, **kwargs: Any) -> Response:
         """Send a PUT request to the SuiteAPI
 
         :param url: URL to send PUT request to
@@ -158,7 +171,7 @@ class SuiteApiClient(object):
         """
         return self._request_wrapper(requests.put, url, **kwargs)
 
-    def patch(self, url, **kwargs):
+    def patch(self, url: str, **kwargs: Any) -> Response:
         """Send a PATCH request to the SuiteAPI
 
         :param url: URL to send PATCH request to
@@ -167,7 +180,7 @@ class SuiteApiClient(object):
         """
         return self._request_wrapper(requests.patch, url, **kwargs)
 
-    def delete(self, url, **kwargs):
+    def delete(self, url: str, **kwargs: Any) -> Response:
         """Send a DELETE request to the SuiteAPI
 
         :param url: URL to send DELETE request to
@@ -176,7 +189,7 @@ class SuiteApiClient(object):
         """
         return self._request_wrapper(requests.delete, url, **kwargs)
 
-    def _add_paging(self, **kwargs):
+    def _add_paging(self, **kwargs: Any) -> dict:
         kwargs.setdefault("params", {})
         kwargs["params"].setdefault("page", 0)
         kwargs["params"].setdefault("pageSize", 1000)
@@ -188,7 +201,9 @@ class SuiteApiClient(object):
 
         return kwargs
 
-    def _paged_request(self, request_func, url, key: str, **kwargs):
+    def _paged_request(
+        self, request_func: Callable, url: str, key: str, **kwargs: Any
+    ) -> dict:
         """Send a request to the SuiteAPI that returns a paged response. Each response must have data returned in an
         array at key 'key'. The array from the responses will be combined into a single array and returned in a map of
         the form:
@@ -212,12 +227,16 @@ class SuiteApiClient(object):
         objects = page_0_body.get("key", [])
         while remaining_pages > 0:
             kwargs = self._add_paging(page=remaining_pages)
-            page_n_body = json.loads(self._request_wrapper(request_func, url, **kwargs))
+            page_n_body = json.loads(
+                self._request_wrapper(request_func, url, **kwargs).text
+            )
             objects.extend(page_n_body.get("key", []))
             remaining_pages -= 1
         return {key: objects}
 
-    def _request_wrapper(self, request_func, url, **kwargs):
+    def _request_wrapper(
+        self, request_func: Callable[..., Response], url: str, **kwargs: Any
+    ) -> Response:
         kwargs = self._to_vrops_request(url, **kwargs)
         result = request_func(**kwargs)
         if result.ok:
@@ -241,7 +260,7 @@ class SuiteApiClient(object):
             logger.debug(result.text)
         return result
 
-    def _to_vrops_request(self, url, **kwargs):
+    def _to_vrops_request(self, url: str, **kwargs: Any) -> dict:
         kwargs.setdefault("url", url)
         kwargs.setdefault("headers", {})
         kwargs["headers"]["Authorization"] = "vRealizeOpsToken " + self.token

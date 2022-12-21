@@ -3,14 +3,14 @@
 from aria.ops import result
 
 
-def test_empty_test_result():
+def test_empty_test_result() -> None:
     # If we import directly as 'TestResult', pytest will try to read it as unit tests (because it begins with 'Test')
     # and emit a warning. Importing as result.TestResult is a workaround to that issue
     tr = result.TestResult()
     assert "errorMessage" not in tr.get_json()
 
 
-def test_error_test_result():
+def test_error_test_result() -> None:
     error_message = "Test Error Message"
     tr = result.TestResult()
     tr.with_error(error_message)

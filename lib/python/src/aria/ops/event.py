@@ -2,6 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 
 class Criticality(Enum):
@@ -15,7 +16,7 @@ class Criticality(Enum):
 
 @dataclass(frozen=True)
 class Event:
-    """Represents a vROps Event
+    """Represents a Aria Operations Event
 
     :param message: The message describes and identifies an event.
     :param criticality: TODO
@@ -24,31 +25,31 @@ class Event:
     :param start_date: TODO
     :param update_date: TODO
     :param cancel_date: TODO
-    :param watch_wait_cycle: The number of times this event must be present in a collection before vROps surfaces it
+    :param watch_wait_cycle: The number of times this event must be present in a collection before Aria Operations surfaces it
     in the UI.
-    :param cancel_wait_cycle: The number of times this event must be absent in a collection before vROps removes it
+    :param cancel_wait_cycle: The number of times this event must be absent in a collection before Aria Operations removes it
     from the UI.
     """
 
     message: str
     criticality: Criticality = Criticality.NONE
-    fault_key: str = None
+    fault_key: Optional[str] = None
     auto_cancel: bool = False
-    start_date: int = None
-    update_date: int = None
-    cancel_date: int = None
+    start_date: Optional[int] = None
+    update_date: Optional[int] = None
+    cancel_date: Optional[int] = None
     watch_wait_cycle: int = 1
     cancel_wait_cycle: int = 3
 
-    def get_json(self):
+    def get_json(self) -> dict:
         """Get a JSON representation of this Event.
 
-        Returns a JSON representation of this Event in the format required by vROps.
+        Returns a JSON representation of this Event in the format required by Aria Operations.
 
         :return: A JSON representation of this Event.
         """
         # message is the only required field. Other fields are optional but non-nullable if present
-        json = {"message": self.message}
+        json: dict = {"message": self.message}
 
         if self.criticality is not None:
             json["criticality"] = self.criticality.value

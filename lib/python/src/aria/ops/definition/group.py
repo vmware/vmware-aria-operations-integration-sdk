@@ -16,9 +16,10 @@ from aria.ops.definition.units import Unit
 
 class GroupType(ABC):
     # This is only an Abstract Base Class so that it isn't initialized as a standalone object
-    def __init__(self):
-        self.attributes = OrderedDict()
-        self.groups = OrderedDict()
+    def __init__(self) -> None:
+        self.key: str
+        self.attributes: dict[str, Attribute] = OrderedDict()
+        self.groups: dict[str, Group] = OrderedDict()
 
     def define_group(self, key: str, label: Optional[str] = None) -> Group:
         """
@@ -50,7 +51,7 @@ class GroupType(ABC):
         self.add_group(group)
         return group
 
-    def add_groups(self, groups: list[Group]):
+    def add_groups(self, groups: list[Group]) -> None:
         """
         Adds a list of groups as subgroups of this group.
         :param groups: A list of groups.
@@ -59,7 +60,7 @@ class GroupType(ABC):
         for group in groups:
             self.add_group(group)
 
-    def add_group(self, group: Group):
+    def add_group(self, group: Group) -> None:
         """
         Adds a group as a subgroup of this group.
         :param group: A group.
@@ -194,7 +195,7 @@ class GroupType(ABC):
         self.add_attribute(_property)
         return _property
 
-    def add_attributes(self, attributes: list[Attribute]):
+    def add_attributes(self, attributes: list[Attribute]) -> None:
         """
         Adds a list of attributes to this group.
         :param attributes: A list of attributes (metric or property definitions).
@@ -203,7 +204,7 @@ class GroupType(ABC):
         for attribute in attributes:
             self.add_attribute(attribute)
 
-    def add_attribute(self, attribute: Attribute):
+    def add_attribute(self, attribute: Attribute) -> None:
         """
         Adds an attribute to this group.
         :param attribute: An attribute (metric or property definition).
@@ -217,7 +218,7 @@ class GroupType(ABC):
 
         self.attributes[key] = attribute
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "attributes": [
                 attribute.to_json() for attribute in self.attributes.values()
@@ -233,7 +234,7 @@ class Group(GroupType):
         label: Optional[str] = None,
         instanced: bool = False,
         instance_required: bool = True,
-    ):
+    ) -> None:
         """
         Create a new group that can hold attributes and subgroups.
         :param key: The key for the group.
@@ -254,7 +255,7 @@ class Group(GroupType):
         self.instance_required = instance_required
         super().__init__()
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "key": self.key,
             "label": self.label,

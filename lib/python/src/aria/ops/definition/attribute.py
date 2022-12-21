@@ -48,7 +48,7 @@ class Attribute(ABC):
         self.is_key_attribute = is_key_attribute
         self.dashboard_order = dashboard_order
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "key": self.key,
             "label": self.label,
@@ -103,7 +103,7 @@ class MetricAttribute(Attribute):
             dashboard_order,
         )
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "data_type": "integer" if self.is_discrete else "float",
             "is_property": False,
@@ -154,7 +154,7 @@ class PropertyAttribute(Attribute):
         )
         self.is_string = is_string
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "data_type": "string"
             if self.is_string

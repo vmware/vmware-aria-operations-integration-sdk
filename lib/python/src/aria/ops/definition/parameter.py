@@ -19,7 +19,7 @@ class Parameter(ABC):
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
-    ):
+    ) -> None:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -39,7 +39,7 @@ class Parameter(ABC):
         self.advanced = advanced
         self.display_order = display_order
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "key": self.key,
             "label": self.label,
@@ -61,7 +61,7 @@ class IntParameter(Parameter):
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
-    ):
+    ) -> None:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -75,7 +75,7 @@ class IntParameter(Parameter):
             key, label, description, default, required, advanced, display_order
         )
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "integer",
             "default": str(self.default) if self.default is not None else None,
@@ -93,7 +93,7 @@ class StringParameter(Parameter):
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
-    ):
+    ) -> None:
         """
         :param key: Used to identify the parameter.
         :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -109,7 +109,7 @@ class StringParameter(Parameter):
         )
         self.max_length = max_length
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
             "length": int(self.max_length),
@@ -128,7 +128,7 @@ class EnumParameter(Parameter):
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
-    ):
+    ) -> None:
         """
         :param key: Used to identify the parameter.
         :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
@@ -148,10 +148,10 @@ class EnumParameter(Parameter):
                 f"Duplicate enum value in parameter {key}: {values}."
             )
         self.values = values
-        if default not in self.values:
+        if default not in self.values and default is not None:
             self.values.append(default)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
             "enum": True,
