@@ -1,6 +1,8 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import os
+from typing import List
+from typing import Optional
 
 from PIL import Image
 from PIL import UnidentifiedImageError
@@ -9,11 +11,11 @@ from prompt_toolkit.validation import ValidationError
 from prompt_toolkit.validation import Validator
 
 
-class NotEmptyValidator(Validator):
-    def __init__(self, label):
+class NotEmptyValidator(Validator):  # type: ignore
+    def __init__(self, label: str) -> None:
         self.label = label
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         if not document.text:
             raise ValidationError(message=f"{self.label} cannot be empty.")
         if not document.text.strip():
@@ -21,10 +23,10 @@ class NotEmptyValidator(Validator):
 
 
 class AdapterKeyValidator(NotEmptyValidator):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Adapter Key")
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         super().validate(document)
         string = document.text
         if string != self._strip_special_characters(string):
@@ -35,22 +37,22 @@ class AdapterKeyValidator(NotEmptyValidator):
             raise ValidationError(message=f"{self.label} cannot begin with a digit.")
 
     @classmethod
-    def _strip_special_characters(cls, string):
+    def _strip_special_characters(cls, string: str) -> str:
         return "".join(e for e in string if e.isalnum() or e == "_")
 
     @classmethod
-    def default(cls, string):
+    def default(cls, string: str) -> str:
         default = cls._strip_special_characters(string)
         if default[0].isdigit():
             return "Adapter" + default
         return default
 
 
-class IntegerValidator(Validator):
-    def __init__(self, label):
+class IntegerValidator(Validator):  # type: ignore
+    def __init__(self, label: str) -> None:
         self.label = label
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         try:
             if document.text.strip():
                 int(document.text)
@@ -59,16 +61,16 @@ class IntegerValidator(Validator):
 
 
 class TimeValidator(NotEmptyValidator):
-    def __init__(self, label):
+    def __init__(self, label: str) -> None:
         super().__init__(label)
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         super().validate(document)
         if document.text:
             TimeValidator.get_sec(self.label, document.text)
 
     @classmethod
-    def get_sec(cls, label, time_str):
+    def get_sec(cls, label: str, time_str: str) -> float:
         """Get seconds from time."""
         try:
             unit = time_str[-1]
@@ -94,10 +96,10 @@ class TimeValidator(NotEmptyValidator):
 
 
 class NewProjectDirectoryValidator(NotEmptyValidator):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Path")
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         super().validate(document)
         directory = os.path.expanduser(document.text)
         if os.path.exists(directory) and os.path.isfile(directory):
@@ -109,11 +111,11 @@ class NewProjectDirectoryValidator(NotEmptyValidator):
 
 
 class UniquenessValidator(NotEmptyValidator):
-    def __init__(self, label, existing):
+    def __init__(self, label: str, existing: List) -> None:
         self.existing = existing
         super().__init__(label)
 
-    def validate(self, document: Document):
+    def validate(self, document: Document) -> None:
         super().validate(document)
         string = document.text
         if string in self.existing:
@@ -122,8 +124,8 @@ class UniquenessValidator(NotEmptyValidator):
             )
 
 
-class EulaValidator(Validator):
-    def validate(self, document: Document):
+class EulaValidator(Validator):  # type: ignore
+    def validate(self, document: Document) -> None:
         file = document.text
         if not file.strip():
             return
@@ -132,8 +134,8 @@ class EulaValidator(Validator):
             raise ValidationError(message="Path must be a text file.")
 
 
-class ImageValidator(Validator):
-    def validate(self, document: Document):
+class ImageValidator(Validator):  # type: ignore
+    def validate(self, document: Document) -> None:
         img = document.text
         if not img.strip():
             return
@@ -159,7 +161,7 @@ class ImageValidator(Validator):
 
 
 class ProjectValidator(NotEmptyValidator):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Path")
 
     def validate(self, document: Document) -> None:
@@ -170,7 +172,7 @@ class ProjectValidator(NotEmptyValidator):
             )
 
     @classmethod
-    def is_project_dir(cls, path):
+    def is_project_dir(cls, path: Optional[str]) -> bool:
         if path is None:
             return False
         path = os.path.expanduser(path)
@@ -179,8 +181,8 @@ class ProjectValidator(NotEmptyValidator):
         )
 
 
-class ChainValidator(Validator):
-    def __init__(self, validators: [Validator]):
+class ChainValidator(Validator):  # type: ignore
+    def __init__(self, validators: List[Validator]) -> None:
         self.validators = validators
 
     def validate(self, document: Document) -> None:

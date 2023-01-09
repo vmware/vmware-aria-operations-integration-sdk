@@ -435,7 +435,7 @@
         </xs:attribute>
         <xs:attribute type="xs:string" name="name" use="optional">
             <xs:annotation>
-                <xs:documentation xml:lang="en">The name of the symptom when displayed by vROps</xs:documentation>
+                <xs:documentation xml:lang="en">The name of the symptom when displayed by Aria Operations</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>

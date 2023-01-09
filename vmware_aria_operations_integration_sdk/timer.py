@@ -3,9 +3,13 @@
 import asyncio
 import functools
 import time
+from typing import Any
+from typing import Callable
+from typing import Tuple
+from typing import Union
 
 
-def timed(func):
+def timed(func: Callable) -> Callable:
     # Decorator used to time a function.
     # usage:
     #
@@ -21,14 +25,14 @@ def timed(func):
     # Otherwise, return a tuple of the return value and elapsed time
     # example: returned_value, elapsed_time = timed_function()
 
-    async def _process(func, *args, **params):
+    async def _process(func: Callable, *args: Any, **params: Any) -> Any:
         if asyncio.iscoroutinefunction(func):
             return await func(*args, **params)
         else:
             return func(*args, **params)
 
     @functools.wraps(func)
-    async def timed_fn(*args, **kwargs):
+    async def timed_fn(*args: Any, **kwargs: Any) -> Union[float, Tuple]:
         start = time.perf_counter()
 
         value = await _process(func, *args, **kwargs)

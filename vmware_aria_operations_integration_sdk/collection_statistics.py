@@ -1,59 +1,70 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from collections import defaultdict
+from typing import Any
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.docker_wrapper import ContainerStats
 from vmware_aria_operations_integration_sdk.model import _get_object_id
 from vmware_aria_operations_integration_sdk.model import ObjectId
+from vmware_aria_operations_integration_sdk.model import ObjectType
+from vmware_aria_operations_integration_sdk.serialization import CollectionBundle
 from vmware_aria_operations_integration_sdk.stats import get_growth_rate
 from vmware_aria_operations_integration_sdk.stats import LongRunStats
 from vmware_aria_operations_integration_sdk.stats import Stats
 from vmware_aria_operations_integration_sdk.stats import UniqueObjectTypeStatistics
 from vmware_aria_operations_integration_sdk.ui import Table
 from vmware_aria_operations_integration_sdk.util import LazyAttribute
-from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 class ObjectStatistics:
-    def __init__(self, json):
-        self.key = _get_object_id(json.get("key"))
+    def __init__(self, json: Dict) -> None:
+        key = _get_object_id(json.get("key"))
+        if not key:
+            raise Exception("Could not find key in json when creating ObjectStatistics")
+        self.key = key
         self.events = set(event.get("message") for event in json.get("events", []))
         self.metrics = set(metric.get("key") for metric in json.get("metrics", []))
         self.properties = set(
             property.get("key") for property in json.get("properties", [])
         )
         self.string_properties = {
-            property.get("key"): property.get("stringValue")
-            for property in json.get("properties", [])
-            if "stringValue" in property
+            prop.get("key"): prop.get("stringValue")
+            for prop in json.get("properties", [])
+            if "stringValue" in prop
         }
-        self.parents = set()
-        self.children = set()
+        self.parents: Set[ObjectId] = set()
+        self.children: Set[ObjectId] = set()
 
-    def add_parent(self, parent: ObjectId):
+    def add_parent(self, parent: ObjectId) -> None:
         self.parents.add(parent)
 
-    def add_child(self, child: ObjectId):
+    def add_child(self, child: ObjectId) -> None:
         self.children.add(child)
 
-    def get_event_count(self):
+    def get_event_count(self) -> int:
         return len(self.events)
 
-    def get_metric_count(self):
+    def get_metric_count(self) -> int:
         return len(self.metrics)
 
-    def get_property_count(self):
+    def get_property_count(self) -> int:
         return len(self.properties)
 
-    def get_parent_count(self):
+    def get_parent_count(self) -> int:
         return len(self.parents)
 
-    def get_children_count(self):
+    def get_children_count(self) -> int:
         return len(self.children)
 
 
 class LongObjectTypeStatistics:
-    def __init__(self, long_run_duration):
+    def __init__(self, long_run_duration: float) -> None:
         self.long_run_duration = long_run_duration
         self.objects_stats = UniqueObjectTypeStatistics()
         self.metrics_stats = UniqueObjectTypeStatistics()
@@ -62,7 +73,7 @@ class LongObjectTypeStatistics:
         self.relationships_stats = UniqueObjectTypeStatistics()
         self.string_property_values_stats = UniqueObjectTypeStatistics()
 
-    def add(self, _object):
+    def add(self, _object: ObjectTypeStatistics) -> None:
         self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
         self.metrics_stats.add(_object.get_unique_metrics(), _object.get_metric_count())
         self.properties_stats.add(
@@ -75,7 +86,7 @@ class LongObjectTypeStatistics:
             _object.get_unique_string_property_values(), 0
         )
 
-    def get_growth_rates(self):
+    def get_growth_rates(self) -> List[str]:
         return [
             f"{self.objects_growth_rate:.2f} %",
             f"{self.metrics_growth_rate:.2f} %",
@@ -85,7 +96,7 @@ class LongObjectTypeStatistics:
             f"{self.relationships_growth_rate:.2f} %",
         ]
 
-    def get_summary(self):
+    def get_summary(self) -> Dict[str, Any]:
         return {
             "objects": LongRunStats(self.objects_stats.counts),
             "events": LongRunStats(self.events_stats.counts),
@@ -95,21 +106,21 @@ class LongObjectTypeStatistics:
         }
 
     @LazyAttribute
-    def objects_growth_rate(self):
+    def objects_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.objects_stats.data_points[0], self.objects_stats.data_points[-1], hours
         )
 
     @LazyAttribute
-    def metrics_growth_rate(self):
+    def metrics_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.metrics_stats.data_points[0], self.metrics_stats.data_points[-1], hours
         )
 
     @LazyAttribute
-    def properties_growth_rate(self):
+    def properties_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.properties_stats.data_points[0],
@@ -118,7 +129,7 @@ class LongObjectTypeStatistics:
         )
 
     @LazyAttribute
-    def property_values_growth_rate(self):
+    def property_values_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.string_property_values_stats.data_points[0],
@@ -127,7 +138,7 @@ class LongObjectTypeStatistics:
         )
 
     @LazyAttribute
-    def string_properties_growth_rate(self):
+    def string_properties_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.string_property_values_stats.data_points[0],
@@ -136,14 +147,14 @@ class LongObjectTypeStatistics:
         )
 
     @LazyAttribute
-    def events_growth_rate(self):
+    def events_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.events_stats.data_points[0], self.events_stats.data_points[-1], hours
         )
 
     @LazyAttribute
-    def relationships_growth_rate(self):
+    def relationships_growth_rate(self) -> float:
         hours = self.long_run_duration / 3600
         return get_growth_rate(
             self.relationships_stats.data_points[0],
@@ -153,53 +164,53 @@ class LongObjectTypeStatistics:
 
 
 class ObjectTypeStatistics:
-    def __init__(self):
-        self.object_type = None
-        self.objects = []
+    def __init__(self) -> None:
+        self.object_type: Optional[ObjectType] = None
+        self.objects: List[ObjectStatistics] = []
 
-    def add_object(self, obj: ObjectStatistics):
+    def add_object(self, obj: ObjectStatistics) -> None:
         if self.object_type is None:
             self.object_type = obj.key.objectKind
         elif self.object_type != obj.key.objectKind:
             return
         self.objects.append(obj)
 
-    def get_unique_objects(self):
+    def get_unique_objects(self) -> Set[ObjectId]:
         unique_objects = set()
         for _object in self.objects:
             unique_objects.add(_object.key)
 
         return unique_objects
 
-    def get_unique_metrics(self):
+    def get_unique_metrics(self) -> Set[str]:
         unique_metrics = set()
         for _object in self.objects:
             unique_metrics.update(_object.metrics)
 
         return unique_metrics
 
-    def get_unique_properties(self):
+    def get_unique_properties(self) -> Set[str]:
         unique_properties = set()
         for _object in self.objects:
             unique_properties.update(_object.properties)
 
         return unique_properties
 
-    def get_unique_string_property_values(self):
-        unique_string_property_values = set()
+    def get_unique_string_property_values(self) -> Set[str]:
+        unique_string_property_values: Set[str] = set()
         for _object in self.objects:
             unique_string_property_values.update(_object.string_properties.values())
 
         return unique_string_property_values
 
-    def get_unique_events(self):
+    def get_unique_events(self) -> Set[str]:
         unique_events = set()
         for _object in self.objects:
             unique_events.update(_object.events)
 
         return unique_events
 
-    def get_unique_relationships(self):
+    def get_unique_relationships(self) -> Set[Tuple[ObjectId, ObjectId]]:
         unique_relationships = set()
         for _object in self.objects:
             unique_relationships.update(
@@ -211,43 +222,43 @@ class ObjectTypeStatistics:
 
         return unique_relationships
 
-    def get_object_count(self):
+    def get_object_count(self) -> int:
         return len(self.objects)
 
-    def get_event_count(self):
+    def get_event_count(self) -> int:
         return sum(obj.get_event_count() for obj in self.objects)
 
-    def get_metric_count(self):
+    def get_metric_count(self) -> int:
         return sum(obj.get_metric_count() for obj in self.objects)
 
-    def get_property_count(self):
+    def get_property_count(self) -> int:
         return sum(obj.get_property_count() for obj in self.objects)
 
-    def get_children_count(self):
+    def get_children_count(self) -> int:
         return sum(obj.get_children_count() for obj in self.objects)
 
-    def get_parent_count(self):
+    def get_parent_count(self) -> int:
         return sum(obj.get_parent_count() for obj in self.objects)
 
-    def get_objects(self):
+    def get_objects(self) -> List[ObjectStatistics]:
         return self.objects
 
-    def get_event_counts(self):
+    def get_event_counts(self) -> List[int]:
         return [obj.get_event_count() for obj in self.objects]
 
-    def get_metric_counts(self):
+    def get_metric_counts(self) -> List[int]:
         return [obj.get_metric_count() for obj in self.objects]
 
-    def get_property_counts(self):
+    def get_property_counts(self) -> List[int]:
         return [obj.get_property_count() for obj in self.objects]
 
-    def get_children_counts(self):
+    def get_children_counts(self) -> List[int]:
         return [obj.get_children_count() for obj in self.objects]
 
-    def get_parent_counts(self):
+    def get_parent_counts(self) -> List[int]:
         return [obj.get_parent_count() for obj in self.objects]
 
-    def get_summary(self):
+    def get_summary(self) -> Dict[str, Any]:
         return {
             "objects": self.get_object_count(),
             "events": Stats(self.get_event_counts()),
@@ -259,27 +270,31 @@ class ObjectTypeStatistics:
 
 
 class LongCollectionStatistics:
-    def __init__(self, collection_bundle_list, collection_interval, long_run_duration):
+    def __init__(
+        self,
+        collection_bundle_list: List[CollectionBundle],
+        collection_interval: float,
+        long_run_duration: float,
+    ) -> None:
         self.collection_interval = collection_interval
         self.long_run_duration = long_run_duration
-        self.collection_bundles = (
-            list()
-        )  # This is a duplicated from LongCollectionBundle
+        # This is a duplicated from LongCollectionBundle
+        self.collection_bundles: List[CollectionBundle] = list()
         self.total_number_of_collections = len(collection_bundle_list)
-        self.long_object_type_statistics = defaultdict(
-            lambda: LongObjectTypeStatistics(long_run_duration)
-        )
+        self.long_object_type_statistics: Dict[
+            ObjectType, LongObjectTypeStatistics
+        ] = defaultdict(lambda: LongObjectTypeStatistics(long_run_duration))
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)
 
-    def add(self, collection_bundle):
+    def add(self, collection_bundle: CollectionBundle) -> None:
         self.collection_bundles.append(collection_bundle)
         statistics = collection_bundle.get_collection_statistics()
         if statistics:
             for object_type, object_type_stat in statistics.obj_type_statistics.items():
                 self.long_object_type_statistics[object_type].add(object_type_stat)
 
-    def __str__(self):
+    def __str__(self) -> str:
         headers = [
             "Object Type",
             "Object Growth",
@@ -310,15 +325,15 @@ class LongCollectionStatistics:
             object_type,
             obj_type_statistics,
         ) in self.long_object_type_statistics.items():
-            summary = obj_type_statistics.get_summary()
+            obj_summary = obj_type_statistics.get_summary()
             data.append(
                 [
                     object_type,
-                    summary["objects"],
-                    summary["metrics"],
-                    summary["properties"],
-                    summary["events"],
-                    summary["relationships"],
+                    obj_summary["objects"],
+                    obj_summary["metrics"],
+                    obj_summary["properties"],
+                    obj_summary["events"],
+                    obj_summary["relationships"],
                 ]
             )
         obj_table = str(Table(headers, data))
@@ -329,7 +344,7 @@ class LongCollectionStatistics:
         longer_collections = list()
         # TODO: move this logic when doing UI reformatting
         for collection_stat in self.collection_bundles:
-            number = collection_stat.collection_number
+            number = str(collection_stat.collection_number)
             if collection_stat.failed():
                 number = f"{number} (failed)"
                 failed_collections.append(collection_stat)
@@ -381,18 +396,18 @@ class LongCollectionStatistics:
 
         return summary
 
-    def __repr__(self):
-        return self.__dict__
+    def __repr__(self) -> str:
+        return str(self.__dict__)
 
 
 class CollectionStatistics:
-    def __init__(self, json):
-        self.obj_type_statistics = defaultdict(lambda: ObjectTypeStatistics())
-        self.obj_statistics = {}
-        self.rel_statistics = defaultdict(lambda: 0)
+    def __init__(self, json: Dict) -> None:
+        self.obj_type_statistics: Dict = defaultdict(lambda: ObjectTypeStatistics())
+        self.obj_statistics: Dict = {}
+        self.rel_statistics: Dict = defaultdict(lambda: 0)
         self.get_counts(json)
 
-    def get_counts(self, json):
+    def get_counts(self, json: Dict) -> None:
         for obj in json.get("result", []):
             obj_id = _get_object_id(obj.get("key"))
             if obj_id:
@@ -410,7 +425,7 @@ class CollectionStatistics:
                     self.obj_statistics[parent].add_child(child)
                     self.obj_statistics[child].add_parent(parent)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         headers = [
             "Object Type",
             "Count",

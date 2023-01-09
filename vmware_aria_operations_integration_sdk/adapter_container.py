@@ -5,8 +5,14 @@ import json
 import logging
 import os
 import time
+from asyncio import Task
+from asyncio.futures import Future
+from typing import Optional
 
 import httpx
+from docker import DockerClient
+from docker.models.containers import Container
+from docker.models.images import Image
 
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
@@ -29,24 +35,24 @@ logger.addHandler(consoleHandler)
 
 
 class AdapterContainer:
-    def __init__(self, path):
-        self.docker_client = init()
-        self.path = path
-        self.memory_limit = None
-        self.started = False
-        self.image = None
-        self._image_task = asyncio.wrap_future(
+    def __init__(self, path: str):
+        self.docker_client: DockerClient = init()
+        self.path: str = path
+        self.memory_limit: Optional[int] = None
+        self.started: bool = False
+        self.image: Optional[Image] = None
+        self._image_task: Optional[Future] = asyncio.wrap_future(
             get_container_image(self.docker_client, self.path)
         )
-        self.container = None
-        self._container_task = None
-        self.stats = None
+        self.container: Optional[Container] = None
+        self._container_task: Optional[Task] = None
+        self.stats: Optional[ContainerStats] = None
 
-    def start(self, memory_limit):
+    def start(self, memory_limit: int) -> None:
         self.memory_limit = memory_limit
         self._container_task = asyncio.create_task(self._threaded_start())
 
-    async def _threaded_start(self):
+    async def _threaded_start(self) -> None:
         if self._image_task:
             self.image = await self._image_task
             self._image_task = None
@@ -54,7 +60,7 @@ class AdapterContainer:
             self.docker_client, self.image, self.path, self.memory_limit
         )
 
-    async def stop(self):
+    async def stop(self) -> None:
         if self._container_task:
             await self._container_task
         if self.container:
@@ -63,16 +69,16 @@ class AdapterContainer:
         self.started = False
         self.container = None
 
-    async def get_container(self):
+    async def get_container(self) -> Container:
         if not self.started:
             await self.wait_for_container_startup()
         return self.container
 
-    async def record_stats(self):
+    async def record_stats(self) -> ContainerStats:
         self.stats = ContainerStats(await self.get_container())
         return self.stats
 
-    async def wait_for_container_startup(self):
+    async def wait_for_container_startup(self) -> None:
         if self.started:
             return
 

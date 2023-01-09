@@ -2,6 +2,8 @@
 #  SPDX-License-Identifier: Apache-2.0
 import json
 import os
+from typing import Dict
+from typing import Tuple
 
 import httpx
 from httpx import ReadTimeout
@@ -12,11 +14,15 @@ from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
+from vmware_aria_operations_integration_sdk.project import Connection
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.timer import timed
 
 
 @timed
-async def get(client: httpx.AsyncClient, url, headers):
+async def get(
+    client: httpx.AsyncClient, url: str, headers: Dict
+) -> Tuple[Request, Response]:
     # Note: httpx object does not translate nicely into a Request Object (we use this object for validation)
     request = Request(method="GET", url=url, headers=headers)
 
@@ -25,14 +31,18 @@ async def get(client: httpx.AsyncClient, url, headers):
 
 
 @timed
-async def post(client, url, json, headers):
+async def post(
+    client: httpx.AsyncClient, url: str, json: Dict, headers: Dict
+) -> Tuple[Request, Response]:
     # Note: httpx object does not translate nicely into a Request Object (we use this object for validation)
     request = Request(method="POST", url=url, json=json, headers=headers)
     response = await client.post(url=url, json=json, headers=headers)
     return request, response
 
 
-async def send_post_to_adapter(client, project, connection, endpoint):
+async def send_post_to_adapter(
+    client: httpx.AsyncClient, project: Project, connection: Connection, endpoint: str
+) -> Tuple[Request, Response, float]:
     try:
         request, response, elapsed_time = await post(
             client,
@@ -53,7 +63,9 @@ async def send_post_to_adapter(client, project, connection, endpoint):
     return request, response, elapsed_time
 
 
-async def send_get_to_adapter(client, endpoint):
+async def send_get_to_adapter(
+    client: httpx.AsyncClient, endpoint: str
+) -> Tuple[Request, Response, float]:
     try:
         request, response, elapsed_time = await get(
             client,
@@ -73,9 +85,15 @@ async def send_get_to_adapter(client, endpoint):
     return request, response, elapsed_time
 
 
-async def get_request_body(project, connection):
+async def get_request_body(project: Project, connection: Connection) -> Dict:
     describe, resources = await Describe.get()
     adapter_instance = get_adapter_instance(describe)
+    if not adapter_instance:
+        raise Exception(
+            "No adapter instance found in describe. Ensure that an "
+            "adapter instance resource kind (with attribute type=7) "
+            "exists."
+        )
 
     default_hostname = get_config_value(
         "suite_api_hostname", "hostname", os.path.join(project.path, "config.json")
@@ -138,7 +156,7 @@ async def get_request_body(project, connection):
     return request_body
 
 
-def get_failure_message(response):
+def get_failure_message(response: Response) -> str:
     message = ""
     if not response.is_success:
         message = f"{response.status_code} {response.reason_phrase}"

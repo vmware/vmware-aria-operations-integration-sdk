@@ -5,8 +5,15 @@ import logging
 import os
 import ssl
 import time
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
+
+from httpx import Response
+from requests import Request
 
 from vmware_aria_operations_integration_sdk.collection_statistics import (
     CollectionStatistics,
@@ -17,8 +24,10 @@ from vmware_aria_operations_integration_sdk.collection_statistics import (
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     get_failure_message,
 )
+from vmware_aria_operations_integration_sdk.docker_wrapper import ContainerStats
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.util import LazyAttribute
 from vmware_aria_operations_integration_sdk.validation.adapter_definition_validator import (
     validate_adapter_definition,
@@ -57,28 +66,35 @@ logger.addHandler(consoleHandler)
 
 
 class ResponseBundle:
-    def __init__(self, request, response, duration, container_statistics, validators):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+        validators: List[Callable],
+    ) -> None:
         self.response = response
         self.request = request
         self.duration = duration
         self.container_statistics = container_statistics
         self.validators = validators
 
-    def validate(self, project):
+    def validate(self, project: Project) -> Result:
         result = Result()
         for _validate in self.validators:
             result += _validate(project, self.request, self.response)
 
         return result
 
-    def serialize(self):
+    def serialize(self) -> None:
         # TODO look into Pickle vs JSON
         pass
 
-    def failed(self):
+    def failed(self) -> bool:
         return not self.response.is_success or "errorMessage" in self.response.text
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if not self.failed():
             _str = (
                 json.dumps(json.loads(self.response.text), sort_keys=True, indent=4)
@@ -95,12 +111,18 @@ class ResponseBundle:
 
         return _str
 
-    def get_failure_message(self):
+    def get_failure_message(self) -> str:
         return get_failure_message(self.response)
 
 
 class CollectionBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_statistics):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+    ) -> None:
         super().__init__(
             request,
             response,
@@ -115,14 +137,14 @@ class CollectionBundle(ResponseBundle):
         self.collection_number = 1
         self.time_stamp = time.time()
 
-    def get_collection_statistics(self):
+    def get_collection_statistics(self) -> Optional[CollectionStatistics]:
         return (
             None
             if self.failed()
             else CollectionStatistics(json.loads(self.response.text))
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         _str = ""
         if not self.failed():
             _str += (
@@ -143,12 +165,12 @@ class CollectionBundle(ResponseBundle):
 
 
 class LongCollectionBundle:
-    def __init__(self, collection_interval, long_run_duration):
-        self.collection_bundles = list()
-        self.collection_interval = collection_interval
-        self.long_run_duration = long_run_duration
+    def __init__(self, collection_interval: float, long_run_duration: float) -> None:
+        self.collection_bundles: List[CollectionBundle] = list()
+        self.collection_interval: float = collection_interval
+        self.long_run_duration: float = long_run_duration
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.long_collection_statistics)
 
     @LazyAttribute
@@ -157,7 +179,7 @@ class LongCollectionBundle:
             self.collection_bundles, self.collection_interval, self.long_run_duration
         )
 
-    def validate(self, *args, **kwargs) -> [str]:
+    def validate(self, *args: Any, **kwargs: Any) -> Result:
         """
         Scenario 1: individual objects of the same type are collected, but their identifier keeps changing which
         causes for there to always be the same number of objects, each collection, but overall there is object  growth
@@ -175,19 +197,31 @@ class LongCollectionBundle:
 
         return result
 
-    def add(self, collection_bundle):
+    def add(self, collection_bundle: CollectionBundle) -> None:
         self.collection_bundles.append(collection_bundle)
 
 
 class ConnectBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_statistics):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+    ) -> None:
         super().__init__(
             request, response, duration, container_statistics, [validate_api_response]
         )
 
 
 class EndpointURLsBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_statistics):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+    ) -> None:
         super().__init__(
             request,
             response,
@@ -196,11 +230,11 @@ class EndpointURLsBundle(ResponseBundle):
             [validate_api_response, validate_endpoint_urls],
         )
 
-    def retrieve_certificates(self):
+    def retrieve_certificates(self) -> Optional[List[Dict]]:
         if not self.response.is_success:
             return None
         endpoints = json.loads(self.response.text).get("endpointUrls", [])
-        certificates = []
+        certificates: List[Dict] = []
         if len(endpoints) == 0:
             # If there are no endpoints, we can return an empty list to be saved in a connection
             return certificates
@@ -214,7 +248,7 @@ class EndpointURLsBundle(ResponseBundle):
         return None
 
 
-def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
+def _get_certificate_from_endpoint(endpoint: str) -> Optional[Dict]:
     result = validate_endpoint(endpoint)
     if result.error_count > 0:
         logger.warning(
@@ -239,15 +273,15 @@ def _get_certificate_from_endpoint(endpoint) -> Optional[dict]:
         return None
 
 
-def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
+def _extract_host_port_from_endpoint(endpoint: str) -> Tuple[str, int]:
     protocol, url = endpoint.split("://", maxsplit=1)
     port = 443
     if ":" in url:
-        url, port = url.split(":", maxsplit=1)
-        if "/" in port:
-            port, _ = port.split("/", maxsplit=1)
+        url, port_str = url.split(":", maxsplit=1)
+        if "/" in port_str:
+            port_str, _ = port_str.split("/", maxsplit=1)
         try:
-            port = int(port)
+            port = int(port_str)
         except ValueError as e:
             port = 443
     if "/" in url:
@@ -256,7 +290,13 @@ def _extract_host_port_from_endpoint(endpoint) -> Tuple[str, int]:
 
 
 class AdapterDefinitionBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_statistics):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+    ) -> None:
         super().__init__(
             request,
             response,
@@ -265,7 +305,7 @@ class AdapterDefinitionBundle(ResponseBundle):
             [validate_definition_api_response, validate_adapter_definition],
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if not self.failed():
             if self.response.status_code == 204:
                 _str = "No adapter definition returned.\n\n"
@@ -287,18 +327,24 @@ class AdapterDefinitionBundle(ResponseBundle):
 
 
 class VersionBundle(ResponseBundle):
-    def __init__(self, request, response, duration, container_statistics):
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        duration: float,
+        container_statistics: ContainerStats,
+    ) -> None:
         super().__init__(
             request, response, duration, container_statistics, [validate_api_response]
         )
 
 
 class WaitBundle:
-    def __init__(self, duration, container_statistics):
+    def __init__(self, duration: float, container_statistics: ContainerStats) -> None:
         self.duration = duration
         self.container_statistics = container_statistics
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         _str = "\n"
         _str += str(self.container_statistics.get_table()) + "\n"
         _str += f"\nContainer ran for {self.duration:0.2f} seconds."

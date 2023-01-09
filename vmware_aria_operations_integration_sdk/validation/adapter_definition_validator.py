@@ -5,10 +5,14 @@ import logging
 import os
 from json import JSONDecodeError
 
+from httpx import Response
+from requests import Request
+
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import json_to_xml
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.validation.describe_checks import (
     validate_describe,
 )
@@ -21,7 +25,9 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def validate_adapter_definition(project, request, response):
+def validate_adapter_definition(
+    project: Project, request: Request, response: Response
+) -> Result:
     result = Result()
     if not response.is_success:
         # Failure case is already handled in first validator that AdapterDefinitionBundle calls
