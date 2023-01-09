@@ -24,7 +24,7 @@ from vmware_aria_operations_integration_sdk.util import LazyAttribute
 
 class ObjectStatistics:
     def __init__(self, json: Dict) -> None:
-        key = _get_object_id(json.get("key"))
+        key = _get_object_id(json.get("key"))  # type: ignore
         if not key:
             raise Exception("Could not find key in json when creating ObjectStatistics")
         self.key = key

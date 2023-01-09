@@ -1,7 +1,10 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
+from typing import Dict
+from typing import List
 from typing import Optional
+from typing import Tuple
 
 
 @dataclass(frozen=True)
@@ -9,11 +12,11 @@ class ObjectType:
     adapterKind: str
     objectKind: str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.adapterKind}::{self.objectKind}"
 
 
-def _get_type(json) -> Optional[ObjectType]:
+def _get_type(json: Dict) -> Optional[ObjectType]:
     if not json:
         return None
     if "adapterKind" not in json:
@@ -32,49 +35,49 @@ class Identifier:
     key: str
     value: str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.key}: {self.value}"
 
 
-def _get_identifier(json) -> Optional[Identifier]:
+def _get_identifier(json: Dict) -> Optional[Identifier]:
     if not json:
         return None
     if json.get("isPartOfUniqueness"):
         key = json.get("key")
-        value = json.get("value")
-        return Identifier(key, value)
+        value = json.get("value", "")
+        if key:
+            return Identifier(key, value)
     return None
 
 
-def _get_identifiers(json) -> tuple[Identifier]:
+def _get_identifiers(json: Dict) -> List[Identifier]:
     if not json:
-        return tuple()
+        return []
     identifiers = json.get("identifiers", [])
     identifiers = [_get_identifier(identifier) for identifier in identifiers]
-    identifiers = tuple(
-        sorted([id for id in identifiers if id is not None], key=lambda id: id.key)
-    )
-    return identifiers
+    return sorted([id for id in identifiers if id is not None], key=lambda id: id.key)
 
 
 @dataclass(frozen=True)
 class ObjectId:
     name: str
     objectKind: ObjectType
-    identifiers: [Identifier]
+    identifiers: List[Identifier]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.objectKind})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         ids = " :: ".join(map(str, self.identifiers))
         return f"{self.name} ({self.objectKind} - {ids})"
 
 
-def _get_object_id(json) -> Optional[ObjectId]:
+def _get_object_id(json: Dict) -> Optional[ObjectId]:
     if not json:
         return None
     name = json.get("name")
     object_type = _get_type(json)
     identifiers = _get_identifiers(json)
-    return ObjectId(name, object_type, identifiers)
+    if name and object_type:
+        return ObjectId(name, object_type, identifiers)
+    return None
