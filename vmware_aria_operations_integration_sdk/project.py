@@ -9,6 +9,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
@@ -181,7 +182,7 @@ def _find_project_by_path(path: str) -> Project:
 
 
 def _add_and_update_project_paths(path: str) -> None:
-    project_paths: Set[str] = set(get_config_value("projects", []))  # type: ignore
+    project_paths: Set[str] = set(get_config_value("projects", []))
     project_paths.add(path)
     set_config_value(
         "projects",
