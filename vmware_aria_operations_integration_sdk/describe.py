@@ -8,9 +8,9 @@ import os
 from collections import OrderedDict
 from typing import Dict
 from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import TYPE_CHECKING
 
 import httpx
 import lxml.etree as ET
@@ -19,7 +19,10 @@ from aria.ops.definition.units import Units
 from lxml.etree import Element
 from lxml.etree import SubElement
 
-from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
+if TYPE_CHECKING:
+    from vmware_aria_operations_integration_sdk.adapter_container import (
+        AdapterContainer,
+    )
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
@@ -211,7 +214,7 @@ def get_adapter_instance(describe: Element) -> Optional[Element]:
 
 def get_resource_kinds(describe: Element) -> Iterable[Element]:
     resource_kinds: Element = describe.find(ns("ResourceKinds"))
-    if resource_kinds:
+    if resource_kinds is not None:
         return resource_kinds.findall(ns("ResourceKind"))  # type: ignore
     return []
 

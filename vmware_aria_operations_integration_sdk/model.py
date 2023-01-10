@@ -50,19 +50,21 @@ def _get_identifier(json: Dict) -> Optional[Identifier]:
     return None
 
 
-def _get_identifiers(json: Dict) -> List[Identifier]:
+def _get_identifiers(json: Dict) -> Tuple[Identifier, ...]:
     if not json:
-        return []
+        return tuple()
     identifiers = json.get("identifiers", [])
     identifiers = [_get_identifier(identifier) for identifier in identifiers]
-    return sorted([id for id in identifiers if id is not None], key=lambda id: id.key)
+    return tuple(
+        sorted([id for id in identifiers if id is not None], key=lambda id: id.key)
+    )
 
 
 @dataclass(frozen=True)
 class ObjectId:
     name: str
     objectKind: ObjectType
-    identifiers: List[Identifier]
+    identifiers: Tuple[Identifier, ...]
 
     def __str__(self) -> str:
         return f"{self.name} ({self.objectKind})"

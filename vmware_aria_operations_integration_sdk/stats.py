@@ -63,11 +63,10 @@ def get_growth_rate(initial: float, final: float, duration: float) -> float:
     :return: float that represents the percent of growth per period unit
     """
     # Adding one to the formula allows us to account for cases where zero is the initial or final value
-    if not (final and initial):
+    if not (final > 0 and initial > 0):
         initial += 1
         final += 1
 
-    assert duration >= 1
     assert initial >= 0
     assert final >= 0
     assert final >= initial

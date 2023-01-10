@@ -1,19 +1,23 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 from collections import defaultdict
 from typing import Any
 from typing import Dict
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
+from typing import TYPE_CHECKING
 
 from vmware_aria_operations_integration_sdk.docker_wrapper import ContainerStats
 from vmware_aria_operations_integration_sdk.model import _get_object_id
 from vmware_aria_operations_integration_sdk.model import ObjectId
 from vmware_aria_operations_integration_sdk.model import ObjectType
-from vmware_aria_operations_integration_sdk.serialization import CollectionBundle
+
+if TYPE_CHECKING:
+    from vmware_aria_operations_integration_sdk.serialization import CollectionBundle
 from vmware_aria_operations_integration_sdk.stats import get_growth_rate
 from vmware_aria_operations_integration_sdk.stats import LongRunStats
 from vmware_aria_operations_integration_sdk.stats import Stats

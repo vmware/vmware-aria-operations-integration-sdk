@@ -88,7 +88,7 @@ async def send_get_to_adapter(
 async def get_request_body(project: Project, connection: Connection) -> Dict:
     describe, resources = await Describe.get()
     adapter_instance = get_adapter_instance(describe)
-    if not adapter_instance:
+    if adapter_instance is None:
         raise Exception(
             "No adapter instance found in describe. Ensure that an "
             "adapter instance resource kind (with attribute type=7) "
