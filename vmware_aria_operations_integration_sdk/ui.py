@@ -8,6 +8,7 @@ import re
 import time
 from types import TracebackType
 from typing import Any
+from typing import Generic
 from typing import List
 from typing import Optional
 from typing import Sequence
@@ -253,7 +254,7 @@ def selection_prompt(
     message: str,
     items: Sequence[Tuple],
     description: str = "",
-) -> str:
+) -> Any:
     """
     :param message: Question/prompt to display above list of choices
     :param items: 2-tuples (key, label) or 3-tuples (key, label, disabled_message) that the user can select between
@@ -263,7 +264,7 @@ def selection_prompt(
     expanded_items = list(
         map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items)
     )
-    return SelectControl(message, description, expanded_items).run()[0]  # type: ignore
+    return SelectControl(message, description, expanded_items).run()[0]
 
 
 def multiselect_prompt(

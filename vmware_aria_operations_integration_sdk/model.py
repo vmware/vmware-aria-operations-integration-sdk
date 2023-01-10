@@ -72,7 +72,7 @@ class ObjectId:
         return f"{self.name} ({self.objectKind} - {ids})"
 
 
-def _get_object_id(json: Dict) -> Optional[ObjectId]:
+def _get_object_id(json: Optional[Dict]) -> Optional[ObjectId]:
     if not json:
         return None
     name = json.get("name")

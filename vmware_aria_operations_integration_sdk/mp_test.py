@@ -6,6 +6,12 @@ import logging
 import os
 import time
 import traceback
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from xml.etree.ElementTree import Element
 
 import httpx
 import lxml.etree as ET
@@ -42,6 +48,7 @@ from vmware_aria_operations_integration_sdk.logging_format import CustomFormatte
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import Connection
 from vmware_aria_operations_integration_sdk.project import get_project
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.project import record_project
 from vmware_aria_operations_integration_sdk.serialization import AdapterDefinitionBundle
 from vmware_aria_operations_integration_sdk.serialization import CollectionBundle
@@ -74,6 +81,7 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     UniquenessValidator,
 )
+from vmware_aria_operations_integration_sdk.validation.result import Result
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -84,9 +92,15 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-async def run_long_collect(timeout, project, connection, adapter_container, **kwargs):
+async def run_long_collect(
+    timeout: Optional[float],
+    project: Project,
+    connection: Connection,
+    adapter_container: AdapterContainer,
+    **kwargs: Any,
+) -> LongCollectionBundle:
     logger.debug("Starting long run")
-    cli_args = kwargs.get("cli_args")
+    cli_args = kwargs.get("cli_args", {})
 
     duration = cli_args.get("duration", None) or prompt(
         message="Collection duration: ",
@@ -145,7 +159,12 @@ async def run_long_collect(timeout, project, connection, adapter_container, **kw
 
 
 async def run_collect(
-    timeout, project, connection, adapter_container, title="Running Collect", **kwargs
+    timeout: float,
+    project: Project,
+    connection: Connection,
+    adapter_container: AdapterContainer,
+    title: str = "Running Collect",
+    **kwargs: Any,
 ) -> CollectionBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
@@ -160,8 +179,13 @@ async def run_collect(
 
 
 async def run_connect(
-    timeout, project, connection, adapter_container, title="Running Connect", **kwargs
-):
+    timeout: float,
+    project: Project,
+    connection: Connection,
+    adapter_container: AdapterContainer,
+    title: str = "Running Connect",
+    **kwargs: Any,
+) -> ConnectBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -175,13 +199,13 @@ async def run_connect(
 
 
 async def run_get_endpoint_urls(
-    timeout,
-    project,
-    connection,
-    adapter_container,
-    title="Running Endpoint URLs",
-    **kwargs,
-):
+    timeout: float,
+    project: Project,
+    connection: Connection,
+    adapter_container: AdapterContainer,
+    title: str = "Running Endpoint URLs",
+    **kwargs: Any,
+) -> EndpointURLsBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -195,13 +219,13 @@ async def run_get_endpoint_urls(
 
 
 async def run_get_adapter_definition(
-    timeout,
-    project,
-    connection,
-    adapter_container,
-    title="Running Adapter Definition",
-    **kwargs,
-):
+    timeout: float,
+    project: Project,
+    connection: Connection,
+    adapter_container: AdapterContainer,
+    title: str = "Running Adapter Definition",
+    **kwargs: Any,
+) -> AdapterDefinitionBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -215,8 +239,11 @@ async def run_get_adapter_definition(
 
 
 async def run_get_server_version(
-    timeout, adapter_container, title="Running Get API Version", **kwargs
-):
+    timeout: float,
+    adapter_container: AdapterContainer,
+    title: str = "Running Get API " "Version",
+    **kwargs: Any,
+) -> VersionBundle:
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -229,7 +256,7 @@ async def run_get_server_version(
             )
 
 
-async def run_wait(adapter_container, **kwargs):
+async def run_wait(adapter_container: AdapterContainer, **kwargs: Any) -> WaitBundle:
     await adapter_container.wait_for_container_startup()
     start_time = time.perf_counter()
     async with await adapter_container.record_stats():
@@ -237,7 +264,7 @@ async def run_wait(adapter_container, **kwargs):
     return WaitBundle(time.perf_counter() - start_time, adapter_container.stats)
 
 
-async def run(arguments):
+async def run(arguments: Any) -> None:
     # User input
     project = get_project(arguments)
 
@@ -326,11 +353,11 @@ async def run(arguments):
     )
 
 
-def get_method(arguments):
+def get_method(arguments: Any) -> Callable:
     if "func" in vars(arguments):
-        return vars(arguments)["func"]
+        return vars(arguments)["func"]  # type: ignore
 
-    return selection_prompt(
+    return selection_prompt(  # type: ignore
         "Choose a method to test:",
         [
             (run_connect, "Test Connection"),
@@ -344,7 +371,12 @@ def get_method(arguments):
 
 
 # TODO: move this to UI
-def display_ui(result, validation_file_path, verbosity, over_write_minimum_log_level):
+def display_ui(
+    result: Result,
+    validation_file_path: str,
+    verbosity: int,
+    over_write_minimum_log_level: bool,
+) -> None:
     if over_write_minimum_log_level and verbosity < 2:
         verbosity = 2
 
@@ -374,7 +406,7 @@ def display_ui(result, validation_file_path, verbosity, over_write_minimum_log_l
 
 
 # TODO: a new file inside of the validation module
-def write_validation_log(validation_file_path, result):
+def write_validation_log(validation_file_path: str, result: Result) -> None:
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
         for (severity, message) in result.messages:
@@ -384,7 +416,9 @@ def write_validation_log(validation_file_path, result):
 # Helpers for creating the json payload ***************
 
 
-async def get_connection(project, adapter_container, arguments):
+async def get_connection(
+    project: Project, adapter_container: AdapterContainer, arguments: Any
+) -> Connection:
     connection_names = [
         (connection.name, connection.name) for connection in project.connections
     ]
@@ -474,12 +508,14 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 
     suite_api_credentials = get_suite_api_connection_info(project)
 
-    connection_names = [connection.name for connection in (project.connections or [])]
-    connection_names.append("New Connection")
+    existing_connection_names = [
+        connection.name for connection in (project.connections or [])
+    ]
+    existing_connection_names.append("New Connection")
 
     name = prompt(
         message="Enter a name for this connection: ",
-        validator=UniquenessValidator("Connection name", connection_names),
+        validator=UniquenessValidator("Connection name", existing_connection_names),
         validate_while_typing=False,
         description="The connection name is used to identify this connection (parameters and credential) in\n"
         "command line arguments or in the interactive prompt.",
@@ -500,7 +536,7 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
     return new_connection
 
 
-def get_suite_api_connection_info(project):
+def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
     suiteapi_hostname = get_config_value(
         "suite_api_hostname", "hostname", os.path.join(project.path, "config.json")
     )
@@ -558,7 +594,7 @@ def get_suite_api_connection_info(project):
     return suiteapi_hostname, suiteapi_username, suiteapi_password
 
 
-def input_parameter(parameter_type, parameter, resources):
+def input_parameter(parameter_type: str, parameter: Element, resources: Dict) -> str:
     key = parameter.get("key")
     is_required = is_true(parameter, "required", default="true")
     is_password = is_true(parameter, "password")
@@ -600,10 +636,10 @@ def input_parameter(parameter_type, parameter, resources):
             ),
             description=description,
         )
-    return value
+    return value  # type: ignore
 
 
-def main():
+def main() -> None:
     description = "Tool for running adapter test and collect methods outside of a VMware Aria Operations Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
 

@@ -24,7 +24,7 @@ from vmware_aria_operations_integration_sdk.util import LazyAttribute
 
 class ObjectStatistics:
     def __init__(self, json: Dict) -> None:
-        key = _get_object_id(json.get("key"))  # type: ignore
+        key = _get_object_id(json.get("key"))
         if not key:
             raise Exception("Could not find key in json when creating ObjectStatistics")
         self.key = key
@@ -61,106 +61,6 @@ class ObjectStatistics:
 
     def get_children_count(self) -> int:
         return len(self.children)
-
-
-class LongObjectTypeStatistics:
-    def __init__(self, long_run_duration: float) -> None:
-        self.long_run_duration = long_run_duration
-        self.objects_stats = UniqueObjectTypeStatistics()
-        self.metrics_stats = UniqueObjectTypeStatistics()
-        self.properties_stats = UniqueObjectTypeStatistics()
-        self.events_stats = UniqueObjectTypeStatistics()
-        self.relationships_stats = UniqueObjectTypeStatistics()
-        self.string_property_values_stats = UniqueObjectTypeStatistics()
-
-    def add(self, _object: ObjectTypeStatistics) -> None:
-        self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
-        self.metrics_stats.add(_object.get_unique_metrics(), _object.get_metric_count())
-        self.properties_stats.add(
-            _object.get_unique_properties(), _object.get_property_count()
-        )
-        self.events_stats.add(_object.get_unique_events(), _object.get_event_count())
-        unique_relationships = _object.get_unique_relationships()
-        self.relationships_stats.add(unique_relationships, len(unique_relationships))
-        self.string_property_values_stats.add(
-            _object.get_unique_string_property_values(), 0
-        )
-
-    def get_growth_rates(self) -> List[str]:
-        return [
-            f"{self.objects_growth_rate:.2f} %",
-            f"{self.metrics_growth_rate:.2f} %",
-            f"{self.properties_growth_rate:.2f} %",
-            f"{self.string_properties_growth_rate:.2f} %",
-            f"{self.events_growth_rate:.2f} %",
-            f"{self.relationships_growth_rate:.2f} %",
-        ]
-
-    def get_summary(self) -> Dict[str, Any]:
-        return {
-            "objects": LongRunStats(self.objects_stats.counts),
-            "events": LongRunStats(self.events_stats.counts),
-            "metrics": LongRunStats(self.metrics_stats.counts),
-            "properties": LongRunStats(self.properties_stats.counts),
-            "relationships": LongRunStats(self.relationships_stats.counts),
-        }
-
-    @LazyAttribute
-    def objects_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.objects_stats.data_points[0], self.objects_stats.data_points[-1], hours
-        )
-
-    @LazyAttribute
-    def metrics_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.metrics_stats.data_points[0], self.metrics_stats.data_points[-1], hours
-        )
-
-    @LazyAttribute
-    def properties_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.properties_stats.data_points[0],
-            self.properties_stats.data_points[-1],
-            hours,
-        )
-
-    @LazyAttribute
-    def property_values_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.string_property_values_stats.data_points[0],
-            self.string_property_values_stats.data_points[-1],
-            hours,
-        )
-
-    @LazyAttribute
-    def string_properties_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.string_property_values_stats.data_points[0],
-            self.string_property_values_stats.data_points[-1],
-            hours,
-        )
-
-    @LazyAttribute
-    def events_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.events_stats.data_points[0], self.events_stats.data_points[-1], hours
-        )
-
-    @LazyAttribute
-    def relationships_growth_rate(self) -> float:
-        hours = self.long_run_duration / 3600
-        return get_growth_rate(
-            self.relationships_stats.data_points[0],
-            self.relationships_stats.data_points[-1],
-            hours,
-        )
 
 
 class ObjectTypeStatistics:
@@ -269,6 +169,106 @@ class ObjectTypeStatistics:
         }
 
 
+class LongObjectTypeStatistics:
+    def __init__(self, long_run_duration: float) -> None:
+        self.long_run_duration = long_run_duration
+        self.objects_stats = UniqueObjectTypeStatistics()
+        self.metrics_stats = UniqueObjectTypeStatistics()
+        self.properties_stats = UniqueObjectTypeStatistics()
+        self.events_stats = UniqueObjectTypeStatistics()
+        self.relationships_stats = UniqueObjectTypeStatistics()
+        self.string_property_values_stats = UniqueObjectTypeStatistics()
+
+    def add(self, _object: ObjectTypeStatistics) -> None:
+        self.objects_stats.add(_object.get_unique_objects(), _object.get_object_count())
+        self.metrics_stats.add(_object.get_unique_metrics(), _object.get_metric_count())
+        self.properties_stats.add(
+            _object.get_unique_properties(), _object.get_property_count()
+        )
+        self.events_stats.add(_object.get_unique_events(), _object.get_event_count())
+        unique_relationships = _object.get_unique_relationships()
+        self.relationships_stats.add(unique_relationships, len(unique_relationships))
+        self.string_property_values_stats.add(
+            _object.get_unique_string_property_values(), 0
+        )
+
+    def get_growth_rates(self) -> List[str]:
+        return [
+            f"{self.objects_growth_rate:.2f} %",
+            f"{self.metrics_growth_rate:.2f} %",
+            f"{self.properties_growth_rate:.2f} %",
+            f"{self.string_properties_growth_rate:.2f} %",
+            f"{self.events_growth_rate:.2f} %",
+            f"{self.relationships_growth_rate:.2f} %",
+        ]
+
+    def get_summary(self) -> Dict[str, Any]:
+        return {
+            "objects": LongRunStats(self.objects_stats.counts),
+            "events": LongRunStats(self.events_stats.counts),
+            "metrics": LongRunStats(self.metrics_stats.counts),
+            "properties": LongRunStats(self.properties_stats.counts),
+            "relationships": LongRunStats(self.relationships_stats.counts),
+        }
+
+    @LazyAttribute
+    def objects_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.objects_stats.data_points[0], self.objects_stats.data_points[-1], hours
+        )
+
+    @LazyAttribute
+    def metrics_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.metrics_stats.data_points[0], self.metrics_stats.data_points[-1], hours
+        )
+
+    @LazyAttribute
+    def properties_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.properties_stats.data_points[0],
+            self.properties_stats.data_points[-1],
+            hours,
+        )
+
+    @LazyAttribute
+    def property_values_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.string_property_values_stats.data_points[0],
+            self.string_property_values_stats.data_points[-1],
+            hours,
+        )
+
+    @LazyAttribute
+    def string_properties_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.string_property_values_stats.data_points[0],
+            self.string_property_values_stats.data_points[-1],
+            hours,
+        )
+
+    @LazyAttribute
+    def events_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.events_stats.data_points[0], self.events_stats.data_points[-1], hours
+        )
+
+    @LazyAttribute
+    def relationships_growth_rate(self) -> float:
+        hours = self.long_run_duration / 3600
+        return get_growth_rate(
+            self.relationships_stats.data_points[0],
+            self.relationships_stats.data_points[-1],
+            hours,
+        )
+
+
 class LongCollectionStatistics:
     def __init__(
         self,
@@ -359,13 +359,16 @@ class LongCollectionStatistics:
             elif collection_stat.duration > self.collection_interval:
                 number = f"{number} (longer than collection interval)"
                 longer_collections.append(collection_stat)
-            data.append(
-                [
-                    number,
-                    f"{collection_stat.duration:.2f} s",
-                    *collection_stat.container_statistics.get_summary(),
-                ]
-            )
+            if collection_stat.container_statistics:
+                data.append(
+                    [
+                        number,
+                        f"{collection_stat.duration:.2f} s",
+                        *collection_stat.container_statistics.get_summary(),
+                    ]
+                )
+            else:
+                data.append([number, f"{collection_stat.duration:.2f} s", []])
         collection_table = str(Table(headers, data))
 
         summary = (

@@ -10,6 +10,9 @@ import shutil
 import time
 import traceback
 import zipfile
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import httpx
 
@@ -56,7 +59,7 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def build_subdirectories(directory: str):
+def build_subdirectories(directory: str) -> None:
     """
     Parse the given directory and generates a subdirectory for every file in the current directory, then it moves each
     file inside the subdirectory. Subdirectories are ignored.
@@ -101,14 +104,14 @@ def build_subdirectories(directory: str):
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def get_registry_components(docker_registry: str) -> (str, str):
+def get_registry_components(docker_registry: str) -> Tuple[str, str]:
     components = docker_registry.split("/")
     host = components[0]
     path = "/".join(components[1:])
     return host, path
 
 
-def is_valid_registry(docker_registry) -> bool:
+def is_valid_registry(docker_registry: str) -> bool:
     try:
         login(docker_registry)
     except LoginError:
@@ -117,7 +120,7 @@ def is_valid_registry(docker_registry) -> bool:
     return True
 
 
-def registry_prompt(default):
+def registry_prompt(default: str) -> str:
     return prompt(
         "Enter the tag for the Docker registry: ",
         default=default,
@@ -133,8 +136,10 @@ def registry_prompt(default):
     )
 
 
-def get_docker_registry(adapter_kind_key, config_file):
-    docker_registry = get_config_value("docker_registry", config_file=config_file)
+def get_docker_registry(adapter_kind_key: str, config_file: str) -> str:
+    docker_registry: Optional[str] = get_config_value(
+        "docker_registry", config_file=config_file
+    )
 
     original_value = docker_registry
     if docker_registry is None:
@@ -161,7 +166,7 @@ def get_docker_registry(adapter_kind_key, config_file):
     return docker_registry
 
 
-def fix_describe(describe_adapter_kind_key, manifest_file):
+def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
     if describe_adapter_kind_key is None:
         exit(1)
     if not selection_prompt(
@@ -171,6 +176,7 @@ def fix_describe(describe_adapter_kind_key, manifest_file):
         "building and fix the issue manually.",
     ):
         exit(1)
+    manifest = {}
     with open(manifest_file) as manifest_fd:
         # use ordered dictionary to preserve the key order in the file
         manifest = json.load(manifest_fd, object_pairs_hook=collections.OrderedDict)
@@ -181,7 +187,7 @@ def fix_describe(describe_adapter_kind_key, manifest_file):
     return manifest
 
 
-async def build_pak_file(project_path, insecure_communication):
+async def build_pak_file(project_path: str, insecure_communication: bool) -> str:
     docker_client = init()
 
     manifest_file = os.path.join(project_path, "manifest.txt")
@@ -361,7 +367,7 @@ async def build_pak_file(project_path, insecure_communication):
         await adapter_container.stop()
 
 
-def main():
+def main() -> None:
     try:
         description = "Tool for building a pak file for a project."
         parser = argparse.ArgumentParser(description=description)

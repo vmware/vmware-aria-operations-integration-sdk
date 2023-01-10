@@ -71,7 +71,7 @@ class ResponseBundle:
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
         validators: List[Callable],
     ) -> None:
         self.response = response
@@ -106,7 +106,8 @@ class ResponseBundle:
         if (
             self.response.status_code != 500
         ):  # Allows the error message to be highlighted
-            _str += str(self.container_statistics.get_table()) + "\n"
+            if self.container_statistics:
+                _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Request completed in {self.duration:0.2f} seconds.\n"
 
         return _str
@@ -121,7 +122,7 @@ class CollectionBundle(ResponseBundle):
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
     ) -> None:
         super().__init__(
             request,
@@ -158,7 +159,8 @@ class CollectionBundle(ResponseBundle):
         if (
             self.response.status_code != 500
         ):  # Allows the error message to be highlighted
-            _str += str(self.container_statistics.get_table()) + "\n"
+            if self.container_statistics:
+                _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Collection completed in {self.duration:0.2f} seconds.\n"
 
         return _str
@@ -207,7 +209,7 @@ class ConnectBundle(ResponseBundle):
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
     ) -> None:
         super().__init__(
             request, response, duration, container_statistics, [validate_api_response]
@@ -220,7 +222,7 @@ class EndpointURLsBundle(ResponseBundle):
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
     ) -> None:
         super().__init__(
             request,
@@ -295,7 +297,7 @@ class AdapterDefinitionBundle(ResponseBundle):
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
     ) -> None:
         super().__init__(
             request,
@@ -320,7 +322,8 @@ class AdapterDefinitionBundle(ResponseBundle):
         if (
             self.response.status_code != 500
         ):  # Allows the error message to be highlighted
-            _str += str(self.container_statistics.get_table()) + "\n"
+            if self.container_statistics:
+                _str += str(self.container_statistics.get_table()) + "\n"
             _str += f"Request completed in {self.duration:0.2f} seconds.\n"
 
         return _str
@@ -332,7 +335,7 @@ class VersionBundle(ResponseBundle):
         request: Request,
         response: Response,
         duration: float,
-        container_statistics: ContainerStats,
+        container_statistics: Optional[ContainerStats],
     ) -> None:
         super().__init__(
             request, response, duration, container_statistics, [validate_api_response]
@@ -340,12 +343,15 @@ class VersionBundle(ResponseBundle):
 
 
 class WaitBundle:
-    def __init__(self, duration: float, container_statistics: ContainerStats) -> None:
+    def __init__(
+        self, duration: float, container_statistics: Optional[ContainerStats]
+    ) -> None:
         self.duration = duration
         self.container_statistics = container_statistics
 
     def __repr__(self) -> str:
         _str = "\n"
-        _str += str(self.container_statistics.get_table()) + "\n"
+        if self.container_statistics:
+            _str += str(self.container_statistics.get_table()) + "\n"
         _str += f"\nContainer ran for {self.duration:0.2f} seconds."
         return _str

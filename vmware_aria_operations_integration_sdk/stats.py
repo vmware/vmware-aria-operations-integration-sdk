@@ -39,7 +39,7 @@ class Stats:
 
 
 class LongRunStats(Stats):
-    def __init__(self, array: List[float], unit: str = ""):
+    def __init__(self, array: List[float], unit: str = "") -> None:
         super().__init__(array, unit)
         self.average = get_average(array)
 
@@ -54,7 +54,7 @@ def get_average(inputs: List[float]) -> float:
     return sum(inputs) / len(inputs)
 
 
-def get_growth_rate(initial: int, final: int, duration: float) -> float:
+def get_growth_rate(initial: float, final: float, duration: float) -> float:
     """
     Calculates average percent growth rate per period
     :param initial: the initial number of objects / things

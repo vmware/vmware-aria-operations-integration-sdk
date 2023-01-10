@@ -89,12 +89,12 @@ def highlight_property_value_growth(
         if stats.property_values_growth_rate > 0
     ]
 
-    MAX_NUMBER_OF_PROPERTY_VALUES = min(
+    max_number_of_property_values: int = min(
         32, long_collection_statistics.total_number_of_collections
     )
     threshold = get_growth_rate(
         1,
-        MAX_NUMBER_OF_PROPERTY_VALUES,
+        max_number_of_property_values,
         long_collection_statistics.long_run_duration / 3600,
     )
 

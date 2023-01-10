@@ -36,7 +36,7 @@ class Connection:
         name: str,
         identifiers: Dict[str, Any],
         credential: Dict[str, Any],
-        certificates: Optional[List[str]] = None,
+        certificates: Optional[List[Dict]] = None,
         suite_api_connection: Tuple[Optional[str], Optional[str], Optional[str]] = (
             None,
             None,
