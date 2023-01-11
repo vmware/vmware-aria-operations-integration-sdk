@@ -111,13 +111,13 @@ def get_registry_components(docker_registry: str) -> Tuple[str, str]:
     return host, path
 
 
-def is_valid_registry(docker_registry: str) -> bool:
-    try:
-        login(docker_registry)
-    except LoginError:
-        return False
+def is_valid_registry(docker_registry: str, **kwargs) -> bool:
+     try:
+        login(docker_registry, **kwargs)
+     except LoginError:
+         return False
 
-    return True
+     return True
 
 
 def registry_prompt(default: str) -> str:
@@ -136,20 +136,24 @@ def registry_prompt(default: str) -> str:
     )
 
 
-def get_docker_registry(adapter_kind_key: str, config_file: str) -> str:
-    docker_registry: Optional[str] = get_config_value(
-        "docker_registry", config_file=config_file
-    )
+def get_docker_registry(adapter_kind_key: str, config_file: str, docker_registry_arg: Optional[str], **kwargs) -> str:
+    docker_registry = get_config_value("docker_registry", config_file=config_file)
+    default_registry_value = f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
 
     original_value = docker_registry
-    if docker_registry is None:
+    if docker_registry is None and docker_registry_arg is None:
         print(
             "mp-build needs to configure a Docker registry to store the adapter container image.",
             "class:information",
         )
         docker_registry = registry_prompt(
-            default=f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
+            default=default_registry_value
         )
+    elif docker_registry_arg is not None and not len(docker_registry_arg):
+        docker_registry = default_registry_value 
+    else:
+        docker_registry = docker_registry_arg
+        if not is_valid_registry(docker_registry, **kwargs): raise LoginError 
 
     first_time = True
     while not is_valid_registry(docker_registry):
@@ -187,7 +191,7 @@ def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -
     return manifest
 
 
-async def build_pak_file(project_path: str, insecure_communication: bool) -> str:
+async def build_pak_file(project_path: str, insecure_communication: bool, docker_registry_arg: Optional[str], **kwargs):
     docker_client = init()
 
     manifest_file = os.path.join(project_path, "manifest.txt")
@@ -242,8 +246,7 @@ async def build_pak_file(project_path: str, insecure_communication: bool) -> str
 
         # We should ask the user for this before we populate them with default values
         # Default values are only accessible for authorize members, so we might want to add a message about it
-        docker_registry = get_docker_registry(adapter_kind_key, config_file)
-
+        docker_registry = get_docker_registry(adapter_kind_key, config_file, docker_registry_arg, **kwargs) 
         tag = manifest["version"] + "_" + str(time.time())
 
         conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
@@ -381,6 +384,24 @@ def main() -> None:
         )
 
         parser.add_argument(
+            "-r",
+            "--registry-tag",
+            help="The full Docker registry tag where the container image will be stored",
+            nargs="?",
+            const=""
+        )
+
+        parser.add_argument(
+            "--registry-username",
+            help="The Docker registry username"
+        )
+
+        parser.add_argument(
+            "--registry-password",
+            help="The Docker registry password"
+        )
+
+        parser.add_argument(
             "-i",
             "--insecure-collector-communication",
             help="If this flag is present, communication between the collector (Cloud Proxy) and the "
@@ -391,6 +412,9 @@ def main() -> None:
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
+        docker_registry = parsed_args.registry_tag
+        registry_username= parsed_args.registry_username
+        registry_password = parsed_args.registry_password
 
         log_file_path = os.path.join(project.path, "logs")
         mkdir(log_file_path)
@@ -405,6 +429,7 @@ def main() -> None:
             )
         except Exception:
             logger.warning(f"Unable to save logs to {log_file_path}")
+
 
         project_dir = project.path
         # We want to store pak files in the build dir
@@ -437,7 +462,7 @@ def main() -> None:
 
             os.chdir(temp_dir)
 
-            pak_file = asyncio.run(build_pak_file(project_dir, insecure_communication))
+            pak_file = asyncio.run(build_pak_file(project_dir, insecure_communication, docker_registry, registry_username=registry_username, registry_password=registry_password))
 
             if os.path.exists(os.path.join(build_dir, pak_file)):
                 # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
