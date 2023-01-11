@@ -14,7 +14,7 @@ from aria.ops.definition.parameter import Parameter
 from aria.ops.definition.parameter import StringParameter
 
 
-class ObjectType(GroupType):
+class ObjectType(GroupType):  # type: ignore
     def __init__(self, key: str, label: Optional[str] = None):
         """
         Create a new object type definition
@@ -25,7 +25,7 @@ class ObjectType(GroupType):
         self.label = label
         if label is None:
             self.label = key
-        self.identifiers = OrderedDict()
+        self.identifiers: dict = OrderedDict()
         super().__init__()
 
     def define_string_identifier(
@@ -122,7 +122,7 @@ class ObjectType(GroupType):
         self.add_identifier(parameter)
         return self
 
-    def add_identifiers(self, identifiers: list[Parameter]):
+    def add_identifiers(self, identifiers: list[Parameter]) -> None:
         """
         :param identifiers: A list of identifiers to add to this object type
         :return: None
@@ -130,7 +130,7 @@ class ObjectType(GroupType):
         for identifier in identifiers:
             self.add_identifier(identifier)
 
-    def add_identifier(self, identifier: Parameter):
+    def add_identifier(self, identifier: Parameter) -> None:
         """
         Add an identifier to this object type. All 'identifying' identifiers are used to determine object uniqueness.
         If no 'identifying' identifiers exist, they object name will be used for uniqueness.
@@ -144,8 +144,8 @@ class ObjectType(GroupType):
             )
         self.identifiers[key] = identifier
 
-    def to_json(self):
-        return {
+    def to_json(self) -> dict:
+        return {  # type: ignore
             "key": self.key,
             "label": self.label,
             "identifiers": [

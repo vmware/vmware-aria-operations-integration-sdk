@@ -1,9 +1,16 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import json
 import logging
 import os
+from typing import Any
+from typing import Dict
+from typing import List
 from typing import Optional
+from typing import Set
+from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
@@ -28,11 +35,15 @@ class Connection:
     def __init__(
         self,
         name: str,
-        identifiers: dict[str, any],
-        credential: dict[str, any],
-        certificates: Optional[list[str]] = None,
-        suite_api_connection: (str, str, str) = (None, None, None),
-    ):
+        identifiers: Dict[str, Any],
+        credential: Dict[str, Any],
+        certificates: Optional[List[Dict]] = None,
+        suite_api_connection: Tuple[Optional[str], Optional[str], Optional[str]] = (
+            None,
+            None,
+            None,
+        ),
+    ) -> None:
         self.name = name
         self.identifiers = identifiers
         self.credential = credential
@@ -41,7 +52,7 @@ class Connection:
         self.suite_api_username = suite_api_connection[1]
         self.suite_api_password = suite_api_connection[2]
 
-    def get_memory_limit(self):
+    def get_memory_limit(self) -> int:
         memory_limit = self.identifiers.get(
             "container_memory_limit", DEFAULT_MEMORY_LIMIT
         )
@@ -60,10 +71,10 @@ class Connection:
             logger.warning(f"Cannot set 'container_memory_limit': {e}")
             logger.warning(f"Using default value: {DEFAULT_MEMORY_LIMIT} MB")
             memory_limit = DEFAULT_MEMORY_LIMIT
-        return memory_limit
+        return memory_limit  # type: ignore
 
     @classmethod
-    def extract(cls, json_connection):
+    def extract(cls, json_connection: Dict) -> Connection:
         name = json_connection["name"]
         identifiers = json_connection["identifiers"]
         credential = json_connection["credential"]
@@ -78,18 +89,21 @@ class Connection:
 
 class Project:
     def __init__(
-        self, path: str, connections: list[Connection] = None, docker_port: int = 8080
-    ):
+        self,
+        path: str,
+        connections: Optional[List[Connection]] = None,
+        docker_port: int = 8080,
+    ) -> None:
         if connections is None:
             connections = []
         self.path = os.path.abspath(path)
         self.connections = connections
         self.docker_port = docker_port
 
-    def name(self):
+    def name(self) -> str:
         return get_project_name(self.path)
 
-    def record(self):
+    def record(self) -> None:
         config_file = os.path.join(self.path, "config.json")
         set_config_value(
             "connections", [conn.__dict__ for conn in self.connections], config_file
@@ -97,7 +111,7 @@ class Project:
         set_config_value("docker_port", self.docker_port, config_file)
 
     @classmethod
-    def extract(cls, path):
+    def extract(cls, path: str) -> Project:
         local_config_file = os.path.join(path, "config.json")
         if not os.path.isfile(local_config_file):
             with open(local_config_file, "w") as config:
@@ -113,16 +127,16 @@ class Project:
             return Project(path, connections, docker_port)
 
 
-def get_project_name(path):
+def get_project_name(path: str) -> str:
     manifest_resources = os.path.join(path, "resources", "resources.properties")
     if os.path.isfile(manifest_resources):
         properties = load_properties(manifest_resources)
-        return properties["DISPLAY_NAME"]
+        return properties.get("DISPLAY_NAME", path)
     else:
         return path
 
 
-def get_project(arguments):
+def get_project(arguments: Any) -> Project:
     # If a path is supplied, use it first
     path = arguments.path
     if ProjectValidator.is_project_dir(path):
@@ -133,7 +147,7 @@ def get_project(arguments):
         return _find_project_by_path(os.getcwd())
 
     # Finally, prompt the user for the project
-    project_paths = get_config_value("projects", [])
+    project_paths: List[str] = get_config_value("projects", [])
     path = selection_prompt(
         "Select a project: ",
         [
@@ -151,24 +165,24 @@ def get_project(arguments):
     return _find_project_by_path(path)
 
 
-def record_project(project):
+def record_project(project: Project) -> Project:
     _add_and_update_project_paths(project.path)
     project.record()
     return project
 
 
-def read_project(path):
+def read_project(path: str) -> Project:
     return Project.extract(path)
 
 
-def _find_project_by_path(path):
+def _find_project_by_path(path: str) -> Project:
     path = os.path.abspath(path)
     _add_and_update_project_paths(path)
     return read_project(path)
 
 
-def _add_and_update_project_paths(path):
-    project_paths = set(get_config_value("projects", []))
+def _add_and_update_project_paths(path: str) -> None:
+    project_paths: Set[str] = set(get_config_value("projects", []))
     project_paths.add(path)
     set_config_value(
         "projects",

@@ -24,7 +24,7 @@ class Unit:
     is_rate: bool = False
 
 
-class UnitGroup(Enum):
+class UnitGroup(Enum):  # type: ignore
     pass
 
 
@@ -398,7 +398,7 @@ class Misc(UnitGroup):
     )
 
 
-class Units(Enum):
+class Units(Enum):  # type: ignore
     RATIO = Ratio
     TIME = Time
     TIME_RATE = TimeRate

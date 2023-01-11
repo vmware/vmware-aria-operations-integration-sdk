@@ -1,19 +1,31 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
 from __future__ import unicode_literals
 
 import os
 import re
 import time
+from types import TracebackType
+from typing import Any
+from typing import Generic
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit import PromptSession
 from prompt_toolkit.application import Application
+from prompt_toolkit.application import application
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.filters import IsDone
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding import KeyPressEvent
 from prompt_toolkit.layout import FormattedTextControl
 from prompt_toolkit.layout import Layout
 from prompt_toolkit.layout.containers import ConditionalContainer
@@ -24,6 +36,7 @@ from prompt_toolkit.layout.dimension import LayoutDimension
 from prompt_toolkit.lexers import SimpleLexer
 from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.styles import Style
+from prompt_toolkit.validation import Validator
 from prompt_toolkit.widgets import Frame
 from prompt_toolkit.widgets import TextArea
 
@@ -53,7 +66,9 @@ style = Style.from_dict(
 FULL_WIDTH = "FULL_WIDTH"
 
 
-def print_formatted(text="", style_class="", frame=False):
+def print_formatted(
+    text: str = "", style_class: str = "", frame: Union[bool, str] = False
+) -> None:
     if frame == FULL_WIDTH:
         print_container(
             TextArea(text=text, wrap_lines=True, style=style_class), style=style
@@ -66,8 +81,14 @@ def print_formatted(text="", style_class="", frame=False):
         print_formatted_text(FormattedText([(style_class, text)]), style=style)
 
 
-class ListControlBase(FormattedTextControl):
-    def __init__(self, message, description, items, selected_character):
+class ListControlBase(FormattedTextControl):  # type: ignore
+    def __init__(
+        self,
+        message: str,
+        description: str,
+        items: List[Tuple],
+        selected_character: str,
+    ) -> None:
         self.highlight_index = 0
         self.completed = False
         self.message = message
@@ -76,58 +97,58 @@ class ListControlBase(FormattedTextControl):
         self.selected_character = selected_character
         super().__init__(self._build_list, show_cursor=False)
 
-    def _inc(self, amt):
+    def _inc(self, amt: int) -> None:
         self.highlight_index = (self.highlight_index + amt) % len(self.items)
 
     # Override this in derived classes if necessary
-    def _toggle_current(self):
+    def _toggle_current(self) -> None:
         pass
 
     # Override this in derived classes
-    def _get_selection(self):
+    def _get_selection(self) -> List:
         return []
 
     # Override this in derived classes
-    def _is_selected(self, index):
+    def _is_selected(self, index: int) -> bool:
         return False
 
     # Override this in derived classes if necessary
-    def _is_disabled(self, index):
+    def _is_disabled(self, index: int) -> bool:
         return False
 
-    def _bindings(self):
+    def _bindings(self) -> KeyBindings:
         bindings = KeyBindings()
 
-        @bindings.add("c-q", eager=True)
-        @bindings.add("c-c", eager=True)
-        @bindings.add("c-d", eager=True)
-        def _(event):
+        @bindings.add("c-q", eager=True)  # type: ignore
+        @bindings.add("c-c", eager=True)  # type: ignore
+        @bindings.add("c-d", eager=True)  # type: ignore
+        def _(event: KeyPressEvent) -> None:
             event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
 
-        @bindings.add("down", eager=True)
-        def _down(event):
+        @bindings.add("down", eager=True)  # type: ignore
+        def _down(event: KeyPressEvent) -> None:
             self._inc(1)
             while self._is_disabled(self.highlight_index):
                 self._inc(1)
 
-        @bindings.add("up", eager=True)
-        def _up(event):
+        @bindings.add("up", eager=True)  # type: ignore
+        def _up(event: KeyPressEvent) -> None:
             self._inc(-1)
             while self._is_disabled(self.highlight_index):
                 self._inc(-1)
 
-        @bindings.add("space", eager=True)
-        def select(event):
+        @bindings.add("space", eager=True)  # type: ignore
+        def select(event: KeyPressEvent) -> None:
             self._toggle_current()
 
-        @bindings.add("enter", eager=True)
-        def _select(event):
+        @bindings.add("enter", eager=True)  # type: ignore
+        def _select(event: KeyPressEvent) -> None:
             self.completed = True
             event.app.exit(result=[item[0] for item in self._get_selection()])
 
         return bindings
 
-    def _build_list(self):
+    def _build_list(self) -> List:
         tokens = []
         for index, item in enumerate(self.items):
             if self._is_selected(index):
@@ -144,8 +165,8 @@ class ListControlBase(FormattedTextControl):
 
         return tokens
 
-    def _get_layout(self):
-        def build_prompt():
+    def _get_layout(self) -> Layout:
+        def build_prompt() -> List[Tuple[str, str]]:
             tokens = [("class:message", f"{self.message} ")]
 
             if self.completed:
@@ -162,8 +183,8 @@ class ListControlBase(FormattedTextControl):
                 tokens.append(("", ""))
             return tokens
 
-        @Condition
-        def has_description():
+        @Condition  # type: ignore
+        def has_description() -> bool:
             return bool(self.description)
 
         return Layout(
@@ -190,72 +211,80 @@ class ListControlBase(FormattedTextControl):
             )
         )
 
-    def run(self):
+    def run(self) -> application._AppResult:
         return Application(
             layout=self._get_layout(), key_bindings=self._bindings(), style=style
         ).run(in_thread=True)
 
 
 class SelectControl(ListControlBase):
-    def __init__(self, message, description, items):
+    def __init__(self, message: str, description: str, items: List) -> None:
         super().__init__(message, description, items, "\u276f")
 
-    def _get_selection(self):
+    def _get_selection(self) -> List:
         return [self.items[self.highlight_index]]
 
-    def _is_selected(self, index):
+    def _is_selected(self, index: int) -> bool:
         return index == self.highlight_index
 
-    def _is_disabled(self, index):
-        return self.items[index][2]
+    def _is_disabled(self, index: int) -> bool:
+        return self.items[index][2]  # type: ignore
 
 
 class MultiSelectControl(ListControlBase):
-    def __init__(self, message, description, items):
-        self.selected = [item[2] for item in items]
+    def __init__(self, message: str, description: str, items: List[Tuple]) -> None:
+        self.selected: List[bool] = [item[2] for item in items]
         super().__init__(message, description, items, "\u2713")
 
-    def _get_selection(self):
+    def _get_selection(self) -> List:
         return [item for index, item in enumerate(self.items) if self.selected[index]]
 
-    def _is_selected(self, index):
+    def _is_selected(self, index: int) -> bool:
         return self.selected[index]
 
     # MultiSelect does not support disabling options currently
-    def _is_disabled(self, index):
+    def _is_disabled(self, index: int) -> bool:
         return False
 
-    def _toggle_current(self):
+    def _toggle_current(self) -> None:
         self.selected[self.highlight_index] = not self.selected[self.highlight_index]
 
 
-def selection_prompt(message, items, description=""):
+def selection_prompt(
+    message: str,
+    items: Sequence[Tuple],
+    description: str = "",
+) -> Any:
     """
     :param message: Question/prompt to display above list of choices
     :param items: 2-tuples (key, label) or 3-tuples (key, label, disabled_message) that the user can select between
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return key of selected item
     """
-    items = list(
+    expanded_items = list(
         map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items)
     )
-    return SelectControl(message, description, items).run()[0]
+    return SelectControl(message, description, expanded_items).run()[0]
 
 
-def multiselect_prompt(message, items, description=""):
+def multiselect_prompt(
+    message: str,
+    items: Sequence[Tuple],
+    description: str = "",
+) -> List[str]:
     """
     :param message: Question/prompt to display above list of choices
     :param items: 2-tuples (key, label) or 3-tuples (key, label, checked_by_default) the user can individually toggle
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return list of keys of selected item(s)
     """
-    items = list(
+    expanded_items = list(
         map(lambda item: item if len(item) == 3 else (item[0], item[1], False), items)
     )
-    return MultiSelectControl(message, description, items).run()
+    return MultiSelectControl(message, description, expanded_items).run()  # type: ignore
 
 
-def path_prompt(message, validator, description=""):
+def path_prompt(message: str, validator: Validator, description: str = "") -> str:
     """
     :param message: Question/prompt to display
     :param validator: Validator that determines if entered path is valid
@@ -276,36 +305,35 @@ def path_prompt(message, validator, description=""):
         return os.path.abspath(os.path.expanduser(path))
 
 
-def prompt(message, *args, description="", **kwargs) -> str:
+def prompt(message: str, *args: Any, description: str = "", **kwargs: Any) -> str:
     """
     Wrapper around the default prompt_toolkit prompt, with some defaults to make it match the other UI elements
     :param message: Question/prompt to display
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return: User input
     """
-    description = [("", description)] if description else None
     session: PromptSession[str] = PromptSession()
 
-    return session.prompt(
+    return session.prompt(  # type: ignore
         message,
         *args,
         **kwargs,
-        bottom_toolbar=description,
+        bottom_toolbar=[("", description)] if description else None,
         lexer=SimpleLexer("class:answer"),
         style=style,
         in_thread=True,
     )
 
 
-class Spinner(FormattedTextControl):
-    def __init__(self, text):
+class Spinner(FormattedTextControl):  # type: ignore
+    def __init__(self, text: str) -> None:
         self.spinner_text = text
         self._index = 0
         self._update_time = time.time()
         self._finished = False
         super().__init__()
 
-    def __enter__(self):
+    def __enter__(self) -> Spinner:
         self.application = Application(
             layout=self._get_layout(),
             key_bindings=self._bindings(),
@@ -318,10 +346,15 @@ class Spinner(FormattedTextControl):
         return self
 
     @threaded
-    def _start_application(self):
+    def _start_application(self) -> None:
         self.application.run()
 
-    def __exit__(self, exec_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
         self._finished = True
 
         # The spinner *should* be running when we get here. If it's not, it's because the user interrupted with ctrl-c
@@ -337,8 +370,8 @@ class Spinner(FormattedTextControl):
         while not self._application_task.done():
             pass
 
-    def _get_layout(self):
-        def get_text():
+    def _get_layout(self) -> Layout:
+        def get_text() -> List[Tuple]:
             spinner = "-\\|/"[self._index]
             if time.time() >= self._update_time + 0.2:
                 self._index = (self._index + 1) % 4
@@ -363,19 +396,19 @@ class Spinner(FormattedTextControl):
             )
         )
 
-    def _bindings(self):
+    def _bindings(self) -> KeyBindings:
         bindings = KeyBindings()
 
-        @bindings.add("c-q", eager=True)
-        @bindings.add("c-c", eager=True)
-        @bindings.add("c-d", eager=True)
-        def _(event):
+        @bindings.add("c-q", eager=True)  # type: ignore
+        @bindings.add("c-c", eager=True)  # type: ignore
+        @bindings.add("c-d", eager=True)  # type: ignore
+        def _(event: KeyPressEvent) -> None:
             event.app.exit(exception=KeyboardInterrupt, style="class:aborting")
 
         return bindings
 
 
-def countdown(duration, message=""):
+def countdown(duration: float, message: str = "") -> None:
     end_time = time.time() + duration
     remaining = ""
     try:
@@ -390,12 +423,12 @@ def countdown(duration, message=""):
 
 
 class Table:
-    def __init__(self, headers: [], data: [[]]):
+    def __init__(self, headers: List[Any], data: List[List[Any]]) -> None:
         # Convert each header/cell to a string - otherwise won't work with len() and format() functions
         self.headers = [str(header) for header in headers]
         self.data = [[str(col) for col in row] for row in data]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         output = ""
         column_sizes = []
         horizontal_rule = []

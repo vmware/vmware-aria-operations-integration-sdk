@@ -2,6 +2,10 @@
 #  SPDX-License-Identifier: Apache-2.0
 import json
 import os
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
 from typing import Union
 
 from vmware_aria_operations_integration_sdk.constant import GLOBAL_CONFIG_FILE
@@ -13,9 +17,9 @@ from vmware_aria_operations_integration_sdk.constant import GLOBAL_CONFIG_FILE
 
 
 def get_config_value(
-    key: str, default: any = None, config_file: str = GLOBAL_CONFIG_FILE
-) -> Union[dict, list, str, int]:
-    defaults = {key: default}
+    key: str, default: Any = None, config_file: str = GLOBAL_CONFIG_FILE
+) -> Any:
+    defaults: Optional[Dict] = {key: default}
     if default is None:
         defaults = None
     return get_config_values(key, defaults=defaults, config_file=config_file)[key]
@@ -27,8 +31,10 @@ def get_config_value(
 # was set where previously no key/value pair existed), the new key/value pair is stored back into
 # the config file.
 def get_config_values(
-    *keys: [str], defaults: dict[str, any] = None, config_file: str = GLOBAL_CONFIG_FILE
-):
+    *keys: Any,
+    defaults: Optional[Dict[str, Any]] = None,
+    config_file: str = GLOBAL_CONFIG_FILE
+) -> Dict[str, Any]:
     if defaults is None:
         defaults = {}
 
@@ -61,7 +67,9 @@ def get_config_values(
 
 # Given a key and a value, write the given value to key 'key'. If the key does not exist it will
 # be created. If the key does exist, the value will be overwritten with the contents of 'value'
-def set_config_value(key: str, value: any, config_file: str = GLOBAL_CONFIG_FILE):
+def set_config_value(
+    key: str, value: Any, config_file: str = GLOBAL_CONFIG_FILE
+) -> None:
     if not os.path.isfile(config_file):
         with open(config_file, "w") as config:
             json.dump({}, config, indent=4, sort_keys=True)

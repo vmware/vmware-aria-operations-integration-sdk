@@ -3,13 +3,21 @@
 import json
 from collections import defaultdict
 from json import JSONDecodeError
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+
+from httpx import Response
+from requests import Request
 
 from vmware_aria_operations_integration_sdk.model import _get_object_id
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
 class Cycle:
-    def __init__(self, stack: list):
+    def __init__(self, stack: List) -> None:
         # Note: stack is modified!
         current_node = stack.pop()
         cycle = [current_node]
@@ -17,7 +25,7 @@ class Cycle:
             cycle.insert(0, stack.pop())
         self.cycle = cycle
 
-    def __eq__(self, o: object) -> bool:
+    def __eq__(self, o: Any) -> bool:
         if type(o) is Cycle:
             cycle_length = len(self.cycle)
             if len(o.cycle) != cycle_length:
@@ -32,7 +40,7 @@ class Cycle:
                 return False
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         cycle_length = len(self.cycle)
         hash_values = [hash(node) for node in self.cycle]
         min_value = min(hash_values)
@@ -42,7 +50,7 @@ class Cycle:
             string += repr(self.cycle[(i + offset) % cycle_length]) + ":"
         return hash(string)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if len(self.cycle) > 0:
             return (
                 str(self.cycle[-1])
@@ -53,15 +61,15 @@ class Cycle:
 
 
 class Graph:
-    def __init__(self, nodes: set, adjacency_map: dict):
+    def __init__(self, nodes: Set, adjacency_map: Dict) -> None:
         self.nodes = nodes
         self.adjacency_map = adjacency_map
 
-    def get_cycles(self) -> set[Cycle]:
-        cycles = set()
+    def get_cycles(self) -> Set[Cycle]:
+        cycles: Set[Cycle] = set()
         if len(self.nodes) == 0:
             return cycles
-        state = defaultdict(lambda: "UNVISITED")
+        state: Dict = defaultdict(lambda: "UNVISITED")
         for node in self.nodes:
             if state[node] == "UNVISITED":
                 stack = [node]
@@ -69,8 +77,8 @@ class Graph:
                 cycles.update(self._get_cycle(stack, state))
         return cycles
 
-    def _get_cycle(self, stack: list, state: dict) -> set[Cycle]:
-        cycles = set()
+    def _get_cycle(self, stack: List, state: Dict) -> Set[Cycle]:
+        cycles: Set[Cycle] = set()
         current_node = stack[-1]
         for adj_node in self.adjacency_map.get(current_node, []):
             if state[adj_node] == "VISITED":
@@ -86,7 +94,9 @@ class Graph:
         return cycles
 
 
-def validate_relationships(project, request, response):
+def validate_relationships(
+    project: Project, request: Request, response: Response
+) -> Result:
     result = Result()
     try:
         if not response.is_success:

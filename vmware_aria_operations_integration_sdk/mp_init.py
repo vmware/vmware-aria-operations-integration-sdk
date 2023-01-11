@@ -8,6 +8,7 @@ import traceback
 import venv
 from importlib import resources
 from shutil import copy
+from typing import Dict
 
 import pkg_resources
 from git import Repo
@@ -54,7 +55,9 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def create_manifest_localization_file(path, name, vendor, description):
+def create_manifest_localization_file(
+    path: str, name: str, vendor: str, description: str
+) -> None:
     resources_dir = mkdir(path, "resources")
     resources_file = os.path.join(resources_dir, "resources.properties")
     with open(resources_file, "w") as resources_fd:
@@ -70,7 +73,7 @@ def create_manifest_localization_file(path, name, vendor, description):
         resources_fd.write(f"VENDOR={vendor}\n")
 
 
-def create_eula_file(path, eula_file):
+def create_eula_file(path: str, eula_file: str) -> str:
     if not eula_file:
         eula_file = "eula.txt"
         with open(os.path.join(path, eula_file), "w") as eula_fd:
@@ -83,7 +86,7 @@ def create_eula_file(path, eula_file):
     return eula_file
 
 
-def create_icon_file(path, icon_file):
+def create_icon_file(path: str, icon_file: str) -> str:
     if not icon_file:
         icon_file = ""
     else:
@@ -93,7 +96,9 @@ def create_icon_file(path, icon_file):
     return icon_file
 
 
-def create_manifest_file(path, adapter_key, eula_file, icon_file):
+def create_manifest_file(
+    path: str, adapter_key: str, eula_file: str, icon_file: str
+) -> Dict:
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
         "display_name": "DISPLAY_NAME",
@@ -120,7 +125,7 @@ def create_manifest_file(path, adapter_key, eula_file, icon_file):
     return manifest
 
 
-def build_content_directory(path):
+def build_content_directory(path: str) -> str:
     content_dir = mkdir(path, "content")
     add_git_keep_file(mkdir(content_dir, "policies"))
     add_git_keep_file(mkdir(content_dir, "traversalspecs"))
@@ -143,15 +148,22 @@ def build_content_directory(path):
     return content_dir
 
 
-def add_git_keep_file(path):
+def add_git_keep_file(path: str) -> None:
     with open(os.path.join(path, ".gitkeep"), "w") as gitkeep:
         # Create empty .gitkeep file
         pass
 
 
 def create_project(
-    path, name, adapter_key, description, vendor, eula_file, icon_file, language
-):
+    path: str,
+    name: str,
+    adapter_key: str,
+    description: str,
+    vendor: str,
+    eula_file: str,
+    icon_file: str,
+    language: str,
+) -> None:
     mkdir(path)
 
     project = Project(path)
@@ -212,7 +224,7 @@ def create_project(
     # remote.push(refspec='main:main')
 
 
-def main():
+def main() -> None:
     path = ""
     try:
         path = path_prompt(
@@ -321,8 +333,8 @@ def main():
 
 
 def create_dockerfile(
-    language: str, root_directory: os.path, executable_directory_path: str
-):
+    language: str, root_directory: str, executable_directory_path: str
+) -> None:
     logger.debug("generating Dockerfile")
     images = []
     with resources.path(__package__, VERSION_FILE) as config_file:
@@ -358,7 +370,9 @@ def create_dockerfile(
         )
 
 
-def create_commands_file(language: str, path: str, executable_directory_path: str):
+def create_commands_file(
+    language: str, path: str, executable_directory_path: str
+) -> None:
     logger.debug("generating commands file")
     with open(os.path.join(path, "commands.cfg"), "w") as commands:
 
@@ -388,7 +402,9 @@ def create_commands_file(language: str, path: str, executable_directory_path: st
         commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
 
 
-def build_project_structure(path: str, adapter_kind: str, name: str, language: str):
+def build_project_structure(
+    path: str, adapter_kind: str, name: str, language: str
+) -> str:
     logger.debug("generating project structure")
     project_directory = ""  # this is where all the source code will reside
 

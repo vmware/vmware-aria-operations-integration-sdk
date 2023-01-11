@@ -7,7 +7,7 @@ from aria.ops.definition.group import Group
 from aria.ops.definition.units import Units
 
 
-def test_sample_adapter_definition():
+def test_sample_adapter_definition() -> None:
     definition = AdapterDefinition(
         "NSXALBAdapter",
         "NSX ALB (Avi)",
@@ -69,7 +69,7 @@ def test_sample_adapter_definition():
     pprint(definition.to_json())
 
 
-def packet_group():
+def packet_group() -> Group:
     packets = Group("packets", "Packets")
     packets.define_metric(
         "total_packets_received", "Total Packets Received", unit=Units.MISC.PACKETS

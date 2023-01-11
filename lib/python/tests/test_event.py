@@ -4,7 +4,7 @@ from aria.ops.event import Criticality
 from aria.ops.event import Event
 
 
-def test_minimal_event():
+def test_minimal_event() -> None:
     event = Event("name", Criticality.CRITICAL)
     assert event.get_json() == {
         "message": "name",

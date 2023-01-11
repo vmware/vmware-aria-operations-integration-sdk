@@ -29,7 +29,7 @@ class CredentialParameter(ABC):
         self.required = required
         self.display_order = display_order
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "key": self.key,
             "label": self.label,
@@ -57,7 +57,7 @@ class CredentialIntParameter(CredentialParameter):
     ):
         super().__init__(key, label, required, display_order)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "integer",
         }
@@ -79,7 +79,7 @@ class CredentialStringParameter(CredentialParameter):
         """
         super().__init__(key, label, required, display_order)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
         }
@@ -101,7 +101,7 @@ class CredentialPasswordParameter(CredentialParameter):
         """
         super().__init__(key, label, required, display_order)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
             "password": True,
@@ -131,10 +131,10 @@ class CredentialEnumParameter(CredentialParameter):
         super().__init__(key, label, required, display_order)
         self.values = values
         self.default = default
-        if default not in values:
+        if default is not None and default not in values:
             self.values.append(default)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
             "default": self.default,
@@ -149,11 +149,11 @@ class CredentialType:
         self.label = label
         if label is None:
             self.label = key
-        self.credential_parameters = OrderedDict()
+        self.credential_parameters: dict = OrderedDict()
 
     def define_string_parameter(
-        self, key: str, label: str = None, required: bool = True
-    ):
+        self, key: str, label: Optional[str] = None, required: bool = True
+    ) -> CredentialStringParameter:
         """
         Create a new string credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -167,7 +167,7 @@ class CredentialType:
 
     def define_int_parameter(
         self, key: str, label: Optional[str] = None, required: bool = True
-    ):
+    ) -> CredentialIntParameter:
         """
         Create a new int credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -181,7 +181,7 @@ class CredentialType:
 
     def define_password_parameter(
         self, key: str, label: Optional[str] = None, required: bool = True
-    ):
+    ) -> CredentialPasswordParameter:
         """
         Create a new password credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -200,7 +200,7 @@ class CredentialType:
         label: Optional[str] = None,
         default: Optional[str] = None,
         required: bool = True,
-    ):
+    ) -> CredentialEnumParameter:
         """
         Create a new enum credential parameter and apply it to this credential definition.
         :param key: Used to identify the parameter.
@@ -215,7 +215,7 @@ class CredentialType:
         self.add_parameter(field)
         return field
 
-    def add_parameters(self, credential_parameters: list[CredentialParameter]):
+    def add_parameters(self, credential_parameters: list[CredentialParameter]) -> None:
         """
         :param credential_parameters: A list of parameters to add to the credential
         :return None
@@ -223,7 +223,7 @@ class CredentialType:
         for credential_parameter in credential_parameters:
             self.add_parameter(credential_parameter)
 
-    def add_parameter(self, credential_parameter: CredentialParameter):
+    def add_parameter(self, credential_parameter: CredentialParameter) -> None:
         """
         :param credential_parameter: The parameter to add to the credential
         :return None
@@ -236,7 +236,7 @@ class CredentialType:
         credential_parameter.display_order = len(self.credential_parameters)
         self.credential_parameters[key] = credential_parameter
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "key": self.key,
             "label": self.label,

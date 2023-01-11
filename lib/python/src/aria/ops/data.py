@@ -1,6 +1,9 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import time
+from typing import Optional
 from typing import Union
 
 
@@ -15,7 +18,7 @@ class Metric:
         Cumulative Data Received
     """
 
-    def __init__(self, key: str, value: float, timestamp: int = None):
+    def __init__(self, key: str, value: float, timestamp: Optional[int] = None):
         """Creates a Metric
 
         :param key: A string representing the type of metric. TODO: Describe how Keys work.
@@ -31,7 +34,7 @@ class Metric:
         else:
             self.timestamp = timestamp
 
-    def get_json(self):
+    def get_json(self) -> dict:
         """Get a JSON representation of this Metric.
 
         Returns a JSON representation of this Metric in the format required by vROps.
@@ -56,7 +59,9 @@ class Property:
         CPU Core Count
     """
 
-    def __init__(self, key: str, value: Union[float, str], timestamp: int = None):
+    def __init__(
+        self, key: str, value: Union[float, str], timestamp: Optional[int] = None
+    ):
         """Creates a Property.
 
         :param key: A string representing the type of property. TODO: Describe how Keys work.
@@ -72,7 +77,7 @@ class Property:
         else:
             self.timestamp = timestamp
 
-    def get_json(self):
+    def get_json(self) -> dict:
         """Get a JSON representation of this Property.
 
         Returns a JSON representation of this Property in the format required by vROps.

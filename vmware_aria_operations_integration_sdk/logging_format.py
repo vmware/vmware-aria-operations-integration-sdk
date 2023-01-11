@@ -2,6 +2,8 @@
 #  SPDX-License-Identifier: Apache-2.0
 import logging
 from logging import Handler
+from typing import Optional
+from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 
@@ -19,7 +21,7 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: "class:critical",
     }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> Tuple[str, Optional[str]]:  # type: ignore
         style = self.FORMATS.get(record.levelno)
         if "style" in record.__dict__:
             style = record.__dict__["style"]
@@ -32,15 +34,19 @@ class PTKHandler(Handler):
     A handler class which writes logging records, appropriately formatted, to prompt-toolkit print statements
     """
 
-    def __init__(self, stream=None):
+    def __init__(self) -> None:
         Handler.__init__(self)
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         """
         Emit a record.
         """
         try:
-            text, style = self.format(record)
+            # This won't work in the general case, but will as long as we only use our
+            # CustomFormatter
+            text: str
+            style: str
+            text, style = self.format(record)  # type: ignore
             print(text, style_class=style)
         except RecursionError:
             raise

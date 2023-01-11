@@ -19,7 +19,7 @@ from aria.ops.definition.parameter import StringParameter
 from aria.ops.pipe_utils import write_to_pipe
 
 
-class AdapterDefinition(GroupType):
+class AdapterDefinition(GroupType):  # type: ignore
     def __init__(
         self,
         key: str,
@@ -63,13 +63,13 @@ class AdapterDefinition(GroupType):
             self.adapter_instance_label = f"{self.label} Adapter Instance"
 
         self.version = version
-        self.parameters = OrderedDict()
-        self.credentials = {}
-        self.object_types = {}
+        self.parameters: dict = OrderedDict()
+        self.credentials: dict = {}
+        self.object_types: dict = {}
 
         super().__init__()
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "adapter_key": self.key,
             "adapter_label": self.label,
@@ -91,7 +91,7 @@ class AdapterDefinition(GroupType):
             ],
         }
 
-    def send_results(self, output_pipe=sys.argv[-1]) -> None:
+    def send_results(self, output_pipe: str = sys.argv[-1]) -> None:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per server request.
@@ -108,7 +108,7 @@ class AdapterDefinition(GroupType):
         max_length: int = 512,
         required: bool = True,
         advanced: bool = False,
-    ):
+    ) -> StringParameter:
         """
         Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -142,7 +142,7 @@ class AdapterDefinition(GroupType):
         default: Optional[int] = None,
         required: bool = True,
         advanced: bool = False,
-    ):
+    ) -> IntParameter:
         """
         Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -175,7 +175,7 @@ class AdapterDefinition(GroupType):
         default: Optional[str] = None,
         required: bool = True,
         advanced: bool = False,
-    ):
+    ) -> EnumParameter:
         """
         Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -202,7 +202,7 @@ class AdapterDefinition(GroupType):
         self.add_parameter(parameter)
         return parameter
 
-    def add_parameter(self, parameter: Parameter):
+    def add_parameter(self, parameter: Parameter) -> None:
         """
         Add a parameter to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
@@ -218,7 +218,7 @@ class AdapterDefinition(GroupType):
 
     def define_credential_type(
         self, key: str = "default_credential", label: Optional[str] = None
-    ):
+    ) -> CredentialType:
         """
         Create a new credential type and add it to this adapter instance. When more than one credential types are
         present, The user will be required to select the type and then fill in the parameters for that type, as only
@@ -231,7 +231,7 @@ class AdapterDefinition(GroupType):
         self.add_credential_type(credential)
         return credential
 
-    def add_credential_types(self, credential_types: list[CredentialType]):
+    def add_credential_types(self, credential_types: list[CredentialType]) -> None:
         """
         Add a list of credential types to the adapter instance.
         :param credential_types: A list of credential types to add.
@@ -240,7 +240,7 @@ class AdapterDefinition(GroupType):
         for credential_type in credential_types:
             self.add_credential_type(credential_type)
 
-    def add_credential_type(self, credential_type: CredentialType):
+    def add_credential_type(self, credential_type: CredentialType) -> None:
         """
         Add a credential type to the adapter instance. When more than one credential types are present, The user will
         be required to select the type and then fill in the parameters for that type, as only one credential type can be
@@ -255,7 +255,7 @@ class AdapterDefinition(GroupType):
             )
         self.credentials[key] = credential_type
 
-    def define_object_type(self, key: str, label: Optional[str] = None):
+    def define_object_type(self, key: str, label: Optional[str] = None) -> ObjectType:
         """
         Create a new object type definition and add it to this adapter definition.
         :param key: The object type
@@ -266,7 +266,7 @@ class AdapterDefinition(GroupType):
         self.add_object_type(object_type)
         return object_type
 
-    def add_object_types(self, object_types: list[ObjectType]):
+    def add_object_types(self, object_types: list[ObjectType]) -> None:
         """
         Adds a list of object types to this adapter definition
         :param object_types: A list of object type definitions.
@@ -275,7 +275,7 @@ class AdapterDefinition(GroupType):
         for object_type in object_types:
             self.add_object_type(object_type)
 
-    def add_object_type(self, object_type: ObjectType):
+    def add_object_type(self, object_type: ObjectType) -> None:
         """
         Adds an object type to this adapter definition
         :param object_type: An object type definition.

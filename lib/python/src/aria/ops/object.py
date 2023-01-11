@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from typing import Any
 from typing import Optional
 
 from aria.ops.data import Metric
@@ -33,7 +34,7 @@ class Key:
         adapter_kind: str,
         object_kind: str,
         name: str,
-        identifiers: list[Identifier] = None,
+        identifiers: Optional[list[Identifier]] = None,
     ) -> None:
         """Initializes a Key, which uniquely identifies a vROps Object
 
@@ -69,7 +70,7 @@ class Key:
             # identification. Add each of the unique identifiers to the tuple, sorted by key
             return (self.adapter_kind, self.object_kind) + tuple(unique_identifiers)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, Key):
             # TODO: raise exception if the object types are the same but identifier keys don't match?
             return self.__key() == other.__key()
@@ -79,7 +80,7 @@ class Key:
     def __hash__(self) -> int:
         return hash(self.__key())
 
-    def get_identifier(self, key):
+    def get_identifier(self, key: str) -> Optional[str]:
         """Return the value for the given identifier key
 
         :param key: The identifier key
@@ -145,7 +146,7 @@ class Identifier:
             return self.key, True, self.value
         return self.key, False
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, Identifier):
             if (
                 self.key == other.key
@@ -190,14 +191,14 @@ class Object:
 
         :param key: The :class:`Key` that uniquely identifies this Object
         """
-        self._key = key
-        self._metrics = []
-        self._properties = []
-        self._events = set()
-        self._parents = set()
-        self._children = set()
+        self._key: Key = key
+        self._metrics: list[Metric] = []
+        self._properties: list[Property] = []
+        self._events: set[Event] = set()
+        self._parents: set[Key] = set()
+        self._children: set[Key] = set()
 
-    def get_key(self):
+    def get_key(self) -> Key:
         """Get a copy of the Object's Key.
 
         An object's Key cannot change after it has been created.
@@ -206,7 +207,7 @@ class Object:
         """
         return copy.deepcopy(self._key)
 
-    def get_identifier_value(self, identifier_key):
+    def get_identifier_value(self, identifier_key: str) -> Optional[str]:
         """Retrieve the value of a given identifier
 
         :param identifier_key: Key of the identifier
@@ -231,7 +232,7 @@ class Object:
         for metric in metrics:
             self.add_metric(metric)
 
-    def with_metric(self, *args, **kwargs) -> None:
+    def with_metric(self, *args: Any, **kwargs: Any) -> None:
         """Method that handles creating a :class:`Metric` data point, and adding to this Object.
 
         The signature matches :class:`Metric.__init__`.
@@ -239,7 +240,7 @@ class Object:
         """
         self.add_metric(Metric(*args, **kwargs))
 
-    def get_metric(self, key) -> list[Metric]:
+    def get_metric(self, key: str) -> list[Metric]:
         """
 
         :param key: Metric key of the metric to return.
@@ -247,7 +248,7 @@ class Object:
         """
         return list(filter(lambda metric: metric.key == key, self._metrics))
 
-    def get_metric_values(self, key) -> list[float]:
+    def get_metric_values(self, key: str) -> list[float]:
         """
 
         :param key: Metric key of the metric to return.
@@ -257,11 +258,11 @@ class Object:
         metrics = self.get_metric(key)
 
         # sort metrics by timestamp from oldest  to newest
-        metrics.sort(key=lambda metric: metric.timestamp)
+        metrics.sort(key=lambda metric: metric.timestamp)  # type: ignore
 
         return [m.value for m in metrics]
 
-    def get_last_metric_value(self, key) -> float | None:
+    def get_last_metric_value(self, key: str) -> Optional[float]:
         """
 
         :param key: Metric key of the metric to return.
@@ -291,7 +292,7 @@ class Object:
         for property_ in properties:
             self.add_property(property_)
 
-    def with_property(self, *args, **kwargs) -> None:
+    def with_property(self, *args: Any, **kwargs: Any) -> None:
         """Method that handles creating a :class:`Property` value, and adding to this Object.
 
         The signature matches :class:`Property.__init__`.
@@ -299,7 +300,7 @@ class Object:
         """
         self.add_property(Property(*args, **kwargs))
 
-    def get_property(self, key) -> list[Property]:
+    def get_property(self, key: str) -> list[Property]:
         """
 
         :param key: Property key of the property to return.
@@ -307,7 +308,7 @@ class Object:
         """
         return list(filter(lambda property_: property_.key == key, self._properties))
 
-    def get_property_values(self, key) -> list[str]:
+    def get_property_values(self, key: str) -> list[str]:
         """
 
         :param key: Property key of the property to return.
@@ -317,11 +318,11 @@ class Object:
         properties = self.get_property(key)
 
         # sort properties by timestamp from oldest  to newest
-        properties.sort(key=lambda property: property.timestamp)
+        properties.sort(key=lambda property_: property_.timestamp)  # type: ignore
 
         return [p.value for p in properties]
 
-    def get_last_property_value(self, key) -> str | None:
+    def get_last_property_value(self, key: str) -> Optional[str | float]:
         """
 
         :param key: Property key of the property to return.
@@ -351,7 +352,7 @@ class Object:
         for event in events:
             self.add_event(event)
 
-    def with_event(self, *args, **kwargs) -> None:
+    def with_event(self, *args: Any, **kwargs: Any) -> None:
         """Method that handles creating an :class:`Event`, and adding to this Object.
 
         The signature matches :class:`Event.__init__`.
@@ -385,9 +386,9 @@ class Object:
         for parent in parents:
             self.add_parent(parent)
 
-    def get_parents(self) -> set[Object]:
+    def get_parents(self) -> set[Key]:
         """
-        :return: A set of all objects that are parents of this object
+        :return: A set of all object keys that are parents of this object
         """
         return self._parents
 
@@ -417,9 +418,9 @@ class Object:
         for child in children:
             self.add_child(child)
 
-    def get_children(self) -> set[Object]:
+    def get_children(self) -> set[Key]:
         """
-        :return: A set of all objects that are children of this object
+        :return: A set of all object keys that are children of this object
         """
         return self._children
 

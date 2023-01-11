@@ -5,6 +5,14 @@ import json
 import os
 import subprocess
 import time
+from types import TracebackType
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Type
 
 import docker
 from docker import DockerClient
@@ -21,7 +29,7 @@ from vmware_aria_operations_integration_sdk.threading import threaded
 from vmware_aria_operations_integration_sdk.ui import Table
 
 
-def login(docker_registry):
+def login(docker_registry: str) -> str:
     print(f"Login into {docker_registry}")
     response = subprocess.run(["docker", "login", f"{docker_registry}"])
 
@@ -32,7 +40,7 @@ def login(docker_registry):
     return docker_registry
 
 
-def init():
+def init() -> DockerClient:
     """Tries to establish a connection with the docker daemon via unix socket.
 
     If the connection fails, the error message is parsed to find a common error message that could indicate that the
@@ -61,7 +69,7 @@ def init():
             raise InitError(e)
 
 
-def push_image(client, image_tag):
+def push_image(client: DockerClient, image_tag: str) -> str:
     """
     Pushes the given image tag and returns the images digest.
 
@@ -94,7 +102,13 @@ def push_image(client, image_tag):
     return image_digest
 
 
-def build_image(client, path, tag, nocache=True, labels=None):
+def build_image(
+    client: DockerClient,
+    path: str,
+    tag: str,
+    nocache: bool = True,
+    labels: Optional[Dict[str, str]] = None,
+) -> Tuple[Image, Any]:
     """
     Wraps the docker clients images.build method with some appropriate default values
     :param client: Docker client
@@ -105,9 +119,9 @@ def build_image(client, path, tag, nocache=True, labels=None):
     :return:
     """
     if labels is None:
-        labels = {}
+        labels = dict()
     try:
-        return client.images.build(
+        return client.images.build(  # type: ignore
             path=path, tag=tag, nocache=nocache, rm=True, labels=labels
         )
     except docker.errors.BuildError as error:
@@ -138,7 +152,7 @@ def run_image(
     client: DockerClient,
     image: Image,
     path: str,
-    container_memory_limit: int = DEFAULT_MEMORY_LIMIT,
+    container_memory_limit: Optional[int] = DEFAULT_MEMORY_LIMIT,
 ) -> Container:
     # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
     # by the try/except block in the 'main' function
@@ -161,32 +175,37 @@ def run_image(
     )
 
 
-def stop_container(container: Container):
+def stop_container(container: Container) -> None:
     container.kill()
     container.remove()
 
 
 class ContainerStats:
-    def __init__(self, container):
-        self.current_memory_usage = []
-        self.memory_percent_usage = []
-        self.cpu_percent_usage = []
-        self.previous_stats = None
-        self.container = container
-        self._recording = False
+    def __init__(self, container: Container) -> None:
+        self.current_memory_usage: List[int] = []
+        self.memory_percent_usage: List[float] = []
+        self.cpu_percent_usage: List[float] = []
+        self.previous_stats: Optional[Dict] = None
+        self.container: Container = container
+        self._recording: bool = False
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         self.previous_stats = self.container.stats(stream=False)
         self._recording = True
         self._recording_task = asyncio.wrap_future(self._record())
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
         self._recording = False
         await self._recording_task
         self.add(self.container.stats(stream=False))
 
     @threaded
-    def _record(self):
+    def _record(self) -> None:
         last_collection_time = time.perf_counter()
         while self._recording:
             current_time = time.perf_counter()
@@ -195,7 +214,7 @@ class ContainerStats:
                 last_collection_time = current_time
             time.sleep(0.05)
 
-    def add(self, current_stats):
+    def add(self, current_stats: Dict) -> None:
         self.block_read, self.block_write = calculate_blkio_bytes(current_stats)
         self.network_read, self.network_write = calculate_network_bytes(current_stats)
         self.total_memory = current_stats["memory_stats"]["limit"]
@@ -204,14 +223,14 @@ class ContainerStats:
         self.memory_percent_usage.append(
             (current_memory_usage / self.total_memory) * 100.0
         )
-        self.cpu_percent_usage.append(
-            calculate_cpu_percent_latest_unix(self.previous_stats, current_stats)
-        )
+        cpu = calculate_cpu_percent_latest_unix(self.previous_stats, current_stats)
+        if cpu:
+            self.cpu_percent_usage.append(cpu)
 
         self.previous_stats = current_stats
 
     @classmethod
-    def get_summary_headers(cls):
+    def get_summary_headers(cls) -> List[str]:
         """
         Returns an array with the column names for the statistics about the container:
         """
@@ -223,7 +242,7 @@ class ContainerStats:
             "Block I/O",
         ]
 
-    def get_summary(self):
+    def get_summary(self) -> List:
         """
         Returns an array with the statistics about the container:
 
@@ -237,7 +256,7 @@ class ContainerStats:
             f"{convert_bytes(self.block_read)} / {convert_bytes(self.block_write)}",
         ]
 
-    def get_table(self):
+    def get_table(self) -> Table:
         headers = self.get_summary_headers()
         data = [self.get_summary()]
         return Table(headers, data)
@@ -245,7 +264,12 @@ class ContainerStats:
 
 # This code is transcribed from docker's code
 # https://github.com/docker/cli/blob/2bfac7fcdafeafbd2f450abb6d1bb3106e4f3ccb/cli/command/container/stats_helpers.go#L168
-def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
+def calculate_cpu_percent_latest_unix(
+    previous_stats: Optional[Dict], current_stats: Dict
+) -> Optional[float]:
+    if not previous_stats:
+        return None
+
     previous_cpu = previous_stats["cpu_stats"]["cpu_usage"]["total_usage"]
     previous_system = previous_stats["cpu_stats"]["system_cpu_usage"]
 
@@ -265,7 +289,7 @@ def calculate_cpu_percent_latest_unix(previous_stats, current_stats):
 
 
 class DockerWrapperError(Exception):
-    def __init__(self, message="", recommendation=""):
+    def __init__(self, message: str = "", recommendation: str = "") -> None:
         self.message = message
         self.recommendation = recommendation
 

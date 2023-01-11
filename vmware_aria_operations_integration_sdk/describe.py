@@ -6,14 +6,23 @@ import json
 import logging
 import os
 from collections import OrderedDict
+from typing import Dict
+from typing import Iterable
 from typing import Optional
+from typing import Tuple
+from typing import TYPE_CHECKING
 
 import httpx
 import lxml.etree as ET
+from aria.ops.definition.units import UnitGroup
 from aria.ops.definition.units import Units
 from lxml.etree import Element
 from lxml.etree import SubElement
 
+if TYPE_CHECKING:
+    from vmware_aria_operations_integration_sdk.adapter_container import (
+        AdapterContainer,
+    )
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
@@ -29,19 +38,21 @@ logger.addHandler(consoleHandler)
 
 class Describe:
     _path: str
-    _adapter_container = None  # : AdapterContainer
+    _adapter_container: Optional[AdapterContainer] = None
     _describe: Optional[Element]
-    _resources: {str: str}
+    _resources: Dict[str, str]
 
     @classmethod
-    def initialize(cls, path, adapter_container):
+    def initialize(
+        cls, path: str, adapter_container: Optional[AdapterContainer]
+    ) -> None:
         cls._path = path
         cls._adapter_container = adapter_container
         cls._describe = None
         cls._resources = {}
 
     @classmethod
-    async def get(cls):
+    async def get(cls) -> Tuple[Element, Dict]:
         if cls._describe is not None:
             return cls._describe, cls._resources
         describe_path = os.path.join(cls._path, "conf", "describe.xml")
@@ -51,8 +62,14 @@ class Describe:
                 os.path.join(cls._path, "conf", "resources", "resources.properties")
             )
         else:
+            if not cls._adapter_container:
+                raise Exception(
+                    "Static describe.xml is not present, "
+                    "but an AdapterContainer was not provided. Cannot "
+                    "complete call to Describe.get()."
+                )
             if not cls._adapter_container.started:
-                memory_limit = get_config_value(
+                memory_limit: int = get_config_value(
                     "default_memory_limit", 1024, os.path.join(cls._path, "config.json")
                 )
                 cls._adapter_container.start(memory_limit)
@@ -64,7 +81,7 @@ class Describe:
         return cls._describe, cls._resources
 
     @classmethod
-    async def _get_adapter_definition(cls):
+    async def _get_adapter_definition(cls) -> None:
         async with httpx.AsyncClient(timeout=30) as client:
             from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
                 send_get_to_adapter,
@@ -82,14 +99,16 @@ class Describe:
                 logger.error(
                     f"adapterDefinition endpoint returned {response.status_code}."
                 )
-                await cls._adapter_container.stop()
+                if cls._adapter_container:
+                    await cls._adapter_container.stop()
                 exit(1)
             elif response.status_code == 204:
                 logger.error(
                     f"adapterDefinition endpoint returned no response, indicating that the describe.xml file\n"
                     f"should be used, but no describe.xml file was found."
                 )
-                await cls._adapter_container.stop()
+                if cls._adapter_container:
+                    await cls._adapter_container.stop()
                 exit(1)
             adapter_definition = json.loads(response.text)
             describe, names = json_to_xml(adapter_definition)
@@ -98,7 +117,7 @@ class Describe:
             cls._resources = names.properties
 
     @classmethod
-    def merge_xml_fragments(cls, describe, names):
+    def merge_xml_fragments(cls, describe: Element, names: _Names) -> None:
         # Note: All fragments must contain a top-level 'AdapterKind' element, and have the default namespace set to
         # 'http://schemas.vmware.com/vcops/schema'. Note: Any attributes on the 'AdapterKind' element itself will be
         # ignored. The 'AdapterKind' element only serves to hold one or more of the following fragment elements:
@@ -153,7 +172,7 @@ class Describe:
                     logger.warning(f"   Expected one or more of: {elements}")
 
     @staticmethod
-    def remap_namekeys(element, namekey_map):
+    def remap_namekeys(element: Element, namekey_map: Dict) -> None:
         named_elements = element.findall(
             ".//*[@nameKey]"
         )  # Get all elements at any level with the attribute 'nameKey'
@@ -171,19 +190,19 @@ class Describe:
                 named_element.attrib.pop("nameKey")
 
 
-def ns(kind):
+def ns(kind: str) -> str:
     return "{*}" + kind
 
 
 ns_map = {None: "http://schemas.vmware.com/vcops/schema"}
 
 
-def get_adapter_kind(describe):
+def get_adapter_kind(describe: Element) -> Optional[str]:
     # TODO: if we get more than one adapter kind then we should considered it an error
-    return describe.get("key")
+    return describe.get("key")  # type: ignore
 
 
-def get_adapter_instance(describe):
+def get_adapter_instance(describe: Element) -> Optional[Element]:
     adapter_instance_kind = None
 
     for resource_kind in get_resource_kinds(describe):
@@ -193,29 +212,31 @@ def get_adapter_instance(describe):
     return adapter_instance_kind
 
 
-def get_resource_kinds(describe):
-    return describe.find(ns("ResourceKinds")).findall(ns("ResourceKind"))
+def get_resource_kinds(describe: Element) -> Iterable[Element]:
+    resource_kinds: Element = describe.find(ns("ResourceKinds"))
+    if resource_kinds is not None:
+        return resource_kinds.findall(ns("ResourceKind"))  # type: ignore
+    return []
 
 
-def get_identifiers(resource_kind):
-    return resource_kind.findall(ns("ResourceIdentifier"))
+def get_identifiers(resource_kind: Element) -> Iterable[Element]:
+    return resource_kind.findall(ns("ResourceIdentifier"))  # type: ignore
 
 
-def get_credential_kinds(describe):
+def get_credential_kinds(describe: Element) -> Iterable[Element]:
     credential_kinds = describe.find(ns("CredentialKinds"))
-    if credential_kinds is None:
-        return None
-    else:
-        return credential_kinds.findall(ns("CredentialKind"))
+    if credential_kinds:
+        return credential_kinds.findall(ns("CredentialKind"))  # type: ignore
+    return []
 
 
-def is_true(element, attr, default="false"):
+def is_true(element: Element, attr: str, default: str = "false") -> bool:
     # The only valid lexical values for boolean are ["true", "false", "1", "0"] (case-sensitive)
     # https://www.w3.org/TR/xmlschema-2/#boolean
     return element.get(attr, default) in ["true", "1"]
 
 
-def json_to_xml(json):
+def json_to_xml(json: Dict) -> Element:
     names = _Names()
     describe = Element(
         "{http://schemas.vmware.com/vcops/schema}AdapterKind",
@@ -234,7 +255,9 @@ def json_to_xml(json):
 
     # ResourceKinds
     resource_kinds = SubElement(describe, "ResourceKinds", nsmap=ns_map)
-    credential_types = map(lambda cred_type: cred_type["key"], json["credential_types"])
+    credential_types: Iterable[str] = map(
+        lambda cred_type: str(cred_type["key"]), json["credential_types"]
+    )
     add_resource_kind(
         resource_kinds,
         json["adapter_instance"],
@@ -260,13 +283,15 @@ def json_to_xml(json):
     return describe, names
 
 
-def write_describe(describe, filename: str):
+def write_describe(describe: Element, filename: str) -> None:
     root = ET.ElementTree(describe)
     ET.indent(root)
     root.write(filename, encoding="utf-8", xml_declaration=True)
 
 
-def add_credential_kind(parent, credential_kind_json, names):
+def add_credential_kind(
+    parent: Element, credential_kind_json: Dict, names: _Names
+) -> Element:
     xml = SubElement(
         parent,
         "CredentialKind",
@@ -295,7 +320,13 @@ def add_credential_kind(parent, credential_kind_json, names):
     return xml
 
 
-def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kinds=None):
+def add_resource_kind(
+    parent: Element,
+    resource_kind_json: Dict,
+    names: _Names,
+    type: int = 1,
+    credential_kinds: Optional[Iterable[str]] = None,
+) -> Element:
     attributes = {
         "key": resource_kind_json["key"],
         "nameKey": names.get_key(resource_kind_json["label"]),
@@ -316,7 +347,7 @@ def add_resource_kind(parent, resource_kind_json, names, type=1, credential_kind
     return resourcekind_xml
 
 
-def add_identifier(parent, identifier_json, names):
+def add_identifier(parent: Element, identifier_json: Dict, names: _Names) -> Element:
     default = identifier_json.get("default")
     if default is None:
         default = ""
@@ -341,7 +372,7 @@ def add_identifier(parent, identifier_json, names):
     return identifier_xml
 
 
-def add_enum_values(parent, identifier_json):
+def add_enum_values(parent: Element, identifier_json: Dict) -> None:
     if "enum_values" in identifier_json:
         for value in identifier_json["enum_values"]:
             SubElement(
@@ -357,7 +388,7 @@ def add_enum_values(parent, identifier_json):
             )
 
 
-def add_attribute(parent, attribute_json, names):
+def add_attribute(parent: Element, attribute_json: Dict, names: _Names) -> Element:
     attribute_xml = SubElement(
         parent,
         "ResourceAttribute",
@@ -379,7 +410,7 @@ def add_attribute(parent, attribute_json, names):
     return attribute_xml
 
 
-def add_group(parent, group_json, names):
+def add_group(parent: Element, group_json: Dict, names: _Names) -> Element:
     group_xml = SubElement(
         parent,
         "ResourceGroup",
@@ -398,7 +429,7 @@ def add_group(parent, group_json, names):
     return group_xml
 
 
-def add_units(parent: Element, names):
+def add_units(parent: Element, names: _Names) -> None:
     unit_definitions = SubElement(parent, "UnitDefinitions", nsmap=ns_map)
     add_unit_group(Units.RATIO, unit_definitions, names)
     add_unit_group(Units.TIME, unit_definitions, names)
@@ -418,8 +449,8 @@ def add_units(parent: Element, names):
     add_unit_group(Units.MISC, unit_definitions, names)
 
 
-def add_unit_group(cls, root: Element, names):
-    subtypes = set(map(lambda item: item.value._subtype, cls))
+def add_unit_group(cls: UnitGroup, root: Element, names: _Names) -> None:
+    subtypes = set(map(lambda item: item.value._subtype, cls))  # type: ignore
     for subtype in subtypes:
         unit_type = SubElement(
             root, "UnitType", key=cls.__name__ + subtype, nsmap=ns_map
@@ -438,12 +469,12 @@ def add_unit_group(cls, root: Element, names):
 
 
 class _Names:
-    def __init__(self):
-        self._names = {}
-        self.properties = OrderedDict()
-        self._count = 0
+    def __init__(self) -> None:
+        self._names: Dict[str, str] = {}
+        self.properties: Dict[str, str] = OrderedDict()
+        self._count: int = 0
 
-    def get_key(self, name: str, description: str = None):
+    def get_key(self, name: str, description: Optional[str] = None) -> str:
         if name not in self._names:
             self._count += 1
             id = str(self._count)

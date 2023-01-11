@@ -1,6 +1,9 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
+
 import sys
+from typing import Optional
 
 from aria.ops.object import Identifier
 from aria.ops.object import Key
@@ -10,57 +13,62 @@ from aria.ops.suite_api_client import SuiteApiClient
 from aria.ops.suite_api_client import SuiteApiConnectionParameters
 
 
-class AdapterInstance(Object):
-    def __init__(self, json):
+class AdapterInstance(Object):  # type: ignore
+    def __init__(self, json: dict) -> None:
+        adapter_key = json.get("adapter_key", {})
         super().__init__(
             Key(
-                adapter_kind=json["adapter_key"]["adapter_kind"],
-                object_kind=json["adapter_key"]["object_kind"],
-                name=json["adapter_key"]["name"],
+                adapter_kind=adapter_key.get("adapter_kind"),
+                object_kind=adapter_key.get("object_kind"),
+                name=adapter_key.get("name"),
                 identifiers=[
                     Identifier(
-                        identifier["key"],
-                        identifier["value"],
-                        identifier["is_part_of_uniqueness"],
+                        identifier.get("key"),
+                        identifier.get("value"),
+                        identifier.get("is_part_of_uniqueness"),
                     )
-                    for identifier in json["adapter_key"]["identifiers"]
+                    for identifier in adapter_key.get("identifiers", [])
                 ],
             )
         )
 
-        if type(json.get("credential_config")) is dict:
-            self.credential_type = json["credential_config"]["credential_key"]
+        credential_config = json.get("credential_config")
+        if type(credential_config) is dict:
+            self.credential_type = credential_config.get("credential_key", None)
             self.credentials = {
                 credential.get("key"): credential.get("value")
-                for credential in json["credential_config"]["credential_fields"]
+                for credential in credential_config.get("credential_fields", [])
             }
         else:
             self.credential_type = None
             self.credentials = {}
 
-        if type(json.get("cluster_connection_info")) is dict:
+        cluster_connection_info = json.get("cluster_connection_info")
+        if type(cluster_connection_info) is dict:
             self.suite_api_client = SuiteApiClient(
                 SuiteApiConnectionParameters(
-                    username=json["cluster_connection_info"]["user_name"],
-                    password=json["cluster_connection_info"]["password"],
-                    host=json["cluster_connection_info"]["host_name"],
+                    username=cluster_connection_info.get("user_name"),
+                    password=cluster_connection_info.get("password"),
+                    host=cluster_connection_info.get("host_name"),
                 )
             )
         else:
             self.suite_api_client = None
-        if type(json.get("certificate_config")) is dict:
-            self.certificates = json["certificate_config"]["certificates"]
+
+        certificate_config = json.get("certificate_config")
+        if type(certificate_config) is dict:
+            self.certificates = certificate_config.get("certificates", [])
         else:
             self.certificates = []
 
-    def get_credential_type(self):
+    def get_credential_type(self) -> Optional[str]:
         """Get the type (key) of credential. This is useful if an adapter supports multiple types of credentials.
 
         :return: the type of the credential used by this adapter instance, or None if the adapter instance does not have a credential.
         """
-        return self.credential_type
+        return self.credential_type  # type: ignore[no-any-return]
 
-    def get_credential_value(self, credential_key):
+    def get_credential_value(self, credential_key: str) -> Optional[str]:
         """Retrieve the value of a given credential
 
         :param credential_key: Key of the credential field
@@ -69,6 +77,6 @@ class AdapterInstance(Object):
         return self.credentials.get(credential_key)
 
     @classmethod
-    def from_input(cls, infile=sys.argv[-2]):
+    def from_input(cls, infile: str = sys.argv[-2]) -> AdapterInstance:
         # The server always invokes methods with the input file as the second to last argument
         return cls(read_from_pipe(infile))

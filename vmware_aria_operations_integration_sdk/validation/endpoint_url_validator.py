@@ -4,8 +4,11 @@ import json
 from json import JSONDecodeError
 
 import validators
+from httpx import Response
+from requests import Request
 from validators import ValidationFailure
 
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 
@@ -23,7 +26,9 @@ def validate_endpoint(endpoint: str) -> Result:
     return result
 
 
-def validate_endpoint_urls(project, request, response):
+def validate_endpoint_urls(
+    project: Project, request: Request, response: Response
+) -> Result:
     result = Result()
     try:
         if not response.is_success:

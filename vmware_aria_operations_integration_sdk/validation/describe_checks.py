@@ -4,21 +4,26 @@ import json
 import logging
 import os
 from json import JSONDecodeError
+from typing import Dict
 
 import xmlschema
+from httpx import Response
+from lxml.etree import Element
+from requests import Request
 
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_kind
 from vmware_aria_operations_integration_sdk.describe import get_resource_kinds
 from vmware_aria_operations_integration_sdk.describe import is_true
 from vmware_aria_operations_integration_sdk.describe import ns
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.validation.result import Result
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 
 
-def message_format(resource, message):
+def message_format(resource: Dict, message: str) -> str:
     resource_kind = resource["key"]["objectKind"]
     # NOTE: Names aren’t guaranteed to be unique, so we should think of a way to further help the user identify the resource
     resource_name = resource["key"]["name"]
@@ -26,7 +31,11 @@ def message_format(resource, message):
 
 
 def cross_check_attribute(
-    resource, collected_metric, attribute_type, key_, element
+    resource: Dict,
+    collected_metric: Dict,
+    attribute_type: str,
+    key_: str,
+    element: Element,
 ) -> Result:
     result = Result()
     key, _, remaining_key = key_.partition("|")
@@ -111,7 +120,7 @@ def cross_check_attribute(
     return result
 
 
-def cross_check_identifiers(resource, resource_kind_element) -> Result:
+def cross_check_identifiers(resource: Dict, resource_kind_element: Element) -> Result:
     collected_identifiers = resource["key"]["identifiers"]
     described_identifiers = {
         i.get("key"): i for i in resource_kind_element.findall(ns("ResourceIdentifier"))
@@ -175,7 +184,9 @@ def cross_check_identifiers(resource, resource_kind_element) -> Result:
     return result
 
 
-def cross_check_collection_with_describe(project, request, response):
+def cross_check_collection_with_describe(
+    project: Project, request: Request, response: Response
+) -> Result:
     result = Result()
     try:
         if not response.is_success:
@@ -259,7 +270,7 @@ def cross_check_collection_with_describe(project, request, response):
     return result
 
 
-def validate_describe(path, describe):
+def validate_describe(path: str, describe: Element) -> None:
     logger.info("Validating describe.xml")
     schema = xmlschema.XMLSchema11(os.path.join(path, "conf", "describeSchema.xsd"))
     schema.validate(describe)
