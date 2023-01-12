@@ -122,10 +122,10 @@ def is_valid_registry(docker_registry: str, **kwargs) -> bool:
 
 def registry_prompt(default: str) -> str:
     return prompt(
-        "Enter the tag for the Docker registry: ",
+        "Enter the tag for the container registry: ",
         default=default,
         validator=NotEmptyValidator("Host"),
-        description="The tag of a Docker registry is used to login into the Docker registry. the tag is composed of\n"
+        description="The tag of a container registry is used to login into the container registry. the tag is composed of\n"
         "three parts: domain, port, and path. For example:\n"
         "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter breaks into\n"
         "domain: projects.registry.vmware.com\n"
@@ -148,23 +148,27 @@ def get_docker_registry(
     original_value = docker_registry
     if docker_registry is None and docker_registry_arg is None:
         print(
-            "mp-build needs to configure a Docker registry to store the adapter container image.",
+            "mp-build needs to configure a container registry to store the adapter container image.",
             "class:information",
         )
         docker_registry = registry_prompt(default=default_registry_value)
-    elif docker_registry_arg is not None and not len(docker_registry_arg):
-        docker_registry = default_registry_value
+
+        first_time = True
+        while not is_valid_registry(docker_registry):
+            if first_time:
+                print("Press Ctrl + C to cancel build", "class:information")
+                first_time = False
+            docker_registry = registry_prompt(default=docker_registry)
+
     else:
-        docker_registry = docker_registry_arg
+        if docker_registry_arg is not None and not len(docker_registry_arg):
+            # Prioritize config file over default value
+            docker_registry = default_registry_value if docker_registry is None else docker_registry
+        else:
+            docker_registry = docker_registry_arg
+
         if not is_valid_registry(docker_registry, **kwargs):
             raise LoginError
-
-    first_time = True
-    while not is_valid_registry(docker_registry):
-        if first_time:
-            print("Press Ctrl + C to cancel build", "class:information")
-            first_time = False
-        docker_registry = registry_prompt(default=docker_registry)
 
     if original_value != docker_registry:
         set_config_value(
@@ -397,14 +401,14 @@ def main() -> None:
         parser.add_argument(
             "-r",
             "--registry-tag",
-            help="The full Docker registry tag where the container image will be stored",
+            help="The full container registry tag where the container image will be stored (overwrites config file).",
             nargs="?",
             const="",
         )
 
-        parser.add_argument("--registry-username", help="The Docker registry username")
+        parser.add_argument("--registry-username", help="The container registry username.")
 
-        parser.add_argument("--registry-password", help="The Docker registry password")
+        parser.add_argument("--registry-password", help="The container registry password.")
 
         parser.add_argument(
             "-i",
