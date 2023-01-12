@@ -25,7 +25,7 @@ from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.stats import convert_bytes
 from vmware_aria_operations_integration_sdk.stats import LongRunStats
-from vmware_aria_operations_integration_sdk.temp_name_threading import threaded
+from vmware_aria_operations_integration_sdk.threading import threaded
 from vmware_aria_operations_integration_sdk.ui import Table
 
 
