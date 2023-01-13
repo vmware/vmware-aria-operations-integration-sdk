@@ -399,7 +399,6 @@ def main() -> None:
         )
 
         parser.add_argument(
-            "-r",
             "--registry-tag",
             help="The full container registry tag where the container image will be stored (overwrites config file).",
             nargs="?",
