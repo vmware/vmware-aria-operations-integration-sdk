@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import os
 import re
 import time
+import sys
 from types import TracebackType
 from typing import Any
 from typing import Generic
@@ -377,7 +378,9 @@ class Spinner(FormattedTextControl):  # type: ignore
                 self._index = (self._index + 1) % 4
                 self._update_time = time.time()
 
-            if not self._finished:
+            if not self._finished and not sys.stdout.isatty():
+                return [("class:message", self.spinner_text)]
+            elif not self._finished:
                 return [("class:message", self.spinner_text + " " + spinner)]
             else:
                 return [

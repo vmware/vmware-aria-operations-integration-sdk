@@ -29,9 +29,18 @@ from vmware_aria_operations_integration_sdk.threading import threaded
 from vmware_aria_operations_integration_sdk.ui import Table
 
 
-def login(docker_registry: str) -> str:
+def login(docker_registry: str, **kwargs) -> str:
     print(f"Login into {docker_registry}")
-    response = subprocess.run(["docker", "login", f"{docker_registry}"])
+    command = ["docker", "login", f"{docker_registry}"]
+    if kwargs["registry_username"] is not None:  # TODO: should be constants
+        command.append("--username")
+        command.append(kwargs["registry_username"])
+
+    if kwargs["registry_password"] is not None:
+        command.append("--password")
+        command.append(kwargs["registry_password"])
+
+    response = subprocess.run(command)
 
     # Since we are using a subprocess, we cannot be very specific about the type of failure we get
     if response.returncode != 0:
