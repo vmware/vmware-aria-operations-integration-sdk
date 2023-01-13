@@ -263,7 +263,8 @@ class SuiteApiClient(object):
     def _to_vrops_request(self, url: str, **kwargs: Any) -> dict:
         kwargs.setdefault("url", url)
         kwargs.setdefault("headers", {})
-        kwargs["headers"]["Authorization"] = "vRealizeOpsToken " + self.token
+        if self.token:
+            kwargs["headers"]["Authorization"] = "vRealizeOpsToken " + self.token
         kwargs["headers"].setdefault("Accept", "application/json")
         kwargs.setdefault("verify", False)
         if kwargs["url"].startswith("http"):
