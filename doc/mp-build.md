@@ -14,13 +14,17 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 
 ### Command-line Arguments
 ```
--h, --help            show this help message and exit
--p PATH, --path PATH  Path to the project's root directory. Defaults to the current directory or prompts if the current 
-                      directory is not a project.
--i, --insecure-collector-communication
-                      If this flag is present, communication between the VMware Aria Operations collector and the adapter will be 
-                      unencrypted. If using a custom server with this option, the server must be configured to listen on 
-                      port 8080.
+  -h, --help            show this help message and exit
+  -p PATH, --path PATH  Path to root directory of project. Defaults to the current directory, or prompts if current directory is not a project.
+  -r [REGISTRY_TAG], --registry-tag [REGISTRY_TAG]
+                        The full container registry tag where the container image will be stored (overwrites config file).
+  --registry-username REGISTRY_USERNAME
+                        The container registry username.
+  --registry-password REGISTRY_PASSWORD
+                        The container registry password.
+  -i, --insecure-collector-communication
+                        If this flag is present, communication between the collector (Cloud Proxy) and the adapter will be unencrypted. If using a custom server with this option, the server must
+                        be configured to listen on port 8080.
 ```
 
 ### Interactive Prompts
@@ -43,8 +47,10 @@ In order to build an adapter, the tool needs to know which adapter to build. Thi
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
 #### Registry Credentials
-If the user is not logged into  [harbor-repo.vmware.com](harbor-reop.vmware.com) registry, `mp-build` will prompt
-the user for their credentials. Credentials are lodged and stored using docker CLI:
+If the user is not logged into a container registry, `mp-build` will prompt
+the user to sign into one and enter their credentials. By default `mp-build` uses [harbor-repo.vmware.com](harbor-reop.vmware.com). Alternatively, the user can use 
+the `--registry-tag`, `--registry-username`,`--registry-password`. Passing `--registry-tag` without specifying a registry will use the registry specified in 
+the config.json file. If no registry exists in the config.json file, the default registry will be used instead. Credentials are logged and stored using docker CLI:
 
 ```shell
 Login into harbor-repo.vmware.com
