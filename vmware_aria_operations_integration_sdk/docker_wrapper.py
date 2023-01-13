@@ -25,19 +25,18 @@ from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.stats import convert_bytes
 from vmware_aria_operations_integration_sdk.stats import LongRunStats
-from vmware_aria_operations_integration_sdk.threading import threaded
+from vmware_aria_operations_integration_sdk.temp_threading import threaded
 from vmware_aria_operations_integration_sdk.ui import Table
 
 
 def login(docker_registry: str, **kwargs) -> str:
     print(f"Login into {docker_registry}")
-    print(f"kwargs: {kwargs}")
     command = ["docker", "login", f"{docker_registry}"]
-    if "registry_username" in kwargs:  # TODO: should be constants
+    if kwargs["registry_username"] is not None:  # TODO: should be constants
         command.append("--username")
         command.append(kwargs["registry_username"])
 
-    if "registry_password" in kwargs:
+    if kwargs["registry_password"] is not None:
         command.append("--password")
         command.append(kwargs["registry_password"])
 

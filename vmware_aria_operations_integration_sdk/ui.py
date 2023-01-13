@@ -41,7 +41,7 @@ from prompt_toolkit.validation import Validator
 from prompt_toolkit.widgets import Frame
 from prompt_toolkit.widgets import TextArea
 
-from vmware_aria_operations_integration_sdk.threading import threaded
+from vmware_aria_operations_integration_sdk.temp_threading import threaded
 
 style = Style.from_dict(
     {
