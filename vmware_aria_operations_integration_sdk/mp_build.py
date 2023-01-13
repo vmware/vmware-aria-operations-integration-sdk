@@ -163,7 +163,9 @@ def get_docker_registry(
     else:
         if docker_registry_arg is not None and not len(docker_registry_arg):
             # Prioritize config file over default value
-            docker_registry = default_registry_value if docker_registry is None else docker_registry
+            docker_registry = (
+                default_registry_value if docker_registry is None else docker_registry
+            )
         else:
             docker_registry = docker_registry_arg
 
@@ -405,9 +407,13 @@ def main() -> None:
             const="",
         )
 
-        parser.add_argument("--registry-username", help="The container registry username.")
+        parser.add_argument(
+            "--registry-username", help="The container registry username."
+        )
 
-        parser.add_argument("--registry-password", help="The container registry password.")
+        parser.add_argument(
+            "--registry-password", help="The container registry password."
+        )
 
         parser.add_argument(
             "-i",
