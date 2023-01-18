@@ -146,6 +146,9 @@ def get_docker_registry(
     default_registry_value = f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
 
     original_value = docker_registry
+    print(
+        f"docker_regitry: {docker_registry} docker_registry_arg: {docker_registry_arg}"
+    )
     if docker_registry is None and docker_registry_arg is None:
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
@@ -167,7 +170,11 @@ def get_docker_registry(
                 default_registry_value if docker_registry is None else docker_registry
             )
         else:
-            docker_registry = docker_registry_arg
+            docker_registry = (
+                docker_registry_arg
+                if docker_registry_arg is not None
+                else docker_registry
+            )
 
         if not is_valid_registry(docker_registry, **kwargs):
             raise LoginError
