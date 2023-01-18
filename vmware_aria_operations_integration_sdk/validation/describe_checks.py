@@ -129,7 +129,7 @@ def cross_check_identifiers(resource: Dict, resource_kind_element: Element) -> R
     result = Result()
     for identifier in collected_identifiers:
         if identifier["key"] not in described_identifiers.keys():
-            result.with_warning(
+            result.with_error(
                 message_format(
                     resource,
                     f"Identifier '{identifier['key']}' is present on this resource, but is not defined in describe.xml.",
@@ -228,7 +228,7 @@ def cross_check_collection_with_describe(
                 result.with_warning(
                     message_format(
                         resource,
-                        f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead. ",
+                        f"AdapterKind '{adapter_kind}' was expected, but '{resource_adapter_kind}' was found instead.",
                     )
                 )
 
