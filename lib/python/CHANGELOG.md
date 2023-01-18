@@ -1,6 +1,10 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
-## 0.5.6 (12-9-2022)
+## 0.4.7 (01-13-2023)
+* Fix a bug where the 'Authorization' header was set with an empty token when 
+  acquiring a suite-api token, which in some cases resulted in 401 errors
+
+## 0.4.6 (12-9-2022)
 * Fix a bug where default values for Events were not set correctly
 
 ## 0.4.5 (11-17-2022)
