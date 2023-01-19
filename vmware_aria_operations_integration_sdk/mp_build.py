@@ -167,7 +167,11 @@ def get_docker_registry(
                 default_registry_value if docker_registry is None else docker_registry
             )
         else:
-            docker_registry = docker_registry_arg
+            docker_registry = (
+                docker_registry_arg
+                if docker_registry_arg is not None
+                else docker_registry
+            )
 
         if not is_valid_registry(docker_registry, **kwargs):
             raise LoginError

@@ -32,11 +32,13 @@ from vmware_aria_operations_integration_sdk.ui import Table
 def login(docker_registry: str, **kwargs) -> str:
     print(f"Login into {docker_registry}")
     command = ["docker", "login", f"{docker_registry}"]
-    if kwargs["registry_username"] is not None:  # TODO: should be constants
+    if (
+        "registry_username" in kwargs and kwargs["registry_username"] is not None
+    ):  # TODO: should be constants
         command.append("--username")
         command.append(kwargs["registry_username"])
 
-    if kwargs["registry_password"] is not None:
+    if "registry_password" in kwargs and kwargs["registry_password"] is not None:
         command.append("--password")
         command.append(kwargs["registry_password"])
 
