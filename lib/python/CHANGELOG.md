@@ -1,5 +1,11 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+=======
+## Unreleased
+* Add a 'adapter_logging' module simplify logging in adapters
+* Add python logging handler 'NullLogger' as the default logger, to suppress 
+  messages if the calling adapter has not set up logging
+
 ## 0.4.7 (01-13-2023)
 * Fix a bug where the 'Authorization' header was set with an empty token when 
   acquiring a suite-api token, which in some cases resulted in 401 errors
@@ -25,7 +31,7 @@ VMware Aria Operations Integration SDK Library
 * Remove 'dt_type' from Metrics/Properties, as it is no longer used by Aria Ops
 
 ## 0.4.2 (11-02-2022)
-* Fix retreival of SuiteAPI credentials
+* Fix retrieval of SuiteAPI credentials
 
 ## 0.4.1 (11-02-2022)
 * Add paging to SuiteAPIClient

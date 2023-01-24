@@ -7,7 +7,7 @@ import logging
 from typing import Optional
 from typing import Union
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 def read_from_pipe(input_pipe: str) -> Optional[dict | list]:
