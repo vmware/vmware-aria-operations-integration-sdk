@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-import logging
 import os
 
 import connexion
+import server_logging
 from cheroot import wsgi
 from cheroot.ssl.builtin import BuiltinSSLAdapter
 from swagger_server import encoder
 
 
-def main():
-    try:
-        logging.basicConfig(
-            filename="/var/log/server.log",
-            filemode="a",
-            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-            datefmt="%H:%M:%S",
-            level=logging.DEBUG,
-        )
-        logger = logging.getLogger("waitress")
-        logger.setLevel(logging.DEBUG)
-    except Exception as e:
-        logging.basicConfig(level=logging.CRITICAL + 1)
-    logger = logging.getLogger("main")
+def main() -> None:
+    server_logging.setup_logging("server.log")
+    logger = server_logging.getLogger("main")
 
     app = connexion.App(__name__, specification_dir="swagger/")
     app.app.json_encoder = encoder.JSONEncoder
