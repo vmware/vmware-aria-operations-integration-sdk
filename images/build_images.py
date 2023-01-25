@@ -1,10 +1,16 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import os
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 
 import docker
+from docker import DockerClient
+from docker.models.images import Image
 
-import vmware_aria_operations_integration_sdk.docker_wrapper
+from vmware_aria_operations_integration_sdk import docker_wrapper
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
@@ -40,7 +46,7 @@ def update_version(update_type: str, current_version: str) -> str:
     return ".".join(map(str, semantic_components))
 
 
-def should_update_version(language: str, current_version: str) -> str:
+def should_update_version(language: str, current_version: str) -> Any:
     return selection_prompt(
         message=f"Update the version of the {language} image (current version: {current_version})",
         items=[
@@ -52,14 +58,14 @@ def should_update_version(language: str, current_version: str) -> str:
     )
 
 
-def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
+def get_images_to_build(base_image: dict, secondary_images: List[Dict]) -> List[Dict]:
     # Create an array with the base image as the first option
     choices = [(base_image, f"{base_image['language']}", True)]
 
     # Create choices for all secondary images and add it to the current choices
     choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
 
-    images = multiselect_prompt(
+    images: List[Dict] = multiselect_prompt(  # type: ignore
         message="Select one or more images to build:", items=choices
     )
 
@@ -70,7 +76,7 @@ def get_images_to_build(base_image: dict, secondary_images: [dict]) -> [dict]:
     return images
 
 
-def main():
+def main() -> None:
     client = init()
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
@@ -122,11 +128,11 @@ def main():
             print(build_error.recommendation)
 
 
-def get_latest_aria_ops_container_versions() -> (dict, [dict]):
+def get_latest_aria_ops_container_versions() -> Tuple[Dict, List[Dict]]:
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     base_image: dict = get_config_value("base_image", config_file=VERSION_FILE)
-    secondary_images: [dict] = get_config_value(
+    secondary_images: List[Dict] = get_config_value(
         "secondary_images", config_file=VERSION_FILE
     )
 
@@ -135,7 +141,7 @@ def get_latest_aria_ops_container_versions() -> (dict, [dict]):
     return base_image, secondary_images
 
 
-def build_image(client: docker.client, language: str, version: str, path: str):
+def build_image(client: docker.client, language: str, version: str, path: str) -> Image:
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     build_path = os.path.join(os.path.realpath("."), path)
@@ -153,7 +159,7 @@ def build_image(client: docker.client, language: str, version: str, path: str):
     return image
 
 
-def add_stable_tags(image, language: str, version: str):
+def add_stable_tags(image: Image, language: str, version: str) -> None:
     tags = [
         f"{CONTAINER_BASE_NAME}:{language}-{version.split('.')[0]}",
         f"{CONTAINER_BASE_NAME}:{language}-latest",
@@ -164,7 +170,9 @@ def add_stable_tags(image, language: str, version: str):
         image.tag(tag)
 
 
-def push_image_to_registry(client, image, registry_url: str):
+def push_image_to_registry(
+    client: DockerClient, image: Image, registry_url: str
+) -> None:
     registry_tag = f"{registry_url}"
     print(f"pushing image to {registry_tag}")
     for tag in image.tags:
