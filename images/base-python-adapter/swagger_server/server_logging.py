@@ -50,7 +50,6 @@ def _get_default_log_level(default_level: int = logging.INFO) -> int:
         modified = True
         config["server"] = {
             "main": logging.getLevelName(default_level),
-            "waitress": logging.getLevelName(logging.DEBUG),
         }
     if modified:
         with open(log_config_file, "w") as config_file:
