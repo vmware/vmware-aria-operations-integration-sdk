@@ -1,7 +1,7 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
-=======
-## Unreleased
+
+## 0.5.0 (01-25-2023)
 * Add a 'adapter_logging' module simplify logging in adapters
 * Add python logging handler 'NullLogger' as the default logger, to suppress 
   messages if the calling adapter has not set up logging
