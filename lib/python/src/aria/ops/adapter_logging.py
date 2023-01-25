@@ -28,43 +28,58 @@ def setup_logging(filename: str, file_count: int = 5, max_size: int = 0) -> None
         logging.basicConfig(
             format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
-            level=_get_level("DEFAULT"),
+            level=_get_default_log_level(),
             handlers=[log_handler],
         )
+        _set_log_levels()
     except Exception:
         logging.basicConfig(level=logging.CRITICAL + 1)
 
 
-def _get_level(name: str, default_level: int = logging.INFO) -> int:
+def _get_default_log_level(default_level: int = logging.INFO) -> int:
+    default_level_name = logging.getLevelName(default_level)
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
-    if not os.path.isfile(log_config_file):
-        new_config = ConfigParser()
-        new_config["DEFAULT"] = {"level": logging.getLevelName(default_level)}
-        with open(log_config_file, "w") as config_file:
-            new_config.write(config_file)
     config = ConfigParser()
-    config.read(log_config_file)
+    if os.path.isfile(log_config_file):
+        config.read(log_config_file)
+    modified = False
+    if "adapter" not in config["DEFAULT"]:
+        modified = True
+        config["DEFAULT"].update({"adapter": default_level_name})
+    if "adapter" not in config:
+        modified = True
+        config["adapter"] = {
+            "__main__": default_level_name,
+        }
+    if modified:
+        with open(log_config_file, "w") as config_file:
+            config.write(config_file)
     try:
-        if name in config and "level" in config[name]:
-            return int(logging.getLevelName(config[name].get("level")))
-        elif "DEFAULT" in config:
-            return int(
-                logging.getLevelName(
-                    config["DEFAULT"].get("level", logging.getLevelName(default_level))
-                )
-            )
-        else:
-            return default_level
+        return int(
+            logging.getLevelName(config["DEFAULT"].get("adapter", default_level_name))
+        )
     except ValueError:
         return default_level
 
 
-def getLogger(name: str, default_level: int = logging.INFO) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(_get_level(name, default_level))
-    return logger
+def _set_log_levels() -> None:
+    log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
+    config = ConfigParser()
+    config.read(log_config_file)
+    for logger in config["server"]:
+        logging.getLogger(logger).setLevel(config["server"][logger])
+
+
+def getLogger(name: str) -> logging.Logger:
+    # convenience function to avoid having to import logging and adapter_logging
+    return logging.getLogger(name)
 
 
 def rotate() -> None:
+    """
+    Rotates the current adapter logs to their backups (e.g., `adapter.log` to
+    `adapter.log.1`) and starts logging to the new adapter.log file.
+    :return: None
+    """
     if log_handler:
         log_handler.doRollover()
