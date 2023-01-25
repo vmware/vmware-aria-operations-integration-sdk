@@ -66,8 +66,8 @@ def _set_log_levels() -> None:
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
     config.read(log_config_file)
-    for logger in config["server"]:
-        logging.getLogger(logger).setLevel(config["server"][logger])
+    for logger in config["adapter"]:
+        logging.getLogger(logger).setLevel(config["adapter"][logger])
 
 
 def getLogger(name: str) -> logging.Logger:
