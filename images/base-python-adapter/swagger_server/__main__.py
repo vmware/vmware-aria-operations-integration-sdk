@@ -4,10 +4,10 @@
 import os
 
 import connexion
-import server_logging
 from cheroot import wsgi
 from cheroot.ssl.builtin import BuiltinSSLAdapter
 from swagger_server import encoder
+from swagger_server import server_logging
 
 
 def main() -> None:

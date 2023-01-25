@@ -1,4 +1,4 @@
-FROM base-adapter:python-0.9.2
+FROM base-adapter:python-0.9.3
 
 # manual powershell install to prevent overwritting previous dependecies
 # switch to root in oder to do all installs
