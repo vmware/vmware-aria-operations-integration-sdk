@@ -1,14 +1,14 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
-import logging
 import sys
+from typing import List
 
+import aria.ops.adapter_logging as logging
 import psutil
 from aria.ops.adapter_instance import AdapterInstance
 from aria.ops.data import Metric
 from aria.ops.data import Property
 from aria.ops.definition.adapter_definition import AdapterDefinition
-from aria.ops.definition.group import Group
 from aria.ops.definition.units import Units
 from aria.ops.result import CollectResult
 from aria.ops.result import EndpointResult
@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def test(adapter_instance: AdapterInstance) -> TestResult:
+    logger.info("Starting 'Test'")
     result = TestResult()
     try:
         # Sample test connection code follows. Replace with your own test connection code.
@@ -45,6 +46,8 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
             # that is returned.
             result.with_error("The ID is bad")
         # otherwise, the test has passed
+        logger.info(f"Finished 'Test'")
+        logger.debug(f"Returning test result: {result.get_json()}")
         return result
 
     except Exception as e:
@@ -56,6 +59,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
 
 
 def get_endpoints(adapter_instance: AdapterInstance) -> EndpointResult:
+    logger.info("Starting 'Get Endpoints'")
     result = EndpointResult()
     # In the case that an SSL Certificate is needed to communicate to the target,
     # add each URL that the adapter uses here. Often this will be derived from a 'host'
@@ -75,13 +79,15 @@ def get_endpoints(adapter_instance: AdapterInstance) -> EndpointResult:
     # is passed to the 'test' and 'collect' methods. Any certificate that is
     # encountered in those methods should then be validated against the certificate(s)
     # in the AdapterInstance.
+    logger.info(f"Finished 'Get Endpoints'")
+    logger.debug(f"Returning endpoints: {result.get_json()}")
     return result
 
 
 def collect(adapter_instance: AdapterInstance) -> CollectResult:
     result = CollectResult()
     try:
-        logger.debug("Starting collection")
+        logger.info("Starting 'Collection'")
         # Sample collection code follows. Replace this with your own collection code.
         # A typical collection will generally consist of:
         # 1. Read identifier values from adapter_instance that are required to
@@ -141,7 +147,8 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
         system.add_child(disk)
         system.add_child(cpu)
 
-        logger.debug(f"Returning collection result {result}")
+        logger.info(f"Finished 'Collection'")
+        logger.debug(f"Returning collection result {result.get_json()}")
         return result
     except Exception as e:
         # TODO: If any connections are still open, make sure they are closed before returning
@@ -152,6 +159,7 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
 
 
 def get_adapter_definition() -> AdapterDefinition:
+    logger.info("Starting 'Get Adapter Definition'")
     """
     The adapter definition defines the object types and attribute types (metric/property) that are present
     in a collection. Setting these object types and attribute types helps VMware Aria Operations to
@@ -209,27 +217,24 @@ def get_adapter_definition() -> AdapterDefinition:
 
     system = definition.define_object_type("system", "System")
 
+    logger.info("Finished 'Get Adapter Definition'")
+    logger.debug(f"Returning adapter definition: {definition.to_json()}")
     return definition
 
 
 # Main entry point of the adapter. You should not need to modify anything below this line.
-def main(argv):
-    try:
-        logging.basicConfig(
-            filename="/var/log/adapter.log",
-            filemode="a",
-            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-            datefmt="%H:%M:%S",
-            level=logging.DEBUG,
-        )
-    except Exception as e:
-        logging.basicConfig(level=logging.CRITICAL + 1)
-
-    logger.debug(f"Running adapter code with arguments: {argv}")
+def main(argv: List[str]) -> None:
+    logging.setup_logging("adapter.log")
+    # Start a new log file by calling 'rotate'. By default, the last five calls will be
+    # retained. If the logs are not manually rotated, the 'setup_logging' call should be
+    # invoked with the 'max_size' parameter set to a reasonable value, e.g.,
+    # 10_489_760 (10MB).
+    logging.rotate()
+    logger.info(f"Running adapter code with arguments: {argv}")
     if len(argv) != 3:
         # `inputfile` and `outputfile` are always automatically appended to the
         # argument list by the server
-        logger.debug("Arguments must be <method> <inputfile> <ouputfile>")
+        logger.error("Arguments must be <method> <inputfile> <ouputfile>")
         exit(1)
 
     method = argv[0]
@@ -250,7 +255,7 @@ def main(argv):
             )
             exit(1)
     else:
-        logger.debug(f"Command {method} not found")
+        logger.error(f"Command {method} not found")
         exit(1)
 
 
