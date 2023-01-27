@@ -1,6 +1,14 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
 
+## Unreleased
+* Add 'collection_number' to Adapter Instance. Starts at 0 and increments each time 
+  'collect' is called. Requires server based off of base-python-adapter 0.10.0 or 
+  higher.
+* Add 'collection_window' to Adapter Instance. Contains 'start_time' and 'end_time' 
+  in ms since the Epoch. On the first collection, 'start_time' will be set to 0. 
+  Requires server based off of base-python-adapter 0.10.0 or higher.
+
 ## 0.5.0 (01-25-2023)
 * Add a 'adapter_logging' module simplify logging in adapters
 * Add python logging handler 'NullLogger' as the default logger, to suppress 
