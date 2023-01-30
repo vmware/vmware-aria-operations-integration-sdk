@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Dict
 from typing import Optional
 
 from aria.ops.object import Identifier
@@ -60,6 +61,9 @@ class AdapterInstance(Object):  # type: ignore
             self.certificates = certificate_config.get("certificates", [])
         else:
             self.certificates = []
+
+        self.collection_number: Optional[int] = json.get("collection_number", None)
+        self.collection_window: Optional[Dict] = json.get("collection_window", None)
 
     def get_credential_type(self) -> Optional[str]:
         """Get the type (key) of credential. This is useful if an adapter supports multiple types of credentials.
