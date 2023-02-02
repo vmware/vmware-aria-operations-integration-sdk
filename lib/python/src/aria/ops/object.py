@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import copy
 from typing import Any
+from typing import List
 from typing import Optional
+from typing import Set
 
 from aria.ops.data import Metric
 from aria.ops.data import Property
@@ -34,7 +36,7 @@ class Key:
         adapter_kind: str,
         object_kind: str,
         name: str,
-        identifiers: Optional[list[Identifier]] = None,
+        identifiers: Optional[List[Identifier]] = None,
     ) -> None:
         """Initializes a Key, which uniquely identifies a vROps Object
 
@@ -192,11 +194,12 @@ class Object:
         :param key: The :class:`Key` that uniquely identifies this Object
         """
         self._key: Key = key
-        self._metrics: list[Metric] = []
-        self._properties: list[Property] = []
-        self._events: set[Event] = set()
-        self._parents: set[Key] = set()
-        self._children: set[Key] = set()
+        self._metrics: List[Metric] = []
+        self._properties: List[Property] = []
+        self._events: Set[Event] = set()
+        self._parents: Set[Key] = set()
+        self._children: Set[Key] = set()
+        self._updated_children: bool = False
 
     def get_key(self) -> Key:
         """Get a copy of the Object's Key.
@@ -206,6 +209,20 @@ class Object:
         :return: A copy of the object's key
         """
         return copy.deepcopy(self._key)
+
+    def adapter_type(self) -> str:
+        """Get the adapter type of this object
+
+        :return: The adapter type of this object
+        """
+        return self._key.adapter_kind
+
+    def object_type(self) -> str:
+        """Get the type of this object
+
+        :return: The type of this object
+        """
+        return self._key.object_kind
 
     def get_identifier_value(self, identifier_key: str) -> Optional[str]:
         """Retrieve the value of a given identifier
@@ -223,7 +240,7 @@ class Object:
         """
         self._metrics.append(metric)
 
-    def add_metrics(self, metrics: list[Metric]) -> None:
+    def add_metrics(self, metrics: List[Metric]) -> None:
         """Method that adds a list of Metric data points to this Object
 
         :param metrics: A list of :class:`Metric` data points to add to this Object
@@ -240,7 +257,7 @@ class Object:
         """
         self.add_metric(Metric(*args, **kwargs))
 
-    def get_metric(self, key: str) -> list[Metric]:
+    def get_metric(self, key: str) -> List[Metric]:
         """
 
         :param key: Metric key of the metric to return.
@@ -248,7 +265,7 @@ class Object:
         """
         return list(filter(lambda metric: metric.key == key, self._metrics))
 
-    def get_metric_values(self, key: str) -> list[float]:
+    def get_metric_values(self, key: str) -> List[float]:
         """
 
         :param key: Metric key of the metric to return.
@@ -283,7 +300,7 @@ class Object:
         """
         self._properties.append(property_)
 
-    def add_properties(self, properties: list[Property]) -> None:
+    def add_properties(self, properties: List[Property]) -> None:
         """Method that adds a list of Property values to this Object
 
         :param properties: A list of :class:`Property` values to add to this Object
@@ -300,7 +317,7 @@ class Object:
         """
         self.add_property(Property(*args, **kwargs))
 
-    def get_property(self, key: str) -> list[Property]:
+    def get_property(self, key: str) -> List[Property]:
         """
 
         :param key: Property key of the property to return.
@@ -308,7 +325,7 @@ class Object:
         """
         return list(filter(lambda property_: property_.key == key, self._properties))
 
-    def get_property_values(self, key: str) -> list[str]:
+    def get_property_values(self, key: str) -> List[str]:
         """
 
         :param key: Property key of the property to return.
@@ -343,7 +360,7 @@ class Object:
         """
         self._events.add(event)
 
-    def add_events(self, events: list[Event]) -> None:
+    def add_events(self, events: List[Event]) -> None:
         """Method that adds a list of Events to this Object
 
         :param events: A list of :class:`Event` to add to this Object
@@ -373,7 +390,7 @@ class Object:
         self._parents.add(parent._key)
         parent._children.add(self._key)
 
-    def add_parents(self, parents: list[Object]) -> None:
+    def add_parents(self, parents: List[Object]) -> None:
         """Method that adds a list of parent Objects to this Object.
 
         This Object will also be added as a child to each of the parents.
@@ -386,7 +403,7 @@ class Object:
         for parent in parents:
             self.add_parent(parent)
 
-    def get_parents(self) -> set[Key]:
+    def get_parents(self) -> Set[Key]:
         """
         :return: A set of all object keys that are parents of this object
         """
@@ -402,10 +419,11 @@ class Object:
         :param child: Child :class:`Object`
         :return: None
         """
+        self._updated_children = True
         self._children.add(child._key)
         child._parents.add(self._key)
 
-    def add_children(self, children: list[Object]) -> None:
+    def add_children(self, children: List[Object]) -> None:
         """Method that adds a list of child Objects to this Object.
 
         This Object will also be added as a parent to each of the children.
@@ -415,14 +433,22 @@ class Object:
         :param children: A list of child :class:`Object`
         :return: None
         """
+        # We want to set this even in the case where the list is empty
+        self._updated_children = True
         for child in children:
             self.add_child(child)
 
-    def get_children(self) -> set[Key]:
+    def get_children(self) -> Set[Key]:
         """
         :return: A set of all object keys that are children of this object
         """
         return self._children
+
+    def has_content(self) -> bool:
+        """
+        :return: True if the object contains any metrics, properties or events; False otherwise.
+        """
+        return bool(self._metrics) or bool(self._properties) or bool(self._events)
 
     def get_json(self) -> dict:
         """Get a JSON representation of this Object

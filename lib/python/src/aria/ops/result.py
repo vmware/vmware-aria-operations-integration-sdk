@@ -1,8 +1,12 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import sys
+from enum import auto
+from typing import List
+from typing import NewType
 from typing import Optional
 
+from aenum import Enum
 from aria.ops.definition.adapter_definition import AdapterDefinition
 from aria.ops.object import Identifier
 from aria.ops.object import Key
@@ -111,6 +115,44 @@ class EndpointResult:
         write_to_pipe(output_pipe, self.get_json())
 
 
+RelationshipUpdateMode = NewType("RelationshipUpdateMode", int)
+
+
+class RelationshipUpdateModes(Enum):  # type: ignore
+    """
+    If 'update_relationships' is 'ALL', all relationships between objects are
+    returned.
+
+    If 'update_relationships' is 'None', no relationships will be returned.
+
+    If 'update_relationships' is 'AUTO' (or not explicitly set), then all
+    relationships are returned _if and only if at least one object has set
+    relationships_.
+
+    If 'update_relationships' is 'PER_OBJECT', then only objects with updated
+    relationships will be returned. Note: Any object that has not been updated
+    will retain existing relationships. This means that to remove all
+    relationships from an object (without setting any new relationships), the
+    adapter must call 'add_children' on the object with an empty collection of
+    children.
+
+    If an object's relationships are returned, but the object has no current
+    relationships, then any previously-existing relationships will be removed.
+
+    If an object's relationships are not returned, then any previously-existing
+    relationships will remain present in Aria Operations.
+
+    The default behavior makes it easy to skip collecting relationships for a
+    collection without overwriting previously-collected relationships, e.g.,
+    for performance reasons.
+    """
+
+    ALL = RelationshipUpdateMode(1)
+    NONE = RelationshipUpdateMode(2)
+    AUTO = RelationshipUpdateMode(3)
+    PER_OBJECT = RelationshipUpdateMode(4)
+
+
 class CollectResult:
     """Class for managing a collection of Aria Operations Objects"""
 
@@ -134,7 +176,15 @@ class CollectResult:
         self.objects: dict[Key, Object] = {}
         if type(obj_list) is list:
             self.add_objects(obj_list)
+        self.definition: AdapterDefinition = target_definition
+        self.adapter_type = None
+        if self.definition:
+            self.adapter_type = self.definition.key
         self._error_message: Optional[str] = None
+        self.update_relationships: RelationshipUpdateMode = RelationshipUpdateModes.AUTO
+
+    def _object_is_external(self, obj: Object) -> bool:
+        return bool(self.adapter_type) and not obj.adapter_type() == self.adapter_type
 
     def object(
         self,
@@ -165,6 +215,31 @@ class CollectResult:
         """
         obj = Object(Key(adapter_kind, object_kind, name, identifiers))
         return self.objects.setdefault(obj.get_key(), obj)
+
+    def get_object(self, obj_key: Key) -> Optional[Object]:
+        """Get and return the object corresponding to the given key, if it exists
+
+        :param obj_key: The object key to search for
+        :return: The object with the given key, or None if the key is not in the result
+        """
+        return self.objects.get(obj_key, None)
+
+    def get_objects_by_type(
+        self, object_type: str, adapter_type: Optional[str] = None
+    ) -> List[Object]:
+        """Returns all objects with the given type. If adapter_type is present,
+        the objects must also be from the given adapter type.
+
+        :param object_type: The object type to return
+        :param adapter_type: The adapter type of the objects to return
+        :return: A list of objects matching the object type and adapter type
+        """
+        return [
+            obj
+            for obj in self.objects.values()
+            if obj.adapter_type() == object_type
+            and (adapter_type is None or adapter_type == obj.adapter_type())
+        ]
 
     def add_object(self, obj: Object) -> Object:
         """Adds the given object to the Result and returns it.
@@ -217,26 +292,51 @@ class CollectResult:
 
         Returns a JSON representation of this Result in the format required by Aria
         Operations. The representation includes all objects (including the object's
-        events, properties, and metrics) in the Result, and all relationships between
-        objects.
+        events, properties, and metrics) in the Result. Relationships are returned
+        following the update_relationships flag (See RelationshipUpdateMode).
 
         :return: A JSON representation of this Result
         """
         if self._error_message is None:
-            return {
-                "result": [obj.get_json() for obj in self.objects.values()],
-                "relationships": [
-                    {
-                        "parent": obj.get_key().get_json(),
-                        "children": [
-                            child_key.get_json() for child_key in obj.get_children()
-                        ],
-                    }
+            result = {
+                "result": [
+                    obj.get_json()
                     for obj in self.objects.values()
-                    if len(obj.get_children()) > 0
+                    if not self._object_is_external(obj) or obj.has_content()
                 ],
+                "relationships": [],
                 "nonExistingObjects": [],
             }
+            if (
+                self.update_relationships == RelationshipUpdateModes.ALL
+                or self.update_relationships == RelationshipUpdateModes.PER_OBJECT
+                or (
+                    self.update_relationships == RelationshipUpdateModes.AUTO
+                    and any([obj._updated_children for obj in self.objects.values()])
+                )
+            ):
+                result.update(
+                    {
+                        "relationships": [
+                            {
+                                "parent": obj.get_key().get_json(),
+                                "children": [
+                                    child_key.get_json()
+                                    for child_key in obj.get_children()
+                                ],
+                            }
+                            for obj in self.objects.values()
+                            if (
+                                self.update_relationships
+                                == RelationshipUpdateModes.PER_OBJECT
+                                and obj._updated_children
+                            )
+                            or not self.update_relationships
+                            == RelationshipUpdateModes.PER_OBJECT
+                        ],
+                    }
+                )
+            return result
         else:
             return {"errorMessage": self._error_message}
 
