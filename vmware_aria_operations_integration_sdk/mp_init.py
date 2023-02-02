@@ -375,7 +375,6 @@ def create_commands_file(
 ) -> None:
     logger.debug("generating commands file")
     with open(os.path.join(path, "commands.cfg"), "w") as commands:
-
         command_and_executable = ""
         if "java" == language:
             command_and_executable = (
