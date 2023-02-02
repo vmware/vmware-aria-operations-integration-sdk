@@ -2,6 +2,12 @@ VMware Aria Operations Integration SDK Library
 ----------------------------------------------
 
 ## Unreleased
+* Adds 'RelationshipUpdateModes' enum to control how relationships are returned from 
+  'CollectResult'
+* Add 'get_object' and 'get_objects_by_type' helper methods in 'CollectResult'
+* Add 'adapter_type()' and 'object_type()' helper methods in 'Object'
+* Add 'has_content()' method in 'Object' that returns true if the object contains 
+  at least one metric, property, or event
 * Add 'collection_number' to Adapter Instance. Starts at 0 and increments each time 
   'collect' is called. Requires server based off of base-python-adapter 0.10.0 or 
   higher.
