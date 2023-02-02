@@ -60,7 +60,6 @@ def cross_check_attribute(
         return result
 
     if child_type == "ResourceGroup":
-
         if is_true(match, "instanced") and is_true(match, "instanceRequired"):
             if not instanced:
                 result.with_warning(

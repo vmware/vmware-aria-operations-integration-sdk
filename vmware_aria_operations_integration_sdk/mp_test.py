@@ -409,7 +409,7 @@ def display_ui(
 def write_validation_log(validation_file_path: str, result: Result) -> None:
     # TODO: create a test object to be able to write encapsulated test results
     with open(validation_file_path, "w") as validation_file:
-        for (severity, message) in result.messages:
+        for severity, message in result.messages:
             validation_file.write(f"{severity.name}: {message}\n")
 
 
