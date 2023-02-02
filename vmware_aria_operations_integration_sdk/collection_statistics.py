@@ -422,14 +422,23 @@ class CollectionStatistics:
                 self.obj_statistics[obj_id] = stats
                 self.obj_type_statistics[obj_id.objectKind].add_object(stats)
         for rel in json.get("relationships", []):
-            parent = _get_object_id(rel.get("parent"))
+            parent_dict = rel.get("parent")
+            parent = _get_object_id(parent_dict)
             children = rel.get("children", [])
-            for child in children:
-                child = _get_object_id(child)
+            for child_dict in children:
+                child = _get_object_id(child_dict)
                 if child and parent:
                     key = (parent.objectKind, child.objectKind)
                     self.rel_statistics[key] += 1
+                    if parent not in self.obj_statistics:
+                        self.obj_statistics[parent] = ObjectStatistics(
+                            {"key": parent_dict}
+                        )
                     self.obj_statistics[parent].add_child(child)
+                    if child not in self.obj_statistics:
+                        self.obj_statistics[child] = ObjectStatistics(
+                            {"key": child_dict}
+                        )
                     self.obj_statistics[child].add_parent(parent)
 
     def __repr__(self) -> str:
