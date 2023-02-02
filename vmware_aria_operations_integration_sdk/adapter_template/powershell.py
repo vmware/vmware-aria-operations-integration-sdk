@@ -3,8 +3,7 @@
 import os
 
 
-def build_template(path: str, root_directory: str):
-
+def build_template(path: str, root_directory: str) -> None:
     with open(os.path.join(path, root_directory, "collector.ps1"), "w") as collector:
         collector.write(
             """

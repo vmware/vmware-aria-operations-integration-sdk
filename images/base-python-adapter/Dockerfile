@@ -1,4 +1,4 @@
-FROM python:3.10.2-slim-bullseye
+FROM python:3.11.1-slim-bullseye
 
 # Ensure that the /var/log directory is writable by the server/adapter
 RUN chmod 777 /var/log
