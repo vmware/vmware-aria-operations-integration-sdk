@@ -1,7 +1,7 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
 
-## Unreleased
+## 0.6.0 (02-03-2023)
 * If an AdapterDefinition is passed into a 'CollectResult', external object types
   are no longer returned in the result unless they contain content. Relationships
   are not affected. (Note: requires unreleased mp-test update)
