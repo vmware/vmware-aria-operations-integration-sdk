@@ -121,30 +121,29 @@ RelationshipUpdateMode = NewType("RelationshipUpdateMode", int)
 class RelationshipUpdateModes(Enum):  # type: ignore
     """
     If 'update_relationships' is 'ALL', all relationships between objects are
-    returned.
+    returned. This mode will remove any currently-existing relationships in VMware
+    Aria Operations that are not present in the Result.
 
-    If 'update_relationships' is 'None', no relationships will be returned.
+    If 'update_relationships' is 'NONE', no relationships will be returned, even if
+    there are relationships between objects in the Result. All currently-existing
+    relationships in VMware Aria Operations will be preserved.
 
-    If 'update_relationships' is 'AUTO' (or not explicitly set), then all
-    relationships are returned _if and only if at least one object has set
-    relationships_.
+    If 'update_relationships' is 'AUTO' (or not explicitly set), then if any object
+    in the result has at least relationship, the mode will behave like 'ALL',
+    and if no objects have any relationships in the Result, the mode will behave like
+    'NONE'. This default behavior makes it easy to skip collecting all relationships
+    for a collection without overwriting previously-collected relationships, e.g., for
+    performance reasons.
 
     If 'update_relationships' is 'PER_OBJECT', then only objects with updated
-    relationships will be returned. Note: Any object that has not been updated
-    will retain existing relationships. This means that to remove all
-    relationships from an object (without setting any new relationships), the
-    adapter must call 'add_children' on the object with an empty collection of
-    children.
-
-    If an object's relationships are returned, but the object has no current
-    relationships, then any previously-existing relationships will be removed.
-
-    If an object's relationships are not returned, then any previously-existing
-    relationships will remain present in Aria Operations.
-
-    The default behavior makes it easy to skip collecting relationships for a
-    collection without overwriting previously-collected relationships, e.g.,
-    for performance reasons.
+    relationships will be returned. This is similar to 'AUTO' except that if an
+    object's child relationships have not been updated/set (by calling 'add_child' or
+    'add_children'), existing child relationships in VMware Aria Operations will be
+    preserved. This means that to remove all relationships from an object
+    (without setting any new relationships), the adapter must call 'add_children' on
+    the object with an empty collection of children. This is useful for updating a
+    subset of objects' relationships in a collection, but requires more care to
+    ensure relationships are removed when appropriate.
     """
 
     ALL = RelationshipUpdateMode(1)
