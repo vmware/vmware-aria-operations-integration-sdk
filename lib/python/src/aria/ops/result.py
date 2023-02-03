@@ -128,10 +128,10 @@ class RelationshipUpdateModes(Enum):  # type: ignore
     there are relationships between objects in the Result. All currently-existing
     relationships in VMware Aria Operations will be preserved.
 
-    If 'update_relationships' is 'AUTO' (or not explicitly set), then if any object
-    in the result has at least relationship, the mode will behave like 'ALL',
-    and if no objects have any relationships in the Result, the mode will behave like
-    'NONE'. This default behavior makes it easy to skip collecting all relationships
+    If 'update_relationships' is 'AUTO' (or not explicitly set), then the mode will
+    behave like 'ALL' if any object in the Result has at least one relationship,
+    otherwise the mode will behave like 'NONE' if no objects have any relationships in
+    the Result. This default behavior makes it easy to skip collecting all relationships
     for a collection without overwriting previously-collected relationships, e.g., for
     performance reasons.
 
@@ -141,7 +141,7 @@ class RelationshipUpdateModes(Enum):  # type: ignore
     'add_children'), existing child relationships in VMware Aria Operations will be
     preserved. This means that to remove all relationships from an object
     (without setting any new relationships), the adapter must call 'add_children' on
-    the object with an empty collection of children. This is useful for updating a
+    the object with an empty collection of children. This mode is useful for updating a
     subset of objects' relationships in a collection, but requires more care to
     ensure relationships are removed when appropriate.
     """
