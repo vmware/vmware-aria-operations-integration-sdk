@@ -222,6 +222,8 @@ def runcommand(
             reader_thread.join()
             # If we got here, result[0] should be none; we will explicitly set it anyway
             result[0] = None
+        
+        logging.debug(f"Result object value: {result[0]}")
 
         if result[0]:
             return result[0]
@@ -234,7 +236,8 @@ def runcommand(
             if len(err):
                 err = err.strip("\n")
                 message += f". Captured stderr:\n  {err}"
-                logging.debug(f"Server error message: {message}")
+
+            logging.debug("Server error message: {message}")
             return message, 500
     finally:
         os.unlink(input_pipe)
