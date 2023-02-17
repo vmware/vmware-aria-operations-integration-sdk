@@ -237,7 +237,7 @@ def runcommand(
                 err = err.strip("\n")
                 message += f". Captured stderr:\n  {err}"
 
-            logging.debug("Server error message: {message}")
+            logging.debug(f"Server error message: {message}")
             return message, 500
     finally:
         os.unlink(input_pipe)
