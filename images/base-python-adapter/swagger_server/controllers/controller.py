@@ -222,7 +222,7 @@ def runcommand(
             reader_thread.join()
             # If we got here, result[0] should be none; we will explicitly set it anyway
             result[0] = None
-        
+
         logging.debug(f"Result object value: {result[0]}")
 
         if result[0]:
