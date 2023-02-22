@@ -213,12 +213,24 @@ def runcommand(
                 fifo.read()
             writer_thread.join()
 
-        # If the subprocess has exited and reader_thread is still alive, then the adapter didn't write any results.
-        # In this case we want the reader_thread to complete but return an error to the user.
+        # If the subprocess has exited and reader_thread is still alive, there are two things that might have happened:
+        # 1.the reader thread is still proessing.
+        # 2.the adapter didn't write any results/crashed.
+        # for case 1 we want to give the reader thread some extra time to complete.
+        # for case 2 we want the reader_thread to complete but return an error to the user.
         if reader_thread.is_alive():
-            logger.error("Subprocess exited before writing result")
+            logger.warning("Reader thread is still open")
+            logger.debug("Sleeping for 5 seconds to allow reader thread to finish")
+            time.sleep(5)
+
+        # If after 5 seconds the reader thread hasn't completed, then is very likely that we are in case 2
+        if reader_thread.is_alive():
+            logger.error("Reader thread is still alive after 5 seconds sleep process completed")
+            logger.debug("Closing output pipe manually")
             with open(output_pipe, "w") as fifo:
                 fifo.write("")
+
+            logger.debug("Closed output pipe manually")
             reader_thread.join()
             # If we got here, result[0] should be none; we will explicitly set it anyway
             result[0] = None
