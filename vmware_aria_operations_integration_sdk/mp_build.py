@@ -10,12 +10,14 @@ import shutil
 import time
 import traceback
 import zipfile
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Tuple
 
 import httpx
 
+from vmware_aria_operations_integration_sdk import ui
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
@@ -111,7 +113,7 @@ def get_registry_components(docker_registry: str) -> Tuple[str, str]:
     return host, path
 
 
-def is_valid_registry(docker_registry: str, **kwargs) -> bool:
+def is_valid_registry(docker_registry: str, **kwargs: Any) -> bool:
     try:
         login(docker_registry, **kwargs)
     except LoginError:
@@ -140,7 +142,7 @@ def get_docker_registry(
     adapter_kind_key: str,
     config_file: str,
     docker_registry_arg: Optional[str],
-    **kwargs,
+    **kwargs: Any,
 ) -> str:
     docker_registry = get_config_value("docker_registry", config_file=config_file)
     default_registry_value = f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
@@ -181,7 +183,7 @@ def get_docker_registry(
             key="docker_registry", value=docker_registry, config_file=config_file
         )
 
-    return docker_registry
+    return str(docker_registry)
 
 
 def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
@@ -209,8 +211,8 @@ async def build_pak_file(
     project_path: str,
     insecure_communication: bool,
     docker_registry_arg: Optional[str],
-    **kwargs,
-):
+    **kwargs: Any,
+) -> str:
     docker_client = init()
 
     manifest_file = os.path.join(project_path, "manifest.txt")
@@ -219,7 +221,7 @@ async def build_pak_file(
         manifest = json.load(manifest_fd)
 
     config_file = os.path.join(project_path, "config.json")
-    adapter_container = AdapterContainer(project_path)
+    adapter_container = AdapterContainer(project_path, docker_client)
     memory_limit = get_config_value(
         "default_memory_limit", 1024, os.path.join(project_path, "config.json")
     )
@@ -427,12 +429,23 @@ def main() -> None:
             "must be configured to listen on port 8080.",
             action="store_true",
         )
+
+        parser.add_argument(
+            "--no-ttl",
+            help="If this flag is present, certain features dependent on having a TTL "
+            "will be disabled. All arguments will need to be passed as command "
+            "line options. This is useful for running mp-build on a headless "
+            "build server",
+            action="store_true",
+        )
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
         docker_registry = parsed_args.registry_tag
         registry_username = parsed_args.registry_username
         registry_password = parsed_args.registry_password
+        if parsed_args.no_ttl:
+            ui.TTL = False
 
         log_file_path = os.path.join(project.path, "logs")
         mkdir(log_file_path)
