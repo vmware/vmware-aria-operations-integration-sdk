@@ -1,6 +1,7 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
+* Do not include '.gitkeep' files in pak files.
 * Adds several flags to mp-build for running on headless build servers:
   * '--no-ttl': Remove UI flourishes and prompts that require a TTL.
   * '--registry-tag': Specify the container registry to upload the built adapter container to without relying on the 'config.json' file.
