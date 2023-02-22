@@ -23,20 +23,17 @@ from vmware_aria_operations_integration_sdk.docker_wrapper import get_container_
 from vmware_aria_operations_integration_sdk.docker_wrapper import init
 from vmware_aria_operations_integration_sdk.docker_wrapper import run_image
 from vmware_aria_operations_integration_sdk.docker_wrapper import stop_container
-from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
-from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.ui import Spinner
 
 logger = logging.getLogger(__name__)
-logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = PTKHandler()
-consoleHandler.setFormatter(CustomFormatter())
-logger.addHandler(consoleHandler)
 
 
 class AdapterContainer:
-    def __init__(self, path: str):
-        self.docker_client: DockerClient = init()
+    def __init__(self, path: str, docker_client: Optional[DockerClient] = None):
+        if not docker_client:
+            self.docker_client = init()
+        else:
+            self.docker_client = docker_client
         self.path: str = path
         self.memory_limit: Optional[int] = None
         self.started: bool = False
