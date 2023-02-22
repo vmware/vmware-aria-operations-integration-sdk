@@ -1,6 +1,7 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
-## 0.5.0 (11-28-2022)
+## Unreleased
+* Do not include '.gitkeep' files in pak files.
 * 'mp-test' asks for SuiteAPI credentials when setting up a new connection.
 * 'Long collection' tests now automatically detect several common issues.
 

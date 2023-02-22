@@ -39,12 +39,14 @@ def rmdir(basepath: str, *paths: str) -> None:
 
 
 def zip_file(_zip: zipfile.ZipFile, file: str) -> None:
+    if os.path.basename(file) == ".gitkeep":
+        return
     _zip.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
 
 def zip_dir(_zip: zipfile.ZipFile, directory: str) -> None:
     for file in files_in_directory(directory):
-        _zip.write(file, compress_type=zipfile.ZIP_DEFLATED)
+        zip_file(_zip, file)
 
 
 def files_in_directory(directory: str) -> Generator[str, None, None]:
