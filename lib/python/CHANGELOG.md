@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## Unreleased
+* Adds a 'Timer' class that automatically logs start and end times, and is able
+  to generate an ascii chart of all times suitable for adapter logs.
 
 ## 0.6.0 (02-03-2023)
 * If an AdapterDefinition is passed into a 'CollectResult', external object types
