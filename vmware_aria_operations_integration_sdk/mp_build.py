@@ -10,6 +10,7 @@ import shutil
 import time
 import traceback
 import zipfile
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Tuple
@@ -111,7 +112,7 @@ def get_registry_components(docker_registry: str) -> Tuple[str, str]:
     return host, path
 
 
-def is_valid_registry(docker_registry: str, **kwargs) -> bool:
+def is_valid_registry(docker_registry: str, **kwargs: Any) -> bool:
     try:
         login(docker_registry, **kwargs)
     except LoginError:
@@ -140,7 +141,7 @@ def get_docker_registry(
     adapter_kind_key: str,
     config_file: str,
     docker_registry_arg: Optional[str],
-    **kwargs,
+    **kwargs: Any,
 ) -> str:
     docker_registry = get_config_value("docker_registry", config_file=config_file)
     default_registry_value = f"harbor-repo.vmware.com/vmware_aria_operations_integration_sdk_mps/{adapter_kind_key.lower()}"
@@ -181,7 +182,7 @@ def get_docker_registry(
             key="docker_registry", value=docker_registry, config_file=config_file
         )
 
-    return docker_registry
+    return str(docker_registry)
 
 
 def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
@@ -209,8 +210,8 @@ async def build_pak_file(
     project_path: str,
     insecure_communication: bool,
     docker_registry_arg: Optional[str],
-    **kwargs,
-):
+    **kwargs: Any,
+) -> str:
     docker_client = init()
 
     manifest_file = os.path.join(project_path, "manifest.txt")
@@ -219,7 +220,7 @@ async def build_pak_file(
         manifest = json.load(manifest_fd)
 
     config_file = os.path.join(project_path, "config.json")
-    adapter_container = AdapterContainer(project_path)
+    adapter_container = AdapterContainer(project_path, docker_client)
     memory_limit = get_config_value(
         "default_memory_limit", 1024, os.path.join(project_path, "config.json")
     )
