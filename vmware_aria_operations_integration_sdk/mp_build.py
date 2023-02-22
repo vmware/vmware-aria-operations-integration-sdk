@@ -17,6 +17,7 @@ from typing import Tuple
 
 import httpx
 
+from vmware_aria_operations_integration_sdk import ui
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
@@ -428,12 +429,23 @@ def main() -> None:
             "must be configured to listen on port 8080.",
             action="store_true",
         )
+
+        parser.add_argument(
+            "--no-ttl",
+            help="If this flag is present, certain features dependent on having a TTL "
+            "will be disabled. All arguments will need to be passed as command "
+            "line options. This is useful for running mp-build on a headless "
+            "build server",
+            action="store_true",
+        )
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
         docker_registry = parsed_args.registry_tag
         registry_username = parsed_args.registry_username
         registry_password = parsed_args.registry_password
+        if parsed_args.no_ttl:
+            ui.TTL = False
 
         log_file_path = os.path.join(project.path, "logs")
         mkdir(log_file_path)
