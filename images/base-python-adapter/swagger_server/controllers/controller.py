@@ -225,7 +225,9 @@ def runcommand(
 
         # If after 5 seconds the reader thread hasn't completed, then is very likely that we are in case 2
         if reader_thread.is_alive():
-            logger.error("Reader thread is still alive after 5 seconds sleep process completed")
+            logger.error(
+                "Reader thread is still alive after 5 seconds sleep process completed"
+            )
             logger.debug("Closing output pipe manually")
             with open(output_pipe, "w") as fifo:
                 fifo.write("")
