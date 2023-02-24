@@ -3,10 +3,11 @@
 from __future__ import annotations
 from __future__ import unicode_literals
 
+import logging
 import os
 import re
-import time
 import sys
+import time
 from types import TracebackType
 from typing import Any
 from typing import Generic
@@ -42,6 +43,10 @@ from prompt_toolkit.widgets import Frame
 from prompt_toolkit.widgets import TextArea
 
 from vmware_aria_operations_integration_sdk.threading import threaded
+
+logger = logging.getLogger(__name__)
+
+TTL = True
 
 style = Style.from_dict(
     {
@@ -220,6 +225,10 @@ class ListControlBase(FormattedTextControl):  # type: ignore
 
 class SelectControl(ListControlBase):
     def __init__(self, message: str, description: str, items: List) -> None:
+        if not TTL:
+            raise Exception(
+                f"TTL is not set: '{message}' must be a command line argument"
+            )
         super().__init__(message, description, items, "\u276f")
 
     def _get_selection(self) -> List:
@@ -234,6 +243,10 @@ class SelectControl(ListControlBase):
 
 class MultiSelectControl(ListControlBase):
     def __init__(self, message: str, description: str, items: List[Tuple]) -> None:
+        if not TTL:
+            raise Exception(
+                f"TTL is not set: '{message}' must be a command line argument"
+            )
         self.selected: List[bool] = [item[2] for item in items]
         super().__init__(message, description, items, "\u2713")
 
@@ -313,6 +326,8 @@ def prompt(message: str, *args: Any, description: str = "", **kwargs: Any) -> st
     :param description: Optional long description for the prompt with further details about the prompt message.
     :return: User input
     """
+    if not TTL:
+        raise Exception(f"TTL is not set: '{message}' must be a command line argument")
     session: PromptSession[str] = PromptSession()
 
     return session.prompt(  # type: ignore
@@ -326,7 +341,33 @@ def prompt(message: str, *args: Any, description: str = "", **kwargs: Any) -> st
     )
 
 
-class Spinner(FormattedTextControl):  # type: ignore
+class Spinner:
+    def __init__(self, text: str):
+        self.text = text
+        self.spinner = None
+        if TTL:
+            self.spinner = _Spinner(text)
+
+    def __enter__(self) -> Spinner:
+        if self.spinner:
+            self.spinner.__enter__()
+        else:
+            logger.info(f"Starting {self.text}")
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[TracebackType] = None,
+    ) -> None:
+        if self.spinner:
+            self.spinner.__exit__(exc_type, exc_value, traceback)
+        else:
+            logger.info(f"Finished {self.text}")
+
+
+class _Spinner(FormattedTextControl):  # type: ignore
     def __init__(self, text: str) -> None:
         self.spinner_text = text
         self._index = 0
@@ -334,7 +375,7 @@ class Spinner(FormattedTextControl):  # type: ignore
         self._finished = False
         super().__init__()
 
-    def __enter__(self) -> Spinner:
+    def __enter__(self) -> _Spinner:
         self.application = Application(
             layout=self._get_layout(),
             key_bindings=self._bindings(),
