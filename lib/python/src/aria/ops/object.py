@@ -82,15 +82,23 @@ class Key:
     def __hash__(self) -> int:
         return hash(self.__key())
 
-    def get_identifier(self, key: str) -> Optional[str]:
+    def get_identifier(
+        self, key: str, default_value: Optional[str] = None
+    ) -> Optional[str]:
         """Return the value for the given identifier key
 
         :param key: The identifier key
-        :return: The value associated with the identifier, or 'None' if the identifier key does not exist
+        :param default_value: An optional default value
+        :return: The value associated with the identifier.
+        If the value associated with the identifier is empty and 'default_value' is
+        provided, returns 'default_value'.
+        If the identifier does not exist, returns default_value if provided, else 'None'.
         """
         if self.identifiers.get(key):
-            return self.identifiers[key].value
-        return None
+            if self.identifiers[key].value or default_value is None:
+                return self.identifiers[key].value
+            return default_value
+        return default_value
 
     def get_json(self) -> dict:
         """Get a JSON representation of this Key
@@ -224,13 +232,19 @@ class Object:
         """
         return self._key.object_kind
 
-    def get_identifier_value(self, identifier_key: str) -> Optional[str]:
+    def get_identifier_value(
+        self, identifier_key: str, default_value: Optional[str] = None
+    ) -> Optional[str]:
         """Retrieve the value of a given identifier
 
         :param identifier_key: Key of the identifier
-        :return: value associated with the identifier, or None if identifier does not exist
+        :param default_value: An optional default value
+        :return: The value associated with the identifier.
+        If the value associated with the identifier is empty and 'default_value' is
+        provided, returns 'default_value'.
+        If the identifier does not exist, returns default_value if provided, else 'None'.
         """
-        return self._key.get_identifier(identifier_key)
+        return self._key.get_identifier(identifier_key, default_value)
 
     def add_metric(self, metric: Metric) -> None:
         """Method that adds a single Metric data point to this Object
