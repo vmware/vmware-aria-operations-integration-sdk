@@ -224,6 +224,7 @@ def runcommand(
             time.sleep(5)
 
         # If after 5 seconds the reader thread hasn't completed, then is very likely that we are in case 2
+        # https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/79
         if reader_thread.is_alive():
             logger.error(
                 "Reader thread is still alive after 5 seconds sleep process completed"
