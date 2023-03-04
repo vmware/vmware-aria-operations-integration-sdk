@@ -305,6 +305,8 @@ class RotationRate(UnitGroup):
 
 @skip
 class Misc(UnitGroup):
+    CORES = Unit("cores", "cores", 1, 1, "Cores")
+    MILLICORES = Unit("millicores", "millicores", 1, 1, "Millicores")
     BLOCKS = Unit("blocks", "blocks", 1, 1, "Blocks")
     BLOCKS_PER_SECOND = Unit(
         "blocksps", "blocks/s", 1, 1, "BlocksPerSecond", is_rate=True

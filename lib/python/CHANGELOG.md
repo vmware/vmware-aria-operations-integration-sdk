@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## 0.7.1 (03-04-2023)
+* Add 'Cores' and 'Millicores' to units.Misc (these are not convertable).
+
 ## 0.7.0 (03-04-2023)
 * Fixes issue that prevented paged SuiteAPI requests from completing.
 * Improves SuiteAPI logging and url handling.
