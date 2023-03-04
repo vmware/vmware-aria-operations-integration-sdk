@@ -195,9 +195,9 @@ class SuiteApiClient(object):
         kwargs["params"].setdefault("pageSize", 1000)
 
         if "page" in kwargs:
-            kwargs["params"]["page"] = kwargs["page"]
+            kwargs["params"]["page"] = kwargs.pop("page")
         if "pageSize" in kwargs:
-            kwargs["params"]["pageSize"] = kwargs["pageSize"]
+            kwargs["params"]["pageSize"] = kwargs.pop("pageSize")
 
         return kwargs
 
@@ -222,15 +222,15 @@ class SuiteApiClient(object):
         total_objects = int(
             page_0_body.get("pageInfo", {"totalCount": 1}).get("totalCount", 1)
         )
-        page_size = kwargs["pageSize"]
+        page_size = kwargs["params"]["pageSize"]
         remaining_pages = math.ceil(total_objects / page_size) - 1
-        objects = page_0_body.get("key", [])
+        objects = page_0_body.get(key, [])
         while remaining_pages > 0:
-            kwargs = self._add_paging(page=remaining_pages)
+            kwargs = self._add_paging(page=remaining_pages, **kwargs)
             page_n_body = json.loads(
                 self._request_wrapper(request_func, url, **kwargs).text
             )
-            objects.extend(page_n_body.get("key", []))
+            objects.extend(page_n_body.get(key, []))
             remaining_pages -= 1
         return {key: objects}
 
@@ -240,24 +240,14 @@ class SuiteApiClient(object):
         kwargs = self._to_vrops_request(url, **kwargs)
         result = request_func(**kwargs)
         if result.ok:
-            logger.debug(
-                request_func.__name__
-                + " "
-                + kwargs["url"]
-                + ": OK ("
-                + str(result.status_code)
-                + ")"
+            logger.info(
+                f"{request_func.__name__} {kwargs['url']}: OK({result.status_code})"
             )
         else:
             logger.warning(
-                request_func.__name__
-                + " "
-                + kwargs["url"]
-                + ": ERROR ("
-                + str(result.status_code)
-                + ")"
+                f"{request_func.__name__} {kwargs['url']}: ERROR({result.status_code})"
             )
-            logger.debug(result.text)
+        logger.debug(result.text)
         return result
 
     def _to_vrops_request(self, url: str, **kwargs: Any) -> dict:
@@ -267,20 +257,20 @@ class SuiteApiClient(object):
             kwargs["headers"]["Authorization"] = "vRealizeOpsToken " + self.token
         kwargs["headers"].setdefault("Accept", "application/json")
         kwargs.setdefault("verify", False)
-        if kwargs["url"].startswith("http"):
-            pass
-        elif kwargs["url"].startswith("internal"):
+
+        url = kwargs["url"]
+        if "internal/" in url:
             kwargs["headers"]["X-vRealizeOps-API-use-unsupported"] = "true"
-            kwargs["url"] = self.credential.host + "/" + kwargs["url"]
-        elif kwargs["url"].startswith("/internal"):
-            kwargs["headers"]["X-vRealizeOps-API-use-unsupported"] = "true"
-            kwargs["url"] = self.credential.host + kwargs["url"]
-        elif kwargs["url"].startswith("api"):
-            kwargs["url"] = self.credential.host + "/" + kwargs["url"]
-        elif kwargs["url"].startswith("/api"):
-            kwargs["url"] = self.credential.host + kwargs["url"]
-        elif kwargs["url"].startswith("/"):
-            kwargs["url"] = self.credential.host + "/api" + kwargs["url"]
+            logger.info(f"Using unsupported API: {url}")
+        if url.startswith("http"):
+            return kwargs
+
+        if url.startswith("/"):
+            url = url[1:]
+        if url.startswith("suite-api/"):
+            url = url[10:]
+        elif url.startswith("api") or url.startswith("internal"):
+            kwargs["url"] = self.credential.host + url
         else:
-            kwargs["url"] = self.credential.host + "/api/" + kwargs["url"]
+            kwargs["url"] = self.credential.host + "api/" + url
         return kwargs

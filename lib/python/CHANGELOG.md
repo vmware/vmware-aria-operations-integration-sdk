@@ -1,6 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
 ## Unreleased
+* Fixes issue that prevented paged SuiteAPI requests from completing.
+* Improves SuiteAPI logging and url handling.
 * Adds a 'Timer' class that automatically logs start and end times, and is able
   to generate an ascii chart of all times suitable for adapter logs.
 
