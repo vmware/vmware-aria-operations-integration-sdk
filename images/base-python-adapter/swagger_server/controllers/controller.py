@@ -199,8 +199,11 @@ def runcommand(
 
         # Wait until the subprocess has exited, and log stdout and stderr (if any)
         out, err = process.communicate()
-        logger.debug(out)
+        if len(out.strip()) > 0:
+            logger.debug("Subprocess stdout:")
+            logger.debug(out)
         if len(err.strip()) > 0:
+            logger.warning("Subprocess err:")
             logger.warning(err)
 
         # process.communicate() will wait until the subprocess has exited. If the subprocess has exited and
@@ -238,12 +241,12 @@ def runcommand(
             # If we got here, result[0] should be none; we will explicitly set it anyway
             result[0] = None
 
-        logging.debug(f"Result object value: {result[0]}")
+        logger.debug(f"Result object value: {result[0]}")
 
         if result[0]:
             return result[0]
         else:
-            logging.debug("Building 500 error message")
+            logger.debug("Building 500 error message")
             message = "No result from adapter"
             if len(out):
                 out = out.strip("\n")
@@ -252,7 +255,7 @@ def runcommand(
                 err = err.strip("\n")
                 message += f". Captured stderr:\n  {err}"
 
-            logging.debug(f"Server error message: {message}")
+            logger.debug(f"Server error message: {message}")
             return message, 500
     finally:
         os.unlink(input_pipe)
