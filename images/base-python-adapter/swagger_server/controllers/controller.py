@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 collection_number: int = 0
 last_collection_time: float = 0
 
+dir = tempfile.mkdtemp()
+
 
 def collect(body: Optional[AdapterConfig] = None) -> Tuple[str, int]:  # noqa: E501
     """Data Collection
@@ -160,7 +162,6 @@ def runcommand(
     extras: Optional[Dict] = None,
 ) -> Tuple[str, int]:
     logger.debug(f"Running command {repr(command)}")
-    dir = tempfile.mkdtemp()
     # These are named from the perspective of the subprocess. We write the subprocess input to the input pipe
     # and read the subprocess output from the output pipe.
     input_pipe = os.path.join(dir, "input_pipe")
@@ -179,6 +180,8 @@ def runcommand(
     )
 
     try:
+        safe_unlink(input_pipe)
+        safe_unlink(output_pipe)
         os.mkfifo(input_pipe)
         os.mkfifo(output_pipe)
         logger.debug("Finished making pipes")
@@ -255,9 +258,17 @@ def runcommand(
             logging.debug(f"Server error message: {message}")
             return message, 500
     finally:
-        os.unlink(input_pipe)
-        os.unlink(output_pipe)
-        os.rmdir(dir)
+        safe_unlink(input_pipe)
+        safe_unlink(output_pipe)
+
+
+def safe_unlink(file: str) -> None:
+    try:
+        if os.path.exists(file):
+            os.unlink(file)
+    except OSError as e:
+        logger.error(f"Could not unlink {file}")
+        logger.exception(e)
 
 
 def write_adapter_instance(
