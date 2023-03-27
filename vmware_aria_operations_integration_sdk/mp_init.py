@@ -1,5 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import argparse
 import json
 import logging
 import os
@@ -225,6 +226,18 @@ def create_project(
 
 
 def main() -> None:
+    description = "Tool for creating a new Management Pack for VMware Aria Operations."
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=pkg_resources.get_distribution(
+            "vmware-aria-operations-integration-sdk"
+        ).version,
+    )
+    parser.parse_args()
+
     path = ""
     try:
         path = path_prompt(

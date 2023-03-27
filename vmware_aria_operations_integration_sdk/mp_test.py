@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element
 
 import httpx
 import lxml.etree as ET
+import pkg_resources
 import urllib3
 from docker.errors import APIError
 from docker.errors import ContainerError
@@ -642,6 +643,15 @@ def input_parameter(parameter_type: str, parameter: Element, resources: Dict) ->
 def main() -> None:
     description = "Tool for running adapter test and collect methods outside of a VMware Aria Operations Cloud Proxy."
     parser = argparse.ArgumentParser(description=description)
+
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=pkg_resources.get_distribution(
+            "vmware-aria-operations-integration-sdk"
+        ).version,
+    )
 
     # General options
     parser.add_argument(
