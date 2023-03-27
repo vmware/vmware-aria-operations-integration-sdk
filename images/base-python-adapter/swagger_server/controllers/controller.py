@@ -203,7 +203,7 @@ def runcommand(
             logger.debug("Subprocess stdout:")
             logger.debug(out)
         if len(err.strip()) > 0:
-            logger.warning("Subprocess err:")
+            logger.warning("Subprocess stderr:")
             logger.warning(err)
 
         # process.communicate() will wait until the subprocess has exited. If the subprocess has exited and
