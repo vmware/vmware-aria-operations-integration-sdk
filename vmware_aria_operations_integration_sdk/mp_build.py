@@ -16,6 +16,7 @@ from typing import Optional
 from typing import Tuple
 
 import httpx
+import pkg_resources
 
 from vmware_aria_operations_integration_sdk import ui
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
@@ -398,6 +399,15 @@ def main() -> None:
         description = "Tool for building a pak file for a project."
         parser = argparse.ArgumentParser(description=description)
 
+        parser.add_argument(
+            "-V",
+            "--version",
+            action="version",
+            version=pkg_resources.get_distribution(
+                "vmware-aria-operations-integration-sdk"
+            ).version,
+        )
+
         # General options
         parser.add_argument(
             "-p",
@@ -529,7 +539,8 @@ def main() -> None:
         logger.info("Build cancelled")
         exit(1)
     except SystemExit as system_exit:
-        logger.error("Unable to build pak file")
+        if system_exit.code != 0:
+            logger.error("Unable to build pak file")
         exit(system_exit.code)
     except Exception as exception:
         logger.error("Unexpected exception occurred while trying to build pak file")
