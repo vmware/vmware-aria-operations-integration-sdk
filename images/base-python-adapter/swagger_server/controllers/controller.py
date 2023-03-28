@@ -206,9 +206,10 @@ def runcommand(
             logger.warning("Subprocess stderr:")
             logger.warning(err)
 
-        # process.communicate() will wait until the subprocess has exited. If the subprocess has exited and
-        # writer_thread is still alive, then the input was not read. In that case we want the writer_thread to
-        # complete, and the easiest way to do that is to read the pipe. It's not required for the adapter info
+        # process.communicate() will wait until the subprocess has exited. If the
+        # subprocess has exited and writer_thread is still alive, then the input was
+        # not read. In that case we want the writer_thread to complete, and the easiest
+        # way to do that is to read the pipe. It's not required for the adapter info
         # to be read, so this is not (necessarily) an error.
         if writer_thread.is_alive():
             logger.info("Subprocess exited before reading input.")
@@ -216,30 +217,34 @@ def runcommand(
                 fifo.read()
             writer_thread.join()
 
-        # If the subprocess has exited and reader_thread is still alive, there are two things that might have happened:
-        # 1.the reader thread is still proessing.
-        # 2.the adapter didn't write any results/crashed.
-        # for case 1 we want to give the reader thread some extra time to complete.
-        # for case 2 we want the reader_thread to complete but return an error to the user.
+        # If the subprocess has exited and reader_thread is still alive, there are two
+        # things that might have happened:
+        # 1. The reader thread is still processing.
+        # 2. The adapter didn't write any results/crashed.
+        # For case 1 we want to wait for the reader thread to complete.
+        # For case 2 we need to write to the named pipe so the reader_thread can
+        # complete, but return an error to the user.
         if reader_thread.is_alive():
-            logger.warning("Reader thread is still open")
-            logger.debug("Sleeping for 5 seconds to allow reader thread to finish")
-            time.sleep(5)
+            logger.info("Reader thread is still running")
+            # Ensure that the reader thread is past it's blocking read:
+            try:
+                # Opening a named pipe using the 'NONBLOCK' flag means that it will
+                # immediately fail if there isn't a corresponding blocking 'read'
+                # operation currently using the pipe
+                with os.fdopen(
+                    os.open(output_pipe, os.O_WRONLY | os.O_NONBLOCK), mode="w"
+                ) as fd:
+                    fd.write("")
+            except Exception as e:
+                # In some cases the open will fail with an OSError. This is ok. It means
+                # that the above open wasn't required. Unfortunately, it is not the case
+                # that if we don't get here than the open _was_ required. So we can't
+                # use this to distinguish between cases (1) and (2).
+                pass
+            logger.debug("Resolved potentially blocking read on reader thread")
 
-        # If after 5 seconds the reader thread hasn't completed, then is very likely that we are in case 2
-        # https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/79
-        if reader_thread.is_alive():
-            logger.error(
-                "Reader thread is still alive after 5 seconds sleep process completed"
-            )
-            logger.debug("Closing output pipe manually")
-            with open(output_pipe, "w") as fifo:
-                fifo.write("")
-
-            logger.debug("Closed output pipe manually")
+            # Wait for the reader thread to complete.
             reader_thread.join()
-            # If we got here, result[0] should be none; we will explicitly set it anyway
-            result[0] = None
 
         logger.debug(f"Result object value: {result[0]}")
 
@@ -258,9 +263,18 @@ def runcommand(
             logger.debug(f"Server error message: {message}")
             return message, 500
     finally:
-        os.unlink(input_pipe)
-        os.unlink(output_pipe)
+        safe_unlink(input_pipe)
+        safe_unlink(output_pipe)
         os.rmdir(dir)
+
+
+def safe_unlink(file: str) -> None:
+    try:
+        if os.path.exists(file):
+            os.unlink(file)
+    except OSError as e:
+        logger.error(f"Could not unlink {file}")
+        logger.exception(e)
 
 
 def write_adapter_instance(
@@ -290,7 +304,7 @@ def write_adapter_instance(
 
 
 def read_results(
-    output_pipe: str, result: List[Tuple[str, int]], good_response_code: int
+    output_pipe: str, result: List[Optional[Tuple[str, int]]], good_response_code: int
 ) -> None:
     try:
         with open(output_pipe, "r") as fifo:
@@ -298,4 +312,4 @@ def read_results(
             result[0] = json.load(fifo), good_response_code
     except Exception as e:
         logger.warning(f"Unknown server error when reading results: {e}")
-        result[0] = "Unknown server error", 500
+        result[0] = None
