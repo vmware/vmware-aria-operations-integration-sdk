@@ -10,6 +10,7 @@ import shutil
 import time
 import traceback
 import zipfile
+from logging.handlers import RotatingFileHandler
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -56,9 +57,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = PTKHandler()
-consoleHandler.setFormatter(CustomFormatter())
-logger.addHandler(consoleHandler)
+console_handler = PTKHandler()
+console_handler.setFormatter(CustomFormatter())
+logger.addHandler(console_handler)
 
 
 def build_subdirectories(directory: str) -> None:
@@ -448,18 +449,25 @@ def main() -> None:
             ui.TTL = False
 
         log_file_path = os.path.join(project.path, "logs")
-        mkdir(log_file_path)
+        if not os.path.exists(log_file_path):
+            mkdir(log_file_path)
 
         try:
+            log_handler = RotatingFileHandler(
+                os.path.join(log_file_path, "build.log"),
+                # No max size, but we'll roll over immediately so each build has its own file
+                maxBytes=0,
+                backupCount=5,
+            )
             logging.basicConfig(
-                filename=os.path.join(log_file_path, "build.log"),
-                filemode="a",
                 format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
                 datefmt="%H:%M:%S",
+                handlers=[log_handler],
                 level=logging.DEBUG,
             )
-        except Exception:
-            logger.warning(f"Unable to save logs to {log_file_path}")
+            log_handler.doRollover()
+        except Exception as e:
+            logger.warning(f"Unable to save logs to {log_file_path}: {e}")
 
         project_dir = project.path
         # We want to store pak files in the build dir

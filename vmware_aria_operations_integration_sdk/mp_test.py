@@ -6,6 +6,7 @@ import logging
 import os
 import time
 import traceback
+from logging.handlers import RotatingFileHandler
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -86,10 +87,10 @@ from vmware_aria_operations_integration_sdk.validation.result import Result
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
-consoleHandler = PTKHandler()
-consoleHandler.setFormatter(CustomFormatter())
-logger.addHandler(consoleHandler)
+console_handler = PTKHandler()
+console_handler.setFormatter(CustomFormatter())
+console_handler.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+logger.addHandler(console_handler)
 
 
 async def run_long_collect(
@@ -280,15 +281,21 @@ async def run(arguments: Any) -> None:
         mkdir(log_file_path)
 
     try:
+        log_handler = RotatingFileHandler(
+            os.path.join(log_file_path, "test.log"),
+            # No max size, but we'll roll over immediately so each test has its own file
+            maxBytes=0,
+            backupCount=5,
+        )
         logging.basicConfig(
-            filename=os.path.join(log_file_path, "test.log"),
-            filemode="a",
             format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
             datefmt="%H:%M:%S",
+            handlers=[log_handler],
             level=logging.DEBUG,
         )
-    except Exception:
-        logger.warning(f"Unable to save logs to {log_file_path}")
+        log_handler.doRollover()
+    except Exception as e:
+        logger.warning(f"Unable to save logs to {log_file_path}: {e}")
 
     connection = await get_connection(project, adapter_container, arguments)
 
