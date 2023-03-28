@@ -377,6 +377,7 @@ class LongCollectionStatistics:
 
         summary = (
             "Long Collection summary:\n\n"
+            + "Table cell format is: 'total (min/median/max)'\n\n"
             + obj_table
             + "\n"
             + growth_table
@@ -476,4 +477,10 @@ class CollectionStatistics:
             data.append([parent_object_type, child_object_type, count])
         rel_table = str(Table(headers, data))
 
-        return "Collection summary: \n\n" + obj_table + "\n" + rel_table
+        return (
+            "Collection summary: \n\n"
+            + "Table cell format is: 'total (min/median/max)'\n\n"
+            + obj_table
+            + "\n"
+            + rel_table
+        )
