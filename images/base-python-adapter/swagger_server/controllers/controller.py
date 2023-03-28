@@ -18,6 +18,7 @@ from swagger_server.models import ApiVersion
 from swagger_server.models.adapter_config import AdapterConfig  # noqa: E501
 from swagger_server.models.collect_result import CollectResult  # noqa: E501
 from swagger_server.models.test_result import TestResult  # noqa: E501
+from swagger_server.server_logging import update_log_levels
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ def collect(body: Optional[AdapterConfig] = None) -> Tuple[str, int]:  # noqa: E
 
     :rtype: CollectResult
     """
+    update_log_levels()
     logger.info("Request: collect")
 
     if connexion.request.is_json:
@@ -71,6 +73,7 @@ def definition() -> Tuple[str, int]:
 
     :rtype: AdapterDefinition
     """
+    update_log_levels()
     logger.info("Request: definition")
 
     command = getcommand("adapter_definition")
@@ -93,6 +96,7 @@ def test(body: Optional[AdapterConfig] = None) -> Tuple[str, int]:  # noqa: E501
 
     :rtype: TestResult
     """
+    update_log_levels()
     logger.info("Request: test")
 
     if connexion.request.is_json:
@@ -114,6 +118,7 @@ def api_version() -> ApiVersion:  # noqa: E501
 
     :rtype: str
     """
+    update_log_levels()
     logger.info("Request: apiVersion")
     # This should match the version in swagger_server/swagger/swagger.yaml#/info/version
     return ApiVersion(major=1, minor=0, maintenance=0)
@@ -131,6 +136,7 @@ def get_endpoint_urls(
 
     :rtype: List[str]
     """
+    update_log_levels()
     logger.info("Request: endpointURLs")
 
     if connexion.request.is_json:

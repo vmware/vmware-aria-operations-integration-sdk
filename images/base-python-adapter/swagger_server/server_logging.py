@@ -31,7 +31,7 @@ def setup_logging(
             level=_get_default_log_level(),
             handlers=[log_handler],
         )
-        _set_log_levels()
+        update_log_levels()
     except Exception:
         logging.basicConfig(level=logging.CRITICAL + 1)
 
@@ -62,12 +62,23 @@ def _get_default_log_level(default_level: int = logging.INFO) -> int:
         return default_level
 
 
-def _set_log_levels() -> None:
+def update_log_levels() -> None:
+    default_log_level = _get_default_log_level()
+
+    # Set the root logger level
+    logging.getLogger().setLevel(default_log_level)
+
+    # Reset all existing non-root loggers to the default level (the loggingDict does
+    # not include the root logger)
+    for logger_name in logging.root.manager.loggerDict:
+        logging.getLogger(logger_name).setLevel(default_log_level)
+
+    # Set each logger in the config file to the level specified
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
     config.read(log_config_file)
-    for logger in config["server"]:
-        logging.getLogger(logger).setLevel(config["server"][logger])
+    for logger_name in config["server"]:
+        logging.getLogger(logger_name).setLevel(config["server"][logger_name])
 
 
 def getLogger(name: str) -> logging.Logger:
