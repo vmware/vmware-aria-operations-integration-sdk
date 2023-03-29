@@ -1,6 +1,7 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
+* Improves container image build times.
 * Do not include '.gitkeep' files in pak files.
 * Adds several flags to mp-build for running on headless build servers:
   * '--no-ttl': Remove UI flourishes and prompts that require a TTL.
