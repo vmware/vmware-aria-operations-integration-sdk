@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import zipfile
+from typing import Callable
 from typing import Generator
 
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
@@ -49,8 +50,14 @@ def zip_dir(_zip: zipfile.ZipFile, directory: str) -> None:
         zip_file(_zip, file)
 
 
-def files_in_directory(directory: str) -> Generator[str, None, None]:
-    for root, directories, files in os.walk(directory):
+def files_in_directory(
+    directory: str, dir_inclusion_func: Callable[[str], bool] = lambda file: True
+) -> Generator[str, None, None]:
+    for root, directories, files in os.walk(directory, topdown=True):
+        directories[:] = [
+            d for d in directories if dir_inclusion_func(os.path.join(root, d))
+        ]
         yield root
         for filename in files:
-            yield os.path.join(root, filename)
+            f = os.path.join(root, filename)
+            yield f

@@ -1,9 +1,14 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import asyncio
+import io
 import json
+import logging
 import os
+import stat
 import subprocess
+import sys
+import tarfile
 import time
 from types import TracebackType
 from typing import Any
@@ -23,13 +28,22 @@ from sen.util import calculate_network_bytes
 
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.filesystem import files_in_directory
+from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
+from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.stats import convert_bytes
 from vmware_aria_operations_integration_sdk.stats import LongRunStats
 from vmware_aria_operations_integration_sdk.threading import threaded
 from vmware_aria_operations_integration_sdk.ui import Table
 
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+consoleHandler = PTKHandler()
+consoleHandler.setFormatter(CustomFormatter())
+logger.addHandler(consoleHandler)
 
-def login(docker_registry: str, **kwargs) -> str:
+
+def login(docker_registry: str, **kwargs: Any) -> str:
     print(f"Login into {docker_registry}")
     command = ["docker", "login", f"{docker_registry}"]
     if (
@@ -129,16 +143,82 @@ def build_image(
     :param labels: dict of labels. Defaults to empty dict
     :return:
     """
+    context = _get_docker_context(path)
     if labels is None:
         labels = dict()
     try:
         return client.images.build(  # type: ignore
-            path=path, tag=tag, nocache=nocache, rm=True, labels=labels
+            fileobj=context,
+            tag=tag,
+            nocache=nocache,
+            rm=True,
+            labels=labels,
+            custom_context=True,
+            encoding="gzip",
         )
     except docker.errors.BuildError as error:
         raise BuildError(
             message=f"ERROR: Unable to build Docker file at {path}:\n {error}"
         )
+
+
+def _get_docker_context(directory: str) -> io.BytesIO:
+    # In-memory file-like-object for creating the context
+    docker_context = io.BytesIO()
+    working_directory = os.getcwd()
+    try:
+        os.chdir(directory)
+        with tarfile.open(fileobj=docker_context, mode="w:gz") as context:
+            for file in files_in_directory(".", _docker_context_inclusion_func):
+                logger.debug(f"Adding '{file}' to image build context")
+                context.add(file, recursive=False)
+    finally:
+        os.chdir(working_directory)
+    # In order to read, we have to reset the cursor to the start of the stream
+    docker_context.seek(0)
+    return docker_context
+
+
+def _docker_context_inclusion_func(file: str) -> bool:
+    excludes = ["build", "conf", "content", "logs", "resources"]
+    if os.path.dirname(file) == "." and os.path.basename(file) in excludes:
+        logger.debug(f"Skipping directory '{file}': Excluded by SDK")
+        return False
+    elif _is_hidden(file):
+        logger.debug(f"Skipping directory '{file}': Hidden")
+        return False
+    elif _dir_is_venv(file):
+        logger.debug(f"Skipping directory '{file}': Virtual Environment")
+        return False
+    return True
+
+
+def _is_hidden(file: str) -> bool:
+    name = os.path.basename(file)
+    # *nix hidden file/dir convention
+    if name.startswith("."):
+        return True
+    # Determine if the file/dir is hidden in Windows
+    if sys.platform == "win32":
+        if os.stat(file).st_file_attributes & stat.FILE_ATTRIBUTE_HIDDEN:
+            return True
+    # Otherwise it isn't hidden
+    return False
+
+
+def _dir_is_venv(directory: str) -> bool:
+    if not os.path.isdir(directory):
+        return False
+    # To determine if a directory is a virtual environment, we look for
+    # the 'activate' and 'python' executables. These are in different
+    # locations depending on the OS.
+    return (  # *nix executable locations
+        os.path.exists(os.path.join(directory, "bin", "activate"))
+        and os.path.exists(os.path.join(directory, "bin", "python"))
+    ) or (  # Windows executable locations
+        os.path.exists(os.path.join(directory, "Scripts", "activate.bat"))
+        and os.path.exists(os.path.join(directory, "Scripts", "python.exe"))
+    )
 
 
 @threaded
