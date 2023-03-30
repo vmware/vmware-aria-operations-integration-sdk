@@ -45,19 +45,24 @@ def zip_file(_zip: zipfile.ZipFile, file: str) -> None:
     _zip.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
 
-def zip_dir(_zip: zipfile.ZipFile, directory: str) -> None:
-    for file in files_in_directory(directory):
+def zip_dir(
+    _zip: zipfile.ZipFile, directory: str, include_empty_dirs: bool = True
+) -> None:
+    for file in files_in_directory(directory, include_empty_dirs=include_empty_dirs):
         zip_file(_zip, file)
 
 
 def files_in_directory(
-    directory: str, dir_inclusion_func: Callable[[str], bool] = lambda file: True
+    directory: str,
+    dir_inclusion_func: Callable[[str], bool] = lambda file: True,
+    include_empty_dirs: bool = True,
 ) -> Generator[str, None, None]:
     for root, directories, files in os.walk(directory, topdown=True):
         directories[:] = [
             d for d in directories if dir_inclusion_func(os.path.join(root, d))
         ]
-        yield root
-        for filename in files:
-            f = os.path.join(root, filename)
-            yield f
+        if files or directories or include_empty_dirs:
+            yield root
+            for filename in files:
+                f = os.path.join(root, filename)
+                yield f

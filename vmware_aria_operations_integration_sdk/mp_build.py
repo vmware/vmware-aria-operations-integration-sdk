@@ -389,7 +389,7 @@ async def build_pak_file(
                     zip_file(pak, eula_file)
 
                 zip_dir(pak, "resources")
-                zip_dir(pak, "content")
+                zip_dir(pak, "content", include_empty_dirs=False)
                 zip_file(pak, "adapter.zip")
 
                 rm("adapter.zip")
