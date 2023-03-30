@@ -225,7 +225,7 @@ def get_identifiers(resource_kind: Element) -> Iterable[Element]:
 
 def get_credential_kinds(describe: Element) -> Iterable[Element]:
     credential_kinds = describe.find(ns("CredentialKinds"))
-    if credential_kinds:
+    if len(credential_kinds) > 0:
         return credential_kinds.findall(ns("CredentialKind"))  # type: ignore
     return []
 

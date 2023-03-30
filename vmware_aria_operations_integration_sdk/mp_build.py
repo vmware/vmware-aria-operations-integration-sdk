@@ -203,7 +203,11 @@ def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -
         # use ordered dictionary to preserve the key order in the file
         manifest = json.load(manifest_fd, object_pairs_hook=collections.OrderedDict)
     manifest["adapter_kinds"] = [describe_adapter_kind_key]
+    # Rewrite the original manifest file
     with open(manifest_file, "w") as manifest_fd:
+        json.dump(manifest, manifest_fd, indent=4, sort_keys=False)
+    # Rewrite the manifest file in the working directory (temporary build dir)
+    with open("manifest.txt", "w") as manifest_fd:
         json.dump(manifest, manifest_fd, indent=4, sort_keys=False)
     print("Wrote updated manifest.txt file.", "class:success")
     return manifest
