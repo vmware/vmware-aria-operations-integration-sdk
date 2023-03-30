@@ -1,6 +1,7 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
+* Improves container image build times.
 * Fixes an issue that in certain scenarios would result in a pak file failing to install.
 * Implements log rotation for 'test.log' and 'build.log' files.
 * Add explanation of cell format to statistics output in mp-test.
