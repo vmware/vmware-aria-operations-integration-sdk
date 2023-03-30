@@ -2,6 +2,10 @@ VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
 * Improves container image build times.
+* Fixes an issue that in certain scenarios would result in a pak file failing to install.
+* Implements log rotation for 'test.log' and 'build.log' files.
+* Add explanation of cell format to statistics output in mp-test.
+* Adds '--version' flag to 'mp-init', 'mp-test', and 'mp-build' that returns the current SDK version.
 * Do not include '.gitkeep' files in pak files.
 * Adds several flags to mp-build for running on headless build servers:
   * '--no-ttl': Remove UI flourishes and prompts that require a TTL.
