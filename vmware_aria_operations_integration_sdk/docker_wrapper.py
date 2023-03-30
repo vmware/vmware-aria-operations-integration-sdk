@@ -180,7 +180,7 @@ def _get_docker_context(directory: str) -> io.BytesIO:
 
 
 def _docker_context_inclusion_func(file: str) -> bool:
-    excludes = ["build", "conf", "content", "logs", "resources"]
+    excludes = ["build", "content", "logs", "resources"]
     if os.path.dirname(file) == "." and os.path.basename(file) in excludes:
         logger.debug(f"Skipping directory '{file}': Excluded by SDK")
         return False
