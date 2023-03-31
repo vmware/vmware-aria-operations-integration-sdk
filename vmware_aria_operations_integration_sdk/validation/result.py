@@ -11,6 +11,7 @@ class ResultLevel(Enum):
     ERROR = 1
     WARNING = 2
     INFORMATION = 3
+    SUCCESS = 4
 
 
 class Result:
@@ -25,6 +26,9 @@ class Result:
         self.messages = self.messages + other.messages
         return self
 
+    def issue_count(self) -> int:
+        return self.error_count + self.warning_count
+
     def with_error(self, error: str) -> None:
         self.error_count += 1
         self.messages.append((ResultLevel.ERROR, error))
@@ -35,3 +39,6 @@ class Result:
 
     def with_information(self, information: str) -> None:
         self.messages.append((ResultLevel.INFORMATION, information))
+
+    def with_success(self, success: str) -> None:
+        self.messages.append((ResultLevel.SUCCESS, success))

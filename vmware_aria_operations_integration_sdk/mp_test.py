@@ -161,13 +161,16 @@ async def run_long_collect(
 
 
 async def run_collect(
-    timeout: float,
+    timeout: Optional[float],
     project: Project,
     connection: Connection,
     adapter_container: AdapterContainer,
     title: str = "Running Collect",
     **kwargs: Any,
 ) -> CollectionBundle:
+    if timeout is None:
+        timeout = TimeValidator.get_sec("Collection Timeout", "5m")
+
     cli_args = kwargs.get("cli_args", {})
     collection_number = cli_args.get("collection_number", None)
     collection_window = None
@@ -197,13 +200,15 @@ async def run_collect(
 
 
 async def run_connect(
-    timeout: float,
+    timeout: Optional[float],
     project: Project,
     connection: Connection,
     adapter_container: AdapterContainer,
     title: str = "Running Connect",
     **kwargs: Any,
 ) -> ConnectBundle:
+    if timeout is None:
+        timeout = TimeValidator.get_sec("Connection Timeout", "30s")
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -217,13 +222,15 @@ async def run_connect(
 
 
 async def run_get_endpoint_urls(
-    timeout: float,
+    timeout: Optional[float],
     project: Project,
     connection: Connection,
     adapter_container: AdapterContainer,
     title: str = "Running Endpoint URLs",
     **kwargs: Any,
 ) -> EndpointURLsBundle:
+    if timeout is None:
+        timeout = TimeValidator.get_sec("Connection Timeout", "30s")
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -237,13 +244,15 @@ async def run_get_endpoint_urls(
 
 
 async def run_get_adapter_definition(
-    timeout: float,
+    timeout: Optional[float],
     project: Project,
     connection: Connection,
     adapter_container: AdapterContainer,
     title: str = "Running Adapter Definition",
     **kwargs: Any,
 ) -> AdapterDefinitionBundle:
+    if timeout is None:
+        timeout = TimeValidator.get_sec("Connection Timeout", "30s")
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -257,11 +266,13 @@ async def run_get_adapter_definition(
 
 
 async def run_get_server_version(
-    timeout: float,
+    timeout: Optional[float],
     adapter_container: AdapterContainer,
     title: str = "Running Get API " "Version",
     **kwargs: Any,
 ) -> VersionBundle:
+    if timeout is None:
+        timeout = TimeValidator.get_sec("Connection Timeout", "30s")
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
