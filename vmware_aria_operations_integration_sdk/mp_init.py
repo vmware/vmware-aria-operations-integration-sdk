@@ -428,7 +428,7 @@ def build_project_structure(
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
             requirements.write("psutil==5.9.0\n")
-            requirements.write("vmware-aria-operations-integration-sdk-lib==0.5.*\n")
+            requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
         # create development requirements file
         requirements_file = os.path.join(path, "requirements.txt")
