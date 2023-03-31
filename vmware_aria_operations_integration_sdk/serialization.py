@@ -215,6 +215,12 @@ class ConnectBundle(ResponseBundle):
             request, response, duration, container_statistics, [validate_api_response]
         )
 
+    def validate(self, project: Project) -> Result:
+        result = super().validate(project)
+        if self.failed():
+            result.with_error(f"Connect attempt failed: {self.get_failure_message()}")
+        return result
+
 
 class EndpointURLsBundle(ResponseBundle):
     def __init__(
