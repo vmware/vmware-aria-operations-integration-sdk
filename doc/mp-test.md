@@ -27,6 +27,7 @@ positional arguments:
     collect             Simulate the 'collect' method being called by the VMware Aria Operations collector.
     long-run            Simulate a long run collection and return data statistics about the overall collection.
     endpoint_urls       Simulate the 'endpoint_urls' method being called by the VMware Aria Operations collector.
+    adapter_definition  Simulate the 'adapterDefinition' method being called by the mp-build tool to generate a describe.xml file.
     version             Simulate the 'version' method being called by the VMware Aria Operations collector.
     wait                Simulate the adapter running on a VMware Aria Operations collector and wait for user input to stop.
                         Useful for calling REST methods via an external tool, such as Insomnia or Postman.
@@ -37,7 +38,7 @@ optional arguments:
                         current directory is not a project.
   -c CONNECTION, --connection CONNECTION
                         Name of a connection in this project.
-  -v {0,1,2,3}, --verbosity {0,1,2,3}
+  -v [0-3], --verbosity [0-3]
                         Determine the amount of console logging when performing validation. 0: No console
                         logging; 3: Max console logging.
 ```
@@ -46,27 +47,33 @@ In addition, when using `collect` and `long-run` there are additional optional a
 
 `mp-test collect`
 ```
-usage: mp_test.py collect [-h] [-n TIMES] [-w WAIT]
+usage: mp-test collect [-h] [-n [0-999]] [-w COLLECTION_WINDOW_START] [-t TIMEOUT]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -n TIMES, --times TIMES
-                        Run the given method 'n' times.
-  -w WAIT, --wait WAIT  Amount of time to wait between collections (in seconds).
+  -n [0-999], --collection-number [0-999]
+                        Start at a custom collection number instead of 0.
+  -w COLLECTION_WINDOW_START, --collection-window-start COLLECTION_WINDOW_START
+                        Sets a custom collection window start time to time before present. The collection window end time will always be the
+                        current time.
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout limit for REST request performed.
 ```
 
 `mp-test long-run`
 
 ```
-usage: mp-test long-run [-h] [-d DURATION] [-i COLLECTION_INTERVAL]
+usage: mp-test long-run [-h] [-d DURATION] [-i COLLECTION_INTERVAL] [-t TIMEOUT]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -d DURATION, --duration DURATION
-                        Duration of the long run in h hours, m minutes, or s seconds. 
+                        Duration of the long run in h hours, m minutes, or s seconds.
   -i COLLECTION_INTERVAL, --collection-interval COLLECTION_INTERVAL
                         Amount of time to wait between collections.
-
+  -t TIMEOUT, --timeout TIMEOUT
+                        Timeout limit for REST request performed. By default, the timeout will be set to 1.5 the time of a collection
+                        interval.
 ```
 ### Interactive Prompts
 
