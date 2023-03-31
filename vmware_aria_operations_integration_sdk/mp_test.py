@@ -693,6 +693,7 @@ def main() -> None:
         type=int,
         default=1,
         choices=range(0, 4),
+        metavar="[0-3]",
     )
 
     methods = parser.add_subparsers(required=False)
@@ -724,6 +725,7 @@ def main() -> None:
         type=int,
         default=0,
         choices=range(0, 1000),
+        metavar="[0-999]",
     )
     collect_method.add_argument(
         "-w",
