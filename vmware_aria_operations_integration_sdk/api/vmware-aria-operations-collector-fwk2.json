@@ -365,6 +365,26 @@
           },
           "certificateConfig": {
             "$ref": "#/components/schemas/CertificateConfig"
+          },
+          "collectionNumber": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "collectionWindow": {
+            "type": "object",
+            "title": "CollectionWindow",
+            "minProperties": 2,
+            "properties": {
+              "startTime": {
+                "type": "number",
+                "minimum": 0
+              },
+              "endTime": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
           }
         },
         "required": [

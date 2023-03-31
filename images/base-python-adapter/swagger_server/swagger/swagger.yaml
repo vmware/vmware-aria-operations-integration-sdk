@@ -85,7 +85,7 @@ paths:
   /adapterDefinition:
     get:
       summary: Retrieve the data model for collection
-      description: Get Definition
+      description: Get Adapter Definition
       operationId: definition
       responses:
         '200':
@@ -94,6 +94,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdapterDefinition'
+        '204':
+          description: No Adapter Definition returned
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
       x-openapi-router-controller: swagger_server.controllers.controller
 components:
   schemas:
@@ -499,6 +506,12 @@ components:
           $ref: '#/components/schemas/ClusterConnectionInfo'
         certificateConfig:
           $ref: '#/components/schemas/CertificateConfig'
+        collectionNumber:
+          minimum: 0
+          type: integer
+          format: int32
+        collectionWindow:
+          $ref: '#/components/schemas/CollectionWindow'
       description: |-
         Is designed for transferring adapter instance configuration from the Collector to
         Adapter, containing all necessary information about connection parameters, credentials.
@@ -680,6 +693,17 @@ components:
         - endpointUrls
     AttributeDefinition:
       title: Attribute Definition
+      required:
+      - dashboard_order
+      - data_type
+      - is_discrete
+      - is_impact
+      - is_key_attribute
+      - is_kpi
+      - is_property
+      - is_rate
+      - key
+      - label
       type: object
       properties:
         key:
@@ -688,7 +712,7 @@ components:
           type: string
         unit:
           type: string
-          format: nullable
+          nullable: true
         is_rate:
           type: boolean
           default: false
@@ -745,7 +769,7 @@ components:
           enum_values:
           - enum_values
           - enum_values
-          display_order: 5
+          display_order: 2
           label: label
           type: string
           key: key
@@ -756,7 +780,7 @@ components:
           enum_values:
           - enum_values
           - enum_values
-          display_order: 5
+          display_order: 2
           label: label
           type: string
           key: key
@@ -765,6 +789,14 @@ components:
         key: key
     IdentifierDefinition:
       title: Identifier Definition
+      required:
+      - display_order
+      - enum
+      - ident_type
+      - key
+      - label
+      - required
+      - type
       type: object
       properties:
         key:
@@ -793,9 +825,11 @@ components:
         type:
           type: string
         length:
-          type: string
+          type: integer
+          nullable: true
         default:
           type: string
+          nullable: true
       description: Defines what identifiers are present on a given object type
       example:
         default: default
@@ -803,7 +837,7 @@ components:
         - enum_values
         - enum_values
         display_order: 1
-        length: length
+        length: 5
         description: description
         label: label
         ident_type: 6
@@ -833,6 +867,11 @@ components:
         - 
     ObjectDefinition:
       title: Object Definition
+      required:
+      - groups
+      - identifiers
+      - key
+      - label
       type: object
       properties:
         key:
@@ -859,7 +898,7 @@ components:
           - enum_values
           - enum_values
           display_order: 1
-          length: length
+          length: 5
           description: description
           label: label
           ident_type: 6
@@ -872,7 +911,7 @@ components:
           - enum_values
           - enum_values
           display_order: 1
-          length: length
+          length: 5
           description: description
           label: label
           ident_type: 6
@@ -920,6 +959,13 @@ components:
         key: key
     AdapterDefinition:
       title: Adapter Definition
+      required:
+      - adapter_instance
+      - adapter_key
+      - adapter_label
+      - credential_types
+      - describe_version
+      - object_types
       type: object
       properties:
         adapter_key:
@@ -951,7 +997,7 @@ components:
             - enum_values
             - enum_values
             display_order: 1
-            length: length
+            length: 5
             description: description
             label: label
             ident_type: 6
@@ -964,7 +1010,7 @@ components:
             - enum_values
             - enum_values
             display_order: 1
-            length: length
+            length: 5
             description: description
             label: label
             ident_type: 6
@@ -1021,7 +1067,7 @@ components:
             enum_values:
             - enum_values
             - enum_values
-            display_order: 5
+            display_order: 2
             label: label
             type: string
             key: key
@@ -1032,7 +1078,7 @@ components:
             enum_values:
             - enum_values
             - enum_values
-            display_order: 5
+            display_order: 2
             label: label
             type: string
             key: key
@@ -1046,7 +1092,7 @@ components:
             enum_values:
             - enum_values
             - enum_values
-            display_order: 5
+            display_order: 2
             label: label
             type: string
             key: key
@@ -1057,14 +1103,33 @@ components:
             enum_values:
             - enum_values
             - enum_values
-            display_order: 5
+            display_order: 2
             label: label
             type: string
             key: key
             required: true
             enum: false
           key: key
+    CollectionWindow:
+      title: CollectionWindow
+      minProperties: 2
+      type: object
+      properties:
+        startTime:
+          minimum: 0
+          type: number
+        endTime:
+          minimum: 0
+          type: number
     CredentialDefinition_fields:
+      required:
+      - display_order
+      - enum
+      - key
+      - label
+      - password
+      - required
+      - type
       type: object
       properties:
         key:
@@ -1086,6 +1151,7 @@ components:
             type: string
         default:
           type: string
+          nullable: true
         display_order:
           type: integer
           format: int32
@@ -1098,7 +1164,7 @@ components:
         enum_values:
         - enum_values
         - enum_values
-        display_order: 5
+        display_order: 2
         label: label
         type: string
         key: key

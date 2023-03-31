@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 # flake8: noqa
 from __future__ import absolute_import
@@ -12,6 +12,7 @@ from swagger_server.models.certificate import Certificate
 from swagger_server.models.certificate_config import CertificateConfig
 from swagger_server.models.cluster_connection_info import ClusterConnectionInfo
 from swagger_server.models.collect_result import CollectResult
+from swagger_server.models.collection_window import CollectionWindow
 from swagger_server.models.credential_config import CredentialConfig
 from swagger_server.models.credential_definition import CredentialDefinition
 from swagger_server.models.credential_definition_fields import (
@@ -30,5 +31,3 @@ from swagger_server.models.object_key import ObjectKey
 from swagger_server.models.object_relationship import ObjectRelationship
 from swagger_server.models.property_data import PropertyData
 from swagger_server.models.test_result import TestResult
-
-# import models into model package
