@@ -168,6 +168,21 @@ async def run_collect(
     title: str = "Running Collect",
     **kwargs: Any,
 ) -> CollectionBundle:
+    cli_args = kwargs.get("cli_args", {})
+    collection_number = cli_args.get("collection_number", None)
+    collection_window = None
+    if cli_args.get("collection_window_start", None):
+        duration = TimeValidator.get_sec(
+            "Time Window Start", cli_args.get("collection_window_start", "5m")
+        )
+        end = time.time()
+        collection_window = {
+            "startTime": (end - duration) * 1000,
+            "endTime": end * 1000,
+        }
+    connection.custom_collection_number = collection_number
+    connection.custom_collection_window = collection_window
+
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -702,6 +717,22 @@ def main() -> None:
         help="Simulate the 'collect' method being called by the VMware Aria Operations collector.",
     )
     collect_method.set_defaults(func=run_collect)
+    collect_method.add_argument(
+        "-n",
+        "--collection-number",
+        help="Start at a custom collection number instead of 0.",
+        type=int,
+        default=0,
+        choices=range(0, 1000),
+    )
+    collect_method.add_argument(
+        "-w",
+        "--collection-window-start",
+        help="Sets a custom collection window start time to time before present. The "
+        "collection window end time will always be the current time.",
+        type=str,
+        default="",
+    )
     collect_method.add_argument(
         "-t",
         "--timeout",
