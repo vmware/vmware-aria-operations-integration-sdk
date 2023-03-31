@@ -23,6 +23,9 @@ def validate_endpoint(endpoint: str) -> Result:
         result.with_error(f"Endpoint '{endpoint}' protocol must be 'https'.")
     elif type(url_validation_result) is ValidationFailure:
         result.with_error(f"Endpoint '{endpoint}' is not a valid URL.")
+
+    if result.issue_count() == 0:
+        result.with_success(f"{endpoint} is a valid URL.")
     return result
 
 

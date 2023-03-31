@@ -129,7 +129,7 @@ class TestHighlights:
             normal_collection.add(collection_bundle)
 
         highlight = normal_collection.validate()
-        assert len(highlight.messages) == 0
+        assert highlight.issue_count() == 0
 
     def test_highlight_for_growing_unique_objects(self):
         response = TestObject()
@@ -288,7 +288,7 @@ class TestHighlights:
         highlight = highlight_metric_growth(
             changing_metric_value_per_collection.long_collection_statistics
         )
-        assert len(highlight.messages) == 0
+        assert highlight.issue_count() == 0
 
     def test_property_highlight(self):
         response = TestObject()
@@ -338,7 +338,7 @@ class TestHighlights:
         highlight = highlight_property_growth(
             stable_collection.long_collection_statistics
         )
-        assert len(highlight.messages) == 0
+        assert highlight.issue_count() == 0
 
     def test_property_value_highlight(self):
         response = TestObject()
@@ -388,7 +388,7 @@ class TestHighlights:
         highlight = highlight_property_value_growth(
             changing_metric_value_per_collection.long_collection_statistics
         )
-        assert len(highlight.messages) == 0
+        assert highlight.issue_count() == 0
 
     def test_event_highlight(self):
         response = TestObject()
@@ -446,4 +446,4 @@ class TestHighlights:
         highlight = highlight_event_growth(
             changing_metric_value_per_collection.long_collection_statistics
         )
-        assert len(highlight.messages) == 0
+        assert highlight.issue_count() == 0

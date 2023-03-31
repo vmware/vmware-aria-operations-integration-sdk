@@ -1,6 +1,8 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
+* Improves visibility of failed test connections.
+* Adds record of successfull validation tests to 'validation.log'
 * Improves container image build times.
 * Fixes an issue that in certain scenarios would result in a pak file failing to install.
 * Implements log rotation for 'test.log' and 'build.log' files.
