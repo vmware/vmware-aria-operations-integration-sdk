@@ -138,4 +138,8 @@ def validate_relationships(
         )
     except Exception as e:
         result.with_error(f"Unable to validate relationships: '{e}'")
+
+    if not (result.error_count or result.warning_count):
+        result.with_success(f"No cycles found in relationships.")
+
     return result

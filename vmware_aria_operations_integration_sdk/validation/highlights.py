@@ -28,6 +28,8 @@ High Object growth may affect Aria Operations' performance over time.
 - Check that object identifiers are not changing. 
 - Ensure that there are no short-lived objects (eg. sessions)."""
             )
+    else:
+        highlights.with_success("No abnormal object growth found")
     return highlights
 
 
@@ -52,6 +54,8 @@ High metric growth may affect Aria Operations' performance over time.
 Metric growth is caused by new or changing metric keys. One way to ensure metric keys are the same is to use 
 constants to describe their keys; Aria Operations works best with a constant set of metrics per object type."""
             )
+    else:
+        highlights.with_success("No abnormal metric growth found")
     return highlights
 
 
@@ -76,6 +80,8 @@ High property growth may affect Aria Operations' performance over time.
 Property growth is caused by new or changing property keys. One way to ensure property keys are the same is to use 
 constants to describe their keys; Aria Operations works best with a constant set of properties per object type."""
             )
+    else:
+        highlights.with_success("No abnormal property growth found")
 
     return highlights
 
@@ -120,6 +126,8 @@ or the value changes frequently, consider a metric with a numeric value. For exa
 stamp as a property to record the last backup date, should be replaced. A possible alternative could be a metric that counts
 days since last backup."""
             )
+    else:
+        highlights.with_success("No abnormal property value growth found")
 
     return highlights
 
@@ -151,6 +159,8 @@ An excessive number of events may indicate a bug or over-reporting.
 Overreporting can occur when an API reports all events instead of active events, and the Adapter creates more
 and more events each time. Filtering events based on status or a time window may fix this issue."""
                 )
+    else:
+        highlights.with_success("No abnormal event growth found")
     return highlights
 
 

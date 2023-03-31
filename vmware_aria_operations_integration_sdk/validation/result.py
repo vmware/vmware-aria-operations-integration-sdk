@@ -11,6 +11,7 @@ class ResultLevel(Enum):
     ERROR = 1
     WARNING = 2
     INFORMATION = 3
+    SUCCESS = 4
 
 
 class Result:
@@ -35,3 +36,6 @@ class Result:
 
     def with_information(self, information: str) -> None:
         self.messages.append((ResultLevel.INFORMATION, information))
+
+    def with_success(self, success: str) -> None:
+        self.messages.append((ResultLevel.SUCCESS, success))
