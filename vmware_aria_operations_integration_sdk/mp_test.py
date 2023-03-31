@@ -170,6 +170,23 @@ async def run_collect(
 ) -> CollectionBundle:
     if timeout is None:
         timeout = TimeValidator.get_sec("Collection Timeout", "5m")
+
+    cli_args = kwargs.get("cli_args", {})
+    collection_number = cli_args.get("collection_number", None)
+    collection_window = None
+    if cli_args.get("collection_window_duration", None):
+        duration = TimeValidator.get_sec(
+            "Collection Window Duration",
+            cli_args.get("collection_window_duration", "5m"),
+        )
+        end = time.time()
+        collection_window = {
+            "startTime": (end - duration) * 1000,
+            "endTime": end * 1000,
+        }
+    connection.custom_collection_number = collection_number
+    connection.custom_collection_window = collection_window
+
     await adapter_container.wait_for_container_startup()
     with Spinner(title):
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -688,6 +705,7 @@ def main() -> None:
         type=int,
         default=1,
         choices=range(0, 4),
+        metavar="[0-3]",
     )
 
     methods = parser.add_subparsers(required=False)
@@ -712,6 +730,24 @@ def main() -> None:
         help="Simulate the 'collect' method being called by the VMware Aria Operations collector.",
     )
     collect_method.set_defaults(func=run_collect)
+    collect_method.add_argument(
+        "-n",
+        "--collection-number",
+        help="Start at a custom collection number instead of 0.",
+        type=int,
+        default=0,
+        choices=range(0, 1000),
+        metavar="[0-999]",
+    )
+    collect_method.add_argument(
+        "-w",
+        "--collection-window-duration",
+        help="Sets a custom collection window duration in h hours, m minutes, or s "
+        "seconds. The collection window end time will always be the current time. For "
+        "example, '-w 20m' sets the window to the interval (20 minutes before now, now).",
+        type=str,
+        default="",
+    )
     collect_method.add_argument(
         "-t",
         "--timeout",
@@ -739,7 +775,8 @@ def main() -> None:
     long_run_method.add_argument(
         "-i",
         "--collection-interval",
-        help="Amount of time to wait between collections.",
+        help="Amount of time to wait between collection start times. If a collection "
+        "surpasses this interval, the next collection is delayed.",
         type=str,
         default="5m",
     )
@@ -748,7 +785,7 @@ def main() -> None:
         "-t",
         "--timeout",
         help="Timeout limit for REST request performed. By default, the timeout will be set "
-        "to 1.5 the time of a collection interval.",
+        "to 1.5 times the duration of the collection interval.",
         type=str,
     )
 

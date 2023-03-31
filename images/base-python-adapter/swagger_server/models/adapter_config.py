@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
@@ -16,6 +16,7 @@ from swagger_server.models.certificate_config import (
 from swagger_server.models.cluster_connection_info import (
     ClusterConnectionInfo,
 )  # noqa: F401,E501
+from swagger_server.models.collection_window import CollectionWindow  # noqa: F401,E501
 from swagger_server.models.credential_config import CredentialConfig  # noqa: F401,E501
 from swagger_server.models.object_key import ObjectKey  # noqa: F401,E501
 
@@ -32,6 +33,8 @@ class AdapterConfig(Model):
         credential_config: CredentialConfig = None,
         cluster_connection_info: ClusterConnectionInfo = None,
         certificate_config: CertificateConfig = None,
+        collection_number: int = None,
+        collection_window: CollectionWindow = None,
     ):  # noqa: E501
         """AdapterConfig - a model defined in Swagger
 
@@ -43,12 +46,18 @@ class AdapterConfig(Model):
         :type cluster_connection_info: ClusterConnectionInfo
         :param certificate_config: The certificate_config of this AdapterConfig.  # noqa: E501
         :type certificate_config: CertificateConfig
+        :param collection_number: The collection_number of this AdapterConfig.  # noqa: E501
+        :type collection_number: int
+        :param collection_window: The collection_window of this AdapterConfig.  # noqa: E501
+        :type collection_window: CollectionWindow
         """
         self.swagger_types = {
             "adapter_key": ObjectKey,
             "credential_config": CredentialConfig,
             "cluster_connection_info": ClusterConnectionInfo,
             "certificate_config": CertificateConfig,
+            "collection_number": int,
+            "collection_window": CollectionWindow,
         }
 
         self.attribute_map = {
@@ -56,11 +65,15 @@ class AdapterConfig(Model):
             "credential_config": "credentialConfig",
             "cluster_connection_info": "clusterConnectionInfo",
             "certificate_config": "certificateConfig",
+            "collection_number": "collectionNumber",
+            "collection_window": "collectionWindow",
         }
         self._adapter_key = adapter_key
         self._credential_config = credential_config
         self._cluster_connection_info = cluster_connection_info
         self._certificate_config = certificate_config
+        self._collection_number = collection_number
+        self._collection_window = collection_window
 
     @classmethod
     def from_dict(cls, dikt) -> "AdapterConfig":
@@ -160,3 +173,45 @@ class AdapterConfig(Model):
         """
 
         self._certificate_config = certificate_config
+
+    @property
+    def collection_number(self) -> int:
+        """Gets the collection_number of this AdapterConfig.
+
+
+        :return: The collection_number of this AdapterConfig.
+        :rtype: int
+        """
+        return self._collection_number
+
+    @collection_number.setter
+    def collection_number(self, collection_number: int):
+        """Sets the collection_number of this AdapterConfig.
+
+
+        :param collection_number: The collection_number of this AdapterConfig.
+        :type collection_number: int
+        """
+
+        self._collection_number = collection_number
+
+    @property
+    def collection_window(self) -> CollectionWindow:
+        """Gets the collection_window of this AdapterConfig.
+
+
+        :return: The collection_window of this AdapterConfig.
+        :rtype: CollectionWindow
+        """
+        return self._collection_window
+
+    @collection_window.setter
+    def collection_window(self, collection_window: CollectionWindow):
+        """Sets the collection_window of this AdapterConfig.
+
+
+        :param collection_window: The collection_window of this AdapterConfig.
+        :type collection_window: CollectionWindow
+        """
+
+        self._collection_window = collection_window

@@ -93,6 +93,10 @@ class TimeValidator(NotEmptyValidator):
                 message=f"Invalid time. {label} should be a numeric value in minutes, or a numeric value "
                 "followed by the unit 'h', 'm', or 's'."
             )
+        except TypeError as e:
+            raise ValidationError(
+                message=f"Invalid time type. {label} should be a string, but instead was '{type(time_str)}'"
+            )
 
 
 class NewProjectDirectoryValidator(NotEmptyValidator):

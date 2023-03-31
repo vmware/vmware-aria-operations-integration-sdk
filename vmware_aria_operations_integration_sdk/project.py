@@ -51,6 +51,8 @@ class Connection:
         self.suite_api_hostname = suite_api_connection[0]
         self.suite_api_username = suite_api_connection[1]
         self.suite_api_password = suite_api_connection[2]
+        self.custom_collection_number: Optional[int] = None
+        self.custom_collection_window: Optional[object] = None
 
     def get_memory_limit(self) -> int:
         memory_limit = self.identifiers.get(

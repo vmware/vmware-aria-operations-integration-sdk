@@ -1,4 +1,4 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import configparser
 import json
@@ -290,7 +290,9 @@ def write_adapter_instance(
         body_dict: Dict = body.to_dict() if body else {}  # type: ignore
 
         if extras:
-            body_dict.update(extras)
+            for key in extras.keys():
+                if key not in body_dict or not body_dict[key]:
+                    body_dict[key] = extras[key]
 
         with open(input_pipe, "w") as fifo:
             logger.debug("Opened input pipe for writing")

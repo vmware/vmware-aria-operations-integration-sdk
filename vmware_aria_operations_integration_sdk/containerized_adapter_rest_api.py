@@ -136,7 +136,7 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
             "credentialFields": fields,
         }
 
-    request_body = {
+    request_body: Dict[str, object] = {
         "adapterKey": {
             "name": connection.name,
             "adapterKind": describe.get("key"),
@@ -150,6 +150,10 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
         },
         "certificateConfig": {"certificates": connection.certificates or []},
     }
+    if connection.custom_collection_number:
+        request_body["collectionNumber"] = connection.custom_collection_number
+    if connection.custom_collection_window:
+        request_body["collectionWindow"] = connection.custom_collection_window
     if credential_config:
         request_body["credentialConfig"] = credential_config
 
