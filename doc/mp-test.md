@@ -53,9 +53,10 @@ options:
   -h, --help            show this help message and exit
   -n [0-999], --collection-number [0-999]
                         Start at a custom collection number instead of 0.
-  -w COLLECTION_WINDOW_START, --collection-window-start COLLECTION_WINDOW_START
-                        Sets a custom collection window start time to time before present. The collection window end time will always be the
-                        current time.
+  -w COLLECTION_WINDOW_DURATION, --collection-window-duration COLLECTION_WINDOW_DURATION 
+                        Sets a custom collection window duration in h hours, m minutes, or s seconds. The 
+                        collection window end time will always be the current time. For example, '-w 20m' 
+                        sets the window to the interval (20 minutes before now, now).
   -t TIMEOUT, --timeout TIMEOUT
                         Timeout limit for REST request performed.
 ```
@@ -70,10 +71,11 @@ options:
   -d DURATION, --duration DURATION
                         Duration of the long run in h hours, m minutes, or s seconds.
   -i COLLECTION_INTERVAL, --collection-interval COLLECTION_INTERVAL
-                        Amount of time to wait between collections.
+                        Amount of time to wait between collection start times. If a collection 
+                        surpasses this interval, the next collection is delayed.
   -t TIMEOUT, --timeout TIMEOUT
-                        Timeout limit for REST request performed. By default, the timeout will be set to 1.5 the time of a collection
-                        interval.
+                        Timeout limit for REST request performed. By default, the timeout will 
+                        be set to 1.5 times the duration of the collection interval.
 ```
 ### Interactive Prompts
 

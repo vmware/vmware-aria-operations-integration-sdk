@@ -171,9 +171,10 @@ async def run_collect(
     cli_args = kwargs.get("cli_args", {})
     collection_number = cli_args.get("collection_number", None)
     collection_window = None
-    if cli_args.get("collection_window_start", None):
+    if cli_args.get("collection_window_duration", None):
         duration = TimeValidator.get_sec(
-            "Time Window Start", cli_args.get("collection_window_start", "5m")
+            "Collection Window Duration",
+            cli_args.get("collection_window_duration", "5m"),
         )
         end = time.time()
         collection_window = {
@@ -729,9 +730,10 @@ def main() -> None:
     )
     collect_method.add_argument(
         "-w",
-        "--collection-window-start",
-        help="Sets a custom collection window start time to time before present. The "
-        "collection window end time will always be the current time.",
+        "--collection-window-duration",
+        help="Sets a custom collection window duration in h hours, m minutes, or s "
+        "seconds. The collection window end time will always be the current time. For "
+        "example, '-w 20m' sets the window to the interval (20 minutes before now, now).",
         type=str,
         default="",
     )
@@ -762,7 +764,8 @@ def main() -> None:
     long_run_method.add_argument(
         "-i",
         "--collection-interval",
-        help="Amount of time to wait between collections.",
+        help="Amount of time to wait between collection start times. If a collection "
+        "surpasses this interval, the next collection is delayed.",
         type=str,
         default="5m",
     )
@@ -771,7 +774,7 @@ def main() -> None:
         "-t",
         "--timeout",
         help="Timeout limit for REST request performed. By default, the timeout will be set "
-        "to 1.5 the time of a collection interval.",
+        "to 1.5 times the duration of the collection interval.",
         type=str,
     )
 

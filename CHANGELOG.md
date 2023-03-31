@@ -3,7 +3,7 @@ VMware Aria Operations Integration SDK
 ## Unreleased
 * Adds two flags to mp-test for controlling collection parameters:
   * '--collection-number': Sets the collection number. This is useful for testing functionality that only occurs on some collection cycles.
-  * '--collection-window-start': Sets the start time for the collection window. This is useful for testing how the adapter behaves for longer or shorter collection windows.
+  * '--collection-window-duration': Sets the duration of the collection window. This is useful for testing how the adapter behaves for longer or shorter collection windows.
   These flags require a server version of 0.11.0 or later.
 * Improves container image build times.
 * Fixes an issue that in certain scenarios would result in a pak file failing to install.
