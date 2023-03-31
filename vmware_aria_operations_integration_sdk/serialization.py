@@ -342,12 +342,18 @@ class VersionBundle(ResponseBundle):
         )
 
 
-class WaitBundle:
+class WaitBundle(ResponseBundle):
     def __init__(
         self, duration: float, container_statistics: Optional[ContainerStats]
     ) -> None:
         self.duration = duration
         self.container_statistics = container_statistics
+
+    def validate(self, project: Project) -> Result:
+        return Result()
+
+    def failed(self) -> bool:
+        return False
 
     def __repr__(self) -> str:
         _str = "\n"
