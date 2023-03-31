@@ -266,7 +266,7 @@ def cross_check_collection_with_describe(
             f"Unable to cross check collection against describe.xml: '{e}'"
         )
 
-    if not (result.error_count or result.warning_count):
+    if result.issue_count() == 0:
         result.with_success(
             "Collection cross checked against describe.xml successfully."
         )

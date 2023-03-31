@@ -26,6 +26,9 @@ class Result:
         self.messages = self.messages + other.messages
         return self
 
+    def issue_count(self) -> int:
+        return self.error_count + self.warning_count
+
     def with_error(self, error: str) -> None:
         self.error_count += 1
         self.messages.append((ResultLevel.ERROR, error))

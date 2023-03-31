@@ -74,7 +74,7 @@ def _validate_api_response(
     except Exception as e:
         result.with_error(f"Unable to validate the response json: '{e}'")
 
-    if not (result.error_count or result.warning_count):
+    if result.issue_count() == 0:
         result.with_success("Json response from adapter validates against the schema.")
 
     return result

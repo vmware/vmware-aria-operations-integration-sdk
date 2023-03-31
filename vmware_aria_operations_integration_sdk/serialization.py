@@ -48,10 +48,19 @@ from vmware_aria_operations_integration_sdk.validation.endpoint_url_validator im
     validate_endpoint_urls,
 )
 from vmware_aria_operations_integration_sdk.validation.highlights import (
+    highlight_event_growth,
+)
+from vmware_aria_operations_integration_sdk.validation.highlights import (
     highlight_metric_growth,
 )
 from vmware_aria_operations_integration_sdk.validation.highlights import (
     highlight_object_growth,
+)
+from vmware_aria_operations_integration_sdk.validation.highlights import (
+    highlight_property_growth,
+)
+from vmware_aria_operations_integration_sdk.validation.highlights import (
+    highlight_property_value_growth,
 )
 from vmware_aria_operations_integration_sdk.validation.relationship_validator import (
     validate_relationships,
@@ -194,7 +203,13 @@ class LongCollectionBundle:
         """
 
         result = Result()
-        for _validate in [highlight_object_growth, highlight_metric_growth]:
+        for _validate in [
+            highlight_object_growth,
+            highlight_metric_growth,
+            highlight_property_growth,
+            highlight_property_value_growth,
+            highlight_event_growth,
+        ]:
             result += _validate(self.long_collection_statistics)
 
         return result
