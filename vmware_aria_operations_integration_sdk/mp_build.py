@@ -146,7 +146,7 @@ def get_docker_registry(
     **kwargs: Any,
 ) -> str:
     docker_registry = get_config_value("docker_registry", config_file=config_file)
-    default_registry_value = get_config_value("default_docker_registry")
+    default_registry_value = get_config_value("default_container_registry")
 
 
     original_value = docker_registry

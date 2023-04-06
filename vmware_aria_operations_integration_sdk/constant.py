@@ -12,10 +12,10 @@ CONTAINER_REGISTRY_HOST = "projects.registry.vmware.com"
 
 if platform == "win32":
     CONFIG_DIRECTORY = path.join(
-        environ.get("LocalAppData", ""), "VMware", "vROps Integration SDK"
+        environ.get("LocalAppData", ""), "VMware", "Aria Opperations Integration SDK"
     )
 else:
-    CONFIG_DIRECTORY = path.join(environ.get("HOME", ""), ".vrops-sdk")
+    CONFIG_DIRECTORY = path.join(environ.get("HOME", ""), ".vmware-aria-opperations-integration-sdk")
 
 try:
     os.makedirs(CONFIG_DIRECTORY, exist_ok=True)
@@ -37,3 +37,5 @@ CONNECT_ENDPOINT = "test"
 ENDPOINTS_URLS_ENDPOINT = "endpointURLs"
 ADAPTER_DEFINITION_ENDPOINT = "adapterDefinition"
 API_VERSION_ENDPOINT = "apiVersion"
+
+
