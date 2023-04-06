@@ -148,7 +148,6 @@ def get_docker_registry(
     docker_registry = get_config_value("docker_registry", config_file=config_file)
     default_registry_value = get_config_value("default_container_registry")
 
-
     original_value = docker_registry
     if docker_registry is None and docker_registry_arg is None:
         print(
@@ -156,8 +155,10 @@ def get_docker_registry(
             "class:information",
         )
         if default_registry_value is not None:
-        # The default registry should have a trailing fordward slash
-            default_registry_value = f"{default_registry_value}{adapter_kind_key.lower()}"
+            # The default registry should have a trailing fordward slash
+            default_registry_value = (
+                f"{default_registry_value}{adapter_kind_key.lower()}"
+            )
             docker_registry = registry_prompt(default=default_registry_value)
         else:
             docker_registry = registry_prompt(default="")

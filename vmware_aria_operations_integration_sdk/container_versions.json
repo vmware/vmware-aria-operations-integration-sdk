@@ -2,19 +2,11 @@
     "base_image": {
         "language": "Python",
         "path": "base-python-adapter",
-        "version": "0.11.0"
+        "version": "0.11.0",
     },
     "registry_url": "projects.registry.vmware.com/vmware_aria_operations_integration_sdk",
     "secondary_images": [
-        {
-            "language": "Java",
-            "path": "java-adapter",
-            "version": "0.9.0"
-        },
-        {
-            "language": "Powershell",
-            "path": "powershell-adapter",
-            "version": "0.9.0"
-        }
-    ]
+        {"language": "Java", "path": "java-adapter", "version": "0.9.0"},
+        {"language": "Powershell", "path": "powershell-adapter", "version": "0.9.0"},
+    ],
 }

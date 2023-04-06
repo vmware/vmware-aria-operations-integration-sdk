@@ -15,7 +15,9 @@ if platform == "win32":
         environ.get("LocalAppData", ""), "VMware", "Aria Opperations Integration SDK"
     )
 else:
-    CONFIG_DIRECTORY = path.join(environ.get("HOME", ""), ".vmware-aria-opperations-integration-sdk")
+    CONFIG_DIRECTORY = path.join(
+        environ.get("HOME", ""), ".vmware-aria-opperations-integration-sdk"
+    )
 
 try:
     os.makedirs(CONFIG_DIRECTORY, exist_ok=True)
@@ -37,5 +39,3 @@ CONNECT_ENDPOINT = "test"
 ENDPOINTS_URLS_ENDPOINT = "endpointURLs"
 ADAPTER_DEFINITION_ENDPOINT = "adapterDefinition"
 API_VERSION_ENDPOINT = "apiVersion"
-
-
