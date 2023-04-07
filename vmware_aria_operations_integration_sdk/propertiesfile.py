@@ -19,7 +19,7 @@ def load_properties(properties_file: str) -> dict:
 
 
 def write_properties(properties: dict, filename: str) -> bool:
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         for _property in properties.keys():
             f.write(str(_property) + " = " + str(properties[_property]) + "\n")
     return True
