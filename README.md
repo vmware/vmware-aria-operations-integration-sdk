@@ -3,15 +3,53 @@ VMware Aria Operations Integration SDK
 
 Welcome to the VMware Aria Operations Integration SDK. 
 
-Where should I start?
-* If you want to get started creating your first Management Pack, or don't know where to start, read the 'Get Started' tutorial below.
-* If you'd like an introduction to VMware Aria Operations, Management Packs, and this SDK, [read the introduction](doc/introduction.md).
+## What is the Integration SDK?
+
+The Integration SDK creates Management Packs to add custom objects, data, and 
+relationships from a endpoint into VMware Aria Operations. 
+
+Using this SDK to create a Management Pack requires some Python 
+knowledge (more languages are planned), and an understanding of how to get 
+data from the endpoint using an API. For example, to create a Management Pack for 
+Cassandra DB, an understanding of how to write an SQL query, execute it, and read the 
+results is required.
+
+Currently, installing a Management Pack built with the integration SDK is supported for 
+On-Prem versions of VMware Aria Operations only, but we are working to bring support to 
+VMware Aria Operations Cloud in a future release.
+
+For a high-level overview of VMware Aria Operations, Management Packs, and this SDK, 
+see [the introduction](doc/introduction.md).
+
+## What can the Integration SDK be used for?
+The Integration SDK can be used to add any endpoint that supports remote monitoring to 
+VMware Aria Operations. Adding the endpoint involves creating objects that 
+represent the endpoint, which may include properties, metrics, and events, as well as
+relationships between objects.
+
+**Remote monitoring** uses an API (such as REST, SNMP, SQL, etc) to retrieve the data (as
+opposed to agent-based monitoring, where the monitoring code runs in the same location
+as the endpoint).
+
+For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
+[Creating a new Management Pack for Cassandra DB](#creating-a-new-management-pack--cassandra-db-)
+
+The Integration SDK can also be used to extend objects created by another Management
+Pack with additional metrics, properties, events, or relationships. This can be useful
+to ensure access to custom data without having to re-implement already existing data.
+
+For an example walkthrough of the steps required to extend another management pack, see 
+[Extending the Existing Management Pack for MySQL](#extending-an-existing-management-pack--mysql-)
+
+## Where should I start?
+* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](#get-started) tutorial.
+* If you have completed the Get Started tutorial, the [walkthroughs](#walkthroughs) are guides for modifying your adapter.
 * All documentation is available from the [contents](doc/contents.md) page.
 
 ## Get Started
-
-This guide will walk through setting up the SDK and using the SDK
-to create, test, and install a simple Management Pack (integration) onto VMware Aria Operations.
+<details>
+<summary>This guide will walk through setting up the SDK and using the SDK
+to create, test, and install a simple Management Pack (integration) onto VMware Aria Operations.</summary>
 
 Contents
 * [Requirements](#requirements)
@@ -40,8 +78,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Docker 20.10.0 or later. Updating to the latest stable version is recommended. For instructions on installing Docker,
   go to [Docker's installation documentation](https://docs.docker.com/engine/install/), choose the OS you need and
   follow the instructions provided.
-* Python3 3.9.0 or later. Earlier versions of Python3 may also work, but updating to the latest stable version is
-  recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
+* Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download), choose the OS you need
   and follow the instructions provided.
 * Pip. If Python3 is installed, pip is most likely also installed. For instructions on installing Pip, go
@@ -199,6 +236,29 @@ Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](doc/mp-build.md).
+</details>
+
+## Walkthroughs
+
+### Creating a New Management Pack (Cassandra-DB)
+<details><summary>
+This guide assumes you have already set up the SDK and know how to create a new project. 
+It walks you through the steps necessary to monitor an endpoint, using Cassandra DB as 
+an example.</summary>
+TODO
+</details>
+
+### Extending an Existing Management Pack (MySQL)
+<details><summary>
+This guide assumes you have already set up the SDK and know how to create a new project. 
+It walks you through the steps necessary to extend an existing Management Pact to add
+additional data, using the MySQL Management Pack as an example.</summary>
+TODO
+</details>
+
+
+## Troubleshooting
+TODO
 
 ## Contributing
 
