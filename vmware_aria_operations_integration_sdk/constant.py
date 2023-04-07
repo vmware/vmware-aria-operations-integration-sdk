@@ -12,7 +12,7 @@ CONTAINER_REGISTRY_HOST = "projects.registry.vmware.com"
 
 if platform == "win32":
     CONFIG_DIRECTORY = path.join(
-        environ.get("LocalAppData", ""), "VMware", "Aria Opperations Integration SDK"
+        environ.get("LocalAppData", ""), "VMware", "Aria Operations Integration SDK"
     )
 else:
     CONFIG_DIRECTORY = path.join(
