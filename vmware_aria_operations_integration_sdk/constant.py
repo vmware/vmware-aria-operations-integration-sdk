@@ -16,7 +16,7 @@ if platform == "win32":
     )
 else:
     CONFIG_DIRECTORY = path.join(
-        environ.get("HOME", ""), ".vmware-aria-opperations-integration-sdk"
+        environ.get("HOME", ""), ".vmware-aria-operations-integration-sdk"
     )
 
 try:
