@@ -2,6 +2,8 @@ VMware Aria Operations Integration SDK
 --------------------------------------
 ## Unreleased
 * Default container registry can now be specified in global config file
+* Fixes issue where psutil version would cause python build to fail
+* Standardize encoding of properties file to 'utf-8'
 * Adds two flags to mp-test for controlling collection parameters:
   * '--collection-number': Sets the collection number. This is useful for testing functionality that only occurs on some collection cycles.
   * '--collection-window-duration': Sets the duration of the collection window. This is useful for testing how the adapter behaves for longer or shorter collection windows.
