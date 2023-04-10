@@ -12,10 +12,12 @@ CONTAINER_REGISTRY_HOST = "projects.registry.vmware.com"
 
 if platform == "win32":
     CONFIG_DIRECTORY = path.join(
-        environ.get("LocalAppData", ""), "VMware", "vROps Integration SDK"
+        environ.get("LocalAppData", ""), "VMware", "Aria Operations Integration SDK"
     )
 else:
-    CONFIG_DIRECTORY = path.join(environ.get("HOME", ""), ".vrops-sdk")
+    CONFIG_DIRECTORY = path.join(
+        environ.get("HOME", ""), ".vmware-aria-operations-integration-sdk"
+    )
 
 try:
     os.makedirs(CONFIG_DIRECTORY, exist_ok=True)

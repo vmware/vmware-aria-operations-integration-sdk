@@ -48,9 +48,9 @@ If 'Other' is selected, the tool will prompt for a project path. If the path is 
 
 #### Registry Credentials
 If the user is not logged into a container registry, `mp-build` will prompt
-the user to sign into one and enter their credentials. By default `mp-build` uses [harbor-repo.vmware.com](harbor-reop.vmware.com). Alternatively, the user can use 
+the user to sign into one and enter their credentials. By default `mp-build` uses the 'default_container_registry' specified in the global [config.json](config.md) file. Alternatively, the user can use
 the `--registry-tag`, `--registry-username`,`--registry-password`. Passing `--registry-tag` without specifying a registry will use the registry specified in 
-the config.json file. If no registry exists in the config.json file, the default registry will be used instead. Credentials are logged and stored using docker CLI:
+the local config.json file. If no registry exists in the in the config.json file, the user will be prompted to enter a one. Credentials are logged and stored using docker CLI:
 
 ```shell
 Login into harbor-repo.vmware.com
