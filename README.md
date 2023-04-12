@@ -159,7 +159,7 @@ the creation of a new management pack project.
    selected language. The template adapter collects several objects and metrics from the container that the adapter 
    is running in, and can be used as a starting point for creating a new adapter.
 
-For complete documentation of the `mp-init` tool see the [MP Initialization Tool Documentation](doc/mp-init.md).
+For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
 ### Testing a Management Pack
 
@@ -240,15 +240,6 @@ For complete documentation of the `mp-build` tool see the [MP Build Tool Documen
 </details>
 
 ## Walkthroughs
-
-### Template Adapter (Python)
-<details><summary>
-This guide assumes you have already set up the SDK and know how to create a new project.
-It walks you through the steps necessary to monitor an endpoint, using Cassandra DB as
-an example.</summary>
-<!-- TODO -->
-</details>
-
 
 ### Creating a New Management Pack (Cassandra-DB)
 <details><summary>
