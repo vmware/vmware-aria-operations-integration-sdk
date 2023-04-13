@@ -117,7 +117,7 @@ Contains all necessary instructions to build a container with an HTTP server, th
 code, and any additional dependencies specified by the user.
 
 ### adapter_requirements.txt (file)
-This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where the adapter runs.
+This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where the adapter runs and used by the default Dockerfile to install dependencies into the container image.
 
 ### requirements.txt (file)
 This file defines all the dependencies needed for development of the adapter. This file does not get copied into the Dockerfile.
