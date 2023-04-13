@@ -120,7 +120,7 @@ code, and any additional dependencies specified by the user.
 This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where the adapter runs and used by the default Dockerfile to install dependencies into the container image.
 
 ### requirements.txt (file)
-This file defines all the dependencies needed for development of the adapter. This file does not get copied into the Dockerfile.
+This file defines all the dependencies needed for development of the adapter. This file does not get copied into the container image.
 
 ### commands.cfg (file)
 This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the
