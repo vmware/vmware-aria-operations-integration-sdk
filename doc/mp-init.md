@@ -179,7 +179,7 @@ The conf directory contains configuration files used by VMware Aria Operations t
 - describeSchema.xsd: A file that defines what elements and attributes may appear in the `describe.xml` document. This file does not need to be included in a Management Pack but is useful for validating that the `describe.xml` file is error-free.
 
 ### content (directory)
-Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, and traversal specs. To learn more about adding content, consult the [Adding Content](adding_content.md) guidej
+Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, and traversal specs. To learn more about adding content, consult the [Adding Content](adding_content.md) guide.
 
 ### resources (directory)
 The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `conf/describe.xml`. For more information see [Adding Localization](adding_content.md#adding-localization).
