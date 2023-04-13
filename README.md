@@ -162,7 +162,7 @@ the creation of a new management pack project.
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
 ### Template Adapter
-The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our [Walkthroughs](../README.md#walkthroughs) section.
+The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see the [Walkthroughs](../README.md#walkthroughs) section.
 The code inside `adapter.py` executed by an HTTP sever that runs inside container every time a test collection, or a collection is made[^1]. The HTTP server sends the information returned by the executable back to VMware Aria Operations. the template executable, `adapter.py` has four methods:
 
 - test(adapter_instance):
