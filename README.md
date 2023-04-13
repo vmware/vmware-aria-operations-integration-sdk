@@ -153,22 +153,52 @@ the creation of a new management pack project.
    PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
    setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-8. `Select a language for the adapter`
-
-   selected language. The template adapter collects several objects and metrics from the container that the adapter
-   Once selected, the project will be generated, including a template adapter in the
-   is running in, and can be used as a starting point for creating a new adapter.
+[//]: # (TODO: Add this section back when we support it)
+[//]: # (8. `Select a language for the adapter`)
+[//]: # (  selected language. The template adapter collects several objects and metrics from the container that the adapter)
+[//]: # (  Once selected, the project will be generated, including a template adapter in the)
+[//]: # (  is running in, and can be used as a starting point for creating a new adapter.)
 
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
 ### Template Adapter
-# - talk about each method
-# - details about each method
+The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our [Walkthroughs](../README.md#walkthroughs) section.
+The code inside `adapter.py` executed by an HTTP sever that runs inside container every time a test collection, or a collection is made[^1]. The HTTP server sends the information returned by the executable back to VMware Aria Operations. the template executable, `adapter.py` has four methods:
+
+- test(adapter_instance):
+Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly. A typical test connection will generally consist of:
+
+ 1. Read identifier values from adapter_instance that are required to connect to the target(s)
+ 2. Connect to the target(s), and retrieve some sample data
+ 3. Disconnect cleanly from the target (ensure this happens even if an error occurs)
+ 4. If any of the above failed, return an error, otherwise pass.
+
+- get_endpoints(adapter_instance):
+This  method will be run before the 'test' method, and VMware Aria Operations will use
+the results to extract a certificate from each URL. If the certificate is not trusted by
+the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
+the certificate. If it is accepted, the certificate will be added to the AdapterInstance
+object that is passed to the 'test' and 'collect' methods. Any certificate that is
+encountered in those methods should then be validated against the certificate(s)
+in the AdapterInstance.
+
+- collect(adapter_instance):
+Performs a collection against the target host. A typical collection will generally consist of:
+1. Read identifier values from adapter_instance that are required to connect to the target(s)
+2. Connect to the target(s), and retrieve data
+3. Add the data into a CollectResult's objects, properties, metrics, etc
+4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
+5. Return the CollectResult.
 # - architecture mention (stateless) no persistence between collections
 
-The template adapter defines three objects: CPU, Disk, and System. Each object allows the user to see how metrics, properties, and
-relationships are defined using the [vmware-aria-operations-integration-sdk-lib](https://docs.python.org/3/library/venv.html).
+- get_adapter_definition():
+Defines the object types and attribute types (metric/property) that are present
+in a collection. Setting these object types and attribute types helps VMware Aria Operations to
+validate, process, and display the data correctly.
 
+Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the section ahead.
+
+[^1]The HTTP server does not record the state inside the executable files, so the adapter should be considered stateless.
 ### Testing a Management Pack
 
 In the Management Pack directory, the installation script writes a `requirements.txt` file containing the version of the
