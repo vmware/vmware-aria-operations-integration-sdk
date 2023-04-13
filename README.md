@@ -189,7 +189,6 @@ Performs a collection against the target host. A typical collection will general
 3. Add the data into a CollectResult's objects, properties, metrics, etc
 4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
 5. Return the CollectResult.
-# - architecture mention (stateless) no persistence between collections
 
 - get_adapter_definition():
 Defines the object types and attribute types (metric/property) that are present
