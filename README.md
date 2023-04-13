@@ -163,7 +163,7 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 
 ### Template Adapter
 The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see the [Walkthroughs](../README.md#walkthroughs) section.
-The code inside `adapter.py` executed by an HTTP sever that runs inside container every time a test collection, or a collection is made[^1]. The HTTP server sends the information returned by the executable back to VMware Aria Operations. the template executable, `adapter.py` has four methods:
+The code inside `adapter.py`  has four methods:
 
 - test(adapter_instance):
 Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly. A typical test connection will generally consist of:
@@ -195,9 +195,8 @@ Defines the object types and attribute types (metric/property) that are present
 in a collection. Setting these object types and attribute types helps VMware Aria Operations to
 validate, process, and display the data correctly.
 
-Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the section ahead.
+Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the section ahead. The adapter is stateless,therefore the test __test__ and __collect__ methods should be self contained. 
 
-[^1]The HTTP server does not record the state inside the executable files, so the adapter should be considered stateless.
 ### Testing a Management Pack
 
 In the Management Pack directory, the installation script writes a `requirements.txt` file containing the version of the
