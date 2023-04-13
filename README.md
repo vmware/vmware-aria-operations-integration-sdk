@@ -1,29 +1,29 @@
 VMware Aria Operations Integration SDK
 =====================
 
-Welcome to the VMware Aria Operations Integration SDK. 
+Welcome to the VMware Aria Operations Integration SDK.
 
 ## What is the Integration SDK?
 
-The Integration SDK creates Management Packs to add custom objects, data, and 
-relationships from a endpoint into VMware Aria Operations. 
+The Integration SDK creates Management Packs to add custom objects, data, and
+relationships from a endpoint into VMware Aria Operations.
 
-Using this SDK to create a Management Pack requires some Python 
-knowledge (more languages are planned), and an understanding of how to get 
-data from the endpoint using an API. For example, to create a Management Pack for 
-Cassandra DB, an understanding of how to write an SQL query, execute it, and read the 
+Using this SDK to create a Management Pack requires some Python
+knowledge (more languages are planned), and an understanding of how to get
+data from the endpoint using an API. For example, to create a Management Pack for
+Cassandra DB, an understanding of how to write an SQL query, execute it, and read the
 results is required.
 
-Currently, installing a Management Pack built with the integration SDK is supported for 
-On-Prem versions of VMware Aria Operations only, but we are working to bring support to 
+Currently, installing a Management Pack built with the integration SDK is supported for
+On-Prem versions of VMware Aria Operations only, but we are working to bring support to
 VMware Aria Operations Cloud in a future release.
 
-For a high-level overview of VMware Aria Operations, Management Packs, and this SDK, 
+For a high-level overview of VMware Aria Operations, Management Packs, and this SDK,
 see [the introduction](doc/introduction.md).
 
 ## What can the Integration SDK be used for?
-The Integration SDK can be used to add any endpoint that supports remote monitoring to 
-VMware Aria Operations. Adding the endpoint involves creating objects that 
+The Integration SDK can be used to add any endpoint that supports remote monitoring to
+VMware Aria Operations. Adding the endpoint involves creating objects that
 represent the endpoint, which may include properties, metrics, and events, as well as
 relationships between objects.
 
@@ -38,7 +38,7 @@ The Integration SDK can also be used to extend objects created by another Manage
 Pack with additional metrics, properties, events, or relationships. This can be useful
 to ensure access to custom data without having to re-implement already existing data.
 
-For an example walkthrough of the steps required to extend another management pack, see 
+For an example walkthrough of the steps required to extend another management pack, see
 [Extending the Existing Management Pack for MySQL](#extending-an-existing-management-pack--mysql-)
 
 ## Where should I start?
@@ -68,7 +68,7 @@ The VMware Aria Operations Integration SDK has been tested in the following OSes
 * macOS 13 (Ventura)
 * Debian Linux
 * Fedora Linux
-    
+
 Other operating systems may be compatible.
 
 #### VMware Aria Operations
@@ -85,7 +85,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Pip. If Python3 is installed, pip is most likely also installed. For instructions on installing Pip, go
   to [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions
   provided.
-* Git 2.35.0 or later. Updating to the latest stable version is recommended. 
+* Git 2.35.0 or later. Updating to the latest stable version is recommended.
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   choose the OS you need and follow the instructions provided.
 
@@ -104,7 +104,7 @@ python3 -m pip install vmware-aria-operations-integration-sdk
 
 ### Creating a Management Pack
 After the SDK is installed, create a new project, by running `mp-init`. This tool asks a series of questions that guides
-the creation of a new management pack project. 
+the creation of a new management pack project.
 
 
 1. `Enter a directory to create the project in. This is the directory where adapter code, metadata, and content will reside. If the directory doesn't already exist, it will be created. Path:`
@@ -124,7 +124,7 @@ the creation of a new management pack project.
 
 3. `Management Pack adapter key`
 
-    This field is used internally to identify the Management Pack and Adapter Kind. By default, it is set to the 
+    This field is used internally to identify the Management Pack and Adapter Kind. By default, it is set to the
     Management Pack display name with special characters and whitespace stripped from it.
 
 4. `Management Pack description`
@@ -153,20 +153,28 @@ the creation of a new management pack project.
    PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
    setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-8. `Select a language for the adapter. Supported languages are [...]`
+8. `Select a language for the adapter`
 
-   Supported languages are listed. Once selected, the project will be generated, including a template adapter in the
-   selected language. The template adapter collects several objects and metrics from the container that the adapter 
+   selected language. The template adapter collects several objects and metrics from the container that the adapter
+   Once selected, the project will be generated, including a template adapter in the
    is running in, and can be used as a starting point for creating a new adapter.
 
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
+
+### Template Adapter
+# - talk about each method
+# - details about each method
+# - architecture mention (stateless) no persistence between collections
+
+The template adapter defines three objects: CPU, Disk, and System. Each object allows the user to see how metrics, properties, and
+relationships are defined using the [vmware-aria-operations-integration-sdk-lib](https://docs.python.org/3/library/venv.html).
 
 ### Testing a Management Pack
 
 In the Management Pack directory, the installation script writes a `requirements.txt` file containing the version of the
 SDK used to generate the project, and installs the SDK into a virtual environment named `venv`. Note that the packages
 in `requirements.txt` are _not_ installed into the adapter. To add a package to the adapter, specify it in the file
-`adapter_requirements.txt`. 
+`adapter_requirements.txt`.
 
 To use the SDK, navigate to the newly-generated project directory and activate the virtual environment:
 
@@ -217,15 +225,15 @@ If `mp-build` is run from anywhere outside of a root project directory, the tool
 build the selected project. If the tool is run from a project directory, the tool will automatically build that
 project.
 
-Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be 
+Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be
 installed on VMware Aria Operations. The `pak` file will be located in the project directory.
 
 To install the `pak` file, in VMware Aria Operations navigate to **Data Sources &rarr; Integrations &rarr;
 Repository** and click `ADD`. Select and upload the generated `pak` file, accept the README, and install the management pack.
 
 To configure the management pack, VMware Aria Operations navigate to **Data Sources &rarr; Integrations &rarr;
-Accounts** and click `ADD ACCOUNT`. Select the newly-installed management pack and configure the required fields. For 
-`Collector/Group`, make sure that a cloud proxy collector is selected. Click `VALIDATE CONNECTION` to test the connection. 
+Accounts** and click `ADD ACCOUNT`. Select the newly-installed management pack and configure the required fields. For
+`Collector/Group`, make sure that a cloud proxy collector is selected. Click `VALIDATE CONNECTION` to test the connection.
 It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately, however newly-created
@@ -243,15 +251,15 @@ For complete documentation of the `mp-build` tool see the [MP Build Tool Documen
 
 ### Creating a New Management Pack (Cassandra-DB)
 <details><summary>
-This guide assumes you have already set up the SDK and know how to create a new project. 
-It walks you through the steps necessary to monitor an endpoint, using Cassandra DB as 
+This guide assumes you have already set up the SDK and know how to create a new project.
+It walks you through the steps necessary to monitor an endpoint, using Cassandra DB as
 an example.</summary>
 TODO
 </details>
 
 ### Extending an Existing Management Pack (MySQL)
 <details><summary>
-This guide assumes you have already set up the SDK and know how to create a new project. 
+This guide assumes you have already set up the SDK and know how to create a new project.
 It walks you through the steps necessary to extend an existing Management Pact to add
 additional data, using the MySQL Management Pack as an example.</summary>
 TODO

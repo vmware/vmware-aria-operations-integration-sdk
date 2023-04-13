@@ -83,6 +83,7 @@ The init script creates a project in the given path with the following structure
 ├── eula.txt
 ├── manifest.txt
 ├── requirements.txt
+├── venv
 ├── app
 │   ├── adapter.py
 │   └── constants.py
@@ -123,9 +124,9 @@ This file defines all the dependencies needed for development of the adapter. Th
 
 ### commands.cfg (file)
 This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the
-command. By default, all commands are run by executing the adapter along with a parameter that defines a command.
+command. By default, all commands are run by executing the `adapter.py` file along with a parameter that defines a command.
 For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
-and runs the process defined by the key value.
+and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
 
 ### eula.txt (file)
 This file defines the End User License Agreement (EULA); If no EULA was provided then `mp-init` generates a template EULA.
@@ -160,26 +161,16 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 
 <sup>2</sup> Localized fields are specified in the property files located in the `resources/` directory. See [Adding Localization](adding_content.md#adding-localization).
 
-<details>
-<summary>### app (directory)</summary>
+### venv (directory)
+
+A Python virtual environment for the project. The directory name is prefixed with __venv__ followed by the display name of the management pack. This virtual environment is created to allow users to use different versions of the SDK for every project.
+
+**NOTE:** This directory is excluded from version control. Users cloning the project will have to create their own venv directory([ venv documentaion](https://docs.python.org/3/library/venv.html)).
+
 ### app (directory)
-The app directory contains the adapter source code
-
-<detais>
-<summary>### adapter.py (file)</summary>
-test()
-get_endpoints()
-collect()
-get_adapter_definition()
-main()
-if __name__ == "__main__"
-</detais>
-
-<detais>
-<summary>### contants.py (file)</summary>
-TODO
-</detais>
-</details>
+By default, this directory contains a template adapter. The template adapter collects several objects and metrics from the container that the adapter
+is running in, and can be used as a starting point for creating a new adapter. The template adapter uses [vmware-aria-operations-integration-sdk-lib](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/) to streamline the process of building adapter.
+The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our [Walkthroughs](../README.md#walkthroughs) section.
 
 ### conf (directory)
 The conf directory contains configuration files used by VMware Aria Operations to create a management pack instance.
