@@ -304,17 +304,19 @@ def main() -> None:
                 "class:information",
             )
 
-        language = selection_prompt(
-            "Select a language for the adapter.",
-            items=[
-                ("python", "Python"),
-                ("java", "Java", "Unavailable for beta release"),
-                ("powershell", "PowerShell", "Unavailable for beta release"),
-            ],
-            description="The language for the Management Pack determines the language for the template\n"
-            "source and build files.",
-        )
+        language = "python"
+        # language = selection_prompt(
+        #     "Select a language for the adapter.",
+        #     items=[
+        #         ("python", "Python"),
+        #         ("java", "Java", "Unavailable for beta release"),
+        #         ("powershell", "PowerShell", "Unavailable for beta release"),
+        #     ],
+        #     description="The language for the Management Pack determines the language for the template\n"
+        #     "source and build files.",
+        # )
         # create project_directory
+
         with Spinner("Creating Project"):
             create_project(
                 path,
