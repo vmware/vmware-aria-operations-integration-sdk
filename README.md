@@ -161,9 +161,11 @@ the creation of a new management pack project.
 
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
-### Template Adapter
-The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see the [Walkthroughs](../README.md#walkthroughs) section.
-The code inside `adapter.py`  has four methods:
+### Template Project 
+Every new project creates a file system that has the basic project structure required to develop and build and Management Pack.
+Each file and directory is discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the entry point
+for the your adapter, and the best starting point for a new user to begin their development journey. `adapter.py` is a template
+adapter that has comments throughout its code that allow users to replace the code in the template adapter and turn it into their own adapter. The methods inside the adapter template are all required and should not be deleted; however, the code inside the methods should be substituted to generate the desired adapter. Each method is used for a different function as described below:
 
 - test(adapter_instance):
 Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly. A typical test connection will generally consist of:
@@ -174,7 +176,7 @@ Performs a test connection using the information given to the adapter_instance t
  4. If any of the above failed, return an error, otherwise pass.
 
 - get_endpoints(adapter_instance):
-This  method will be run before the 'test' method, and VMware Aria Operations will use
+This method will be run before the 'test' method, and VMware Aria Operations will use
 the results to extract a certificate from each URL. If the certificate is not trusted by
 the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
 the certificate. If it is accepted, the certificate will be added to the AdapterInstance
@@ -195,7 +197,8 @@ Defines the object types and attribute types (metric/property) that are present
 in a collection. Setting these object types and attribute types helps VMware Aria Operations to
 validate, process, and display the data correctly.
 
-Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the section ahead. The adapter is stateless,therefore the test __test__ and __collect__ methods should be self contained. 
+Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless,therefore the test __test__ and __collect__ methods should be self contained. For further guidance on using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
+
 
 ### Testing a Management Pack
 
