@@ -164,8 +164,8 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 ### Template Project
 Every new project creates a file system that has the basic project structure required to develop and build and Management Pack.
 Each file and directory is discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the entry point
-for the your adapter, and the best starting point for a new user to begin their development journey. `adapter.py` is a template
-adapter that has comments throughout its code that allow users to replace the code in the template adapter and turn it into their own adapter. The methods inside the adapter template are all required and should not be deleted; however, the code inside the methods should be substituted to generate the desired adapter. Each method is used for a different function as described below:
+for the your adapter, and is the best starting point. `adapter.py` is a template
+adapter that [what does it do?]. It has comments throughout its code that explain what the code in the template adapter does and how to turn it into your own adapter. The methods inside the adapter template are required and should not be deleted; however, the code inside the methods should be modified to generate the desired adapter. Each method is used for a different function as described below:
 
 - test(adapter_instance):
 Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly. A typical test connection will generally consist of:
@@ -197,7 +197,7 @@ Defines the object types and attribute types (metric/property) that are present
 in a collection. Setting these object types and attribute types helps VMware Aria Operations to
 validate, process, and display the data correctly.
 
-Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless,therefore the test __test__ and __collect__ methods should be self contained. For further guidance on using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
+Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless, therefore the methods are not able to store any data for use in later method calls. For further guidance on using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
 
 
 ### Testing a Management Pack
