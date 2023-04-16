@@ -197,7 +197,7 @@ Defines the object types and attribute types (metric/property) that are present
 in a collection. Setting these object types and attribute types helps VMware Aria Operations to
 validate, process, and display the data correctly.
 
-Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless,therefore the test __test__ and __collect__ methods should be self contained. For further guidance on using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
+Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless, therefore the methods are not able to store any data for use in later method calls. For further guidance on using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
 
 
 ### Testing a Management Pack
