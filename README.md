@@ -199,9 +199,7 @@ the adapter cannot store any data for use in later method calls. Each method is 
     5. Return the CollectResult.
 
 - get_adapter_definition():
-  Defines the object types and attribute types, and in most cases, it also defines the Adapter Instance configuration 
-  parameters/credentials present in a collection. Setting these helps VMware Aria Operations to validate, process, and display the 
-  data correctly.
+  Optional method that defines the Adapter Instance configuration (parameters and credentials used to connect to the target, and configure the management pack) present in a collection, and defines the object types and attribute types present in a collection. Setting these helps VMware Aria Operations to validate, process, and display the data correctly. If this method is omitted, a `describe.xml` file should be manually created inside the `conf` directory with the same data. Generally, this is only necessary when using advanced features of the `describe.xml` file that are not present in this method.
 
 
 For further guidance on using the template project, consult the [Walkthroughs](../README.md#walkthroughs) section.
