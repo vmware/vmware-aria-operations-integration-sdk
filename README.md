@@ -188,7 +188,7 @@ the methods don't store any data for use in later method calls. Each method is u
   object that is passed to the 'test' and 'collect' methods. Any certificate that is
   encountered in those methods should then be validated against the certificate(s)
   in the AdapterInstance. This method will not only work against HTTPS endpoints, different types
-  of endpoint will not work.
+  of endpoint will not work (eg. database connections).
 
 - collect(adapter_instance):
   Performs a collection against the target host. A typical collection will generally consist of:
