@@ -177,8 +177,8 @@ the adapter cannot store any data for use in later method calls. Each method is 
 
      1. Read identifier values from adapter_instance that are required to connect to the target(s)
      2. Connect to the target(s), and retrieve some sample data
-     3. Disconnect cleanly from the target (ensure this happens even if an error occurs)
-     4. If any of the above failed, return an error, otherwise pass.
+     3. If any of the above failed, return an error, otherwise pass.
+     4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
 
 - get_endpoints(adapter_instance):
   This method will be run before the 'test' method, and VMware Aria Operations will use
