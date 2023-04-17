@@ -162,50 +162,49 @@ the creation of a new management pack project.
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](doc/mp-init.md).
 
 ### Template Project
-Every new project creates a file system that has the basic project structure required to develop and build and Management Pack.
-Each file and directory is discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the entry point
-for the adapter, and is the best starting point. `adapter.py` is a template adapter that collects several objects and metrics from
-the container that the adapter is running in, and can be used as a starting point for creating a new adapter . The template adapter
-has comments throughout its code that explain what the code in the does and how to turn it into your own adapter. The methods inside
-the adapter template are required and should not be deleted; however, the code inside the methods should be modified to generate the
-desired adapter. Each method is used for a different function as described below:
+Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
+Each file and directory are discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
+entry point and the best starting point. `adapter.py` is a template adapter that collects several objects and metrics from the
+container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter 
+has comments throughout its code that explain what the code does and how to turn it into your adapter. The methods inside the adapter
+template are required. Modify the code inside the methods to generate the desired adapter. Each method represents a single request,
+and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless; therefore,
+the methods don't store any data for use in later method calls. Each method is used for a different function as described below:
 
 - test(adapter_instance):
-Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly. A typical test connection will generally consist of:
+  Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly.
+  A typical test connection will generally consist of:
 
- 1. Read identifier values from adapter_instance that are required to connect to the target(s)
- 2. Connect to the target(s), and retrieve some sample data
- 3. Disconnect cleanly from the target (ensure this happens even if an error occurs)
- 4. If any of the above failed, return an error, otherwise pass.
+     1. Read identifier values from adapter_instance that are required to connect to the target(s)
+     2. Connect to the target(s), and retrieve some sample data
+     3. Disconnect cleanly from the target (ensure this happens even if an error occurs)
+     4. If any of the above failed, return an error, otherwise pass.
 
 - get_endpoints(adapter_instance):
-This method will be run before the 'test' method, and VMware Aria Operations will use
-the results to extract a certificate from each URL. If the certificate is not trusted by
-the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
-the certificate. If it is accepted, the certificate will be added to the AdapterInstance
-object that is passed to the 'test' and 'collect' methods. Any certificate that is
-encountered in those methods should then be validated against the certificate(s)
-in the AdapterInstance. This method will not only work against HTTPS endpoints, different types
-of endpoint will not work and there is no benefit of returning them.
+  This method will be run before the 'test' method, and VMware Aria Operations will use
+  the results to extract a certificate from each URL. If the certificate is not trusted by
+  the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
+  the certificate. If it is accepted, the certificate will be added to the AdapterInstance
+  object that is passed to the 'test' and 'collect' methods. Any certificate that is
+  encountered in those methods should then be validated against the certificate(s)
+  in the AdapterInstance. This method will not only work against HTTPS endpoints, different types
+  of endpoint will not work.
 
 - collect(adapter_instance):
-Performs a collection against the target host. A typical collection will generally consist of:
-1. Read identifier values from adapter_instance that are required to connect to the target(s)
-2. Connect to the target(s), and retrieve data
-3. Add the data into a CollectResult's objects, properties, metrics, etc
-4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
-5. Return the CollectResult.
+  Performs a collection against the target host. A typical collection will generally consist of:
+    1. Read identifier values from adapter_instance that are required to connect to the target(s)
+    2. Connect to the target(s), and retrieve data
+    3. Add the data into a CollectResult's objects, properties, metrics, etc
+    4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
+    5. Return the CollectResult.
 
 - get_adapter_definition():
-Defines the object types and attribute types (metric/property) that are present
-in a collection. Setting these object types and attribute types helps VMware Aria Operations to
-validate, process, and display the data correctly. More importantly, in most cases, it defines the
-Adapter Instance configuration parameters/credentials.
+  Defines the object types and attribute types, and in most cases, it also defines the Adapter Instance configuration 
+  parameters/credentials present in a collection. Setting these helps VMware Aria Operations to validate, process, and display the 
+  data correctly.
 
-Each method represents a single request, and it can be tested individually using `mp-test`, which is covered in the following section.
-The adapter is stateless, therefore the methods are not able to store any data for use in later method calls. For further guidance on
-using the template project consult the [Walkthroughs](../README.md#walkthroughs) section.
 
+For further guidance on using the template project, consult the [Walkthroughs](../README.md#walkthroughs) section.
 
 ### Testing a Management Pack
 
