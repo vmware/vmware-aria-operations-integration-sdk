@@ -169,7 +169,7 @@ container in which the adapter is running; use the template as a starting point 
 has comments throughout its code that explain what the code does and how to turn it into your adapter. The methods inside the adapter
 template are required. Modify the code inside the methods to generate the desired adapter. Each method represents a single request,
 and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless; therefore,
-the methods don't store any data for use in later method calls. Each method is used for a different function as described below:
+the adapter cannot store any data for use in later method calls. Each method is used for a different function as described below:
 
 - test(adapter_instance):
   Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly.
