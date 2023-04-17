@@ -172,7 +172,7 @@ and it can be tested individually using `mp-test`, which is covered in the follo
 the adapter cannot store any data for use in later method calls. Each method is used for a different function as described below:
 
 - test(adapter_instance):
-  Performs a test connection using the information given to the adapter_instance to verify the adapter has been set up properly.
+  Performs a test connection using the information given to the adapter_instance to verify the adapter instance has been configured properly.
   A typical test connection will generally consist of:
 
      1. Read identifier values from adapter_instance that are required to connect to the target(s)
