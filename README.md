@@ -32,14 +32,14 @@ opposed to agent-based monitoring, where the monitoring code runs in the same lo
 as the endpoint).
 
 For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
-[Creating a new Management Pack for Cassandra DB](#creating-a-new-management-pack--cassandra-db-)
+[Creating a new Management Pack](#creating-a-new-management-pack)
 
 The Integration SDK can also be used to extend objects created by another Management
 Pack with additional metrics, properties, events, or relationships. This can be useful
 to ensure access to custom data without having to re-implement already existing data.
 
 For an example walkthrough of the steps required to extend another management pack, see
-[Extending the Existing Management Pack for MySQL](#extending-an-existing-management-pack--mysql-)
+[Extending an Existing Management Pack](#extending-an-existing-management-pack)
 
 ## Where should I start?
 * If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](#get-started) tutorial.
@@ -284,19 +284,22 @@ For complete documentation of the `mp-build` tool see the [MP Build Tool Documen
 
 ## Walkthroughs
 
-### Creating a New Management Pack (Alibaba Cloud)
+### Creating a New Management Pack
 <details><summary>
 This guide assumes you have already set up the SDK and know how to create a new project. 
 It walks you through the steps necessary to monitor an endpoint, using Alibaba Cloud as 
 an example.</summary>
+
+
 TODO
 </details>
 
-### Extending an Existing Management Pack (MySQL)
+### Extending an Existing Management Pack
 <details><summary>
 This guide assumes you have already set up the SDK and know how to create a new project. 
 It walks you through the steps necessary to extend an existing Management Pack to add
 additional data, using the MySQL Management Pack as an example.</summary>
+
 
 Extending an existing management pack is similar to creating a new management pack, but 
 has some additional constraints. This section will create a management pack that adds 
@@ -324,7 +327,7 @@ Management pack display name: Extended MySQL MP
 Management pack adapter key: ExtendedMySQLMP
 Management pack description: Adds 'Lock Wait' metrics to MySQL Database objects
 Management pack vendor: VMware, Inc
-Enter a path to a EULA text file, or leave blank for no EULA: ../eula.txt
+Enter a path to a EULA text file, or leave blank for no EULA: 
 Enter a path to the management pack icon file, or leave blank for no icon:
 An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the
 icon file name and adding the icon file to the root project directory.
@@ -332,6 +335,9 @@ Creating Project [Finished]
 
 project generation completed
 ```
+
+Once the project finished generating, we can change directory into the project 
+and activate the Python virtual environment.
 
 Next, we need to modify the adapter code. We will break this up into several steps:
 1. [Add a library for connecting to MySQL](#add-a-library-for-connection-to-mysql)
@@ -364,8 +370,8 @@ mysql-connector-python>=8.0.32
 #### Modify the adapter definition to add fields for connecting to MySQL
 
 Now that we have added the library, we need to see what information it needs in order
-to connect. Since the adapter will be running on the Aria Ops Cloud Proxy, which is not
-where our MySQL instance is running, we will need the following:
+to connect. Since the adapter will be running on the VMware Aria Operations Cloud Proxy, 
+which is not where our MySQL instance is running, we will need the following:
 * Host
 * Port
 * Username
@@ -404,8 +410,11 @@ def get_adapter_definition() -> AdapterDefinition:
 
     # This Adapter has no object types directly, rather it co-opts object types that
     # are part of the MySQL MP to add additional metrics. As such, we can't define
-    # any object types here, because they're already defined in the MySQL MP with a
+    # those object types here, because they're already defined in the MySQL MP with a
     # different adapter type.
+    
+    # If we decide to also create new objects (that are not part of an existing MP),
+    # those can be added here.
 
     logger.info("Finished 'Get Adapter Definition'")
     logger.debug(f"Returning adapter definition: {definition.to_json()}")
@@ -422,8 +431,11 @@ generally be able to set.
 
 Now that we've defined our parameters, we can try to connect and run a test query.
 We will do this in the `test` method. Notice this takes an `AdapterInstance` as a 
-parameter. All the parameters from the definition will be present in this Adapter 
-Instance. We can access them like this:
+parameter. We will replace all the code that is inside the try/except block.
+
+All the parameters and credentials from the definition will be present in this Adapter 
+Instance. We can access them like this, using the `key`s that we defined in the 
+`get_adapter_definition` function to get the value assigned to that parameter:
 
 ```python
     hostname = adapter_instance.get_identifier_value("host")
@@ -432,9 +444,11 @@ Instance. We can access them like this:
     password = adapter_instance.get_credential_value("password")
 ```
 
-We can then use them to connect to MySQL and run a test query:
+We can then use them to connect to MySQL and run a test query (be sure to import 
+`mysql.connector`):
 
 ```python
+
     connection = mysql.connector.connect(
         host=hostname,
         port=port,
@@ -445,13 +459,22 @@ We can then use them to connect to MySQL and run a test query:
 
     # Run a simple test query
     cursor.execute("SHOW databases")
+    for database in cursor: # The cursor needs to be consumed before it is closed
+        logger.info(f"Found database '{database}'")
     cursor.close()
 ```
 
 Since we can expect that this will fail, e.g., if the user provides the wrong username
-and password, we should ensure there is good error-handling in this function. If the 
-management pack will be widely distributed, it may also be worthwhile to catch common 
-errors and ensure the resulting messages are user-friendly.
+and password, we should ensure there is good error-handling in this function.
+
+If we detect a failure (e.g., in the `except` block), we should call 
+`result.with_error(error_message)` to indicate the test has failed. If no errors have
+been attached to the `result` object, the test will pass. (Note that calling 
+`result.with_error(...)` multiple times in the same test will result in only the last
+error being displayed.)
+
+If the management pack will be widely distributed, it may also be worthwhile to catch 
+common errors and ensure the resulting messages are user-friendly.
 
 We should now be able to run `mp-test connect` to run this code. The `mp-test` tool
 will ask you to create a new connection, prompting for 'host', 'port', 'username', and
@@ -550,14 +573,20 @@ In order to attach a metric to these objects, we will need all identifiers that 
 means that the combination of those two fields uniquely identify the object among all
 of the `mysql_database` objects in the `MySQLAdapter` adapter.
 
-Unfortunately, getting the `adapter_instance_id` is tricky. However, if we look in Aria 
-Ops itself, we can see that each database's name has the format 
-`mysql_host/mysql_database`, which should be unique (even if VMware Aria Operations 
-isn't using it for determining uniqueness). We can construct the name, ask the SuiteAPI 
-to give us all `MySQLAdapter` `mysql_database` objects with that name, and attach
-metrics to the result.
+Getting the `adapter_instance_id` requires a SuiteAPI call. We need to retrieve the 
+Adapter Instances for `MySQLAdapter` that has the same host and port identifiers as our 
+adapter, and then retrieving the id. However, if we look in VMware Aria Operations 
+itself, we can see that each database's name has the format `mysql_host/mysql_database`, 
+which should be unique (even if VMware Aria Operations isn't using it for determining 
+uniqueness). Thus, a simpler way to get matching objects (in this case) is to construct 
+the name, and ask the SuiteAPI to give us all `MySQLAdapter` `mysql_database` objects 
+with those names. Then we can simply attach metrics to the resulting `mysql_database` 
+objects, which will have all identifiers correctly set by the SuiteAPI.
 
-First, we need to establish a connection to MySQL. We can do this in the same way as in
+First, we should remove all the sample code inside the `try` block. All the code for the
+following steps should be inside the `try` block.
+
+Then, we need to establish a connection to MySQL. We can do this in the same way as in
 test connect. In many cases creating a function for connecting that is called from both 
 `test` and `collect` is worthwhile. Then we can query the list of databases, and 
 construct a list of database names that may be present:
@@ -572,9 +601,9 @@ construct a list of database names that may be present:
 
 We then query the SuiteAPI for `mysql_database` objects from the `MySQLAdapter` 
 adapter, with the names we computed. The queries that `query_for_resources` accepts
-are documented in the SuiteAPI documentation, and can search on many different types
-of metadata about a resource. After that we add the returned objects to our `result`
-and, also add them to a dictionary so we can access them easily later.
+are documented in the SuiteAPI documentation, and can search on many types of metadata 
+about a resource. After that, we add the returned objects to the `result` and to a 
+dictionary for quick access later.
 
 ```python
         # Get the list of objects from the SuiteAPI that represent the MySQL
@@ -583,8 +612,8 @@ and, also add them to a dictionary so we can access them easily later.
         with adapter_instance.suite_api_client as suite_api:
             dbs = suite_api.query_for_resources(
                 query={
-                    "adapterKind": [MYSQL_ADAPTER_TYPE],
-                    "resourceKind": [MYSQL_DATABASE_OBJECT_TYPE],
+                    "adapterKind": ["MySQLAdapter"],
+                    "resourceKind": ["mysql_database"],
                     "name": database_names,
                 },
             )
