@@ -1,7 +1,11 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## 0.7.2 (04-18-2023)
+* Improve Timer log messages 
+* Fix issue where very small timespans would not show up in Timing Graph
+
 ## 0.7.1 (03-04-2023)
-* Add 'Cores' and 'Millicores' to units.Misc (these are not convertable).
+* Add 'Cores' and 'Millicores' to units.Misc (these are not convertible).
 
 ## 0.7.0 (03-04-2023)
 * Fixes issue that prevented paged SuiteAPI requests from completing.
