@@ -334,8 +334,10 @@ TODO:
 TODO:
 </details>
 
-## Adapter:
 <details>
+<summary>
+## Adapter
+</summary>
 
 ### Where are the adapter logs stored locally?
 <details>
