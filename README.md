@@ -165,7 +165,7 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory are discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. `adapter.py` is a template adapter that collects several objects and metrics from the
-container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter 
+container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter
 has comments throughout its code that explain what the code does and how to turn it into your adapter. The methods inside the adapter
 template are required. Modify the code inside the methods to generate the desired adapter. Each method represents a single request,
 and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless; therefore,
@@ -300,42 +300,60 @@ additional data, using the MySQL Management Pack as an example.</summary>
 TODO
 </details>
 
+--
+# Troubleshooting
 
-## Troubleshooting
-
-If you encounter any issues while using the VMware Aria Operations Integration SDK, you can refer to the troubleshooting guides for each tool:
+If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you can refer to the troubleshooting guides for each tool:
 
 - [mp-test Troubleshooting Guide](doc/mp-test.md#troubleshooting)
 - [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
 - [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
 
-### Docker Issues
+## Docker Issues
+<details>
 
-If you encounter any issues with Docker while using the VMware Aria Operations Integration SDK, you can refer to the following guides:
+### Cannot connect to docker daemon (Windows)?
+<details>
+If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
+</details>
 
-- **Docker not running:** If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
+### Permission denied while trying to connect to the Docker daemon?
+<details>
+If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
+</details>
 
-- **Permission errors(Windows): ** If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
+</details>
 
-### Registry Issues:
+## Registry Issues:
+<details>
 TODO:
-### Dockerfile Issues:
-- Error when modifying Dockerfile
-TODO:
-### Adapter Code:
+</details>
 
-### Where the adapter logs stored locally?
+## Dockerfile Issues:
+<details>
+TODO:
+</details>
+
+## Adapter:
+<details>
+
+### Where are the adapter logs stored locally?
+<details>
 Logs are generated and stored in the `logs` directory whenever the adapter runs locally using' mp-test'
+</details>
 
 ### Where the adapter logs stored VMware Aria Operations?
+<details>
 Logs are generated and stored in the cloud proxy at `$ALIVE_BASE/user/log/adapter/<ADAPTERNAME>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`. ADAPTERNAME should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID found in VMware Aria Operations at Environment>Inventory>Adapter Instances>My Adapter Adapter Instance>Instance** in the rightmost column.
- 
-### What are the different log files?
-There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of 
-log file followed by a number that represents rollover. 
+</details>
 
-- server.log: 
-Contains all logs related to the HTTP sever inside the container. Server logs can't be modified since the server code comes packaged 
+### What are the different log files?
+<details>
+There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of
+log file followed by a number that represents rollover.
+
+- server.log:
+Contains all logs related to the HTTP sever inside the container. Server logs can't be modified since the server code comes packaged
 inside the [base-adapter image](https://projects.registry.vmware.com/harbor/projects/46752/repositories/base-adapter/artifacts-tab) Python image.
 
 - adapter.log
@@ -348,12 +366,15 @@ Contains all logs related to `mp-test`
 Contains all logs related to `mp-build`
 
 - validation.log
-Contains all logs related to the validation of the collection result(s). 
+Contains all logs related to the validation of the collection result(s).
 
-  Adapter logs are all the logs generated by adapter code (e.g., the test() method or the collect() methods inside 
+  Adapter logs are all the logs generated by adapter code (e.g., the test() method or the collect() methods inside
 `app/adapter.py`). Finally, test logs come from the logs generated by `mp-test`.
 
-### How do I log in my adapter code?
+</details>
+
+### How do I add logs to my adapter?
+<details>
 The template adapter defines a logger variable which configures all logging for the adapter using [adapter_logging](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/lib/python/src/aria/ops/adapter_logging.py) from the python SDK. To use the logger in any other files, import the python [logging](https://docs.python.org/3/library/logging.html) module. eg.
 
 ```python3
@@ -368,20 +389,33 @@ def my_method():
   logger.debug("debug log")
    ...
 ```
+</details>
+
 
 ### How do I change the log level (Server and Adapter)?
-Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated. 
+<details>
+
+Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated.
 If the file does not exist, it will be generated after a collection/test collection.
+</details>
+
 
 ### 500 INTERNAL SERVER ERROR:
+<details>
+
 Internal sever can happen for various reasons; however, the most common reason is due to an unhandled exception or syntax errors in
 the adapter code. Check the server logs for clues about the issue. In some cases the issue may be detected by using `mp-test` and
-going over the terminal output. 
+going over the terminal output.
+</details>
+
 
 ### Collection Failed (200 response to server with error)
-
+<details>
 TODO:
-- Adapter
+</details>
+
+</details>
+
 TODO:
 ### VMware Aria Operations:
 TODO:
