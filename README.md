@@ -336,7 +336,7 @@ TODO:
 
 <details>
 <summary>
-## Adapter
+<h2>Adapter</h2>
 </summary>
 
 ### Where are the adapter logs stored locally?
