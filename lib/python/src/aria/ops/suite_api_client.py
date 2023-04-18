@@ -8,11 +8,15 @@ import math
 from types import TracebackType
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import Optional
 from typing import Type
 
 import requests
 import urllib3
+from aria.ops.object import Identifier
+from aria.ops.object import Key
+from aria.ops.object import Object
 from requests import Response
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -20,7 +24,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logger = logging.getLogger(__name__)
 
 
-class SuiteApiConnectionParameters(object):
+class SuiteApiConnectionParameters:
     def __init__(
         self, host: str, username: str, password: str, auth_source: str = "LOCAL"
     ):
@@ -40,7 +44,7 @@ class SuiteApiConnectionParameters(object):
         self.auth_source = auth_source
 
 
-class SuiteApiClient(object):
+class SuiteApiClient:
     """Class for simplifying calls to the SuiteAPI
 
     Automatically handles:
@@ -95,19 +99,21 @@ class SuiteApiClient(object):
         :return: The authentication token
         """
         if self.token == "":
-            token_response = self.post(
+            with self.post(
                 "/api/auth/token/acquire",
                 json={
                     "username": self.credential.username,
                     "password": self.credential.password,
                     "authSource": self.credential.auth_source,
                 },
-            )
-            if token_response.ok:
-                self.token = token_response.json()["token"]
-                logger.debug("Acquired token " + self.token)
-            else:
-                logger.warning(f"Could not acquire SuiteAPI token: {token_response}")
+            ) as token_response:
+                if token_response.ok:
+                    self.token = token_response.json()["token"]
+                    logger.debug("Acquired token " + self.token)
+                else:
+                    logger.warning(
+                        f"Could not acquire SuiteAPI token: {token_response}"
+                    )
 
         return self.token
 
@@ -117,11 +123,13 @@ class SuiteApiClient(object):
         :return: None
         """
         if self.token != "":
-            self.post("auth/token/release")
+            self.post("auth/token/release").close()
             self.token = ""
 
     def get(self, url: str, **kwargs: Any) -> Response:
         """Send a GET request to the SuiteAPI
+        The 'Response' object should be used in a 'with' block or
+        manually closed after use
 
         :param url: URL to send GET request to
         :param kwargs: Additional keyword arguments to pass to request
@@ -141,6 +149,8 @@ class SuiteApiClient(object):
 
     def post(self, url: str, **kwargs: Any) -> Response:
         """Send a POST request to the SuiteAPI
+        The 'Response' object should be used in a 'with' block or
+        manually closed after use
 
         :param url: URL to send POST request to
         :param kwargs: Additional keyword arguments to pass to request
@@ -164,6 +174,8 @@ class SuiteApiClient(object):
 
     def put(self, url: str, **kwargs: Any) -> Response:
         """Send a PUT request to the SuiteAPI
+        The 'Response' object should be used in a 'with' block or
+        manually closed after use
 
         :param url: URL to send PUT request to
         :param kwargs: Additional keyword arguments to pass to request
@@ -173,6 +185,8 @@ class SuiteApiClient(object):
 
     def patch(self, url: str, **kwargs: Any) -> Response:
         """Send a PATCH request to the SuiteAPI
+        The 'Response' object should be used in a 'with' block or
+        manually closed after use
 
         :param url: URL to send PATCH request to
         :param kwargs: Additional keyword arguments to pass to request
@@ -182,6 +196,8 @@ class SuiteApiClient(object):
 
     def delete(self, url: str, **kwargs: Any) -> Response:
         """Send a DELETE request to the SuiteAPI
+        The 'Response' object should be used in a 'with' block or
+        manually closed after use
 
         :param url: URL to send DELETE request to
         :param kwargs: Additional keyword arguments to pass to request
@@ -201,6 +217,56 @@ class SuiteApiClient(object):
 
         return kwargs
 
+    # Implementations for common endpoints:
+
+    def query_for_resources(self, query: Dict[str, Any]) -> list[Object]:
+        """Query for resources using the Suite API, and convert the
+        responses to SDK Objects.
+
+        Note that not all information from the query is returned. For example, the
+        query returns health statuses of each object, but those are not present in
+        the resulting Objects. If information other than the Object itself is needed,
+        you will need to call the endpoint and process the results manually.
+
+        :param query: json of the resourceQuery, as defined in the SuiteAPI docs:
+        https://[[aria-ops-hostname]]/suite-api/doc/swagger-ui.html#/Resources/getMatchingResourcesUsingPOST
+        :return list of sdk Objects representing each of the returned objects.
+        """
+        try:
+            results = []
+            if "name" in query and "regex" in query:
+                # This is behavior in the suite api itself, we're just warning about it
+                # here to avoid confusion.
+                logger.warning(
+                    "'name' and 'regex' are mutually exclusive in resource "
+                    "queries. Ignoring the 'regex' key in favor of 'name' "
+                    "key."
+                )
+            # The 'name' key takes an array but only looks up the first element.
+            # Fix that limitation here.
+            if "name" in query and len(query["name"]) > 1:
+                json_body = query.copy()
+                # TODO: Improve concurrancy when we add async support
+                #  to suite_api_client
+                for name in query["name"]:
+                    json_body.update({"name": [name]})
+                    response = self.paged_post(
+                        "/api/resources/query", "resourceList", json=json_body
+                    )
+                    results.extend(response.get("resourceList", []))
+            else:
+                response = self.paged_post(
+                    "/api/resources/query",
+                    "resourceList",
+                    json=query,
+                )
+                results = response.get("resourceList", [])
+            return [key_to_object(obj["resourceKey"]) for obj in results]
+        except Exception as e:
+            logger.error(e)
+            logger.exception(e)
+            return []
+
     def _paged_request(
         self, request_func: Callable, url: str, key: str, **kwargs: Any
     ) -> dict:
@@ -217,8 +283,14 @@ class SuiteApiClient(object):
         :return: The API response
         """
         kwargs = self._add_paging(**kwargs)
-        page_0 = self._request_wrapper(request_func, url, **kwargs)
-        page_0_body = json.loads(page_0.text)
+        with self._request_wrapper(request_func, url, **kwargs) as page_0:
+            if page_0.status_code < 300:
+                page_0_body = json.loads(page_0.text)
+            else:
+                # _request_wrapper will log the error
+                # TODO: How should we communicate to caller that
+                #       request(s) have failed?
+                return {key: []}
         total_objects = int(
             page_0_body.get("pageInfo", {"totalCount": 1}).get("totalCount", 1)
         )
@@ -227,9 +299,9 @@ class SuiteApiClient(object):
         objects = page_0_body.get(key, [])
         while remaining_pages > 0:
             kwargs = self._add_paging(page=remaining_pages, **kwargs)
-            page_n_body = json.loads(
-                self._request_wrapper(request_func, url, **kwargs).text
-            )
+            with self._request_wrapper(request_func, url, **kwargs) as page_n:
+                if page_n.status_code < 300:
+                    page_n_body = json.loads(page_n.text)
             objects.extend(page_n_body.get(key, []))
             remaining_pages -= 1
         return {key: objects}
@@ -274,3 +346,24 @@ class SuiteApiClient(object):
         else:
             kwargs["url"] = self.credential.host + "api/" + url
         return kwargs
+
+
+# Helper methods:
+
+
+def key_to_object(json_object_key: Dict[str, Any]) -> Object:
+    return Object(
+        Key(
+            json_object_key["adapterKindKey"],
+            json_object_key["resourceKindKey"],
+            json_object_key["name"],
+            [
+                Identifier(
+                    identifier["identifierType"]["name"],
+                    identifier["value"],
+                    identifier["identifierType"]["isPartOfUniqueness"],
+                )
+                for identifier in json_object_key["resourceIdentifiers"]
+            ],
+        )
+    )

@@ -1,6 +1,11 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
 ## 0.7.2 (04-18-2023)
+* Add 'query_for_resources' method to SuiteApiClient
+* Add helper function 'key_to_object' to suite_api_client
+* Ensure 'Response' objects from SuiteApiClient are closed when used internally
+* Add documentation about closing 'Response' objects from SuiteApiClient that are 
+  returned to the calling code
 * Improve Timer log messages 
 * Fix issue where very small timespans would not show up in Timing Graph
 
