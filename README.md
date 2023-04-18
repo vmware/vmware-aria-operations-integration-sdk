@@ -309,28 +309,36 @@ If you encounter any issues while using the VMware Aria Operations Integration S
 - [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
 - [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
 
-## Docker Issues
 <details>
+<summary>
+<h2>Docker Issues</h2>
+</summary>
 
-### Cannot connect to docker daemon (Windows)?
 <details>
+<summary>
+<h3> Cannot connect to docker daemon (Windows)?</h3>
+</summary>
 If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
 </details>
 
-### Permission denied while trying to connect to the Docker daemon?
 <details>
+<summary>
+<h3> Permission denied while trying to connect to the Docker daemon?</h3>
+</summary>
 If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
 </details>
 
 </details>
 
-## Registry Issues:
 <details>
+<summary>
+<h2>Registry Issues:
 TODO:
 </details>
 
-## Dockerfile Issues:
 <details>
+<summary>
+<h2>Dockerfile Issues:</h2>
 TODO:
 </details>
 
@@ -339,18 +347,24 @@ TODO:
 <h2>Adapter</h2>
 </summary>
 
-### Where are the adapter logs stored locally?
 <details>
+<summary>
+<h3> Where are the adapter logs stored locally? </h3>
+</summary>
 Logs are generated and stored in the `logs` directory whenever the adapter runs locally using' mp-test'
 </details>
 
-### Where the adapter logs stored VMware Aria Operations?
 <details>
+<summary>
+<h3> Where the adapter logs stored VMware Aria Operations?</h3>
+</summary>
 Logs are generated and stored in the cloud proxy at `$ALIVE_BASE/user/log/adapter/<ADAPTERNAME>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`. ADAPTERNAME should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID found in VMware Aria Operations at Environment>Inventory>Adapter Instances>My Adapter Adapter Instance>Instance** in the rightmost column.
 </details>
 
-### What are the different log files?
 <details>
+<summary>
+<h3> What are the different log files?</h3>
+</summary>
 There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of
 log file followed by a number that represents rollover.
 
@@ -375,8 +389,10 @@ Contains all logs related to the validation of the collection result(s).
 
 </details>
 
-### How do I add logs to my adapter?
 <details>
+<summary>
+<h3> How do I add logs to my adapter?</h3>
+</summary>
 The template adapter defines a logger variable which configures all logging for the adapter using [adapter_logging](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/lib/python/src/aria/ops/adapter_logging.py) from the python SDK. To use the logger in any other files, import the python [logging](https://docs.python.org/3/library/logging.html) module. eg.
 
 ```python3
@@ -394,16 +410,20 @@ def my_method():
 </details>
 
 
-### How do I change the log level (Server and Adapter)?
 <details>
+<summary>
+<h3> How do I change the log level (Server and Adapter)?</h3>
+</summary>
 
 Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated.
 If the file does not exist, it will be generated after a collection/test collection.
 </details>
 
 
-### 500 INTERNAL SERVER ERROR:
 <details>
+<summary>
+<h3> 500 INTERNAL SERVER ERROR:</h3>
+</summary>
 
 Internal sever can happen for various reasons; however, the most common reason is due to an unhandled exception or syntax errors in
 the adapter code. Check the server logs for clues about the issue. In some cases the issue may be detected by using `mp-test` and
@@ -411,28 +431,25 @@ going over the terminal output.
 </details>
 
 
-### Collection Failed (200 response to server with error)
 <details>
+<summary>
+<h3> Collection Failed (200 response to server with error)</h3>
+</summary>
 TODO:
 </details>
 
-</details>
 
-TODO:
-### VMware Aria Operations:
-TODO:
+<details>
+<summary>
+<h2> VMware Aria Operations</h2>
+</summary>
 - Installation Issues
-TODO:
   - Anonymous Docker Pull
-TODO:
   - Unable to pull image (private container repo)
-TODO:
 - Adapter collection errors
-TODO:
   - Setting debug level on CP
-TODO:
   - Matching adapter to running containers
-TODO:
+</details
 
 ## Contributing
 
