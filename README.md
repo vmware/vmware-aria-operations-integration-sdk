@@ -334,7 +334,31 @@ can refer to the troubleshooting guides for each tool:
   1. [Log into to your registry using aws CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-authenticate-registry)
   2. [Create a repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository:~:text=your%20default%20registry-,Step%203%3A%20Create%20a%20repository,-Step%204%3A%20Push)
   3. Run mp-build and use the registry tag when propted about it (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/hello-repository`)
-  </details>
+</details>
+
+<details>
+  <summary><h3>How can I set up a Dockerhub container registry for my project?</h3></summary>
+
+  Docker CLI recommends using a token when using docker hub instead of using your login password, so users should authenticate their dockerhub account before runing `mp-build`. 
+
+  1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).  
+  2. Open `config.json` file located in the roo of the project, then replace the key value of `docker_registry` with the tag of 
+  the Dockerhub repository prepended with `docker.io`. For example, if the docker tag is `username/docker-registry-test:tagname`
+  then the key value will be `docker.io/username/docker-registry-test`.
+
+  VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Dockerhub, since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period).
+</details>
+
+<details>
+  <summary><h3>How can I set up a Management Pack that uses a private container registry?</h3></summary>
+
+  VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
+
+  1. ssh into the cloud proxy where the adapter is going to be set up 
+  2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
+  3. Install Management Pack in VMware Aria operations 
+</details>
+
 
 <details>
   <summary><h3>How can change the container resgistry mp-build uses?</h3></summary>
@@ -348,18 +372,18 @@ can refer to the troubleshooting guides for each tool:
 
   Logs are generated and stored in the `logs` directory. logs are only generated after running `mp-test` or `mp-build`
 </details>
-
 <details>
   <summary><h3> Where the adapter logs stored VMware Aria Operations?</h3></summary>
 
-  Logs are generated and stored in the cloud proxy at `$ALIVE_BASE/user/log/adapter/<ADAPTERNAME>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
-  ADAPTERNAME should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID
+  Logs are generated and stored in the cloud proxy at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
+   
+  ADAPTERKEY should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID
   found in VMware Aria Operations at Environment>Inventory>Adapter Instances>My Adapter Adapter Instance>Instance** in the rightmost column.
   To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
 
   ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
 
-  ![highlight of the an internal id](doc/higlight_internal_id_column.png)
+  ![highlight of the internal id](doc/higlight_internal_id_column.png)
   </details>
 
   <details>
@@ -410,8 +434,17 @@ can refer to the troubleshooting guides for each tool:
 <details>
   <summary><h3> How do I change the log level (Server and Adapter)?</h3></summary>
 
-  Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in `logs/loglevels.cfg` locally and `$ALIVE_BASE/user/log/adapters/ADAPTERNAME_adapter3/INTERNAL_ID/loglevels.cfg` in the cloud proxy.
+  Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in `logs/loglevels.cfg` locally and `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg` in the cloud proxy.
   If the file does not exist, it will be generated after a collection/test collection.
+
+  ADAPTERKEY should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID
+  found in VMware Aria Operations at Environment>Inventory>Adapter Instances>My Adapter Adapter Instance>Instance** in the rightmost column.
+  To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
+
+  ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
+
+  ![highlight of the internal id](doc/higlight_internal_id_column.png)
+
 </details>
 
 <details>
@@ -424,7 +457,8 @@ can refer to the troubleshooting guides for each tool:
 </details>
 
 <details>
-  <summary><h3>No Collection result was found</h3></summary>
+  <summary><h3>No collection result was found</h3></summary>
+
   `mp-test` runs a series of validations test after collection; if the collection result has no results, then the each validation step will report the result as missing.
   When a collection result is missing it usually means that there was an error during collection, but the error was handled, and reported by the adapter, in which case the error message
   will aslo be deisplayed in the console output. For example:
