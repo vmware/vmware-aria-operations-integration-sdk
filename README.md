@@ -312,14 +312,14 @@ can refer to the troubleshooting guides for each tool:
 
 --
 <details>
-  <summary><h3>Permission denied while trying to connect to the Docker daemon</h3></summary>
+  <summary><h3>Permission denied while trying to connect to the Docker daemon (Docker CLI)</h3></summary>
 
   If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions
   on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
 </details>
 
 <details>
-  <summary><h3>Cannot connect to docker daemon (Windows)?</h3></summary>
+  <summary><h3>Cannot connect to docker daemon (Docker CLI on Windows)?</h3></summary>
 
   If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
   on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
@@ -339,10 +339,10 @@ can refer to the troubleshooting guides for each tool:
 <details>
   <summary><h3>How can I set up a Dockerhub container registry for my project?</h3></summary>
 
-  Docker CLI recommends using a token when using docker hub instead of using your login password, so users should authenticate their dockerhub account before runing `mp-build`. 
+  Docker CLI recommends using a token when using docker hub instead of using your login password, so users should authenticate their dockerhub account before runing `mp-build`.
 
-  1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).  
-  2. Open `config.json` file located in the roo of the project, then replace the key value of `docker_registry` with the tag of 
+  1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).
+  2. Open `config.json` file located in the roo of the project, then replace the key value of `docker_registry` with the tag of
   the Dockerhub repository prepended with `docker.io`. For example, if the docker tag is `username/docker-registry-test:tagname`
   then the key value will be `docker.io/username/docker-registry-test`.
 
@@ -354,9 +354,9 @@ can refer to the troubleshooting guides for each tool:
 
   VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
 
-  1. ssh into the cloud proxy where the adapter is going to be set up 
+  1. ssh into the cloud proxy where the adapter is going to be set up
   2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
-  3. Install Management Pack in VMware Aria operations 
+  3. Install Management Pack in VMware Aria operations
 </details>
 
 
@@ -376,7 +376,7 @@ can refer to the troubleshooting guides for each tool:
   <summary><h3> Where the adapter logs stored VMware Aria Operations?</h3></summary>
 
   Logs are generated and stored in the cloud proxy at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
-   
+
   ADAPTERKEY should match the name of the adapter used in the manifest.txt, and the ADAPTER_INTERNAL_INSTANCE_ID should match the Internal ID
   found in VMware Aria Operations at Environment>Inventory>Adapter Instances>My Adapter Adapter Instance>Instance** in the rightmost column.
   To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
