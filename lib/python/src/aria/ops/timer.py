@@ -18,12 +18,12 @@ class Timer:
         self.name = name
 
     def __enter__(self) -> Timer:
-        self.logger.info(self.name)
+        self.logger.info(f"Starting '{self.name}'")
         self.start_time = time()
         return self
 
     def __aenter__(self) -> Timer:
-        self.logger.info(self.name)
+        self.logger.info(f"Starting '{self.name}'")
         self.start_time = time()
         return self
 
@@ -35,7 +35,9 @@ class Timer:
     ) -> None:
         end_time = time()
         self.timers.append((self.name, self.start_time, end_time))
-        self.logger.info(f"finished {self.name} in {end_time - self.start_time:.2}s")
+        self.logger.info(
+            f"Finished '{self.name}' in {_to_time(end_time - self.start_time)}"
+        )
 
     def __aexit__(
         self,
@@ -45,7 +47,9 @@ class Timer:
     ) -> None:
         end_time = time()
         self.timers.append((self.name, self.start_time, end_time))
-        self.logger.info(f"finished {self.name} in {end_time - self.start_time:.2}s")
+        self.logger.info(
+            f"Finished '{self.name}' in {_to_time(end_time - self.start_time)}"
+        )
 
     @classmethod
     def graph(cls) -> str:
@@ -112,7 +116,7 @@ def _graph_timespan(start: float, end: float, graph_width: int) -> str:
     line = ""
 
     def in_range(x_coord: float) -> bool:
-        return start <= x_coord < end
+        return start <= x_coord < end or x_coord - 1 < start <= x_coord
 
     for x in range(graph_width):
         if in_range(x - 1) and in_range(x) and in_range(x + 1):
