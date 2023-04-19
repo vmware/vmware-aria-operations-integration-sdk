@@ -296,11 +296,9 @@ properties, and relationships that monitors Alibaba Cloud. It assumes you have a
 installed the SDK and understand the tools and steps in the 'Get Started' section. It 
 also assumes you have an Alibaba Cloud account.
 
-[//]: TODO
-[//]: # (For the purposes of this walkthrough, we will be adding five metrics to the MySQL database)
-[//]: # (object that show the total amount of lock waits and statistics about the time spent)
-[//]: # (waiting for those locks. This info can be found in MySQL in the table)
-[//]: # (`performance_schema.table_lock_waits_summary_by_table`.)
+For the purposes of this walkthrough, we will be adding an ECS Instance object with
+six properties, and a relationship to the Adapter Instance. All the data can be found
+by calling the `DescribeInstancesRequest` method in the ECS Python Library.
 
 The first step is to run `mp-init` and create a new project. There are no restrictions,
 except that the adapter kind key cannot be used by another management pack that is
@@ -323,6 +321,10 @@ Creating Project [Finished]
 
 project generation completed
 ```
+
+The completed management pack is found in
+[the 'samples' directory](samples/alibaba-cloud-mp), and can be used as a reference
+for this walkthrough or as a starting point for creating your own.
 
 Once the project finished generating, we can change directory into the project
 and activate the Python virtual environment.
