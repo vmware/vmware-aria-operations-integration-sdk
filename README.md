@@ -326,6 +326,25 @@ can refer to the troubleshooting guides for each tool:
 </details>
 
 <details>
+  <summary><h3>How can I set up an AWS container registry for my project?</h3></summary>
+
+    AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before 
+    running `mp-build`.
+
+    1. [Log into to your registry using aws CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-authenticate-registry) 
+    2. [Create a repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository:~:text=your%20default%20registry-,Step%203%3A%20Create%20a%20repository,-Step%204%3A%20Push)
+    3. Run mp-build and use the registry tag when propted about it (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/hello-repository`) 
+
+</details>
+
+<details>
+  <summary><h3>How can change the container resgistry mp-build uses?</h3></summary>
+       Open `config.json` file located in the root of the project, then replace the key value of `docker_registry` with the tag of the 
+       repository you want to use. The next time `mp-build` is run, the new tag will be used and validated. 
+
+</details>
+
+<details>
   <summary><h3> Where are the adapter logs stored locally?</h3></summary>
 
     Logs are generated and stored in the `logs` directory. logs are only generated after running `mp-test` or `mp-build`
@@ -393,8 +412,9 @@ can refer to the troubleshooting guides for each tool:
 <details>
   <summary><h3> How do I change the log level (Server and Adapter)?</h3></summary>
 
-  Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated.
+  Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in `logs/loglevels.cfg` locally and `$ALIVE_BASE/user/log/adapters/ADAPTERNAME_adapter3/INTERNAL_ID/loglevels.cfg` in the cloud proxy.
   If the file does not exist, it will be generated after a collection/test collection.
+
 </details>
 
 <details>
@@ -405,18 +425,48 @@ can refer to the troubleshooting guides for each tool:
   going over the terminal output.
 
 </details>
-<details>
-  <summary><h3>Using AWS registry</h3></summary>
-
-  Internal sever errors can happen for various reasons; however, the most common reason is due to an unhandled exception or syntax errors in
-  the adapter code. Check the server logs for clues about the issue. In some cases the issue may be detected by using `mp-test` and
-  going over the terminal output.
-
-</details>
 
 <details>
-<summary><h3>Collection Failed (200 response to server with error)</h3></summary>
-  TODO:
+  <summary><h3>No Collection result was found</h3></summary>
+      `mp-test` runs a series of validations test after collection; if the collection result has no results, then the each validation step will report the result as missing. 
+      When a collection result is missing it usually means that there was an error during collection, but the error was handled, and reported by the adapter, in which case the error message
+      will aslo be deisplayed in the console output. For example:
+
+      ```
+      def collect(adapter_instance: AdapterInstance) -> CollectResult:
+        result = CollectResult()
+        try:
+          raise Exception("oops")
+
+          #...
+        except Exception as e:
+          logger.error("Unexpected collection error")
+          logger.exception(e)
+          result.with_error("Unexpected collection error: " + repr(e))
+          return result
+      ```
+
+      will output
+
+      ```
+      Building adapter [Finished]
+      Waiting for adapter to start [Finished]
+      Running Collect [Finished]
+      Collection Failed: Unexpected collection error: Exception('oops')
+
+      Avg CPU %                     | Avg Memory Usage %         | Memory Limit | Network I/O         | Block I/O
+      ------------------------------+----------------------------+--------------+---------------------+--------------
+      21.1 % (0.0% / 21.1% / 42.2%) | 4.0 % (4.0% / 4.0% / 4.0%) | 1.0 GiB      | 3.24 KiB / 6.67 KiB | 0.0 B / 0.0 B
+
+      Collection completed in 0.45 seconds.
+
+      No collection result was found.
+      No collection result was found.
+      All validation logs written to '/Users/squirogacubi/code/aria_ops/libs/integration-sdk/management-packs/test/logs/validation.log'
+      ```
+      As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also show. 
+      using colleciton error message along with the `adapter.log` can help trace the the cause of the issue. 
+  
 </details>
 
 ## Contributing
