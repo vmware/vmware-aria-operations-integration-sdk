@@ -303,55 +303,32 @@ TODO
 --
 # Troubleshooting
 
-If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you can refer to the troubleshooting guides for each tool:
+If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you
+can refer to the troubleshooting guides for each tool:
 
 - [mp-test Troubleshooting Guide](doc/mp-test.md#troubleshooting)
 - [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
 - [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
 
+--
 <details>
-<summary>
-<h2>Docker Issues</h2>
-</summary>
+  <summary><h3>Permission denied while trying to connect to the Docker daemon?</h3></summary>
 
-<details>
-<summary>
-<h3> Cannot connect to docker daemon (Windows)?</h3>
-</summary>
-If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
+  If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions
+  on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
 </details>
 
 <details>
-<summary>
-<h3> Permission denied while trying to connect to the Docker daemon?</h3>
-</summary>
-If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
-</details>
+  <summary><h3>Cannot connect to docker daemon (Windows)?</h3></summary>
 
-</details>
-
-<details>
-<summary>
-<h2>Registry Issues:
-TODO:
+  If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
+  on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
 </details>
 
 <details>
-<summary>
-<h2>Dockerfile Issues:</h2>
-TODO:
-</details>
+  <summary><h3> Where are the adapter logs stored locally?</h3></summary>
 
-<details>
-<summary>
-<h2>Adapter</h2>
-</summary>
-
-<details>
-<summary>
-<h3> Where are the adapter logs stored locally? </h3>
-</summary>
-Logs are generated and stored in the `logs` directory whenever the adapter runs locally using' mp-test'
+  Logs are generated and stored in the `logs` directory. logs are only generated after running `mp-test` or `mp-build`
 </details>
 
 <details>
@@ -411,45 +388,25 @@ def my_method():
 
 
 <details>
-<summary>
-<h3> How do I change the log level (Server and Adapter)?</h3>
-</summary>
+  <summary><h3> How do I change the log level (Server and Adapter)?</h3></summary>
 
-Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated.
-If the file does not exist, it will be generated after a collection/test collection.
+  Server and Adapter log levels are set inside the `loglevels.cfg`; this file is located in the same directory where the logs are generated.
+  If the file does not exist, it will be generated after a collection/test collection.
 </details>
 
-
 <details>
-<summary>
-<h3> 500 INTERNAL SERVER ERROR:</h3>
-</summary>
+  <summary><h3>Collection returns a 500 INTERNAL SERVER ERROR</h3></summary>
 
-Internal sever can happen for various reasons; however, the most common reason is due to an unhandled exception or syntax errors in
-the adapter code. Check the server logs for clues about the issue. In some cases the issue may be detected by using `mp-test` and
-going over the terminal output.
+  Internal sever can happen for various reasons; however, the most common reason is due to an unhandled exception or syntax errors in
+  the adapter code. Check the server logs for clues about the issue. In some cases the issue may be detected by using `mp-test` and
+  going over the terminal output.
+
 </details>
 
-
 <details>
-<summary>
-<h3> Collection Failed (200 response to server with error)</h3>
-</summary>
-TODO:
+<summary><h3>Collection Failed (200 response to server with error)</h3></summary>
+  TODO:
 </details>
-
-
-<details>
-<summary>
-<h2> VMware Aria Operations</h2>
-</summary>
-- Installation Issues
-  - Anonymous Docker Pull
-  - Unable to pull image (private container repo)
-- Adapter collection errors
-  - Setting debug level on CP
-  - Matching adapter to running containers
-</details
 
 ## Contributing
 
