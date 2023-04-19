@@ -322,7 +322,7 @@ installed on the same system. For example, we used the following to create the s
 ❯ mp-init
 Enter a directory to create the project in. This is the directory where adapter code, metadata, and
 content will reside. If the directory doesn't already exist, it will be created.
-Path: extended-mysql-mp
+Path: mysql-extension-mp
 Management pack display name: Extended MySQL MP
 Management pack adapter key: ExtendedMySQLMP
 Management pack description: Adds 'Lock Wait' metrics to MySQL Database objects
@@ -335,6 +335,10 @@ Creating Project [Finished]
 
 project generation completed
 ```
+
+The completed management pack is found in 
+[the 'samples' directory](samples/mysql-extension-mp), and can be used as a reference 
+for this walkthrough or as a starting point for creating your own.
 
 Once the project finished generating, we can change directory into the project 
 and activate the Python virtual environment.
