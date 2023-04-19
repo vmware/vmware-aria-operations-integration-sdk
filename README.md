@@ -941,7 +941,7 @@ can refer to the troubleshooting guides for each tool:
   Contains all logs related to `mp-build`.
 
   - validation.log
-  Contains a log of the validations performed by mp-test on the collection results. Validation logs are only generated locally.
+  Contains a log of the validations performed by `mp-test` on the collection results. Validation logs are only generated locally.
 </details>
 
 <details>
