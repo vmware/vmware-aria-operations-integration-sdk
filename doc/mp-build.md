@@ -9,7 +9,8 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 ## Prerequisites
 * The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
-* Write permissions to a registry that is accessible from VMware Aria Operations. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
+* Write permissions to a container registry that is accessible from VMware Aria Operations.
+ 
 ## Input
 
 ### Command-line Arguments
@@ -85,3 +86,10 @@ A pak file is a zip file created using the deflate compression algorithm. The co
 
 ### Logs
 Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
+
+### Next steps
+While `mp-build` catches many issues, there is always the possibility of running into an 
+unexpected error. Going through the debug logs might help resolve the issue. If the 
+error isn't related to an individual configuration issue or isn't evident, please
+open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
+that describes the issue you are having.

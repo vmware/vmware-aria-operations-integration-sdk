@@ -1540,9 +1540,14 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
-  <summary><h3>Don't see an answer to your issues?</h3></summary>
+  <summary><h3>I don't see an answer to my issue</h3></summary>
 
-  Submit a new issue: bug report [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml).
+  If the none of the above resolve your issue, please open a `Q & A` discussion on the 
+  [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
+  that describes the issue you are having.
+
+  You can also submit a new bug report issue [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml),
+  but we recommend opening a discussion first.
 </details>
 
 ## Contributing
