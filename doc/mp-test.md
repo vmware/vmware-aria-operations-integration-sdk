@@ -143,27 +143,3 @@ The tool performs the following validation:
 
 ### Logs
 Logs from the server (`server.log`) and adapter (by default, `adapter.log`, but this can be changed) are written to the `logs` directory. This is useful for debugging issues or exceptions during execution.
-
-## Troubleshooting
-### Setting log level
-
-Set log level to debug to see a verbose output of the program:
-For Linux and macOS
-```shell
-LOG_LEVEL=debug mp-test
-```
-For Windows
-```
-set LOG_LEVEL=debug
-mp-test
-```
-For Windows, set the log level back to `info` after debugging.
-
-All logs can be seen in the command line, but they are also saved in `logs/test.log` with `debug` log level.
-
-### Next steps
-While `mp-test` catches many issues, there is always the possibility of running into an
-unexpected error. Going through the debug logs might help resolve the issue. If the
-error isn't related to an individual configuration issue or isn't evident, please
-open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
-that describes the issue you are having.

@@ -86,36 +86,3 @@ A pak file is a zip file created using the deflate compression algorithm. The co
 
 ### Logs
 Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
-
-## Troubleshooting
-### Setting log level
-
-Set log level to debug to see a verbose output of the program:
-For Linux and macOS
-```shell
-LOG_LEVEL=debug mp-build
-```
-For Windows
-```
-set LOG_LEVEL=debug
-mp-build
-```
-For Windows, set the log level back to `info` after debugging.
-
-All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
-
-### 'Unknown adapter type' when creating an account in VMware Aria Operations
-![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](unknown_adapter_type.png)
-> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
-
-If the pak file installs successfully but errors when creating an account (adapter instance), check that:
-* The Collector/Group the MP is running on is a Cloud Proxy, and
-* Check that the Cloud Proxy supports containerized adapters. Containerized adapter 
-  support is supported in VMware Aria Operations version 8.10.0 and later.
-
-### Next steps
-While `mp-build` catches many issues, there is always the possibility of running into an 
-unexpected error. Going through the debug logs might help resolve the issue. If the 
-error isn't related to an individual configuration issue or isn't evident, please
-open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
-that describes the issue you are having.
