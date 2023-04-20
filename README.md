@@ -1339,7 +1339,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 
 <details>
-  <summary><h3>How can change the container registry mp-build uses?</h3></summary>
+  <summary><h3>How can I change the container registry for my project?</h3></summary>
 
   Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
   repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
@@ -1427,7 +1427,7 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
-  <summary><h3> How do I change the log level (SDK tools)?</h3></summary>
+  <summary><h3> How do I change the log level of mp-init, mp-test, or mp-build?</h3></summary>
 
   All SDK tools read the LOG_LEVEL environment variable to set the log level of their console output. For example, to set log level
   to debug to see a verbose output of the any of the CLI tools we can set the LOG_LEVEL variable:
@@ -1443,8 +1443,7 @@ When everything is working as expected locally using `mp-test`, we can run
   ```
   For Windows, set the log level back to `info` after debugging.
 
-  All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level. CLI tools generate logs
-  for `debug`, `warn`, `info`, and `error` level.
+  The SDK CLI tools generate logs for `debug`, `warn`, `info`, and `error` level.
 
 </details>
 
@@ -1501,21 +1500,11 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
-  <summary><h3>Unable to build pak file after running mp-build?</h3></summary>
+  <summary><h3>mp-build returns 'Unable to build pak file '</h3></summary>
 
   In most cases, this error indicates issues with building the container image. The most probable causes are:
 
-  1. Syntax error in the Dockerfile:
-
-  ```
-  mp-build
-  Building adapter [Finished]
-  Unable to build pak file
-  ERROR: Unable to build Docker file at /Users/user/code/management-packs/test:
-   {'message': 'dockerfile parse error line 6: unknown instruction: SYNTAX'}
-  ```
-
-  2. Unknown Instruction :
+  1. Unknown Instruction :
 
   ```
   mp-build
@@ -1525,7 +1514,7 @@ When everything is working as expected locally using `mp-test`, we can run
    {'message': 'dockerfile parse error line 7: unknown instruction: COP'}
 
   ```
-  3. A command  inside the Dockerfile failed:
+  2. A command  inside the Dockerfile failed:
 
   ```
   mp-build
@@ -1534,8 +1523,8 @@ When everything is working as expected locally using `mp-test`, we can run
   ERROR: Unable to build Docker file at /Users/user/code/management-packs/test:
    The command '/bin/sh -c pip3 install -r adapter_requirements.txt --upgrade' returned a non-zero code: 1
   ```
-  The solution for cases 1 and 2 is to fix the typo/command by editing the Dockerfile. For case 3, however, the solution might need to be evident at first sight. Since the error
-  comes from building the image itself, we can run `docker build .` directly on the project's root directory and look at the stack trace for clues.
+  The solution for case 1 to fix the typo/command by editing the Dockerfile. For case 2, however, the solution might not be evident at first sight. Since the error
+  comes from building the image itself, we can run `docker build .` in the project's root directory and look at the stack trace for clues.
 
 </details>
 
