@@ -1,4 +1,4 @@
-# Development
+# Server Development
 * * *
 ### Images
 There are three different images in this project:
@@ -82,7 +82,7 @@ Images should always be tagged with the unique tag at build time. This example u
 unique tag `python-0.3.0`.
 
 1. Determine which stable tags apply to the image.
-	- Since this image is stable and is the latest stable version for the major release 0,  `python-0` should be applied to it.
+	- Since this image is stable and is the latest stable version for the major release 0, `python-0` should be applied to it.
 	- Since the major release 0 is also the latest major release, 'python-latest' should be applied to it.
 2. Apply the stable tags to image:
 	```
@@ -104,10 +104,8 @@ Harbor is a VMware platform that allows full control of projects for internal or
 without the liabilities of an externally hosted solution like Dockerhub.
 
 ### Pulling Images
-
 1. Make sure you have access to Harbor by logging in to the [vmware_aria_operations_integration_sdk](https://projects.registry.vmware.com/harbor/projects/46752/repositories) registry,
 then go to the [members](https://projects.registry.vmware.com/harbor/projects/46752/members) page, and ensure you are a member of the project.
-	- If you can't log in to Harbor, contact the Harbor team through their slack app [@Harbor](https://cloud-native.slack.com/messages/harbor)
 	- If you are not a member of this team, contact any of members listed as admins
 
 2. Log in to harbor through the Docker CLI:
@@ -115,12 +113,13 @@ then go to the [members](https://projects.registry.vmware.com/harbor/projects/46
 docker login projects.registry.vmware.com
 ```
 
-3. Pull any image inside the `vmware_aria_operations_integration_sdk`  repo to ensure login worked. The command
-bellow will pull the latest version of the Python image.
+3. Pull any image inside the `vmware_aria_operations_integration_sdk` repo to ensure login worked. The command
+below will pull the latest version of the Python image.
 ```
 docker pull projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base-adapter-server:python
 ```
 Images can also be downloaded through the Harbor web UI by clicking the icon next to the artifact hash (under the pull command).
+
 ### Pushing Images
 Before pushing and image to Harbor make sure the image has a unique tag and any applicable stable tags
 

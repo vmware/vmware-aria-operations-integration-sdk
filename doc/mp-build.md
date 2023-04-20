@@ -9,7 +9,8 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 ## Prerequisites
 * The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
-* Write permissions to a registry that is accessible from VMware Aria Operations. The default registry/repository is the [TVS Harbor project](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories) project. To ask for write permissions post a request in the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) Slack channel.
+* Write permissions to a container registry that is accessible from VMware Aria Operations.
+ 
 ## Input
 
 ### Command-line Arguments
@@ -109,14 +110,12 @@ All logs can be seen in the command line, but they are also saved in  `logs/buil
 
 If the pak file installs successfully but errors when creating an account (adapter instance), check that:
 * The Collector/Group the MP is running on is a Cloud Proxy, and
-* Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.10.0 and later.
+* Check that the Cloud Proxy supports containerized adapters. Containerized adapter 
+  support is supported in VMware Aria Operations version 8.10.0 and later.
 
-### Registry Permissions (Beta)
-To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
-post a request to the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
-
-### Unexpected exception occurred while trying to build pak file (Beta)
-While `mp-build` catches the most known exceptions, there is always the possibility of running into an unexpected error. 
-Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration 
-issue or isn't evident at first sight,isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) channel.
- 
+### Next steps
+While `mp-build` catches many issues, there is always the possibility of running into an 
+unexpected error. Going through the debug logs might help resolve the issue. If the 
+error isn't related to an individual configuration issue or isn't evident, please
+open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
+that describes the issue you are having.
