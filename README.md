@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/vmware_aria_operations_integration_sdk.svg)](https://badge.fury.io/py/vmware_aria_operations_integration_sdk)
+
 VMware Aria Operations Integration SDK
 =====================
 

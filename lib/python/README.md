@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/vmware-aria-operations-integration-sdk-lib.svg)](https://badge.fury.io/py/vmware-aria-operations-integration-sdk-lib)
+
 Overview
 --------
 The VMware Aria Operations Integration SDK Library is a Python package that streamlines creating adapters using the
