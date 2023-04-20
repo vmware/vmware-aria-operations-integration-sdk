@@ -1529,6 +1529,24 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
+  <summary><h3>mp-init returns SyntaxError: invalid syntax</h3></summary>
+</details>
+
+</details>
+
+<details>
+  <summary><h3>VMware Aria Operations returns 'Unknown adapter type' when setting up new adapter instance</h3></summary>
+
+ ![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](doc/unknown_adapter_type.png)
+> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
+If the pak file installs successfully but errors when creating an account (adapter instance), check that:
+- The Collector/Group the MP is running on is a Cloud Proxy, and
+- Check that the Cloud Proxy supports containerized adapters. Containerized adapter 
+  support is supported in VMware Aria Operations version 8.10.0 and later.
+
+</details>
+
+<details>
   <summary><h3>I don't see an answer to my issue</h3></summary>
 
   If the none of the above resolve your issue, please open a `Q & A` discussion on the 
