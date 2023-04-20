@@ -964,7 +964,7 @@ When everything is working as expected locally using `mp-test`, we can run
   If the file does not exist, the system generates it after a collection/test.
 
   `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
-  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instancer &rarr; &lt;ADAPTER_DISPLAY_NAME &gt; &rarr; ADAPTER_INSTANCE** in the rightmost column.
+  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instancer &rarr; &lt;ADAPTER_DISPLAY_NAME &gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
   To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
 
   ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
