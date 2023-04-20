@@ -167,7 +167,7 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory are discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. `adapter.py` is a template adapter that collects several objects and metrics from the
-container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter 
+container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter
 has comments throughout its code that explain what the code does and how to turn it into your adapter. The methods inside the adapter
 template are required. Modify the code inside the methods to generate the desired adapter. Each method represents a single request,
 and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless; therefore,
@@ -749,7 +749,6 @@ This guide assumes you have already set up the SDK and know how to create a new 
 It walks you through the steps necessary to extend an existing Management Pack to add
 additional data, using the MySQL Management Pack as an example.</summary>
 
-
 Extending an existing management pack is similar to creating a new management pack, but 
 has some additional constraints. This section will create a management pack that adds 
 metrics to the existing MySQL management pack's database object. It assumes
@@ -1288,8 +1287,202 @@ When everything is working as expected locally using `mp-test`, we can run
 
 </details>
 
-## Troubleshooting
-TODO
+# Troubleshooting
+
+<details>
+  <summary><h3>Permission denied while trying to connect to the Docker daemon (Docker CLI)</h3></summary>
+
+  If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions
+  on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
+</details>
+
+<details>
+  <summary><h3>Cannot connect to Docker daemon (Docker CLI on Windows)?</h3></summary>
+
+  If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
+  on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
+</details>
+
+<details>
+  <summary><h3>How can I set up an AWS container registry for my project?</h3></summary>
+
+  AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before
+  running `mp-build`.
+
+  1. [Log in to your registry using aws CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-authenticate-registry)
+  2. [Create a repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository:~:text=your%20default%20registry-,Step%203%3A%20Create%20a%20repository,-Step%204%3A%20Push)
+  3. Run `mp-build` and use the registry tag when prompted about it (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/hello-repository`)
+</details>
+
+<details>
+  <summary><h3>How can I set up a Docker Hub container registry for my project?</h3></summary>
+
+  Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
+
+  1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).
+  2. Open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag of
+  the Docker Hub repository prepended with `docker.io`. For example, if the docker tag is `username/docker-registry-test:tagname`
+  then the key-value will be `docker.io/username/docker-registry-test`.
+
+  VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period).
+</details>
+
+<details>
+  <summary><h3>How can I set up a Management Pack that uses a private container registry?</h3></summary>
+
+  VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
+
+  1. ssh into the cloud proxy where the adapter is going to be set up
+  2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
+  3. Install Management Pack in VMware Aria operations
+</details>
+
+
+<details>
+  <summary><h3>How can change the container resgistry mp-build uses?</h3></summary>
+
+  Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
+  repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
+</details>
+
+<details>
+  <summary><h3> Where are the adapter logs stored locally?</h3></summary>
+
+ Running `mp-test` or `mp-build` generates logs.  Logs are generated and stored in the `logs` directory.
+</details>
+<details>
+  <summary><h3> Where are the adapter logs stored in VMware Aria Operations?</h3></summary>
+
+  Logs are generated and stored in the cloud proxy at were the adapter was configured at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
+
+  `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
+  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
+  The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
+
+  ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
+
+  ![highlight of the internal id](doc/highlight_internal_id_column.png)
+  </details>
+
+  <details>
+    <summary><h3> What are the different types log files for?</h3></summary>
+
+  There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of
+  log file followed by a number that represents rollover.
+
+  - `server.log`:
+  Contains all logs related to the HTTP server inside the container. Server logs can't be modified since the server code comes packaged
+  inside the [base-adapter](https://projects.registry.vmware.com/harbor/projects/46752/repositories/base-adapter/artifacts-tab) Python image.
+
+  - `adapter.log`
+  Contains all logs related to the adapter. Adapter logs are all the logs generated by adapter code (e.g., the test() method or the collect() methods inside
+  `app/adapter.py`).
+
+  - `test.log`
+  Contains all logs related to `mp-test`.
+
+  - `build.log`
+  Contains all logs related to `mp-build`.
+
+  - `validation.log`
+  Contains a log of the validations performed by `mp-test` on the collection results. Validation logs are only generated locally.
+</details>
+
+<details>
+  <summary><h3> How do I add logs to my adapter?</h3></summary>
+
+
+  The template adapter defines a logger variable in the `adapter.py` file that configures all adapter logging using [adapter_logging](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/299ce55ac0b1e53dde9c1b4b3e217ab41df57299/lib/python/src/aria/ops/adapter_logging.py) from the Python SDK.
+  The logger only needs to be configured once; to generate logs in other files, simply import the Python [logging](https://docs.python.org/3/library/logging.html) module. Eg.
+
+  ```python
+  import logging
+
+  logger = logging.getLogger(__name__)
+
+  def my_method():
+    logger.info("info log")
+    logger.warning("warning log")
+    logger.error("error log")
+    logger.debug("debug log")
+     ...
+  ```
+</details>
+
+
+<details>
+  <summary><h3> How do I change the log level (Server and Adapter)?</h3></summary>
+
+  You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and in the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
+  If the file does not exist, the system generates it after a collection/test.
+
+  `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
+  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
+  To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
+
+  ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
+
+  ![highlight of the internal id](doc/highlight_internal_id_column.png)
+
+</details>
+
+<details>
+  <summary><h3>Collection returns a 500 INTERNAL SERVER ERROR</h3></summary>
+
+  Internal server errors can happen for various reasons; however, the most common cause is an unhandled exception or syntax error in
+  the adapter's code. Check the server logs for clues about the issue. Sometimes, the problem may be detected using `mp-test` and
+  going over the terminal output.
+
+</details>
+
+<details>
+  <summary><h3>No collection result was found</h3></summary>
+
+  `mp-test` runs a series of validations test after collection; if the collection has no results, then each validation step will report the result as missing.
+  When a collection result is missing, it usually means an error occurred during collection, but the Adapter handled the error. When the Adapter handles an error,
+  the response contains an error message; The console displays the error message. For example:
+
+  ```python
+  def collect(adapter_instance: AdapterInstance) -> CollectResult:
+    result = CollectResult()
+    try:
+      raise Exception("oops")
+
+      #...
+    except Exception as e:
+      logger.error("Unexpected collection error")
+      logger.exception(e)
+      result.with_error("Unexpected collection error: " + repr(e))
+      return result
+  ```
+
+  This code will output
+
+  ```
+  Building adapter [Finished]
+  Waiting for adapter to start [Finished]
+  Running Collect [Finished]
+  Collection Failed: Unexpected collection error: Exception('oops')
+
+  Avg CPU %                     | Avg Memory Usage %         | Memory Limit | Network I/O         | Block I/O
+  ------------------------------+----------------------------+--------------+---------------------+--------------
+  21.1 % (0.0% / 21.1% / 42.2%) | 4.0 % (4.0% / 4.0% / 4.0%) | 1.0 GiB      | 3.24 KiB / 6.67 KiB | 0.0 B / 0.0 B
+
+  Collection completed in 0.45 seconds.
+
+  No collection result was found.
+  No collection result was found.
+  All validation logs written to '/Users/user/management-pack/test-management-pack/logs/validation.log'
+  ```
+  As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
+  Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
+</details>
+
+<details>
+  <summary><h3>Don't see an answer to your issues?</h3></summary>
+
+  Submit a new issue: bug report [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml).
+</details>
 
 ## Contributing
 
