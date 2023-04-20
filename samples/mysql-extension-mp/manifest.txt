@@ -1,0 +1,32 @@
+{
+    "display_name": "DISPLAY_NAME",
+    "name": "ExtendedMySQLMP",
+    "description": "DESCRIPTION",
+    "version": "1.0.0",
+    "vcops_minimum_version": "8.10.0",
+    "disk_space_required": 500,
+    "run_scripts_on_all_nodes": "true",
+    "eula_file": "eula.txt",
+    "platform": [
+        "Linux Non-VA",
+        "Linux VA"
+    ],
+    "vendor": "VENDOR",
+    "pak_icon": "",
+    "pak_validation_script": {
+        "script": ""
+    },
+    "adapter_pre_script": {
+        "script": ""
+    },
+    "adapter_post_script": {
+        "script": ""
+    },
+    "adapters": [
+        "adapter.zip"
+    ],
+    "adapter_kinds": [
+        "ExtendedMySQLMP"
+    ],
+    "license_type": ""
+}
