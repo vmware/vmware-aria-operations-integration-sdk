@@ -838,6 +838,13 @@ When everything is working as expected locally using `mp-test`, we can run
 ## Troubleshooting
 TODO
 
+
+### Next steps
+If the none of the above resolve your issue, please open a `Q & A` discussion on the 
+[GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
+that describes the issue you are having.
+
+
 ## Contributing
 
 The vmware-aria-operations-integration-sdk project team welcomes contributions from the community. Before you start

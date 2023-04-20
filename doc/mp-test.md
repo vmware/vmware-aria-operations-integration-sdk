@@ -161,6 +161,9 @@ For Windows, set the log level back to `info` after debugging.
 
 All logs can be seen in the command line, but they are also saved in `logs/test.log` with `debug` log level.
 
-### Unexpected exception occurred while trying to build pak file (Beta)
-While `mp-test` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue, or
-isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) channel.
+### Next steps
+While `mp-test` catches many issues, there is always the possibility of running into an
+unexpected error. Going through the debug logs might help resolve the issue. If the
+error isn't related to an individual configuration issue or isn't evident, please
+open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
+that describes the issue you are having.
