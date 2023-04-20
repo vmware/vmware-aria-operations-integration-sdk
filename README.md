@@ -914,7 +914,7 @@ can refer to the troubleshooting guides for each tool:
 
   `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
   found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; My Adapter Adapter Instance &rarr; Instance** in the rightmost column.
-  To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
+  The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
   ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
 
