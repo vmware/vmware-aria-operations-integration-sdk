@@ -165,13 +165,20 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 
 ### Template Project
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
-Each file and directory are discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
-entry point and the best starting point. `adapter.py` is a template adapter that collects several objects and metrics from the
-container in which the adapter is running; use the template as a starting point for creating a new adapter. The template adapter
-has comments throughout its code that explain what the code does and how to turn it into your adapter. The methods inside the adapter
-template are required. Modify the code inside the methods to generate the desired adapter. Each method represents a single request,
-and it can be tested individually using `mp-test`, which is covered in the following section. The adapter is stateless; therefore,
-the adapter cannot store any data for use in later method calls. Each method is used for a different function as described below:
+Each file and directory is discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
+entry point and the best starting point. 
+
+`adapter.py` is a template adapter that collects several objects and metrics from the
+container in which the adapter is running. The template adapter has comments throughout its code that explain what the code does 
+and how to turn it into your adapter. 
+
+The methods inside the adapter template are required, and should be modified to generate a custom
+adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using 
+`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)). 
+
+The adapter is stateless. This means the adapter cannot store any data for use in later method calls. 
+
+Each method is described below:
 
 - test(adapter_instance):
   Performs a test connection using the information given to the adapter_instance to verify the adapter instance has been configured properly.
@@ -183,28 +190,34 @@ the adapter cannot store any data for use in later method calls. Each method is 
      4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
 
 - get_endpoints(adapter_instance):
-  This method will be run before the 'test' method, and VMware Aria Operations will use
+  This method is run before the 'test' method, and VMware Aria Operations will use
   the results to extract a certificate from each URL. If the certificate is not trusted by
   the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
   the certificate. If it is accepted, the certificate will be added to the AdapterInstance
   object that is passed to the 'test' and 'collect' methods. Any certificate that is
   encountered in those methods should then be validated against the certificate(s)
-  in the AdapterInstance. This method will not only work against HTTPS endpoints, different types
-  of endpoint will not work (eg. database connections).
+  in the AdapterInstance. This method will only work against HTTPS endpoints, different types
+  of endpoint will not work (e.g., database connections).
 
 - collect(adapter_instance):
   Performs a collection against the target host. A typical collection will generally consist of:
     1. Read identifier values from adapter_instance that are required to connect to the target(s)
     2. Connect to the target(s), and retrieve data
-    3. Add the data into a CollectResult's objects, properties, metrics, etc
+    3. Add the data into the CollectResult as objects, properties, metrics, etc
     4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
     5. Return the CollectResult.
 
 - get_adapter_definition():
-  Optional method that defines the Adapter Instance configuration (parameters and credentials used to connect to the target, and configure the management pack) present in a collection, and defines the object types and attribute types present in a collection. Setting these helps VMware Aria Operations to validate, process, and display the data correctly. If this method is omitted, a `describe.xml` file should be manually created inside the `conf` directory with the same data. Generally, this is only necessary when using advanced features of the `describe.xml` file that are not present in this method.
+  Optional method that defines the Adapter Instance configuration. The Adapter Instance
+  configuration is the set of parameters and credentials used to connect to the target and 
+  configure the adapter. It also defines the object types and attribute types present in a 
+  collection. Setting these helps VMware Aria Operations to validate, process, and display 
+  the data correctly. If this method is omitted, a `describe.xml` file should be manually 
+  created inside the `conf` directory with the same data. Generally, this is only necessary 
+  when using advanced features of the `describe.xml` file that are not present in this method.
 
 
-For further guidance on using the template project, consult the [Walkthroughs](../README.md#walkthroughs) section.
+For further guidance on using the template project, consult the [Walkthroughs](#walkthroughs) section.
 
 ### Testing a Management Pack
 
@@ -224,11 +237,11 @@ For Windows:
 ```cmd
 venv\Scripts\activate.bat
 ```
-To exit the virtual environment, run `deactivate` in the virtual environment.
+> Note: To exit the virtual environment, run `deactivate` in the virtual environment.
 
-To test a project, run `mp-test`  in the virtual environment.
+To test a project, run `mp-test` in the virtual environment.
 
-If `mp-test` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
+If `mp-test` is run from anywhere outside the root project directory, the tool will prompt to choose a project, and will
 test the selected project. If the tool is run from a project directory, the tool will automatically test that project.
 
 `mp-test` will ask for a _connection_. No connections should exist, so choose **New Connection**. The test tool then
@@ -236,7 +249,10 @@ reads the `conf/describe.xml` file to find the connection parameters and credent
 prompts for each. This is similar to creating a new _Adapter Instance_ in the VMware Aria Operations UI. Connections are automatically
 saved per project, and can be reused when re-running the `mp-test` tool.
 
-> Note: In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on, this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection will fail.
+> Note: In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on, 
+> this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an 
+> example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection 
+> will fail.
 
 The test tool also asks for the method to test. There are four options:
 
@@ -256,14 +272,14 @@ response is validated against the API.
 For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](doc/mp-test.md).
 
 ### Building and Installing a Management Pack
-To build a project, run `mp-build`  in the virtual environment.
+To build a project, run `mp-build` in the virtual environment.
 
-If `mp-build` is run from anywhere outside of a root project directory, the tool will prompt to choose a project, and will
+If `mp-build` is run from anywhere outside the root project directory, the tool will prompt to choose a project, and will
 build the selected project. If the tool is run from a project directory, the tool will automatically build that
 project.
 
 Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be
-installed on VMware Aria Operations. The `pak` file will be located in the project directory.
+installed on VMware Aria Operations. The `pak` file will be located in `<project root>/build/` .
 
 To install the `pak` file, in VMware Aria Operations navigate to **Data Sources &rarr; Integrations &rarr;
 Repository** and click `ADD`. Select and upload the generated `pak` file, accept the README, and install the management pack.
@@ -273,7 +289,7 @@ Accounts** and click `ADD ACCOUNT`. Select the newly-installed management pack a
 `Collector/Group`, make sure that a cloud proxy collector is selected. Click `VALIDATE CONNECTION` to test the connection.
 It should return successfully, then click `ADD`.
 
-By default, a collection will run every 5 minutes. The first collection should happen immediately, however newly-created
+By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
 minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **
 Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
@@ -1290,14 +1306,14 @@ When everything is working as expected locally using `mp-test`, we can run
 # Troubleshooting
 
 <details>
-  <summary><h3>Permission denied while trying to connect to the Docker daemon (Docker CLI)</h3></summary>
+  <summary><h3>When starting Docker, I get 'Permission denied while trying to connect to the Docker daemon'</h3></summary>
 
   If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions
   on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
 </details>
 
 <details>
-  <summary><h3>Cannot connect to Docker daemon (Docker CLI on Windows)?</h3></summary>
+  <summary><h3>When starting Docker on Windows, I get 'Cannot connect to Docker daemon'</h3></summary>
 
   If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
   on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
@@ -1339,7 +1355,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 
 <details>
-  <summary><h3>How can change the container resgistry mp-build uses?</h3></summary>
+  <summary><h3>How can I change the container registry mp-build uses?</h3></summary>
 
   Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
   repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
@@ -1348,24 +1364,25 @@ When everything is working as expected locally using `mp-test`, we can run
 <details>
   <summary><h3> Where are the adapter logs stored locally?</h3></summary>
 
- Running `mp-test` or `mp-build` generates logs.  Logs are generated and stored in the `logs` directory.
+ Logs generated by `mp-test` or `mp-build` are stored in the `logs` sub-directory of the
+ project.
 </details>
 <details>
   <summary><h3> Where are the adapter logs stored in VMware Aria Operations?</h3></summary>
 
-  Logs are generated and stored in the cloud proxy at were the adapter was configured at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
+  Logs are generated and stored on the cloud proxy where the adapter is running at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
 
-  `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
+  `ADAPTERKEY` should match the adapter key used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
   found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
   The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
-  ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
+  ![highlight of the checkbox where internal id can be enabled](doc/enable_internal_id_column.png)
 
   ![highlight of the internal id](doc/highlight_internal_id_column.png)
   </details>
 
   <details>
-    <summary><h3> What are the different types log files for?</h3></summary>
+    <summary><h3>What are the different log files used for?</h3></summary>
 
   There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of
   log file followed by a number that represents rollover.
@@ -1411,23 +1428,23 @@ When everything is working as expected locally using `mp-test`, we can run
 
 
 <details>
-  <summary><h3> How do I change the log level (Server and Adapter)?</h3></summary>
+  <summary><h3> How do I change the server and/or adapter log level?</h3></summary>
 
-  You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and in the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
+  You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and on the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
   If the file does not exist, the system generates it after a collection/test.
 
   `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
   found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
-  To ensure Internal ID is displayed ensure the Internal ID box is enabled by clicking in the bottom left icon and then the checkbox.
+  The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
-  ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
+  ![highlight of the checkbox where internal id can be enabled](doc/enable_internal_id_column.png)
 
   ![highlight of the internal id](doc/highlight_internal_id_column.png)
 
 </details>
 
 <details>
-  <summary><h3>Collection returns a 500 INTERNAL SERVER ERROR</h3></summary>
+  <summary><h3>Collection returns '500 INTERNAL SERVER ERROR'</h3></summary>
 
   Internal server errors can happen for various reasons; however, the most common cause is an unhandled exception or syntax error in
   the adapter's code. Check the server logs for clues about the issue. Sometimes, the problem may be detected using `mp-test` and
@@ -1436,7 +1453,7 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
-  <summary><h3>No collection result was found</h3></summary>
+  <summary><h3>Collection returns 'No collection result was found'</h3></summary>
 
   `mp-test` runs a series of validations test after collection; if the collection has no results, then each validation step will report the result as missing.
   When a collection result is missing, it usually means an error occurred during collection, but the Adapter handled the error. When the Adapter handles an error,

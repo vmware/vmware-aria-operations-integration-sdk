@@ -209,4 +209,4 @@ The error below shows that the wrong version of Python is being used to run the 
 SyntaxError: invalid syntax
 ```
 
-Ensure the version of Python that runs the script in Python 3.3 or higher.
+Ensure the version of Python that runs the script in Python 3.9 or higher.
