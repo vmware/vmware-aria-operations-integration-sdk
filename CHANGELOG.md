@@ -1,6 +1,6 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
-## Unreleased
+## 0.5.0 (04-20-2023)
 * Default container registry can now be specified in global config file
 * Fixes issue where psutil version would cause python build to fail
 * Standardize encoding of properties file to 'utf-8'
