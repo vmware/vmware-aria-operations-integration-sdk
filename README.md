@@ -1500,7 +1500,7 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
-  <summary><h3>mp-build returns 'Unable to build pak file '</h3></summary>
+  <summary><h3>mp-build returns 'Unable to build pak file'</h3></summary>
 
   In most cases, this error indicates issues with building the container image. The most probable causes are:
 
@@ -1525,12 +1525,6 @@ When everything is working as expected locally using `mp-test`, we can run
   ```
   The solution for case 1 to fix the typo/command by editing the Dockerfile. For case 2, however, the solution might not be evident at first sight. Since the error
   comes from building the image itself, we can run `docker build .` in the project's root directory and look at the stack trace for clues.
-
-</details>
-
-<details>
-  <summary><h3>mp-init returns SyntaxError: invalid syntax</h3></summary>
-</details>
 
 </details>
 
