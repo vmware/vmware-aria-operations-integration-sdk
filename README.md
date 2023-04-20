@@ -300,7 +300,6 @@ This guide assumes you have already set up the SDK and know how to create a new 
 It walks you through the steps necessary to extend an existing Management Pack to add
 additional data, using the MySQL Management Pack as an example.</summary>
 
---
 Extending an existing management pack is similar to creating a new management pack, but 
 has some additional constraints. This section will create a management pack that adds 
 metrics to the existing MySQL management pack's database object. It assumes
@@ -837,15 +836,6 @@ When everything is working as expected locally using `mp-test`, we can run
 
 # Troubleshooting
 
-If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you
-can refer to the troubleshooting guides for each tool:
-
-- [mp-test Troubleshooting Guide](doc/mp-test.md#troubleshooting)
-- [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
-- [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
-
----
-
 <details>
   <summary><h3>Permission denied while trying to connect to the Docker daemon (Docker CLI)</h3></summary>
 
@@ -1041,6 +1031,12 @@ can refer to the troubleshooting guides for each tool:
   Submit a new issue: bug report [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml).
 </details>
 
+If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you
+can refer to the troubleshooting guides for each tool:
+
+- [mp-test Troubleshooting Guide](doc/mp-test.md#troubleshooting)
+- [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
+- [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
 
 ## Contributing
 
