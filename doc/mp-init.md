@@ -184,10 +184,3 @@ Contains all the content included in a management pack such as: alerts, dashboar
 
 ### resources (directory)
 The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `manifest.txt`. For more information see [Adding Localization](adding_content.md#adding-localization).
-
-### Next steps
-While `mp-init` catches many issues, there is always the possibility of running into an
-unexpected error. Going through the debug logs might help resolve the issue. If the
-error isn't related to an individual configuration issue or isn't evident, please
-open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
-that describes the issue you are having.

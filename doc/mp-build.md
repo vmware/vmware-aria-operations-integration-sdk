@@ -86,10 +86,3 @@ A pak file is a zip file created using the deflate compression algorithm. The co
 
 ### Logs
 Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
-
-### Next steps
-While `mp-build` catches many issues, there is always the possibility of running into an 
-unexpected error. Going through the debug logs might help resolve the issue. If the 
-error isn't related to an individual configuration issue or isn't evident, please
-open a `Q & A` discussion on the [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
-that describes the issue you are having.
