@@ -288,14 +288,14 @@ For complete documentation of the `mp-build` tool see the [MP Build Tool Documen
 
 ### Creating a New Management Pack
 <details><summary>
-This guide assumes you have already set up the SDK and know how to create a new project. 
-It walks you through the steps necessary to monitor an endpoint, using Alibaba Cloud as 
+This guide assumes you have already set up the SDK and know how to create a new project.
+It walks you through the steps necessary to monitor an endpoint, using Alibaba Cloud as
 an example.</summary>
 
 
-This section will create a simple management pack that creates objects with metrics, 
-properties, and relationships that monitors Alibaba Cloud. It assumes you have already 
-installed the SDK and understand the tools and steps in the 'Get Started' section. It 
+This section will create a simple management pack that creates objects with metrics,
+properties, and relationships that monitors Alibaba Cloud. It assumes you have already
+installed the SDK and understand the tools and steps in the 'Get Started' section. It
 also assumes you have an Alibaba Cloud account.
 
 For the purposes of this walkthrough, we will be adding an ECS Instance object with
@@ -315,7 +315,7 @@ Management pack display name: Alibaba Cloud
 Management pack adapter key: AlibabaCloud
 Management pack description: Sample Management Pack that monitors Alibaba Cloud
 Management pack vendor: VMware, Inc
-Enter a path to a EULA text file, or leave blank for no EULA: 
+Enter a path to a EULA text file, or leave blank for no EULA:
 Enter a path to the management pack icon file, or leave blank for no icon:
 An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the
 icon file name and adding the icon file to the root project directory.
@@ -335,16 +335,16 @@ Next, we need to modify the adapter code. We will break this up into several ste
 1. [Add a library for connecting to Alibaba](#add-a-library-for-connection-to-alibaba-cloud)
 2. [Modify the adapter definition to add fields for connecting to Alibaba Cloud](#modify-the-adapter-definition-to-add-fields-for-connecting-to-alibaba-cloud)
 3. [Modify the `test` method to create an Alibaba Cloud connection and run a query](#modify-the-test-method-to-create-an-alibaba-could-connection-and-run-a-query)
-4. [Modify the `collect` method to collect objects, metrics, properties, and 
+4. [Modify the `collect` method to collect objects, metrics, properties, and
    relationships](#modify-the-collect-method-to-collect-objects--metrics--properties--and-relationships)
 5. [Verify the Alibaba Cloud MP](#verify-the-alibaba-cloud-mp)
 
 #### Add a library for connection to Alibaba Cloud
 
-In order to add the metrics we want, we will need to be able to send requests to Alibaba 
+In order to add the metrics we want, we will need to be able to send requests to Alibaba
 Cloud. We could use any HTTP Rest library, such as `requests`, but it's usually easier
 to use a library designed for the specific service we are monitoring. Thus, for this
-sample we will use the official Alibaba Cloud SDK: 
+sample we will use the official Alibaba Cloud SDK:
 [`aliyun-python-sdk-core`](https://github.com/aliyun/aliyun-openapi-python-sdk).
 Since we will be monitoring ECS instances, we will also need
 [`aliyun-python-sdk-ecs`](https://github.com/aliyun/aliyun-openapi-python-sdk).
@@ -373,14 +373,14 @@ to connect. From the documentation, the client requires:
 * Access Secret
 
 In the `app/adapter.py` file, find the `get_adapter_definition()` method. We will define
-parameters for the `Access Key ID` and `Region ID`, and a credential for the 
-`Access Key Secret`. We could put the `Access Key ID` in the credential, however 
+parameters for the `Access Key ID` and `Region ID`, and a credential for the
+`Access Key Secret`. We could put the `Access Key ID` in the credential, however
 credentials are not used to identify adapter instances. If `Region ID` was the only
 required parameter, then we would only be able to make one Adapter Instance per region.
-Using the `Access Key ID` as an additional identifier will allow us to monitor multiple 
+Using the `Access Key ID` as an additional identifier will allow us to monitor multiple
 accounts with the same `Region ID`.
 
-After also removing the 'ID' parameter used by the sample adapter, the 
+After also removing the 'ID' parameter used by the sample adapter, the
 method could look similar to this:
 
 ```python
@@ -445,7 +445,7 @@ def get_adapter_definition() -> AdapterDefinition:
 
 Now that we've defined the connection parameters, we should define the objects that
 we will collect. For now, let's collect some information about ECS Instances.
-This is a small example. The implementation in the 
+This is a small example. The implementation in the
 [samples directory](samples/alibaba-cloud-mp) includes ECS Metrics and an additional
 Security Group object type.
 
@@ -463,8 +463,8 @@ Security Group object type.
 
 #### Modify the `test` method to create an Alibaba Cloud connection and run a query
 
-We can try to connect and run a test query. We will do this in the `test` method. Notice 
-this takes an `AdapterInstance` as a parameter. We will replace all the code that is 
+We can try to connect and run a test query. We will do this in the `test` method. Notice
+this takes an `AdapterInstance` as a parameter. We will replace all the code that is
 inside the try block.
 
 All the parameters and credentials from the definition will be present in this Adapter
@@ -502,7 +502,7 @@ Then using the identifier values from above, create a client and initiate a requ
     return result
 ```
 
-Since we can expect that this will sometimes fail, e.g., if the user provides the wrong 
+Since we can expect that this will sometimes fail, e.g., if the user provides the wrong
 Access Key or Secret, we should ensure there is good error-handling in this function.
 
 If we detect a failure (e.g., in the `except` block), we should call
@@ -516,7 +516,7 @@ common errors and ensure the resulting messages are clear and user-friendly.
 
 We should now be able to run `mp-test connect` to run this code. The `mp-test` tool
 will ask you to create a new connection, prompting for 'Access Key ID', 'Region ID', and
-'Access Key Secret'. After, it will ask if it should override SuiteAPI<sup>1</sup> 
+'Access Key Secret'. After, it will ask if it should override SuiteAPI<sup>1</sup>
 credentials. We will not need them for this sample, so we can select 'No'.
 
 > <sup>1</sup>SuiteAPI is a REST API on VMware Aria Operations that can be used for many
@@ -547,15 +547,15 @@ Validation passed with no errors
 #### Modify the `collect` method to collect objects, metrics, properties, and relationships
 
 Now that the `test` method is working, we can implement the `collect` method. This is
-the method where we query Alibaba Cloud for the objects, metrics, etc, we want and send 
-them to VMware Aria Operations. 
+the method where we query Alibaba Cloud for the objects, metrics, etc, we want and send
+them to VMware Aria Operations.
 
 First, we should remove all the sample code inside the `try` block. All the code for the
 following steps should be inside the `try` block.
 
-Then, we need to establish a connection to Alibaba Cloud. We can do this in the same way 
-as in test connect. In many cases creating a function for connecting that is called from 
-both `test` and `collect` is worthwhile. 
+Then, we need to establish a connection to Alibaba Cloud. We can do this in the same way
+as in test connect. In many cases creating a function for connecting that is called from
+both `test` and `collect` is worthwhile.
 
 Next, we'll run several queries to get the data from Alibaba Cloud that we want, add
 the objects to the `result`, add data to the objects, and return the result. This
@@ -569,11 +569,11 @@ collects all the properties in the small definition above. The implementation in
 
     response = client.do_action_with_exception(request)
     json_response = json.loads(response)
-    
-    # Add the adapter instance so that we can make a relationship to it from the 
+
+    # Add the adapter instance so that we can make a relationship to it from the
     # ECS instances
     result.add_object(adapter_instance)
-    
+
     for instance in json_response.get("Instances", {}).get("Instance", []):
         id = instance.get("InstanceId")
         if not id:
@@ -597,10 +597,10 @@ collects all the properties in the small definition above. The implementation in
 #### Verify the Alibaba Cloud MP
 
 To verify the MP, run `mp-test collect` using the same connection we created earlier. We
-should see all ECS Instances that are present in the selected region that the RAM user 
+should see all ECS Instances that are present in the selected region that the RAM user
 associated with the access key has permission to view, with a small number of properties
-attached to it. In addition, each ECS Instance should be a child of the Adapter 
-Instance. For example, with a very small environment with a single ECS Instance, we may 
+attached to it. In addition, each ECS Instance should be a child of the Adapter
+Instance. For example, with a very small environment with a single ECS Instance, we may
 see a result similar to this:
 ```
 (venv-Alibaba Cloud) ❯ mp-test -c default collect
@@ -745,21 +745,21 @@ When everything is working as expected locally using `mp-test`, we can run
 
 ### Extending an Existing Management Pack
 <details><summary>
-This guide assumes you have already set up the SDK and know how to create a new project. 
+This guide assumes you have already set up the SDK and know how to create a new project.
 It walks you through the steps necessary to extend an existing Management Pack to add
 additional data, using the MySQL Management Pack as an example.</summary>
 
-Extending an existing management pack is similar to creating a new management pack, but 
-has some additional constraints. This section will create a management pack that adds 
+Extending an existing management pack is similar to creating a new management pack, but
+has some additional constraints. This section will create a management pack that adds
 metrics to the existing MySQL management pack's database object. It assumes
-you have already installed the SDK and understand the tools and steps in the 'Get 
+you have already installed the SDK and understand the tools and steps in the 'Get
 Started' section. It also assumes that you have installed and configured the [MySQL
-management pack](https://customerconnect.vmware.com/downloads/details?downloadGroup=VRTVS_MP_MYSQL_810&productId=1051) 
+management pack](https://customerconnect.vmware.com/downloads/details?downloadGroup=VRTVS_MP_MYSQL_810&productId=1051)
 on a VMware Aria Operations instance in your local network.
 
 For the purposes of this walkthrough, we will be adding five metrics to the MySQL database
-object that show the total amount of lock waits and statistics about the time spent 
-waiting for those locks. This info can be found in MySQL in the table 
+object that show the total amount of lock waits and statistics about the time spent
+waiting for those locks. This info can be found in MySQL in the table
 `performance_schema.table_lock_waits_summary_by_table`.
 
 The first step is to run `mp-init` and create a new project. There are no restrictions,
@@ -775,7 +775,7 @@ Management pack display name: Extended MySQL MP
 Management pack adapter key: ExtendedMySQLMP
 Management pack description: Adds 'Lock Wait' metrics to MySQL Database objects
 Management pack vendor: VMware, Inc
-Enter a path to a EULA text file, or leave blank for no EULA: 
+Enter a path to a EULA text file, or leave blank for no EULA:
 Enter a path to the management pack icon file, or leave blank for no icon:
 An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to the
 icon file name and adding the icon file to the root project directory.
@@ -784,11 +784,11 @@ Creating Project [Finished]
 project generation completed
 ```
 
-The completed management pack is found in 
-[the 'samples' directory](samples/mysql-extension-mp), and can be used as a reference 
+The completed management pack is found in
+[the 'samples' directory](samples/mysql-extension-mp), and can be used as a reference
 for this walkthrough or as a starting point for creating your own.
 
-Once the project finished generating, we can change directory into the project 
+Once the project finished generating, we can change directory into the project
 and activate the Python virtual environment.
 
 Next, we need to modify the adapter code. We will break this up into several steps:
@@ -806,7 +806,7 @@ MySQL database. There are several Python libraries that can help us do this. For
 let's use [`mysql-connector-python`](https://dev.mysql.com/doc/connector-python/en/).
 
 To add a library to the adapter, open the file `adapter_requirements.txt` and add a new
-line with the name of the library. Optionally, we can also add a version constraint. 
+line with the name of the library. Optionally, we can also add a version constraint.
 Here's what the modified file should look like:
 ```
 vmware-aria-operations-integration-sdk-lib==0.7.*
@@ -814,15 +814,15 @@ psutil
 mysql-connector-python>=8.0.32
 ```
 
-> Note: We can also remove the `psutil` library, as that is only used in the sample code 
-> that we will be replacing. However, we would then no longer be able to run `mp-test` 
-> until we have removed the sample code that depends on `psutil`, so for now we will 
+> Note: We can also remove the `psutil` library, as that is only used in the sample code
+> that we will be replacing. However, we would then no longer be able to run `mp-test`
+> until we have removed the sample code that depends on `psutil`, so for now we will
 > keep it.
 
 #### Modify the adapter definition to add fields for connecting to MySQL
 
 Now that we have added the library, we need to see what information it needs in order
-to connect. Since the adapter will be running on the VMware Aria Operations Cloud Proxy, 
+to connect. Since the adapter will be running on the VMware Aria Operations Cloud Proxy,
 which is not where our MySQL instance is running, we will need the following:
 * Host
 * Port
@@ -846,9 +846,9 @@ def get_adapter_definition() -> AdapterDefinition:
     credential.define_string_parameter("username", "Username")
     credential.define_password_parameter("password", "Password")
 
-    # The key 'container_memory_limit' is a special key that is read by the VMware Aria 
-    # Operations collector to determine how much memory to allocate to the docker 
-    # container running this adapter. It does not need to be read inside the adapter 
+    # The key 'container_memory_limit' is a special key that is read by the VMware Aria
+    # Operations collector to determine how much memory to allocate to the docker
+    # container running this adapter. It does not need to be read inside the adapter
     # code.
     definition.define_int_parameter(
         "container_memory_limit",
@@ -864,7 +864,7 @@ def get_adapter_definition() -> AdapterDefinition:
     # are part of the MySQL MP to add additional metrics. As such, we can't define
     # those object types here, because they're already defined in the MySQL MP with a
     # different adapter type.
-    
+
     # If we decide to also create new objects (that are not part of an existing MP),
     # those can be added here.
 
@@ -873,7 +873,7 @@ def get_adapter_definition() -> AdapterDefinition:
     return definition
 ```
 
-The adapter definition is also where objects and metrics are defined, however we are 
+The adapter definition is also where objects and metrics are defined, however we are
 only allowed to define objects and metrics that are a part of our adapter type. Because
 extensions modify objects that are part of a different adapter type, we can't add them.
 This means that we can't set metric metadata like 'units', 'labels', etc that we would
@@ -882,11 +882,11 @@ generally be able to set.
 #### Modify the `test` method to create a MySQL connection and run a query
 
 Now that we've defined our parameters, we can try to connect and run a test query.
-We will do this in the `test` method. Notice this takes an `AdapterInstance` as a 
+We will do this in the `test` method. Notice this takes an `AdapterInstance` as a
 parameter. We will replace all the code that is inside the try/except block.
 
-All the parameters and credentials from the definition will be present in this Adapter 
-Instance. We can access them like this, using the `key`s that we defined in the 
+All the parameters and credentials from the definition will be present in this Adapter
+Instance. We can access them like this, using the `key`s that we defined in the
 `get_adapter_definition` function to get the value assigned to that parameter:
 
 ```python
@@ -896,7 +896,7 @@ Instance. We can access them like this, using the `key`s that we defined in the
     password = adapter_instance.get_credential_value("password")
 ```
 
-We can then use them to connect to MySQL and run a test query (be sure to import 
+We can then use them to connect to MySQL and run a test query (be sure to import
 `mysql.connector`):
 
 ```python
@@ -919,13 +919,13 @@ We can then use them to connect to MySQL and run a test query (be sure to import
 Since we can expect that this will fail, e.g., if the user provides the wrong username
 and password, we should ensure there is good error-handling in this function.
 
-If we detect a failure (e.g., in the `except` block), we should call 
+If we detect a failure (e.g., in the `except` block), we should call
 `result.with_error(error_message)` to indicate the test has failed. If no errors have
-been attached to the `result` object, the test will pass. (Note that calling 
+been attached to the `result` object, the test will pass. (Note that calling
 `result.with_error(...)` multiple times in the same test will result in only the last
 error being displayed.)
 
-If the management pack will be widely distributed, it may also be worthwhile to catch 
+If the management pack will be widely distributed, it may also be worthwhile to catch
 common errors and ensure the resulting messages are clear and user-friendly.
 
 We should now be able to run `mp-test connect` to run this code. The `mp-test` tool
@@ -940,7 +940,7 @@ that system.
 > <sup>1</sup>SuiteAPI is a REST API on VMware Aria Operations that can be used for many
 > purposes. The documentation for this API can be found on any VMware Aria Operations
 > instance at https://[aria_ops_hostname]/suite-api/. The 'adapter_instance' object that
-> is passed to the 'test', 'get_endpoints', and 'collect' methods can automatically 
+> is passed to the 'test', 'get_endpoints', and 'collect' methods can automatically
 > connect to this API and has methods for querying it.
 
 If everything was successful, the result should look similar to this:
@@ -985,9 +985,9 @@ Validation passed with no errors
 
 #### Modify the `collect` method to collect metrics, and attach them to the correct database objects
 
-Now that the `test` method is working, we can implement the `collect` method. This is 
-the method where we query MySQL for the metrics we want and send them to VMware Aria 
-Operations as part of the database objects. Before we begin writing code, we need to 
+Now that the `test` method is working, we can implement the `collect` method. This is
+the method where we query MySQL for the metrics we want and send them to VMware Aria
+Operations as part of the database objects. Before we begin writing code, we need to
 look up some information about the MySQL management pack. Specifically, we need the
 following information:
 * The MySQL Adapter Kind Key
@@ -998,7 +998,7 @@ following information:
 
 These will be used to ensure that the metrics are attached to existing MySQL objects,
 rather than creating new ones.
- 
+
 To get this information, we will `ssh` into the collector where the MySQL management
 pack is running. Then `cd` to `$ALIVE_BASE/user/plugin/inbound/mysql_adapter3/conf/`.
 From there, open the `describe.xml` file. The Adapter Kind key is at the top on the
@@ -1009,10 +1009,10 @@ fourth line:
 <!-- Copyright (c) 2020 VMware Inc. All Rights Reserved. -->
 <AdapterKind key="MySQLAdapter" nameKey="1" version="1" xmlns="http://schemas.vmware.com/vcops/schema">
 ```
-Inside the `AdapterKind` tag are `ResourceKinds/ResourceKind` tags, and we can search 
+Inside the `AdapterKind` tag are `ResourceKinds/ResourceKind` tags, and we can search
 for the one that represents the database resource kind. Once we have found it we can see
-that it has two identifiers, one for the adapter instance ID, and one for the database 
-name. 
+that it has two identifiers, one for the adapter instance ID, and one for the database
+name.
 ```xml
    <ResourceKinds>
       <!-- ... -->
@@ -1025,22 +1025,22 @@ In order to attach a metric to these objects, we will need all identifiers that 
 means that the combination of those two fields uniquely identify the object among all
 of the `mysql_database` objects in the `MySQLAdapter` adapter.
 
-Getting the `adapter_instance_id` requires a SuiteAPI call. We need to retrieve the 
-Adapter Instances for `MySQLAdapter` that has the same host and port identifiers as our 
-adapter, and then retrieving the id. However, if we look in VMware Aria Operations 
-itself, we can see that each database's name has the format `mysql_host/mysql_database`, 
-which should be unique (even if VMware Aria Operations isn't using it for determining 
-uniqueness). Thus, a simpler way to get matching objects (in this case) is to construct 
-the name, and ask the SuiteAPI to give us all `MySQLAdapter` `mysql_database` objects 
-with those names. Then we can simply attach metrics to the resulting `mysql_database` 
+Getting the `adapter_instance_id` requires a SuiteAPI call. We need to retrieve the
+Adapter Instances for `MySQLAdapter` that has the same host and port identifiers as our
+adapter, and then retrieving the id. However, if we look in VMware Aria Operations
+itself, we can see that each database's name has the format `mysql_host/mysql_database`,
+which should be unique (even if VMware Aria Operations isn't using it for determining
+uniqueness). Thus, a simpler way to get matching objects (in this case) is to construct
+the name, and ask the SuiteAPI to give us all `MySQLAdapter` `mysql_database` objects
+with those names. Then we can simply attach metrics to the resulting `mysql_database`
 objects, which will have all identifiers correctly set by the SuiteAPI.
 
 First, we should remove all the sample code inside the `try` block. All the code for the
 following steps should be inside the `try` block.
 
 Then, we need to establish a connection to MySQL. We can do this in the same way as in
-test connect. In many cases creating a function for connecting that is called from both 
-`test` and `collect` is worthwhile. Then we can query the list of databases, and 
+test connect. In many cases creating a function for connecting that is called from both
+`test` and `collect` is worthwhile. Then we can query the list of databases, and
 construct a list of database names that may be present:
 
 ```python
@@ -1051,10 +1051,10 @@ construct a list of database names that may be present:
         cursor.close()
 ```
 
-We then query the SuiteAPI for `mysql_database` objects from the `MySQLAdapter` 
+We then query the SuiteAPI for `mysql_database` objects from the `MySQLAdapter`
 adapter, with the names we computed. The queries that `query_for_resources` accepts
-are documented in the SuiteAPI documentation, and can search on many types of metadata 
-about a resource. After that, we add the returned objects to the `result` and to a 
+are documented in the SuiteAPI documentation, and can search on many types of metadata
+about a resource. After that, we add the returned objects to the `result` and to a
 dictionary for quick access later.
 
 ```python
@@ -1113,16 +1113,16 @@ as metrics to the relevant databases, and return the result:
                 database.with_metric("Table Locks|Avg", 0)
             database.with_metric("Table Locks|Min", float(row[4]))
         cursor.close()
-        
+
         return result
 ```
 
 #### Verify the MP
 
-To verify the MP, run `mp-test` using the same connection we created earlier. If there 
-are any `mysql_database` objects that have entries in the 
+To verify the MP, run `mp-test` using the same connection we created earlier. If there
+are any `mysql_database` objects that have entries in the
 `table_lock_waits_summary_by_table` table, we should see those returned in the
-collection result. For example, if the MySQL management pack is configured to collect 
+collection result. For example, if the MySQL management pack is configured to collect
 `loadgen`, `mysql`, and `sys`, and the data query returns:
 ```
 object_schema      | count_star | sum_timer_wait | max_timer_wait | min_timer_wait
@@ -1339,7 +1339,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 
 <details>
-  <summary><h3>How can change the container resgistry mp-build uses?</h3></summary>
+  <summary><h3>How can change the container registry mp-build uses?</h3></summary>
 
   Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
   repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
@@ -1427,6 +1427,28 @@ When everything is working as expected locally using `mp-test`, we can run
 </details>
 
 <details>
+  <summary><h3> How do I change the log level (SDK tools)?</h3></summary>
+
+  All SDK tools read the LOG_LEVEL environment variable to set the log level of their console output. For example, to set log level
+  to debug to see a verbose output of the any of the CLI tools we can set the LOG_LEVEL variable:
+
+  For Linux and macOS
+  ```shell
+  LOG_LEVEL=debug mp-build
+  ```
+  For Windows
+  ```
+  set LOG_LEVEL=debug
+  mp-build
+  ```
+  For Windows, set the log level back to `info` after debugging.
+
+  All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level. CLI tools generate logs
+  for `debug`, `warn`, `info`, and `error` level.
+
+</details>
+
+<details>
   <summary><h3>Collection returns a 500 INTERNAL SERVER ERROR</h3></summary>
 
   Internal server errors can happen for various reasons; however, the most common cause is an unhandled exception or syntax error in
@@ -1476,6 +1498,45 @@ When everything is working as expected locally using `mp-test`, we can run
   ```
   As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
   Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
+</details>
+
+<details>
+  <summary><h3>Unable to build pak file after running mp-build?</h3></summary>
+
+  In most cases, this error indicates issues with building the container image. The most probable causes are:
+
+  1. Syntax error in the Dockerfile:
+
+  ```
+  mp-build
+  Building adapter [Finished]
+  Unable to build pak file
+  ERROR: Unable to build Docker file at /Users/user/code/management-packs/test:
+   {'message': 'dockerfile parse error line 6: unknown instruction: SYNTAX'}
+  ```
+
+  2. Unknown Instruction :
+
+  ```
+  mp-build
+  Building adapter [Finished]
+  Unable to build pak file
+  ERROR: Unable to build Docker file at /Users/user/code/aria_ops/management-packs/test:
+   {'message': 'dockerfile parse error line 7: unknown instruction: COP'}
+
+  ```
+  3. A command  inside the Dockerfile failed:
+
+  ```
+  mp-build
+  Building adapter [Finished]
+  Unable to build pak file
+  ERROR: Unable to build Docker file at /Users/user/code/management-packs/test:
+   The command '/bin/sh -c pip3 install -r adapter_requirements.txt --upgrade' returned a non-zero code: 1
+  ```
+  The solution for cases 1 and 2 is to fix the typo/command by editing the Dockerfile. For case 3, however, the solution might need to be evident at first sight. Since the error
+  comes from building the image itself, we can run `docker build .` directly on the project's root directory and look at the stack trace for clues.
+
 </details>
 
 <details>

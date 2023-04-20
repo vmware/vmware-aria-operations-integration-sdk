@@ -184,29 +184,3 @@ Contains all the content included in a management pack such as: alerts, dashboar
 
 ### resources (directory)
 The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `manifest.txt`. For more information see [Adding Localization](adding_content.md#adding-localization).
----
-## Troubleshooting
-### Setting log level
-
-Set log level to debug to see a verbose output of the program:
-For Linux and macOS
-```sh
-LOG_LEVEL=debug mp-init
-```
-For Windows
-```
-set LOG_LEVEL=debug
-mp-init
-```
-For Windows, set the log level back to `info` after debugging.
-
-### SyntaxError: invalid syntax
-The error below shows that the wrong version of Python is being used to run the mp-init tool.
-```
-  File "tools/setup/main.py", line 12
-    def is_directory_or_not_existing(p: str):
-                                      ^
-SyntaxError: invalid syntax
-```
-
-Ensure the version of Python that runs the script in Python 3.3 or higher.

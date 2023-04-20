@@ -143,24 +143,3 @@ The tool performs the following validation:
 
 ### Logs
 Logs from the server (`server.log`) and adapter (by default, `adapter.log`, but this can be changed) are written to the `logs` directory. This is useful for debugging issues or exceptions during execution.
-
-## Troubleshooting
-### Setting log level
-
-Set log level to debug to see a verbose output of the program:
-For Linux and macOS
-```shell
-LOG_LEVEL=debug mp-test
-```
-For Windows
-```
-set LOG_LEVEL=debug
-mp-test
-```
-For Windows, set the log level back to `info` after debugging.
-
-All logs can be seen in the command line, but they are also saved in `logs/test.log` with `debug` log level.
-
-### Unexpected exception occurred while trying to build pak file (Beta)
-While `mp-test` catches the most known exceptions, there is always the possibility of running into an unexpected error. Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration issue, or
-isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) channel.

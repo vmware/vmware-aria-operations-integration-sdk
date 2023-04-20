@@ -85,38 +85,3 @@ A pak file is a zip file created using the deflate compression algorithm. The co
 
 ### Logs
 Logs from build process are written to the `logs/build.log` file. This is useful for debugging purposes in case the build fails.
-
-## Troubleshooting
-### Setting log level
-
-Set log level to debug to see a verbose output of the program:
-For Linux and macOS
-```shell
-LOG_LEVEL=debug mp-build
-```
-For Windows
-```
-set LOG_LEVEL=debug
-mp-build
-```
-For Windows, set the log level back to `info` after debugging.
-
-All logs can be seen in the command line, but they are also saved in  `logs/build.log` with `debug` log level.
-
-### 'Unknown adapter type' when creating an account in VMware Aria Operations
-![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](unknown_adapter_type.png)
-> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
-
-If the pak file installs successfully but errors when creating an account (adapter instance), check that:
-* The Collector/Group the MP is running on is a Cloud Proxy, and
-* Check that the Cloud Proxy supports containerized adapters. Containerized adapter support was added in 8.10.0 and later.
-
-### Registry Permissions (Beta)
-To acquire write permissions to [TVS Harbor Repository](https://harbor-repo.vmware.com/harbor/projects/1067689/repositories)
-post a request to the [vrops-integration-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) slack channel.
-
-### Unexpected exception occurred while trying to build pak file (Beta)
-While `mp-build` catches the most known exceptions, there is always the possibility of running into an unexpected error. 
-Going through the debug logs might help expose the culprit. If the error isn't related to an individual configuration 
-issue or isn't evident at first sight,isn't evident at first sight, contact [squirogacubi@vmware.com](mailto:squirogacubi@vmware.com) or [krokos@vmware.com](mailto:krokos@vmware.com) via email or Slack the [vrops-integrations-sdk](https://vmware.slack.com/archives/C03KB8KF2VD) channel.
- 
