@@ -903,7 +903,7 @@ When everything is working as expected locally using `mp-test`, we can run
   Logs are generated and stored in the cloud proxy at were the adapter was configured at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
 
   `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
-  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; My Adapter Adapter Instance &rarr; Instance** in the rightmost column.
+  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; <ADAPTER DISPLAY NAME> &rarr; <ADAPTER INSTANCE>** in the rightmost column.
   The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
   ![highlight of the checkbox where internal id can be enbaled](doc/enable_internal_id_column.png)
@@ -1030,13 +1030,6 @@ When everything is working as expected locally using `mp-test`, we can run
 
   Submit a new issue: bug report [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml).
 </details>
-
-If you encounter any issues while using the VMware Aria Operations Integration SDK tools, you
-can refer to the troubleshooting guides for each tool:
-
-- [mp-test Troubleshooting Guide](doc/mp-test.md#troubleshooting)
-- [mp-init Troubleshooting Guide](doc/mp-init.md#troubleshooting)
-- [mp-build Troubleshooting Guide](doc/mp-build.md#troubleshooting)
 
 ## Contributing
 
