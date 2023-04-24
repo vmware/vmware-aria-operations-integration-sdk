@@ -157,11 +157,11 @@
                       },
                       "display_order":{
                         "type":"integer",
-                        "format":"int32"
+                        "format":"int32",
                         "minimum": 0
                       }
                     }
-                  },
+                  }
                 },
                 "default": {
                   "type": "string",
@@ -229,11 +229,11 @@
                 },
                 "display_order":{
                   "type":"integer",
-                  "format":"int32"
+                  "format":"int32",
                   "minimum": 0
                 }
               }
-            },
+            }
           },
           "display_order": {
             "type": "integer",
