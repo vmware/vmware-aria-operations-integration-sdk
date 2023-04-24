@@ -145,9 +145,19 @@
                   "default": false
                 },
                 "enum_values": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+                  "type": "object",
+                  "properties":{
+                    "key":{
+                      "type":"string"
+                    },
+                    "label":{
+                      "type":"string"
+                    },
+                    "order":{
+                      "type":"integer",
+                      "format":"int32"
+                      "minimum": 0
+                    }
                   }
                 },
                 "default": {
@@ -204,9 +214,19 @@
             "default": false
           },
           "enum_values": {
-            "type": "array",
-            "items": {
-              "type": "string"
+            "type": "object",
+            "properties":{
+              "key":{
+                "type":"string"
+              },
+              "label":{
+                "type":"string"
+              },
+              "order":{
+                "type":"integer",
+                "format":"int32"
+                "minimum": 0
+              }
             }
           },
           "display_order": {
