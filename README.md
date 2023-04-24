@@ -1303,7 +1303,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 </details>
 
-# Troubleshooting
+## Troubleshooting
 
 <details>
   <summary><h3>When starting Docker, I get 'Permission denied while trying to connect to the Docker daemon'</h3></summary>
