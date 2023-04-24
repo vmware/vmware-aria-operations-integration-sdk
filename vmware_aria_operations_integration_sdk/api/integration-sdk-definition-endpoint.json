@@ -145,20 +145,23 @@
                   "default": false
                 },
                 "enum_values": {
-                  "type": "object",
-                  "properties":{
-                    "key":{
-                      "type":"string"
-                    },
-                    "label":{
-                      "type":"string"
-                    },
-                    "order":{
-                      "type":"integer",
-                      "format":"int32"
-                      "minimum": 0
+                  "type":"array",
+                  "items":{
+                    "type": "object",
+                    "properties":{
+                      "key":{
+                        "type":"string"
+                      },
+                      "label":{
+                        "type":"string"
+                      },
+                      "display_order":{
+                        "type":"integer",
+                        "format":"int32"
+                        "minimum": 0
+                      }
                     }
-                  }
+                  },
                 },
                 "default": {
                   "type": "string",
@@ -214,20 +217,23 @@
             "default": false
           },
           "enum_values": {
-            "type": "object",
-            "properties":{
-              "key":{
-                "type":"string"
-              },
-              "label":{
-                "type":"string"
-              },
-              "order":{
-                "type":"integer",
-                "format":"int32"
-                "minimum": 0
+            "type":"array",
+            "items":{
+              "type": "object",
+              "properties":{
+                "key":{
+                  "type":"string"
+                },
+                "label":{
+                  "type":"string"
+                },
+                "display_order":{
+                  "type":"integer",
+                  "format":"int32"
+                  "minimum": 0
+                }
               }
-            }
+            },
           },
           "display_order": {
             "type": "integer",
