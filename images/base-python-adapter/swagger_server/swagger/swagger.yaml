@@ -1,9 +1,10 @@
 openapi: 3.0.0
 info:
   title: Adapter API
-  description: The API contract is defined using a standard OpenAPI specification to simplify adapter development.
+  description: The API contract is defined using a standard OpenAPI specification
+    to simplify adapter development.
   contact:
-    name: VMware, Inc
+    name: "VMware, Inc"
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.txt
@@ -17,13 +18,13 @@ paths:
       description: Get API Version
       operationId: api_version
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiVersion'
-      x-openapi-router-controller: swagger_server.controllers.controller
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /test:
     post:
       summary: Connection Test
@@ -35,15 +36,15 @@ paths:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TestResult'
-        '400':
+        "400":
           description: Bad Request
-      x-openapi-router-controller: swagger_server.controllers.controller
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /collect:
     post:
       summary: Data Collection
@@ -51,23 +52,27 @@ paths:
       operationId: collect
       parameters: []
       requestBody:
-        description: ''
+        description: ""
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectResult'
-      x-openapi-router-controller: swagger_server.controllers.controller
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /endpointURLs:
     post:
       summary: Retrieve endpoint URLs
-      description: This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aria Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.
+      description: This should return a list of properly formed endpoint URL(s) (https://ip
+        address) this adapter instance is expected to communicate with. List of URLs
+        will be used for taking advantage of the VMware Aria Operations Manager certificate
+        trust system. If the list is empty this means adapter will handle certificates
+        manually.
       operationId: get_endpoint_urls
       requestBody:
         content:
@@ -75,33 +80,33 @@ paths:
             schema:
               $ref: '#/components/schemas/AdapterConfig'
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EndpointResults'
-      x-openapi-router-controller: swagger_server.controllers.controller
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /adapterDefinition:
     get:
       summary: Retrieve the data model for collection
       description: Get Adapter Definition
       operationId: definition
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdapterDefinition'
-        '204':
+        "204":
           description: No Adapter Definition returned
           content:
             application/json:
               schema:
                 type: object
                 x-content-type: application/json
-      x-openapi-router-controller: swagger_server.controllers.controller
+      x-openapi-router-controller: swagger_server.controllers.default_controller
 components:
   schemas:
     ObjectKey:
@@ -126,7 +131,9 @@ components:
           description: The object kind key this key represents.
         identifiers:
           type: array
-          description: Collection of identifiers for this key. Identifiers are case insensitive. No two identifiers with the same key can exist for the same resource.
+          description: Collection of identifiers for this key. Identifiers are case
+            insensitive. No two identifiers with the same key can exist for the same
+            resource.
           items:
             $ref: '#/components/schemas/Identifier'
       description: |-
@@ -166,15 +173,26 @@ components:
         key:
           minLength: 1
           type: string
-          description: Key for the object identifier. For a object kind, identifier keys are unique. In describe.xml file, the attribute "key" corresponds to this field. This is a case-insensitive field and can not be empty.
+          description: "Key for the object identifier. For a object kind, identifier\
+            \ keys are unique. In describe.xml file, the attribute \"key\" corresponds\
+            \ to this field. This is a case-insensitive field and can not be empty."
         value:
           type: string
-          description: Value of the object identifier. This is a case-insensitive field
+          description: Value of the object identifier. This is a case-insensitive
+            field
         isPartOfUniqueness:
           type: boolean
-          description: Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.
+          description: "Flag to indicate whether the identifier should be considered\
+            \ for object's uniqueness. If a object has multiple identifiers that are\
+            \ part of uniqueness, there can be only one combination of values of those\
+            \ identifiers in VMware Aria Operations."
           default: false
-      description: "Stores the adapter object's identifier configuration.\nAn identifier can either be an active identifier or an informational identifier.\nAll active identifiers have the flag \"isPartOfUniqueness\" set to true, \nwhile all informational identifiers have this flag set to false. In the product,\nthere cannot be more than one object with the same values for all active identifiers.\nThis class contains all information about the object identifier."
+      description: "Stores the adapter object's identifier configuration.\nAn identifier\
+        \ can either be an active identifier or an informational identifier.\nAll\
+        \ active identifiers have the flag \"isPartOfUniqueness\" set to true, \n\
+        while all informational identifiers have this flag set to false. In the product,\n\
+        there cannot be more than one object with the same values for all active identifiers.\n\
+        This class contains all information about the object identifier."
       example:
         isPartOfUniqueness: false
         value: value
@@ -201,7 +219,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Event'
-      description: Stores object configuration information. Collection of metrics/properties for the object and the object key for current object.
+      description: Stores object configuration information. Collection of metrics/properties
+        for the object and the object key for current object.
       example:
         metrics:
         - numberValue: 0.8008281904610115
@@ -277,7 +296,8 @@ components:
           description: Timestamp of the data.
           format: int64
           default: -1
-      description: Represents a single data for a given metric, where an data is a time-stamp and a value;
+      description: "Represents a single data for a given metric, where an data is\
+        \ a time-stamp and a value;"
       example:
         numberValue: 0.8008281904610115
         key: key
@@ -313,7 +333,8 @@ components:
           description: Timestamp of the data.
           format: int64
           default: -1
-      description: Represents a single data for a given property, where the value can be numeric or string type.
+      description: "Represents a single data for a given property, where the value\
+        \ can be numeric or string type."
       example:
         stringValue: stringValue
         numberValue: 1.4658129805029452
@@ -330,7 +351,8 @@ components:
             $ref: '#/components/schemas/ObjectData'
         relationships:
           type: array
-          description: Collection of objects relationships with parent to children structure.
+          description: Collection of objects relationships with parent to children
+            structure.
           items:
             $ref: '#/components/schemas/ObjectRelationship'
         notExistingObjects:
@@ -340,7 +362,8 @@ components:
             $ref: '#/components/schemas/ObjectKey'
         errorMessage:
           type: string
-      description: Result of the collection process. Every collect result has object data collection with metrics/properties and the relationship of all objects.
+      description: Result of the collection process. Every collect result has object
+        data collection with metrics/properties and the relationship of all objects.
       example:
         result:
         - metrics:
@@ -437,20 +460,20 @@ components:
             startDate: 2
         relationships:
         - add: true
-          parent:
+          parent: null
           children:
-          - 
-          - 
+          - null
+          - null
           clearFirst: true
         - add: true
-          parent:
+          parent: null
           children:
-          - 
-          - 
+          - null
+          - null
           clearFirst: true
         notExistingObjects:
-        - 
-        - 
+        - null
+        - null
         errorMessage: errorMessage
     ObjectRelationship:
       title: ObjectRelationship
@@ -467,19 +490,22 @@ components:
             $ref: '#/components/schemas/ObjectKey'
         add:
           type: boolean
-          description: If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.
+          description: "If the value is true, then this relationship will be added\
+            \ to VMware Aria Operations Manager, if false, this relationship will\
+            \ be removed from VMware Aria Operations Manager."
           default: true
         clearFirst:
           type: boolean
-          description: If the value is true all children will be removed from the parent before adding this list.
+          description: If the value is true all children will be removed from the
+            parent before adding this list.
           default: true
       description: Represents a single parent to many children relationship.
       example:
         add: true
-        parent:
+        parent: null
         children:
-        - 
-        - 
+        - null
+        - null
         clearFirst: true
     TestResult:
       title: TestResult
@@ -488,7 +514,8 @@ components:
         errorMessage:
           type: string
           description: Contains the error message if the test connection failed.
-      description: Represents the configuration validation result. Result contains error message if validation is failed.
+      description: Represents the configuration validation result. Result contains
+        error message if validation is failed.
       example:
         errorMessage: errorMessage
     AdapterConfig:
@@ -525,14 +552,19 @@ components:
         credentialKey:
           minLength: 1
           type: string
-          description: Credential configuration key. In describe.xml file, the "key" attribute corresponds to this field.
+          description: "Credential configuration key. In describe.xml file, the \"\
+            key\" attribute corresponds to this field."
         credentialFields:
           minItems: 1
           type: array
-          description: List of all credential field configurations. In describe.xml, the element "CredentialField" inside "CredentialKind" corresponds to individual elements in this list.
+          description: "List of all credential field configurations. In describe.xml,\
+            \ the element \"CredentialField\" inside \"CredentialKind\" corresponds\
+            \ to individual elements in this list."
           items:
             $ref: '#/components/schemas/CredentialField'
-      description: "Represents the adapter's configured credential object. \nContains all information about the credentials entered when the adapter instance is created."
+      description: "Represents the adapter's configured credential object. \nContains\
+        \ all information about the credentials entered when the adapter instance\
+        \ is created."
     CredentialField:
       title: CredentialField
       required:
@@ -542,10 +574,12 @@ components:
         key:
           minLength: 1
           type: string
-          description: Credential field key. In describe.xml file, the "key" attribute corresponds to this field.
+          description: "Credential field key. In describe.xml file, the \"key\" attribute\
+            \ corresponds to this field."
         value:
           type: string
-          description: Value of the credential field. This field is populated  on adapter instance creation.
+          description: Value of the credential field. This field is populated  on
+            adapter instance creation.
           format: password
         isPassword:
           type: boolean
@@ -572,7 +606,8 @@ components:
         hostName:
           type: string
           description: Host name for connection to the VMware Aria Operations Cluster
-      description: Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.
+      description: Represents the connection info to be used by adapter to communicate
+        with the VMware Aria Operations Suite API.
     Certificate:
       title: Certificate
       required:
@@ -583,13 +618,20 @@ components:
           type: string
         isInvalidHostnameAccepted:
           type: boolean
-          description: "In case if the hostname verification fails and isInvalidHostnameAccepted is true \nAdapter should do the verification by comparing the certificates from the endpoints with the certificates received from the Collector. \nFor example the comparison can be done by thumbprint."
+          description: "In case if the hostname verification fails and isInvalidHostnameAccepted\
+            \ is true \nAdapter should do the verification by comparing the certificates\
+            \ from the endpoints with the certificates received from the Collector.\
+            \ \nFor example the comparison can be done by thumbprint."
           default: false
         isExpiredCertificateAccepted:
           type: boolean
-          description: In case if the connection fails because of certificate expiration and isExpiredCertificateAccepted is true then the Adapter should ignore that failure and continue the connection.
+          description: In case if the connection fails because of certificate expiration
+            and isExpiredCertificateAccepted is true then the Adapter should ignore
+            that failure and continue the connection.
           default: false
-      description: Represents the adapter's trusted certificate object. This class contains all information about the certificates trusted by user from UI when the adapter instance is created.
+      description: Represents the adapter's trusted certificate object. This class
+        contains all information about the certificates trusted by user from UI when
+        the adapter instance is created.
     CertificateConfig:
       title: CertificateConfig
       type: object
@@ -742,7 +784,7 @@ components:
         is_impact: false
         is_property: true
         is_discrete: false
-        dashboard_order: 5
+        dashboard_order: 2
         data_type: data_type
         is_key_attribute: false
         label: label
@@ -760,16 +802,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialDefinition_fields'
-      description: Defines what credential fields are present on a given credential type
+      description: Defines what credential fields are present on a given credential
+        type
       example:
         label: label
         fields:
         - password: false
           default: default
           enum_values:
-          - enum_values
-          - enum_values
-          display_order: 2
+          - null
+          - null
+          display_order: 7
           label: label
           type: string
           key: key
@@ -778,9 +821,9 @@ components:
         - password: false
           default: default
           enum_values:
-          - enum_values
-          - enum_values
-          display_order: 2
+          - null
+          - null
+          display_order: 7
           label: label
           type: string
           key: key
@@ -818,7 +861,7 @@ components:
         enum_values:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/CredentialDefinition_enum_values'
         display_order:
           type: integer
           format: int32
@@ -834,9 +877,13 @@ components:
       example:
         default: default
         enum_values:
-        - enum_values
-        - enum_values
-        display_order: 1
+        - display_order: 0
+          label: label
+          key: key
+        - display_order: 0
+          label: label
+          key: key
+        display_order: 5
         length: 5
         description: description
         label: label
@@ -860,11 +907,11 @@ components:
       description: Definition of a group of attributes and subgroups
       example:
         groups:
-        - 
-        - 
+        - null
+        - null
         attributes:
-        - 
-        - 
+        - null
+        - null
     ObjectDefinition:
       title: Object Definition
       required:
@@ -895,9 +942,13 @@ components:
         identifiers:
         - default: default
           enum_values:
-          - enum_values
-          - enum_values
-          display_order: 1
+          - display_order: 0
+            label: label
+            key: key
+          - display_order: 0
+            label: label
+            key: key
+          display_order: 5
           length: 5
           description: description
           label: label
@@ -908,9 +959,13 @@ components:
           enum: false
         - default: default
           enum_values:
-          - enum_values
-          - enum_values
-          display_order: 1
+          - display_order: 0
+            label: label
+            key: key
+          - display_order: 0
+            label: label
+            key: key
+          display_order: 5
           length: 5
           description: description
           label: label
@@ -921,24 +976,24 @@ components:
           enum: false
         groups:
         - groups:
-          - 
-          - 
+          - null
+          - null
           attributes:
-          - 
-          - 
+          - null
+          - null
         - groups:
-          - 
-          - 
+          - null
+          - null
           attributes:
-          - 
-          - 
+          - null
+          - null
         attributes:
         - is_kpi: false
           unit: unit
           is_impact: false
           is_property: true
           is_discrete: false
-          dashboard_order: 5
+          dashboard_order: 2
           data_type: data_type
           is_key_attribute: false
           label: label
@@ -949,7 +1004,7 @@ components:
           is_impact: false
           is_property: true
           is_discrete: false
-          dashboard_order: 5
+          dashboard_order: 2
           data_type: data_type
           is_key_attribute: false
           label: label
@@ -988,15 +1043,19 @@ components:
       description: Definition of the object model returned in CollectResult
       example:
         object_types:
-        - 
-        - 
+        - null
+        - null
         adapter_instance:
           identifiers:
           - default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 1
+            - display_order: 0
+              label: label
+              key: key
+            - display_order: 0
+              label: label
+              key: key
+            display_order: 5
             length: 5
             description: description
             label: label
@@ -1007,9 +1066,13 @@ components:
             enum: false
           - default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 1
+            - display_order: 0
+              label: label
+              key: key
+            - display_order: 0
+              label: label
+              key: key
+            display_order: 5
             length: 5
             description: description
             label: label
@@ -1020,24 +1083,24 @@ components:
             enum: false
           groups:
           - groups:
-            - 
-            - 
+            - null
+            - null
             attributes:
-            - 
-            - 
+            - null
+            - null
           - groups:
-            - 
-            - 
+            - null
+            - null
             attributes:
-            - 
-            - 
+            - null
+            - null
           attributes:
           - is_kpi: false
             unit: unit
             is_impact: false
             is_property: true
             is_discrete: false
-            dashboard_order: 5
+            dashboard_order: 2
             data_type: data_type
             is_key_attribute: false
             label: label
@@ -1048,7 +1111,7 @@ components:
             is_impact: false
             is_property: true
             is_discrete: false
-            dashboard_order: 5
+            dashboard_order: 2
             data_type: data_type
             is_key_attribute: false
             label: label
@@ -1065,9 +1128,9 @@ components:
           - password: false
             default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 2
+            - null
+            - null
+            display_order: 7
             label: label
             type: string
             key: key
@@ -1076,9 +1139,9 @@ components:
           - password: false
             default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 2
+            - null
+            - null
+            display_order: 7
             label: label
             type: string
             key: key
@@ -1090,9 +1153,9 @@ components:
           - password: false
             default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 2
+            - null
+            - null
+            display_order: 7
             label: label
             type: string
             key: key
@@ -1101,9 +1164,9 @@ components:
           - password: false
             default: default
             enum_values:
-            - enum_values
-            - enum_values
-            display_order: 2
+            - null
+            - null
+            display_order: 7
             label: label
             type: string
             key: key
@@ -1121,6 +1184,21 @@ components:
         endTime:
           minimum: 0
           type: number
+    CredentialDefinition_enum_values:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        display_order:
+          minimum: 0
+          type: integer
+          format: int32
+      example:
+        display_order: 0
+        label: label
+        key: key
     CredentialDefinition_fields:
       required:
       - display_order
@@ -1148,7 +1226,7 @@ components:
         enum_values:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/CredentialDefinition_enum_values'
         default:
           type: string
           nullable: true
@@ -1162,9 +1240,9 @@ components:
         password: false
         default: default
         enum_values:
-        - enum_values
-        - enum_values
-        display_order: 2
+        - null
+        - null
+        display_order: 7
         label: label
         type: string
         key: key

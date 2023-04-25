@@ -1,15 +1,13 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
-#  SPDX-License-Identifier: Apache-2.0
+
 from __future__ import absolute_import
+from datetime import date, datetime  # noqa: F401
 
-from datetime import date
-from datetime import datetime
-from typing import Dict
-from typing import List
+from typing import List, Dict  # noqa: F401
 
-from swagger_server import util
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.credential_definition_enum_values import CredentialDefinitionEnumValues  # noqa: F401,E501
+from swagger_server import util
 
 
 class CredentialDefinitionFields(Model):
@@ -17,19 +15,7 @@ class CredentialDefinitionFields(Model):
 
     Do not edit the class manually.
     """
-
-    def __init__(
-        self,
-        key: str = None,
-        label: str = None,
-        required: bool = True,
-        password: bool = False,
-        enum: bool = False,
-        enum_values: List[str] = None,
-        default: str = None,
-        display_order: int = None,
-        type: str = "string",
-    ):  # noqa: E501
+    def __init__(self, key: str=None, label: str=None, required: bool=True, password: bool=False, enum: bool=False, enum_values: List[CredentialDefinitionEnumValues]=None, default: str=None, display_order: int=None, type: str='string'):  # noqa: E501
         """CredentialDefinitionFields - a model defined in Swagger
 
         :param key: The key of this CredentialDefinitionFields.  # noqa: E501
@@ -43,7 +29,7 @@ class CredentialDefinitionFields(Model):
         :param enum: The enum of this CredentialDefinitionFields.  # noqa: E501
         :type enum: bool
         :param enum_values: The enum_values of this CredentialDefinitionFields.  # noqa: E501
-        :type enum_values: List[str]
+        :type enum_values: List[CredentialDefinitionEnumValues]
         :param default: The default of this CredentialDefinitionFields.  # noqa: E501
         :type default: str
         :param display_order: The display_order of this CredentialDefinitionFields.  # noqa: E501
@@ -52,27 +38,27 @@ class CredentialDefinitionFields(Model):
         :type type: str
         """
         self.swagger_types = {
-            "key": str,
-            "label": str,
-            "required": bool,
-            "password": bool,
-            "enum": bool,
-            "enum_values": List[str],
-            "default": str,
-            "display_order": int,
-            "type": str,
+            'key': str,
+            'label': str,
+            'required': bool,
+            'password': bool,
+            'enum': bool,
+            'enum_values': List[CredentialDefinitionEnumValues],
+            'default': str,
+            'display_order': int,
+            'type': str
         }
 
         self.attribute_map = {
-            "key": "key",
-            "label": "label",
-            "required": "required",
-            "password": "password",
-            "enum": "enum",
-            "enum_values": "enum_values",
-            "default": "default",
-            "display_order": "display_order",
-            "type": "type",
+            'key': 'key',
+            'label': 'label',
+            'required': 'required',
+            'password': 'password',
+            'enum': 'enum',
+            'enum_values': 'enum_values',
+            'default': 'default',
+            'display_order': 'display_order',
+            'type': 'type'
         }
         self._key = key
         self._label = label
@@ -85,7 +71,7 @@ class CredentialDefinitionFields(Model):
         self._type = type
 
     @classmethod
-    def from_dict(cls, dikt) -> "CredentialDefinitionFields":
+    def from_dict(cls, dikt) -> 'CredentialDefinitionFields':
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -113,6 +99,8 @@ class CredentialDefinitionFields(Model):
         :param key: The key of this CredentialDefinitionFields.
         :type key: str
         """
+        if key is None:
+            raise ValueError("Invalid value for `key`, must not be `None`")  # noqa: E501
 
         self._key = key
 
@@ -134,6 +122,8 @@ class CredentialDefinitionFields(Model):
         :param label: The label of this CredentialDefinitionFields.
         :type label: str
         """
+        if label is None:
+            raise ValueError("Invalid value for `label`, must not be `None`")  # noqa: E501
 
         self._label = label
 
@@ -155,6 +145,8 @@ class CredentialDefinitionFields(Model):
         :param required: The required of this CredentialDefinitionFields.
         :type required: bool
         """
+        if required is None:
+            raise ValueError("Invalid value for `required`, must not be `None`")  # noqa: E501
 
         self._required = required
 
@@ -176,6 +168,8 @@ class CredentialDefinitionFields(Model):
         :param password: The password of this CredentialDefinitionFields.
         :type password: bool
         """
+        if password is None:
+            raise ValueError("Invalid value for `password`, must not be `None`")  # noqa: E501
 
         self._password = password
 
@@ -197,26 +191,28 @@ class CredentialDefinitionFields(Model):
         :param enum: The enum of this CredentialDefinitionFields.
         :type enum: bool
         """
+        if enum is None:
+            raise ValueError("Invalid value for `enum`, must not be `None`")  # noqa: E501
 
         self._enum = enum
 
     @property
-    def enum_values(self) -> List[str]:
+    def enum_values(self) -> List[CredentialDefinitionEnumValues]:
         """Gets the enum_values of this CredentialDefinitionFields.
 
 
         :return: The enum_values of this CredentialDefinitionFields.
-        :rtype: List[str]
+        :rtype: List[CredentialDefinitionEnumValues]
         """
         return self._enum_values
 
     @enum_values.setter
-    def enum_values(self, enum_values: List[str]):
+    def enum_values(self, enum_values: List[CredentialDefinitionEnumValues]):
         """Sets the enum_values of this CredentialDefinitionFields.
 
 
         :param enum_values: The enum_values of this CredentialDefinitionFields.
-        :type enum_values: List[str]
+        :type enum_values: List[CredentialDefinitionEnumValues]
         """
 
         self._enum_values = enum_values
@@ -260,6 +256,8 @@ class CredentialDefinitionFields(Model):
         :param display_order: The display_order of this CredentialDefinitionFields.
         :type display_order: int
         """
+        if display_order is None:
+            raise ValueError("Invalid value for `display_order`, must not be `None`")  # noqa: E501
 
         self._display_order = display_order
 
@@ -281,5 +279,7 @@ class CredentialDefinitionFields(Model):
         :param type: The type of this CredentialDefinitionFields.
         :type type: str
         """
+        if type is None:
+            raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
 
         self._type = type

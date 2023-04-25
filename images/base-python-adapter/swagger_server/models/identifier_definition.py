@@ -1,15 +1,13 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
-#  SPDX-License-Identifier: Apache-2.0
+
 from __future__ import absolute_import
+from datetime import date, datetime  # noqa: F401
 
-from datetime import date
-from datetime import datetime
-from typing import Dict
-from typing import List
+from typing import List, Dict  # noqa: F401
 
-from swagger_server import util
 from swagger_server.models.base_model_ import Model
+from swagger_server.models.credential_definition_enum_values import CredentialDefinitionEnumValues  # noqa: F401,E501
+from swagger_server import util
 
 
 class IdentifierDefinition(Model):
@@ -17,21 +15,7 @@ class IdentifierDefinition(Model):
 
     Do not edit the class manually.
     """
-
-    def __init__(
-        self,
-        key: str = None,
-        label: str = None,
-        description: str = None,
-        required: bool = True,
-        ident_type: int = 1,
-        enum: bool = False,
-        enum_values: List[str] = None,
-        display_order: int = None,
-        type: str = None,
-        length: str = None,
-        default: str = None,
-    ):  # noqa: E501
+    def __init__(self, key: str=None, label: str=None, description: str=None, required: bool=True, ident_type: int=1, enum: bool=False, enum_values: List[CredentialDefinitionEnumValues]=None, display_order: int=None, type: str=None, length: int=None, default: str=None):  # noqa: E501
         """IdentifierDefinition - a model defined in Swagger
 
         :param key: The key of this IdentifierDefinition.  # noqa: E501
@@ -47,42 +31,42 @@ class IdentifierDefinition(Model):
         :param enum: The enum of this IdentifierDefinition.  # noqa: E501
         :type enum: bool
         :param enum_values: The enum_values of this IdentifierDefinition.  # noqa: E501
-        :type enum_values: List[str]
+        :type enum_values: List[CredentialDefinitionEnumValues]
         :param display_order: The display_order of this IdentifierDefinition.  # noqa: E501
         :type display_order: int
         :param type: The type of this IdentifierDefinition.  # noqa: E501
         :type type: str
         :param length: The length of this IdentifierDefinition.  # noqa: E501
-        :type length: str
+        :type length: int
         :param default: The default of this IdentifierDefinition.  # noqa: E501
         :type default: str
         """
         self.swagger_types = {
-            "key": str,
-            "label": str,
-            "description": str,
-            "required": bool,
-            "ident_type": int,
-            "enum": bool,
-            "enum_values": List[str],
-            "display_order": int,
-            "type": str,
-            "length": str,
-            "default": str,
+            'key': str,
+            'label': str,
+            'description': str,
+            'required': bool,
+            'ident_type': int,
+            'enum': bool,
+            'enum_values': List[CredentialDefinitionEnumValues],
+            'display_order': int,
+            'type': str,
+            'length': int,
+            'default': str
         }
 
         self.attribute_map = {
-            "key": "key",
-            "label": "label",
-            "description": "description",
-            "required": "required",
-            "ident_type": "ident_type",
-            "enum": "enum",
-            "enum_values": "enum_values",
-            "display_order": "display_order",
-            "type": "type",
-            "length": "length",
-            "default": "default",
+            'key': 'key',
+            'label': 'label',
+            'description': 'description',
+            'required': 'required',
+            'ident_type': 'ident_type',
+            'enum': 'enum',
+            'enum_values': 'enum_values',
+            'display_order': 'display_order',
+            'type': 'type',
+            'length': 'length',
+            'default': 'default'
         }
         self._key = key
         self._label = label
@@ -97,7 +81,7 @@ class IdentifierDefinition(Model):
         self._default = default
 
     @classmethod
-    def from_dict(cls, dikt) -> "IdentifierDefinition":
+    def from_dict(cls, dikt) -> 'IdentifierDefinition':
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -125,6 +109,8 @@ class IdentifierDefinition(Model):
         :param key: The key of this IdentifierDefinition.
         :type key: str
         """
+        if key is None:
+            raise ValueError("Invalid value for `key`, must not be `None`")  # noqa: E501
 
         self._key = key
 
@@ -146,6 +132,8 @@ class IdentifierDefinition(Model):
         :param label: The label of this IdentifierDefinition.
         :type label: str
         """
+        if label is None:
+            raise ValueError("Invalid value for `label`, must not be `None`")  # noqa: E501
 
         self._label = label
 
@@ -188,6 +176,8 @@ class IdentifierDefinition(Model):
         :param required: The required of this IdentifierDefinition.
         :type required: bool
         """
+        if required is None:
+            raise ValueError("Invalid value for `required`, must not be `None`")  # noqa: E501
 
         self._required = required
 
@@ -209,6 +199,8 @@ class IdentifierDefinition(Model):
         :param ident_type: The ident_type of this IdentifierDefinition.
         :type ident_type: int
         """
+        if ident_type is None:
+            raise ValueError("Invalid value for `ident_type`, must not be `None`")  # noqa: E501
 
         self._ident_type = ident_type
 
@@ -230,26 +222,28 @@ class IdentifierDefinition(Model):
         :param enum: The enum of this IdentifierDefinition.
         :type enum: bool
         """
+        if enum is None:
+            raise ValueError("Invalid value for `enum`, must not be `None`")  # noqa: E501
 
         self._enum = enum
 
     @property
-    def enum_values(self) -> List[str]:
+    def enum_values(self) -> List[CredentialDefinitionEnumValues]:
         """Gets the enum_values of this IdentifierDefinition.
 
 
         :return: The enum_values of this IdentifierDefinition.
-        :rtype: List[str]
+        :rtype: List[CredentialDefinitionEnumValues]
         """
         return self._enum_values
 
     @enum_values.setter
-    def enum_values(self, enum_values: List[str]):
+    def enum_values(self, enum_values: List[CredentialDefinitionEnumValues]):
         """Sets the enum_values of this IdentifierDefinition.
 
 
         :param enum_values: The enum_values of this IdentifierDefinition.
-        :type enum_values: List[str]
+        :type enum_values: List[CredentialDefinitionEnumValues]
         """
 
         self._enum_values = enum_values
@@ -272,6 +266,8 @@ class IdentifierDefinition(Model):
         :param display_order: The display_order of this IdentifierDefinition.
         :type display_order: int
         """
+        if display_order is None:
+            raise ValueError("Invalid value for `display_order`, must not be `None`")  # noqa: E501
 
         self._display_order = display_order
 
@@ -293,26 +289,28 @@ class IdentifierDefinition(Model):
         :param type: The type of this IdentifierDefinition.
         :type type: str
         """
+        if type is None:
+            raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
 
         self._type = type
 
     @property
-    def length(self) -> str:
+    def length(self) -> int:
         """Gets the length of this IdentifierDefinition.
 
 
         :return: The length of this IdentifierDefinition.
-        :rtype: str
+        :rtype: int
         """
         return self._length
 
     @length.setter
-    def length(self, length: str):
+    def length(self, length: int):
         """Sets the length of this IdentifierDefinition.
 
 
         :param length: The length of this IdentifierDefinition.
-        :type length: str
+        :type length: int
         """
 
         self._length = length
