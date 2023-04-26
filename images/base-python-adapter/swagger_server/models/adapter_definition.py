@@ -1,4 +1,6 @@
 # coding: utf-8
+#  Copyright 2022 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
 from datetime import date
@@ -97,10 +99,6 @@ class AdapterDefinition(Model):
         :param adapter_key: The adapter_key of this AdapterDefinition.
         :type adapter_key: str
         """
-        if adapter_key is None:
-            raise ValueError(
-                "Invalid value for `adapter_key`, must not be `None`"
-            )  # noqa: E501
 
         self._adapter_key = adapter_key
 
@@ -122,10 +120,6 @@ class AdapterDefinition(Model):
         :param adapter_label: The adapter_label of this AdapterDefinition.
         :type adapter_label: str
         """
-        if adapter_label is None:
-            raise ValueError(
-                "Invalid value for `adapter_label`, must not be `None`"
-            )  # noqa: E501
 
         self._adapter_label = adapter_label
 
@@ -147,10 +141,6 @@ class AdapterDefinition(Model):
         :param describe_version: The describe_version of this AdapterDefinition.
         :type describe_version: int
         """
-        if describe_version is None:
-            raise ValueError(
-                "Invalid value for `describe_version`, must not be `None`"
-            )  # noqa: E501
 
         self._describe_version = describe_version
 
@@ -172,10 +162,6 @@ class AdapterDefinition(Model):
         :param adapter_instance: The adapter_instance of this AdapterDefinition.
         :type adapter_instance: ObjectDefinition
         """
-        if adapter_instance is None:
-            raise ValueError(
-                "Invalid value for `adapter_instance`, must not be `None`"
-            )  # noqa: E501
 
         self._adapter_instance = adapter_instance
 
@@ -197,10 +183,6 @@ class AdapterDefinition(Model):
         :param credential_types: The credential_types of this AdapterDefinition.
         :type credential_types: List[CredentialDefinition]
         """
-        if credential_types is None:
-            raise ValueError(
-                "Invalid value for `credential_types`, must not be `None`"
-            )  # noqa: E501
 
         self._credential_types = credential_types
 
@@ -222,9 +204,5 @@ class AdapterDefinition(Model):
         :param object_types: The object_types of this AdapterDefinition.
         :type object_types: List[ObjectDefinition]
         """
-        if object_types is None:
-            raise ValueError(
-                "Invalid value for `object_types`, must not be `None`"
-            )  # noqa: E501
 
         self._object_types = object_types
