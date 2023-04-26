@@ -1,14 +1,17 @@
 # coding: utf-8
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
-from swagger_server.models.credential_definition import CredentialDefinition  # noqa: F401,E501
-from swagger_server.models.object_definition import ObjectDefinition  # noqa: F401,E501
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
+from swagger_server.models.credential_definition import (
+    CredentialDefinition,
+)  # noqa: F401,E501
+from swagger_server.models.object_definition import ObjectDefinition  # noqa: F401,E501
 
 
 class AdapterDefinition(Model):
@@ -16,7 +19,16 @@ class AdapterDefinition(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, adapter_key: str=None, adapter_label: str=None, describe_version: int=None, adapter_instance: ObjectDefinition=None, credential_types: List[CredentialDefinition]=None, object_types: List[ObjectDefinition]=None):  # noqa: E501
+
+    def __init__(
+        self,
+        adapter_key: str = None,
+        adapter_label: str = None,
+        describe_version: int = None,
+        adapter_instance: ObjectDefinition = None,
+        credential_types: List[CredentialDefinition] = None,
+        object_types: List[ObjectDefinition] = None,
+    ):  # noqa: E501
         """AdapterDefinition - a model defined in Swagger
 
         :param adapter_key: The adapter_key of this AdapterDefinition.  # noqa: E501
@@ -33,21 +45,21 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         self.swagger_types = {
-            'adapter_key': str,
-            'adapter_label': str,
-            'describe_version': int,
-            'adapter_instance': ObjectDefinition,
-            'credential_types': List[CredentialDefinition],
-            'object_types': List[ObjectDefinition]
+            "adapter_key": str,
+            "adapter_label": str,
+            "describe_version": int,
+            "adapter_instance": ObjectDefinition,
+            "credential_types": List[CredentialDefinition],
+            "object_types": List[ObjectDefinition],
         }
 
         self.attribute_map = {
-            'adapter_key': 'adapter_key',
-            'adapter_label': 'adapter_label',
-            'describe_version': 'describe_version',
-            'adapter_instance': 'adapter_instance',
-            'credential_types': 'credential_types',
-            'object_types': 'object_types'
+            "adapter_key": "adapter_key",
+            "adapter_label": "adapter_label",
+            "describe_version": "describe_version",
+            "adapter_instance": "adapter_instance",
+            "credential_types": "credential_types",
+            "object_types": "object_types",
         }
         self._adapter_key = adapter_key
         self._adapter_label = adapter_label
@@ -57,7 +69,7 @@ class AdapterDefinition(Model):
         self._object_types = object_types
 
     @classmethod
-    def from_dict(cls, dikt) -> 'AdapterDefinition':
+    def from_dict(cls, dikt) -> "AdapterDefinition":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -86,7 +98,9 @@ class AdapterDefinition(Model):
         :type adapter_key: str
         """
         if adapter_key is None:
-            raise ValueError("Invalid value for `adapter_key`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `adapter_key`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_key = adapter_key
 
@@ -109,7 +123,9 @@ class AdapterDefinition(Model):
         :type adapter_label: str
         """
         if adapter_label is None:
-            raise ValueError("Invalid value for `adapter_label`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `adapter_label`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_label = adapter_label
 
@@ -132,7 +148,9 @@ class AdapterDefinition(Model):
         :type describe_version: int
         """
         if describe_version is None:
-            raise ValueError("Invalid value for `describe_version`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `describe_version`, must not be `None`"
+            )  # noqa: E501
 
         self._describe_version = describe_version
 
@@ -155,7 +173,9 @@ class AdapterDefinition(Model):
         :type adapter_instance: ObjectDefinition
         """
         if adapter_instance is None:
-            raise ValueError("Invalid value for `adapter_instance`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `adapter_instance`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_instance = adapter_instance
 
@@ -178,7 +198,9 @@ class AdapterDefinition(Model):
         :type credential_types: List[CredentialDefinition]
         """
         if credential_types is None:
-            raise ValueError("Invalid value for `credential_types`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `credential_types`, must not be `None`"
+            )  # noqa: E501
 
         self._credential_types = credential_types
 
@@ -201,6 +223,8 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         if object_types is None:
-            raise ValueError("Invalid value for `object_types`, must not be `None`")  # noqa: E501
+            raise ValueError(
+                "Invalid value for `object_types`, must not be `None`"
+            )  # noqa: E501
 
         self._object_types = object_types

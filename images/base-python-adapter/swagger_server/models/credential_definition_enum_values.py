@@ -1,12 +1,13 @@
 # coding: utf-8
-
 from __future__ import absolute_import
-from datetime import date, datetime  # noqa: F401
 
-from typing import List, Dict  # noqa: F401
+from datetime import date
+from datetime import datetime
+from typing import Dict
+from typing import List
 
-from swagger_server.models.base_model_ import Model
 from swagger_server import util
+from swagger_server.models.base_model_ import Model
 
 
 class CredentialDefinitionEnumValues(Model):
@@ -14,7 +15,10 @@ class CredentialDefinitionEnumValues(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, key: str=None, label: str=None, display_order: int=None):  # noqa: E501
+
+    def __init__(
+        self, key: str = None, label: str = None, display_order: int = None
+    ):  # noqa: E501
         """CredentialDefinitionEnumValues - a model defined in Swagger
 
         :param key: The key of this CredentialDefinitionEnumValues.  # noqa: E501
@@ -24,23 +28,19 @@ class CredentialDefinitionEnumValues(Model):
         :param display_order: The display_order of this CredentialDefinitionEnumValues.  # noqa: E501
         :type display_order: int
         """
-        self.swagger_types = {
-            'key': str,
-            'label': str,
-            'display_order': int
-        }
+        self.swagger_types = {"key": str, "label": str, "display_order": int}
 
         self.attribute_map = {
-            'key': 'key',
-            'label': 'label',
-            'display_order': 'display_order'
+            "key": "key",
+            "label": "label",
+            "display_order": "display_order",
         }
         self._key = key
         self._label = label
         self._display_order = display_order
 
     @classmethod
-    def from_dict(cls, dikt) -> 'CredentialDefinitionEnumValues':
+    def from_dict(cls, dikt) -> "CredentialDefinitionEnumValues":
         """Returns the dict as a model
 
         :param dikt: A dict.
