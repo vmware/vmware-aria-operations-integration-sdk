@@ -95,11 +95,15 @@ def test_define_enum_identifier() -> None:
         "required": False,
         "ident_type": 2,
         "enum": True,
-        "enum_values": ["B", "C", "E"],
+        "enum_values": [
+            {"key": "B", "label": "B", "display_order": 0},
+            {"key": "C", "label": "C", "display_order": 1},
+            {"key": "E", "label": "E", "display_order": 2},
+        ],
         "description": None,
         "default": "E",
         "display_order": 0,
-        "type": "string",
+        "type": "dict",
     }
 
 
