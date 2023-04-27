@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import sys
 from collections import OrderedDict
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.credential_type import CredentialType
@@ -169,7 +170,7 @@ class AdapterDefinition(GroupType):  # type: ignore
     def define_enum_parameter(
         self,
         key: str,
-        values: list[Union[str, tuple[str,str]]],
+        values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
         description: Optional[str] = None,
         default: Optional[str] = None,

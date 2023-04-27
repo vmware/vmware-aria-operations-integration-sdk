@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
@@ -15,7 +16,7 @@ class Parameter(ABC):
         key: str,
         label: Optional[str] = None,
         description: Optional[str] = None,
-        default: Optional[str | int] = None,
+        default: Optional[Union[str, int, tuple[str, str]]] = None,
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
@@ -121,7 +122,7 @@ class EnumParameter(Parameter):
     def __init__(
         self,
         key: str,
-        values: list[Union[str, tuple[str, str]]],# [{key: True, label: True }, {key: False, label: False }]
+        values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
         description: Optional[str] = None,
         default: Optional[Union[str, tuple[str, str]]] = None,
@@ -152,14 +153,23 @@ class EnumParameter(Parameter):
         if default is not None:
 
             if isinstance(default, tuple) and default not in values:
-                self.values.append(default[0],default[1])
-            elif default not in [v[0] if isinstance(v, tuple) else v for v in self.values]:
+                self.values.append((default[0], default[1]))
+            elif isinstance(default, str) and default not in [
+                v[0] if isinstance(v, tuple) else v for v in self.values
+            ]:
                 self.values.append((default, default))
 
     def to_json(self) -> dict:
         return super().to_json() | {
             "type": "dict",
             "enum": True,
-            "enum_values": [{"key": str(value[0]) if isinstance(value, tuple) else value, "label": str(value[1]) if isinstance(value, tuple) else value, "display_order": display_order} for display_order, value in enumerate(self.values)],
+            "enum_values": [
+                {
+                    "key": str(value[0]) if isinstance(value, tuple) else value,
+                    "label": str(value[1]) if isinstance(value, tuple) else value,
+                    "display_order": display_order,
+                }
+                for display_order, value in enumerate(self.values)
+            ],
             "default": self.default,
         }

@@ -2,7 +2,8 @@
 #  SPDX-License-Identifier: Apache-2.0
 from abc import ABC
 from collections import OrderedDict
-from typing import Optional, Union
+from typing import Optional
+from typing import Union
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
@@ -134,8 +135,10 @@ class CredentialEnumParameter(CredentialParameter):
 
         if default is not None:
             if isinstance(default, tuple) and default not in values:
-                self.values.append(default[0],default[1])
-            elif default not in [v[0] if isinstance(v, tuple) else v for v in self.values]:
+                self.values.append((default[0], default[1]))
+            elif isinstance(default, str) and default not in [
+                v[0] if isinstance(v, tuple) else v for v in self.values
+            ]:
                 self.values.append((default, default))
 
     def to_json(self) -> dict:
@@ -143,7 +146,14 @@ class CredentialEnumParameter(CredentialParameter):
             "type": "string",
             "default": self.default,
             "enum": True,
-            "enum_values": [{"key": str(value[0]) if isinstance(value, tuple) else value, "label": str(value[1]) if isinstance(value, tuple) else value, "display_order": display_order} for display_order, value in enumerate(self.values)]
+            "enum_values": [
+                {
+                    "key": str(value[0]) if isinstance(value, tuple) else value,
+                    "label": str(value[1]) if isinstance(value, tuple) else value,
+                    "display_order": display_order,
+                }
+                for display_order, value in enumerate(self.values)
+            ],
         }
 
 
@@ -200,9 +210,9 @@ class CredentialType:
     def define_enum_parameter(
         self,
         key: str,
-        values: list[str],
+        values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
-        default: Optional[str] = None,
+        default: Optional[Union[str, tuple[str, str]]] = None,
         required: bool = True,
     ) -> CredentialEnumParameter:
         """
