@@ -125,7 +125,7 @@ class CredentialEnumParameter(CredentialParameter):
         key: str,
         values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
-        default: Optional[Union[str, tuple[str, str]]] = None,
+        default: Optional[str] = None,
         required: bool = True,
         display_order: int = 0,
     ):
@@ -133,13 +133,11 @@ class CredentialEnumParameter(CredentialParameter):
         self.values = values
         self.default = default
 
-        if default is not None:
-            if isinstance(default, tuple) and default not in values:
-                self.values.append((default[0], default[1]))
-            elif isinstance(default, str) and default not in [
-                v[0] if isinstance(v, tuple) else v for v in self.values
-            ]:
-                self.values.append((default, default))
+        if (
+            default not in [v[0] if isinstance(v, tuple) else v for v in self.values]
+            and default is not None
+        ):
+            self.values.append((default, default))
 
     def to_json(self) -> dict:
         return super().to_json() | {
@@ -212,7 +210,7 @@ class CredentialType:
         key: str,
         values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
-        default: Optional[Union[str, tuple[str, str]]] = None,
+        default: Optional[str] = None,
         required: bool = True,
     ) -> CredentialEnumParameter:
         """

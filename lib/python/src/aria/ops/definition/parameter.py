@@ -125,7 +125,7 @@ class EnumParameter(Parameter):
         values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
         description: Optional[str] = None,
-        default: Optional[Union[str, tuple[str, str]]] = None,
+        default: Optional[str] = None,
         required: bool = True,
         advanced: bool = False,
         display_order: int = 0,
@@ -150,14 +150,11 @@ class EnumParameter(Parameter):
             )
 
         self.values = values
-        if default is not None:
-
-            if isinstance(default, tuple) and default not in values:
-                self.values.append((default[0], default[1]))
-            elif isinstance(default, str) and default not in [
-                v[0] if isinstance(v, tuple) else v for v in self.values
-            ]:
-                self.values.append((default, default))
+        if (
+            default not in [v[0] if isinstance(v, tuple) else v for v in self.values]
+            and default is not None
+        ):
+            self.values.append((default, default))
 
     def to_json(self) -> dict:
         return super().to_json() | {
