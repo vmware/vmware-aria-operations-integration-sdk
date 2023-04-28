@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022-2023 VMware, Inc.
+#  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
@@ -24,7 +24,7 @@ class AdapterDefinition(Model):
 
     def __init__(
         self,
-        version: str = None,
+        adater_definition_version: str = None,
         adapter_key: str = None,
         adapter_label: str = None,
         describe_version: int = None,
@@ -34,8 +34,8 @@ class AdapterDefinition(Model):
     ):  # noqa: E501
         """AdapterDefinition - a model defined in Swagger
 
-        :param version: The version of this AdapterDefinition.  # noqa: E501
-        :type version: str
+        :param adater_definition_version: The adater_definition_version of this AdapterDefinition.  # noqa: E501
+        :type adater_definition_version: str
         :param adapter_key: The adapter_key of this AdapterDefinition.  # noqa: E501
         :type adapter_key: str
         :param adapter_label: The adapter_label of this AdapterDefinition.  # noqa: E501
@@ -50,7 +50,7 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         self.swagger_types = {
-            "version": str,
+            "adater_definition_version": str,
             "adapter_key": str,
             "adapter_label": str,
             "describe_version": int,
@@ -60,7 +60,7 @@ class AdapterDefinition(Model):
         }
 
         self.attribute_map = {
-            "version": "version",
+            "adater_definition_version": "adater_definition_version",
             "adapter_key": "adapter_key",
             "adapter_label": "adapter_label",
             "describe_version": "describe_version",
@@ -68,7 +68,7 @@ class AdapterDefinition(Model):
             "credential_types": "credential_types",
             "object_types": "object_types",
         }
-        self._version = version
+        self._adater_definition_version = adater_definition_version
         self._adapter_key = adapter_key
         self._adapter_label = adapter_label
         self._describe_version = describe_version
@@ -88,25 +88,25 @@ class AdapterDefinition(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def version(self) -> str:
-        """Gets the version of this AdapterDefinition.
+    def adater_definition_version(self) -> str:
+        """Gets the adater_definition_version of this AdapterDefinition.
 
 
-        :return: The version of this AdapterDefinition.
+        :return: The adater_definition_version of this AdapterDefinition.
         :rtype: str
         """
-        return self._version
+        return self._adater_definition_version
 
-    @version.setter
-    def version(self, version: str):
-        """Sets the version of this AdapterDefinition.
+    @adater_definition_version.setter
+    def adater_definition_version(self, adater_definition_version: str):
+        """Sets the adater_definition_version of this AdapterDefinition.
 
 
-        :param version: The version of this AdapterDefinition.
-        :type version: str
+        :param adater_definition_version: The adater_definition_version of this AdapterDefinition.
+        :type adater_definition_version: str
         """
 
-        self._version = version
+        self._adater_definition_version = adater_definition_version
 
     @property
     def adapter_key(self) -> str:
