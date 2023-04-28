@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
@@ -24,6 +24,7 @@ class AdapterDefinition(Model):
 
     def __init__(
         self,
+        version: str = None,
         adapter_key: str = None,
         adapter_label: str = None,
         describe_version: int = None,
@@ -33,6 +34,8 @@ class AdapterDefinition(Model):
     ):  # noqa: E501
         """AdapterDefinition - a model defined in Swagger
 
+        :param version: The version of this AdapterDefinition.  # noqa: E501
+        :type version: str
         :param adapter_key: The adapter_key of this AdapterDefinition.  # noqa: E501
         :type adapter_key: str
         :param adapter_label: The adapter_label of this AdapterDefinition.  # noqa: E501
@@ -47,6 +50,7 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         self.swagger_types = {
+            "version": str,
             "adapter_key": str,
             "adapter_label": str,
             "describe_version": int,
@@ -56,6 +60,7 @@ class AdapterDefinition(Model):
         }
 
         self.attribute_map = {
+            "version": "version",
             "adapter_key": "adapter_key",
             "adapter_label": "adapter_label",
             "describe_version": "describe_version",
@@ -63,6 +68,7 @@ class AdapterDefinition(Model):
             "credential_types": "credential_types",
             "object_types": "object_types",
         }
+        self._version = version
         self._adapter_key = adapter_key
         self._adapter_label = adapter_label
         self._describe_version = describe_version
@@ -82,6 +88,27 @@ class AdapterDefinition(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
+    def version(self) -> str:
+        """Gets the version of this AdapterDefinition.
+
+
+        :return: The version of this AdapterDefinition.
+        :rtype: str
+        """
+        return self._version
+
+    @version.setter
+    def version(self, version: str):
+        """Sets the version of this AdapterDefinition.
+
+
+        :param version: The version of this AdapterDefinition.
+        :type version: str
+        """
+
+        self._version = version
+
+    @property
     def adapter_key(self) -> str:
         """Gets the adapter_key of this AdapterDefinition.
 
@@ -99,6 +126,10 @@ class AdapterDefinition(Model):
         :param adapter_key: The adapter_key of this AdapterDefinition.
         :type adapter_key: str
         """
+        if adapter_key is None:
+            raise ValueError(
+                "Invalid value for `adapter_key`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_key = adapter_key
 
@@ -120,6 +151,10 @@ class AdapterDefinition(Model):
         :param adapter_label: The adapter_label of this AdapterDefinition.
         :type adapter_label: str
         """
+        if adapter_label is None:
+            raise ValueError(
+                "Invalid value for `adapter_label`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_label = adapter_label
 
@@ -141,6 +176,10 @@ class AdapterDefinition(Model):
         :param describe_version: The describe_version of this AdapterDefinition.
         :type describe_version: int
         """
+        if describe_version is None:
+            raise ValueError(
+                "Invalid value for `describe_version`, must not be `None`"
+            )  # noqa: E501
 
         self._describe_version = describe_version
 
@@ -162,6 +201,10 @@ class AdapterDefinition(Model):
         :param adapter_instance: The adapter_instance of this AdapterDefinition.
         :type adapter_instance: ObjectDefinition
         """
+        if adapter_instance is None:
+            raise ValueError(
+                "Invalid value for `adapter_instance`, must not be `None`"
+            )  # noqa: E501
 
         self._adapter_instance = adapter_instance
 
@@ -183,6 +226,10 @@ class AdapterDefinition(Model):
         :param credential_types: The credential_types of this AdapterDefinition.
         :type credential_types: List[CredentialDefinition]
         """
+        if credential_types is None:
+            raise ValueError(
+                "Invalid value for `credential_types`, must not be `None`"
+            )  # noqa: E501
 
         self._credential_types = credential_types
 
@@ -204,5 +251,9 @@ class AdapterDefinition(Model):
         :param object_types: The object_types of this AdapterDefinition.
         :type object_types: List[ObjectDefinition]
         """
+        if object_types is None:
+            raise ValueError(
+                "Invalid value for `object_types`, must not be `None`"
+            )  # noqa: E501
 
         self._object_types = object_types

@@ -980,6 +980,8 @@ components:
       - object_types
       type: object
       properties:
+        version:
+          type: string
         adapter_key:
           type: string
         adapter_label:
@@ -1130,6 +1132,7 @@ components:
             required: true
             enum: false
           key: key
+        version: version
     CollectionWindow:
       title: CollectionWindow
       minProperties: 2
