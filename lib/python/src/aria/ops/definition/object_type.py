@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from typing import Optional
+from typing import Union
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.exceptions import DuplicateKeyException
@@ -91,7 +92,7 @@ class ObjectType(GroupType):  # type: ignore
     def define_enum_identifier(
         self,
         key: str,
-        values: list[str],
+        values: list[Union[str, tuple[str, str]]],
         label: Optional[str] = None,
         required: bool = True,
         is_part_of_uniqueness: bool = True,
