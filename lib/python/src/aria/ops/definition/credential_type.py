@@ -139,8 +139,6 @@ class CredentialEnumParameter(CredentialParameter):
         ):
             self.values.append((default, default))
 
-        # set the default value to the value of the label if they are diferent, otherwise set to the passed default
-
     def to_json(self) -> dict:
         return super().to_json() | {
             "type": "string",
