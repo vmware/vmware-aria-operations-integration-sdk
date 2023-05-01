@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 from collections import OrderedDict
 from typing import Optional
-from typing import Union
 
 from aria.ops.definition.assertions import validate_key
 from aria.ops.definition.credential_type import CredentialType
@@ -75,6 +74,7 @@ class AdapterDefinition(GroupType):  # type: ignore
             "adapter_key": self.key,
             "adapter_label": self.label,
             "describe_version": self.version,
+            "schema_version": "1.0.0",
             "adapter_instance": {
                 "key": self.adapter_instance_key,
                 "label": self.adapter_instance_label,
@@ -170,7 +170,7 @@ class AdapterDefinition(GroupType):  # type: ignore
     def define_enum_parameter(
         self,
         key: str,
-        values: list[Union[str, tuple[str, str]]],
+        values: list[str],
         label: Optional[str] = None,
         description: Optional[str] = None,
         default: Optional[str] = None,
