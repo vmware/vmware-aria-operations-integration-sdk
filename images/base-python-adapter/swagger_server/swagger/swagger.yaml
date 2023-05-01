@@ -23,7 +23,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiVersion'
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /test:
     post:
       summary: Connection Test
@@ -43,7 +43,7 @@ paths:
                 $ref: '#/components/schemas/TestResult'
         '400':
           description: Bad Request
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /collect:
     post:
       summary: Data Collection
@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectResult'
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /endpointURLs:
     post:
       summary: Retrieve endpoint URLs
@@ -81,7 +81,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EndpointResults'
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
   /adapterDefinition:
     get:
       summary: Retrieve the data model for collection
@@ -101,7 +101,7 @@ paths:
               schema:
                 type: object
                 x-content-type: application/json
-      x-openapi-router-controller: swagger_server.controllers.default_controller
+      x-openapi-router-controller: swagger_server.controllers.controller
 components:
   schemas:
     ObjectKey:
@@ -980,7 +980,7 @@ components:
       - object_types
       type: object
       properties:
-        adater_definition_version:
+        schema_version:
           type: string
         adapter_key:
           type: string
@@ -1001,7 +1001,7 @@ components:
             $ref: '#/components/schemas/ObjectDefinition'
       description: Definition of the object model returned in CollectResult
       example:
-        adater_definition_version: adater_definition_version
+        schema_version: schema_version
         object_types:
         - 
         - 

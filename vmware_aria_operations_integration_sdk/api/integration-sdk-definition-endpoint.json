@@ -322,7 +322,7 @@
         "type": "object",
         "description": "Definition of the object model returned in CollectResult",
         "properties": {
-          "adater_definition_version":{
+          "schema_version":{
             "type":"string"
           },
           "adapter_key": {
