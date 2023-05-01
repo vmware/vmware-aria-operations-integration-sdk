@@ -143,7 +143,7 @@ def test_define_enum_identifier_with_label_and_default() -> None:
             {"key": "D", "label": "E", "display_order": 1},
         ],
         "description": None,
-        "default": "E",
+        "default": "D",
         "display_order": 0,
         "type": "string",
     }

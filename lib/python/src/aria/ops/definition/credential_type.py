@@ -131,6 +131,7 @@ class CredentialEnumParameter(CredentialParameter):
     ):
         super().__init__(key, label, required, display_order)
         self.values = values
+        self.default = default
 
         if (
             default not in [v[0] if isinstance(v, tuple) else v for v in self.values]
@@ -139,10 +140,6 @@ class CredentialEnumParameter(CredentialParameter):
             self.values.append((default, default))
 
         # set the default value to the value of the label if they are diferent, otherwise set to the passed default
-        self.default = next(
-            (v[1] for v in self.values if isinstance(v, tuple) and v[0] == default),
-            default,
-        )
 
     def to_json(self) -> dict:
         return super().to_json() | {
