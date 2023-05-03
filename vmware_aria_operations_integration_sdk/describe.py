@@ -238,7 +238,7 @@ def is_true(element: Element, attr: str, default: str = "false") -> bool:
 
 def json_to_xml(json: Dict) -> Element:
     names = _Names()
-    schema_version = json.get("schema_version", "")
+    schema_version = int(json.get("schema_version", 0))
 
     describe = Element(
         "{http://schemas.vmware.com/vcops/schema}AdapterKind",
@@ -296,7 +296,7 @@ def add_credential_kind(
     parent: Element,
     credential_kind_json: Dict,
     names: _Names,
-    schema_version: str,
+    schema_version: int,
 ) -> Element:
     xml = SubElement(
         parent,
@@ -322,7 +322,7 @@ def add_credential_kind(
             },
             nsmap=ns_map,
         )
-        add_enum_values(field_xml, field, schema_version, names)
+        add_enum_values(field_xml, field, names, schema_version)
     return xml
 
 
@@ -330,7 +330,7 @@ def add_resource_kind(
     parent: Element,
     resource_kind_json: Dict,
     names: _Names,
-    schema_version: str,
+    schema_version: int,
     type: int = 1,
     credential_kinds: Optional[Iterable[str]] = None,
 ) -> Element:
@@ -358,7 +358,7 @@ def add_identifier(
     parent: Element,
     identifier_json: Dict,
     names: _Names,
-    schema_version: str,
+    schema_version: int,
 ) -> Element:
     default = identifier_json.get("default")
     if default is None:
@@ -380,15 +380,15 @@ def add_identifier(
         },
         nsmap=ns_map,
     )
-    add_enum_values(identifier_xml, identifier_json, schema_version, names)
+    add_enum_values(identifier_xml, identifier_json, names, schema_version)
     return identifier_xml
 
 
 def add_enum_values(
-    parent: Element, identifier_json: Dict, schema_version: str, names: _Names
+    parent: Element, identifier_json: Dict, names: _Names, schema_version: int
 ) -> None:
     if "enum_values" in identifier_json:
-        if schema_version == "1.0.0":
+        if schema_version == 1:
             _add_enum_values_v1(parent, identifier_json, names)
         else:
             _add_enum_values_v0(parent, identifier_json, names)

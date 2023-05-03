@@ -74,7 +74,7 @@ class AdapterDefinition(GroupType):  # type: ignore
             "adapter_key": self.key,
             "adapter_label": self.label,
             "describe_version": self.version,
-            "schema_version": "1.0.0",
+            "schema_version": 1,
             "adapter_instance": {
                 "key": self.adapter_instance_key,
                 "label": self.adapter_instance_label,
