@@ -323,7 +323,7 @@
         "description": "Definition of the object model returned in CollectResult",
         "properties": {
           "schema_version":{
-            "type":"string"
+            "type":"int"
           },
           "adapter_key": {
             "type": "string"
