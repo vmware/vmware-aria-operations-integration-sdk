@@ -11,7 +11,6 @@ from typing import Iterable
 from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
-from typing import Union
 
 import httpx
 import lxml.etree as ET
