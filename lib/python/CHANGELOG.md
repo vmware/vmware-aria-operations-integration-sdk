@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## Unreleased
+* Add labeled enum values support  
+  
 ## 0.7.2 (04-18-2023)
 * Add 'query_for_resources' method to SuiteApiClient
 * Add helper function 'key_to_object' to suite_api_client

@@ -1,4 +1,4 @@
-FROM base-adapter:python-0.11.0
+FROM base-adapter:python-0.12.0
 
 # manual java install to prevent overwriting previous dependencies
 # switch to root in oder to do all installs
