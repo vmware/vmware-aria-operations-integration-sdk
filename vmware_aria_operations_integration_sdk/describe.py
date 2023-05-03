@@ -239,7 +239,7 @@ def is_true(element: Element, attr: str, default: str = "false") -> bool:
 
 def json_to_xml(json: Dict) -> Element:
     names = _Names()
-    schema_version = json.get("schema_version", None)
+    schema_version = json.get("schema_version", "")
 
     describe = Element(
         "{http://schemas.vmware.com/vcops/schema}AdapterKind",
@@ -297,7 +297,7 @@ def add_credential_kind(
     parent: Element,
     credential_kind_json: Dict,
     names: _Names,
-    schema_version: Union[str, None],
+    schema_version: str,
 ) -> Element:
     xml = SubElement(
         parent,
@@ -323,7 +323,7 @@ def add_credential_kind(
             },
             nsmap=ns_map,
         )
-        add_enum_values(field_xml, field, schema_version)
+        add_enum_values(field_xml, field, schema_version, names)
     return xml
 
 
@@ -331,7 +331,7 @@ def add_resource_kind(
     parent: Element,
     resource_kind_json: Dict,
     names: _Names,
-    schema_version: Union[str, None],
+    schema_version: str,
     type: int = 1,
     credential_kinds: Optional[Iterable[str]] = None,
 ) -> Element:
@@ -359,7 +359,7 @@ def add_identifier(
     parent: Element,
     identifier_json: Dict,
     names: _Names,
-    schema_version: Union[str, None],
+    schema_version: str,
 ) -> Element:
     default = identifier_json.get("default")
     if default is None:
@@ -381,44 +381,48 @@ def add_identifier(
         },
         nsmap=ns_map,
     )
-    add_enum_values(identifier_xml, identifier_json, schema_version)
+    add_enum_values(identifier_xml, identifier_json, schema_version, names)
     return identifier_xml
 
 
 def add_enum_values(
-    parent: Element, identifier_json: Dict, schema_version: Union[str, None]
+    parent: Element, identifier_json: Dict, schema_version: str, names: _Names
 ) -> None:
     if "enum_values" in identifier_json:
-        enum_values: list[dict[str, int]] = sorted(
-            identifier_json["enum_values"], key=lambda value: value["display_order"]
-        )
-        if schema_version is not None:
-            for value in enum_values:
-                SubElement(
-                    parent,
-                    "enum",
-                    attrib={
-                        "value": str(value["key"]),
-                        "nameKey": str(value["label"]),
-                        "default": str(
-                            value == identifier_json.get("default", False)
-                        ).lower(),
-                    },
-                    nsmap=ns_map,
-                )
+        if schema_version == "1.0.0":
+            _add_enum_values_v1(parent, identifier_json, names)
         else:
-            for value in identifier_json["enum_values"]:
-                SubElement(
-                    parent,
-                    "enum",
-                    attrib={
-                        "value": str(value),
-                        "default": str(
-                            value == identifier_json.get("default", False)
-                        ).lower(),
-                    },
-                    nsmap=ns_map,
-                )
+            _add_enum_values(parent, identifier_json, names)
+
+
+def _add_enum_values(parent: Element, identifier_json: Dict, names: _Names) -> None:
+    for value in identifier_json["enum_values"]:
+        SubElement(
+            parent,
+            "enum",
+            attrib={
+                "value": str(value),
+                "default": str(value == identifier_json.get("default", False)).lower(),
+            },
+            nsmap=ns_map,
+        )
+
+
+def _add_enum_values_v1(parent: Element, identifier_json: Dict, names: _Names) -> None:
+    enum_values: list[dict[str, int]] = sorted(
+        identifier_json["enum_values"], key=lambda value: value["display_order"]
+    )
+    for value in enum_values:
+        SubElement(
+            parent,
+            "enum",
+            attrib={
+                "value": str(value["key"]),
+                "nameKey": names.get_key(str(value["label"])),
+                "default": str(value == identifier_json.get("default", False)).lower(),
+            },
+            nsmap=ns_map,
+        )
 
 
 def add_attribute(parent: Element, attribute_json: Dict, names: _Names) -> Element:
