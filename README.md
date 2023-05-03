@@ -157,7 +157,7 @@ entry point and the best starting point.
 
 `adapter.py` is a template adapter that collects several objects and metrics from the
 container in which the adapter is running. The template adapter has comments throughout its code that explain what the code does 
-and customize it for your adapter. 
+and how to customize it for your adapter. 
 
 The methods inside the adapter template are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using 
