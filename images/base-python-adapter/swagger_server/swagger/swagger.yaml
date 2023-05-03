@@ -981,7 +981,7 @@ components:
       type: object
       properties:
         schema_version:
-          type: string
+          type: int
         adapter_key:
           type: string
         adapter_label:
@@ -1001,7 +1001,7 @@ components:
             $ref: '#/components/schemas/ObjectDefinition'
       description: Definition of the object model returned in CollectResult
       example:
-        schema_version: schema_version
+        schema_version: ''
         object_types:
         - 
         - 

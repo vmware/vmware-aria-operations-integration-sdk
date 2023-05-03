@@ -1,4 +1,4 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ class AdapterDefinition(GroupType):  # type: ignore
             "adapter_key": self.key,
             "adapter_label": self.label,
             "describe_version": self.version,
-            "schema_version": "1.0.0",
+            "schema_version": 1,
             "adapter_instance": {
                 "key": self.adapter_instance_key,
                 "label": self.adapter_instance_label,
