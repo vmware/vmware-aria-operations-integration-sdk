@@ -50,4 +50,5 @@ repos:
   hooks:
   - id: mypy
     additional_dependencies: [types-all]
+    exclude: ^images/base-python-adapter/swagger_server/models/
 
