@@ -63,7 +63,7 @@ Contents
 ### Requirements
 
 #### Operating System:
-The VMware Aria Operations Integration SDK has been tested in the following operating systems:
+The VMware Aria Operations Integration SDK has been tested on the following operating systems:
 * Windows 10
 * Windows 11
 * macOS 12 (Monterey)
