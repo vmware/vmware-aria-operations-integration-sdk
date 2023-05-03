@@ -388,7 +388,7 @@ def add_enum_values(
     parent: Element, identifier_json: Dict, names: _Names, schema_version: int
 ) -> None:
     if "enum_values" in identifier_json:
-        if schema_version == 1:
+        if schema_version >= 1:
             _add_enum_values_v1(parent, identifier_json, names)
         else:
             _add_enum_values_v0(parent, identifier_json, names)
