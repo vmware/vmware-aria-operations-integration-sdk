@@ -1,6 +1,6 @@
 # coding: utf-8
-# Copyright 2022-2023 VMware, Inc.
-# SPDX-License-Identifier: Apache-2.0
+#  Copyright 2022-2023 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
 from datetime import date
@@ -13,7 +13,6 @@ from swagger_server.models.base_model_ import Model
 from swagger_server.models.credential_definition import (
     CredentialDefinition,
 )  # noqa: F401,E501
-from swagger_server.models.model_int import ModelInt  # noqa: F401,E501
 from swagger_server.models.object_definition import ObjectDefinition  # noqa: F401,E501
 
 
@@ -25,7 +24,7 @@ class AdapterDefinition(Model):
 
     def __init__(
         self,
-        schema_version: ModelInt = None,
+        schema_version: int = None,
         adapter_key: str = None,
         adapter_label: str = None,
         describe_version: int = None,
@@ -36,7 +35,7 @@ class AdapterDefinition(Model):
         """AdapterDefinition - a model defined in Swagger
 
         :param schema_version: The schema_version of this AdapterDefinition.  # noqa: E501
-        :type schema_version: ModelInt
+        :type schema_version: int
         :param adapter_key: The adapter_key of this AdapterDefinition.  # noqa: E501
         :type adapter_key: str
         :param adapter_label: The adapter_label of this AdapterDefinition.  # noqa: E501
@@ -51,7 +50,7 @@ class AdapterDefinition(Model):
         :type object_types: List[ObjectDefinition]
         """
         self.swagger_types = {
-            "schema_version": ModelInt,
+            "schema_version": int,
             "adapter_key": str,
             "adapter_label": str,
             "describe_version": int,
@@ -89,22 +88,22 @@ class AdapterDefinition(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def schema_version(self) -> ModelInt:
+    def schema_version(self) -> int:
         """Gets the schema_version of this AdapterDefinition.
 
 
         :return: The schema_version of this AdapterDefinition.
-        :rtype: ModelInt
+        :rtype: int
         """
         return self._schema_version
 
     @schema_version.setter
-    def schema_version(self, schema_version: ModelInt):
+    def schema_version(self, schema_version: int):
         """Sets the schema_version of this AdapterDefinition.
 
 
         :param schema_version: The schema_version of this AdapterDefinition.
-        :type schema_version: ModelInt
+        :type schema_version: int
         """
 
         self._schema_version = schema_version

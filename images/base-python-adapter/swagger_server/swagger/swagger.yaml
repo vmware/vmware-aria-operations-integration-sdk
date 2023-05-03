@@ -742,7 +742,7 @@ components:
         is_impact: false
         is_property: true
         is_discrete: false
-        dashboard_order: 2
+        dashboard_order: 7
         data_type: data_type
         is_key_attribute: false
         label: label
@@ -769,7 +769,7 @@ components:
           enum_values:
           - 
           - 
-          display_order: 7
+          display_order: 9
           label: label
           type: string
           key: key
@@ -780,7 +780,7 @@ components:
           enum_values:
           - 
           - 
-          display_order: 7
+          display_order: 9
           label: label
           type: string
           key: key
@@ -841,10 +841,10 @@ components:
           label: label
           key: key
         display_order: 5
-        length: 5
+        length: 2
         description: description
         label: label
-        ident_type: 6
+        ident_type: 1
         type: type
         key: key
         required: true
@@ -906,10 +906,10 @@ components:
             label: label
             key: key
           display_order: 5
-          length: 5
+          length: 2
           description: description
           label: label
-          ident_type: 6
+          ident_type: 1
           type: type
           key: key
           required: true
@@ -923,10 +923,10 @@ components:
             label: label
             key: key
           display_order: 5
-          length: 5
+          length: 2
           description: description
           label: label
-          ident_type: 6
+          ident_type: 1
           type: type
           key: key
           required: true
@@ -950,7 +950,7 @@ components:
           is_impact: false
           is_property: true
           is_discrete: false
-          dashboard_order: 2
+          dashboard_order: 7
           data_type: data_type
           is_key_attribute: false
           label: label
@@ -961,7 +961,7 @@ components:
           is_impact: false
           is_property: true
           is_discrete: false
-          dashboard_order: 2
+          dashboard_order: 7
           data_type: data_type
           is_key_attribute: false
           label: label
@@ -981,7 +981,8 @@ components:
       type: object
       properties:
         schema_version:
-          type: int
+          type: integer
+          format: int32
         adapter_key:
           type: string
         adapter_label:
@@ -1001,7 +1002,7 @@ components:
             $ref: '#/components/schemas/ObjectDefinition'
       description: Definition of the object model returned in CollectResult
       example:
-        schema_version: ''
+        schema_version: 0
         object_types:
         - 
         - 
@@ -1016,10 +1017,10 @@ components:
               label: label
               key: key
             display_order: 5
-            length: 5
+            length: 2
             description: description
             label: label
-            ident_type: 6
+            ident_type: 1
             type: type
             key: key
             required: true
@@ -1033,10 +1034,10 @@ components:
               label: label
               key: key
             display_order: 5
-            length: 5
+            length: 2
             description: description
             label: label
-            ident_type: 6
+            ident_type: 1
             type: type
             key: key
             required: true
@@ -1060,7 +1061,7 @@ components:
             is_impact: false
             is_property: true
             is_discrete: false
-            dashboard_order: 2
+            dashboard_order: 7
             data_type: data_type
             is_key_attribute: false
             label: label
@@ -1071,7 +1072,7 @@ components:
             is_impact: false
             is_property: true
             is_discrete: false
-            dashboard_order: 2
+            dashboard_order: 7
             data_type: data_type
             is_key_attribute: false
             label: label
@@ -1080,7 +1081,7 @@ components:
           label: label
           key: key
         adapter_key: adapter_key
-        describe_version: 0
+        describe_version: 6
         adapter_label: adapter_label
         credential_types:
         - label: label
@@ -1090,7 +1091,7 @@ components:
             enum_values:
             - 
             - 
-            display_order: 7
+            display_order: 9
             label: label
             type: string
             key: key
@@ -1101,7 +1102,7 @@ components:
             enum_values:
             - 
             - 
-            display_order: 7
+            display_order: 9
             label: label
             type: string
             key: key
@@ -1115,7 +1116,7 @@ components:
             enum_values:
             - 
             - 
-            display_order: 7
+            display_order: 9
             label: label
             type: string
             key: key
@@ -1126,7 +1127,7 @@ components:
             enum_values:
             - 
             - 
-            display_order: 7
+            display_order: 9
             label: label
             type: string
             key: key
@@ -1202,7 +1203,7 @@ components:
         enum_values:
         - 
         - 
-        display_order: 7
+        display_order: 9
         label: label
         type: string
         key: key
