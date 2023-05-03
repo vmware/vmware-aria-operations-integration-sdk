@@ -391,10 +391,10 @@ def add_enum_values(
         if schema_version == "1.0.0":
             _add_enum_values_v1(parent, identifier_json, names)
         else:
-            _add_enum_values(parent, identifier_json, names)
+            _add_enum_values_v0(parent, identifier_json, names)
 
 
-def _add_enum_values(parent: Element, identifier_json: Dict, names: _Names) -> None:
+def _add_enum_values_v0(parent: Element, identifier_json: Dict, names: _Names) -> None:
     for value in identifier_json["enum_values"]:
         SubElement(
             parent,
