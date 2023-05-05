@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
+## Unreleased 
+* Add labeled enum values support (requires SDK library v.next)
+
 ## 0.5.0 (04-20-2023)
 * Default container registry can now be specified in global config file
 * Fixes issue where psutil version would cause python build to fail

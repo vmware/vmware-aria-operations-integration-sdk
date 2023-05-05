@@ -16,6 +16,12 @@ def test_adapter_definition_default_label() -> None:
     assert definition.label == key
 
 
+def test_adapter_definition_schema_version() -> None:
+    key = "key"
+    definition = AdapterDefinition(key)
+    assert "schema_version" in definition.to_json()
+
+
 def test_missing_adapter_key_raises_exception() -> None:
     with pytest.raises(KeyException):
         AdapterDefinition(key=None)
