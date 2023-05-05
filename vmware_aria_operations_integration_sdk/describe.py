@@ -238,6 +238,8 @@ def is_true(element: Element, attr: str, default: str = "false") -> bool:
 
 def json_to_xml(json: Dict) -> Element:
     names = _Names()
+    schema_version = int(json.get("schema_version", 0))
+
     describe = Element(
         "{http://schemas.vmware.com/vcops/schema}AdapterKind",
         attrib={
@@ -251,7 +253,7 @@ def json_to_xml(json: Dict) -> Element:
     # CredentialKinds
     credential_kinds = SubElement(describe, "CredentialKinds", nsmap=ns_map)
     for credential_kind in json["credential_types"]:
-        add_credential_kind(credential_kinds, credential_kind, names)
+        add_credential_kind(credential_kinds, credential_kind, names, schema_version)
 
     # ResourceKinds
     resource_kinds = SubElement(describe, "ResourceKinds", nsmap=ns_map)
@@ -262,11 +264,12 @@ def json_to_xml(json: Dict) -> Element:
         resource_kinds,
         json["adapter_instance"],
         names,
+        schema_version,
         type=7,
         credential_kinds=credential_types,
     )
     for object_type in json["object_types"]:
-        add_resource_kind(resource_kinds, object_type, names)
+        add_resource_kind(resource_kinds, object_type, names, schema_version)
 
     # CustomGroupMetrics
     # CapacityDefinitions
@@ -290,7 +293,10 @@ def write_describe(describe: Element, filename: str) -> None:
 
 
 def add_credential_kind(
-    parent: Element, credential_kind_json: Dict, names: _Names
+    parent: Element,
+    credential_kind_json: Dict,
+    names: _Names,
+    schema_version: int,
 ) -> Element:
     xml = SubElement(
         parent,
@@ -316,7 +322,7 @@ def add_credential_kind(
             },
             nsmap=ns_map,
         )
-        add_enum_values(field_xml, field)
+        add_enum_values(field_xml, field, names, schema_version)
     return xml
 
 
@@ -324,6 +330,7 @@ def add_resource_kind(
     parent: Element,
     resource_kind_json: Dict,
     names: _Names,
+    schema_version: int,
     type: int = 1,
     credential_kinds: Optional[Iterable[str]] = None,
 ) -> Element:
@@ -339,7 +346,7 @@ def add_resource_kind(
         parent, "ResourceKind", attrib=attributes, nsmap=ns_map
     )
     for identifier in resource_kind_json["identifiers"]:
-        add_identifier(resourcekind_xml, identifier, names)
+        add_identifier(resourcekind_xml, identifier, names, schema_version)
     for attribute in resource_kind_json["attributes"]:
         add_attribute(resourcekind_xml, attribute, names)
     for group in resource_kind_json["groups"]:
@@ -347,7 +354,12 @@ def add_resource_kind(
     return resourcekind_xml
 
 
-def add_identifier(parent: Element, identifier_json: Dict, names: _Names) -> Element:
+def add_identifier(
+    parent: Element,
+    identifier_json: Dict,
+    names: _Names,
+    schema_version: int,
+) -> Element:
     default = identifier_json.get("default")
     if default is None:
         default = ""
@@ -368,24 +380,48 @@ def add_identifier(parent: Element, identifier_json: Dict, names: _Names) -> Ele
         },
         nsmap=ns_map,
     )
-    add_enum_values(identifier_xml, identifier_json)
+    add_enum_values(identifier_xml, identifier_json, names, schema_version)
     return identifier_xml
 
 
-def add_enum_values(parent: Element, identifier_json: Dict) -> None:
+def add_enum_values(
+    parent: Element, identifier_json: Dict, names: _Names, schema_version: int
+) -> None:
     if "enum_values" in identifier_json:
-        for value in identifier_json["enum_values"]:
-            SubElement(
-                parent,
-                "enum",
-                attrib={
-                    "value": str(value),
-                    "default": str(
-                        value == identifier_json.get("default", False)
-                    ).lower(),
-                },
-                nsmap=ns_map,
-            )
+        if schema_version >= 1:
+            _add_enum_values_v1(parent, identifier_json, names)
+        else:
+            _add_enum_values_v0(parent, identifier_json, names)
+
+
+def _add_enum_values_v0(parent: Element, identifier_json: Dict, names: _Names) -> None:
+    for value in identifier_json["enum_values"]:
+        SubElement(
+            parent,
+            "enum",
+            attrib={
+                "value": str(value),
+                "default": str(value == identifier_json.get("default", False)).lower(),
+            },
+            nsmap=ns_map,
+        )
+
+
+def _add_enum_values_v1(parent: Element, identifier_json: Dict, names: _Names) -> None:
+    enum_values: list[dict[str, int]] = sorted(
+        identifier_json["enum_values"], key=lambda value: value["display_order"]
+    )
+    for value in enum_values:
+        SubElement(
+            parent,
+            "enum",
+            attrib={
+                "value": str(value["key"]),
+                "nameKey": names.get_key(str(value["label"])),
+                "default": str(value == identifier_json.get("default", False)).lower(),
+            },
+            nsmap=ns_map,
+        )
 
 
 def add_attribute(parent: Element, attribute_json: Dict, names: _Names) -> Element:

@@ -95,9 +95,55 @@ def test_define_enum_identifier() -> None:
         "required": False,
         "ident_type": 2,
         "enum": True,
-        "enum_values": ["B", "C", "E"],
+        "enum_values": [
+            {"key": "B", "label": "B", "display_order": 0},
+            {"key": "C", "label": "C", "display_order": 1},
+            {"key": "E", "label": "E", "display_order": 2},
+        ],
         "description": None,
         "default": "E",
+        "display_order": 0,
+        "type": "string",
+    }
+
+
+def test_define_enum_identifier_with_label() -> None:
+    definition = ObjectType("test")
+    definition.define_enum_identifier("A", [("B", "C")], "D", False, False, "E")
+    assert definition.identifiers["A"].to_json() == {
+        "key": "A",
+        "label": "D",
+        "required": False,
+        "ident_type": 2,
+        "enum": True,
+        "enum_values": [
+            {"key": "B", "label": "C", "display_order": 0},
+            {"key": "E", "label": "E", "display_order": 1},
+        ],
+        "description": None,
+        "default": "E",
+        "display_order": 0,
+        "type": "string",
+    }
+
+
+def test_define_enum_identifier_with_label_and_default() -> None:
+    definition = ObjectType("test")
+    definition.define_enum_identifier(
+        "A", [("B", "C"), ("D", "E")], "F", False, False, "D"
+    )
+    assert definition.identifiers["A"].to_json() == {
+        "key": "A",
+        "label": "F",
+        "required": False,
+        "ident_type": 2,
+        "enum": True,
+        "enum_values": [
+            {"key": "B", "label": "C", "display_order": 0},
+            {"key": "D", "label": "E", "display_order": 1},
+        ],
+        "description": None,
+        "default": "D",
         "display_order": 0,
         "type": "string",
     }

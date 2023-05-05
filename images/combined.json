@@ -723,7 +723,20 @@
                         "enum_values": {
                            "type": "array",
                            "items": {
-                              "type": "string"
+                              "type": "object",
+                              "properties": {
+                                 "key": {
+                                    "type": "string"
+                                 },
+                                 "label": {
+                                    "type": "string"
+                                 },
+                                 "display_order": {
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "minimum": 0
+                                 }
+                              }
                            }
                         },
                         "default": {
@@ -782,7 +795,20 @@
                "enum_values": {
                   "type": "array",
                   "items": {
-                     "type": "string"
+                     "type": "object",
+                     "properties": {
+                        "key": {
+                           "type": "string"
+                        },
+                        "label": {
+                           "type": "string"
+                        },
+                        "display_order": {
+                           "type": "integer",
+                           "format": "int32",
+                           "minimum": 0
+                        }
+                     }
                   }
                },
                "display_order": {
@@ -872,6 +898,10 @@
             "type": "object",
             "description": "Definition of the object model returned in CollectResult",
             "properties": {
+               "schema_version": {
+                  "type": "integer",
+                  "format": "int32"
+               },
                "adapter_key": {
                   "type": "string"
                },
