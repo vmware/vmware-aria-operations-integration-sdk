@@ -1,0 +1,2 @@
+vmware-aria-operations-integration-sdk-lib==0.7.*
+pyvmomi==8.0.0.1.2
