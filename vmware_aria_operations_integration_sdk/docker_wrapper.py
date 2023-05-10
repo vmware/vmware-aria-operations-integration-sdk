@@ -81,14 +81,16 @@ def init() -> DockerClient:
         return client
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:
+            logger.debug(e, exc_info=True)
             raise InitError(
                 message="Cannot connect to the Docker daemon",
                 recommendation="Ensure the docker daemon is running",
             )
         elif "PermissionError" in e.args[0]:
+            logger.debug(e, exc_info=True)
             raise InitError(
                 message="Cannot run docker commands.",
-                recommendation=f"Make sure the user {os.getlogin()} has permissions to run docker",
+                recommendation=f"Make sure the user '{os.getlogin()}' has permissions to run docker",
             )
         else:
             raise InitError(e)

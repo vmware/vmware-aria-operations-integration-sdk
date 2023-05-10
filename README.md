@@ -84,18 +84,18 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download), 
   and follow the instructions provided for your operating system.
-* Pip. If Python3 is installed, pip is most likely also installed. For instructions on installing Pip, go
-  to [Pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions
-  provided.
+* Pipx (recommended) or pip. If Python3 is installed, pip is most likely also installed. 
+  For instructions on installing pipx, go to [pipx's installation documentation](https://pypa.github.io/pipx/installation/), and follow the instructions provided.
+  For instructions on installing pip, go to [pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions provided.
 * Git 2.35.0 or later. Updating to the latest stable version is recommended.
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   and follow the instructions provided for your operating system.
 
 ### Installation
 
-To install the SDK, use `pip` to install into the global Python environment, or `pipx` to install into a isolated environment.
+To install the SDK, use `pipx` to install into an isolated environment. We recommend this in most cases to avoid dependency conflicts. Alternatively, `pip` can be used to install into the global environment, or to install into a manually-managed virtual environment.
 ```sh
-python3 -m pip install vmware-aria-operations-integration-sdk
+pipx install vmware-aria-operations-integration-sdk
 ```
 
 ### Creating a Management Pack

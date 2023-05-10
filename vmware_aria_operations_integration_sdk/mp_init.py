@@ -171,7 +171,11 @@ def create_project(
 
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
-    conf_resources_dir = mkdir(path, "conf", "resources")
+    conf_resources_dir = mkdir(conf_dir, "resources")
+    conf_images_dir = mkdir(conf_dir, "images")
+    add_git_keep_file(mkdir(conf_images_dir, "AdapterKind"))
+    add_git_keep_file(mkdir(conf_images_dir, "ResourceKind"))
+    add_git_keep_file(mkdir(conf_images_dir, "TraversalSpec"))
 
     create_manifest_localization_file(path, name, vendor, description)
     eula_file = create_eula_file(path, eula_file)
