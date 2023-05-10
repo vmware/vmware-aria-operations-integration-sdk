@@ -1,6 +1,6 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
-## Unreleased
+## 0.7.3 (05-10.2023)
 * Add labeled enum values support  
   
 ## 0.7.2 (04-18-2023)
