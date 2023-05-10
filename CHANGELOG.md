@@ -1,7 +1,10 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
-## Unreleased 
-* Add labeled enum values support (requires SDK library v.next)
+## 0.5.1 (05-10-2023) 
+* Update docker module version to fix urllib3 2.0.0 incompatibility.
+* Update adapter template with current best practices.
+* mp-init now generates icon folders for AdapterKind, ResourceKind, and TraversalSpec.
+* Add labeled enum values support (requires SDK library 0.7.3).
 
 ## 0.5.0 (04-20-2023)
 * Default container registry can now be specified in global config file
