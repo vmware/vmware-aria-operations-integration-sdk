@@ -11,6 +11,12 @@ VMware Aria Operations Integration SDK Contents
 * [Installation](../README.md#installation)
 * [Creating a Management Pack](../README.md#creating-a-management-pack)
 
+[Reference](references.md)
+* [Adapter](adapter.md)
+* Architecture
+* Tools
+* Library Reference
+ 
 [Guides](guides.md)
 * [Using a built-in Language](builtin_language.md)
     * [Python](python_project.md)
@@ -43,10 +49,5 @@ VMware Aria Operations Integration SDK Contents
 
 [Examples](examples.md)
 
-[Reference](references.md)
-* Architecture
-* Tools
-* Adapter
-* Library Reference
 
 [FAQ](faq.md)
