@@ -230,7 +230,7 @@ The `onConfigure`, `onStopCollection`, and `onDiscard` methods are have no repla
 
 ### Is there a way to cache data for subsequent collections?
 
-The containerized adapter does not support caching collections at the moment.
+The containerized adapter does not support caching data between collections.
 
 ### Can I implement on-demand collections?
 
