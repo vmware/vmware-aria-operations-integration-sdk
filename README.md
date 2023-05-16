@@ -1290,7 +1290,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 </details>
 
-## [FAQ](doc/faq.md)
+## [FAQ](doc/troubleshooting_and_faq.md)
 
 ## Contributing
 

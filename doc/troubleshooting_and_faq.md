@@ -1,4 +1,4 @@
-Frequently Asked Questions
+Troubleshooting & FAQ 
 ==========================
 
 ### When starting Docker, I get 'Permission denied while trying to connect to the Docker daemon'
@@ -222,7 +222,7 @@ If the pak file installs successfully but errors when creating an account (adapt
 
 ### How can I implement Policy and Capacity models? 
 
-Currently, the containerized adapter doest not  have the ability to implement policy settings or capacity models.
+Policy and capacity models can only be specified by writing a `describe.xml` file in the `conf` directory.
 
 ### Are there replacements for  `onConfigure`, `onStopCollection`, and `onDiscard` methods?
 

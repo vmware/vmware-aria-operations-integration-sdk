@@ -49,4 +49,4 @@ VMware Aria Operations Integration SDK Contents
 * Adapter
 * Library Reference
 
-[FAQ](faq.md)
+[Troubleshooting and FAQ](troubleshooting_and_faq.md)
