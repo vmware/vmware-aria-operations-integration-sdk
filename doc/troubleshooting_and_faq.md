@@ -11,6 +11,11 @@ on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install
 If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
 on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
 
+### How are docker credential managed?
+
+Docker credential are managed by the Docker daemon. To learn more about how the docker daemon manages credentials
+visit the docker [credential store page](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
+
 ### How can I set up an AWS container registry for my project?
 
 AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before
@@ -39,9 +44,7 @@ VMware Aria Operations only supports anonymous pulling of images, however, cloud
 2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
 3. Install Management Pack in VMware Aria operations
 
-
 ### How can I change the container registry for my project?
-
 
 Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
 repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
