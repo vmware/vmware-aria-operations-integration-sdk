@@ -278,8 +278,8 @@ It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
-minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **
-Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to 
+**Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](doc/test-adapter-cpu-idle-time.png)
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
