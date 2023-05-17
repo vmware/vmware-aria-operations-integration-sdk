@@ -229,7 +229,7 @@ Policy and capacity models can only be specified by writing a `describe.xml` fil
 
 ### Are there replacements for  `onConfigure`, `onStopCollection`, and `onDiscard` methods?
 
-The `onConfigure`, `onStopCollection`, and `onDiscard` methods are have no replacement in the new integration SDK. 
+The `onConfigure`, `onStopCollection`, and `onDiscard` methods have no replacement in the new integration SDK. 
 
 ### Is there a way to cache data for subsequent collections?
 
