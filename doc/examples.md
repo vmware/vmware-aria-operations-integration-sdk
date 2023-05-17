@@ -2,7 +2,7 @@ Examples
 ========
 
 
-- [My SQL Extension MP](../samples/mysql-extension-mp)
+- [MySQL Extension MP](../samples/mysql-extension-mp)
     - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](../README.md).
       This Management Pack collects some data from MySQL and attaches them to objects created by the MySQL Management
       Pack.
