@@ -23,8 +23,8 @@ Contents
   * describe.xml
   * commands.cfg
 
-* VMware Aria Operations Integration Library
-  * [Python](python-integration-module.md)
+* VMware Aria Operations Integration SDK Library
+  * [Python](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
     * Object model
       * Adapter Instance
         * Identifiers
