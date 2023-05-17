@@ -23,7 +23,7 @@ To define an adapter in the `conf/describe.xml` file use the top-level `AdapterK
 defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used when creating objects (See [Creating an object](#creating-an-object)),
 and must also be present in the `manifest.txt` file in the `"adapter_kinds"` array. When defining an adapter, we also
 have to define an adapter instance. An adapter instance is a special object in VMware Aria Operations that stores user
-configuration for a connection. Every adapter must have exactly one adapter instance. Adapter instances are set by
+configuration for a connection. Every adapter must have exactly one adapter instance type. Adapter instances are set by
 defining a `ResourceKind` element with attribute `type=7`. in Python,
 we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter_definition.html).
 
@@ -46,10 +46,12 @@ we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter
 For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
 For more information about the Python module visit [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
 
-Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers` element) and credentials (`CredentialKind` element)
+Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) and credentials (`CredentialKind` element)
 will be prompted to the user when creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations`
-page (See [Adding a Configuration Field to an Adapter Instance](#adding-a-configuration-field-to-an-adapter-instance)
-and [Adding a Credential](#adding-a-credential). After the account has been created, configuration fields will be
+page (See [Adding a Configuration Field to an Adapter Instance](#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model
+)
+and [Adding a Credential](#defining-a-credential-in-the-object-model
+). After the account has been created, configuration fields will be
 available in the input to the `collect`, `test`, and `get_endpoint` methods.
 (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
@@ -68,7 +70,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
 >     )
 >     definition.define_enum_parameter(
 >         "ssl_mode",
->         values= ["Disable"],
+>         values= ["Disable", "Require"],
 >         label="SSL",
 >         default="Require",
 >         advanced=True,
@@ -84,7 +86,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
 > ```xml
 > <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="My Adapter" nameKey="1" version="1">
 >   <ResourceKinds>
->     <ResourceKind key="MyAdapter_adapter_instance" nameKey="5" type="7" >
+>     <ResourceKind key="MyAdapter" nameKey="5" type="7" >
 >         <ResourceIdentifier dispOrder="1" key="instance" nameKey="6" required="true" type="string" identType="1"/>
 >         <ResourceIdentifier dispOrder="2" key="ssl_mode" nameKey="7" required="true" type="string" identType="2" enum="true">
 >             <enum default="true" value="Disable" />
@@ -102,8 +104,8 @@ For more information about the Python module visit [VMware Aria Operations Integ
 In the `describe.xml` adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the
 identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
 is `2`, the identifier is _non-identifying_, and will show up under the 'advanced' section of the configuration page.
-In Python, the [Parameter](../lib/python/doc/aria/ops/definition/parameter.html) object has an `adavanced` attribute that determines
-identType.
+In Python, the [Parameter](../lib/python/doc/aria/ops/definition/parameter.html) object has an `advanced` attribute that
+determines identType.
 
 
 > ![Account creation with above settings, plus a credential](adding_configuration_fields.png)
@@ -112,7 +114,7 @@ identType.
 
 > Note: If there are any existing connections used by the [`mp-test`](mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
 
-Once an adapter instance is defined, any configuration fields (`ResourceIdentifiers`) will be prompted to the user when
+Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) will be prompted to the user when
 creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations` page.
 After the account has been created, configuration fields will be available to the `AdapterInstance` object passed to the
 `collect`, `test`, and `get_endpoints` methods defined in `adapter.py`. (See [Creating an Adapter Instance](#creating-an-adapter-instance).)
@@ -175,37 +177,37 @@ instance is a special `ResourceKind` that is used to configure an adapter. It is
 > is always added (by VMware Aria Operations), and allows for credentials to be reused between adapter instances.
 
 Both `describe.xml` and [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter_definition.html) allow for the
-use of multiple credential.
+use of multiple credential types.
 
 > ### VMware Aria Operations Integration SDK library
 > ```python
 > def get_adapter_definition() -> AdapterDefinition:
 >     definition = AdapterDefinition("MyAdapter", "My Adapter")
 >
->     credential = definition.define_credential_type("my_credential_type", "Credential")
->     credential.define_string_parameter("user_name", "User Name")
->     credential.define_password_parameter("user_password", "Password", required=False)
->     # Second set of credentials
->     second_credential = definition.define_credential_type("my_second_credential_type", "Second Credential")
->     second_credential.define_string_parameter("second_user_name", "Second User Name")
->     second_credential.define_password_parameter("second_user_password", "Second Password", required=False)
+>     # Basic Auth
+>     basic_auth_credential = definition.define_credential_type("basic_auth_credential", "Basic Auth")
+>     basic_auth_credential.define_string_parameter("user_name", "User Name")
+>     basic_auth_credential.define_password_parameter("user_password", "Password", required=False)
+>
+>     # Token
+>     token_credential = definition.define_credential_type("token_credential", "Token")
+>     token_credential.define_password_parameter("token", "Token")
 > ```
->> Note: The `AdapterDefinition` will generate a describe.xml equivalent to the one below
+> The `AdapterDefinition` will generate a describe.xml equivalent to the one below
 > ### describe.xml
 > ```xml
-> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="MyAdapter" nameKey="1" version="1">
 >   <CredentialKinds>
->       <CredentialKind key="my_credential_type" nameKey="2" >
+>       <CredentialKind key="basic_auth_credential" nameKey="2" >
 >         <CredentialField required="true" dispOrder="0" enum="false" key="user_name" nameKey="3" password="false" type="string"/>
 >         <CredentialField required="false" dispOrder="1" enum="false" key="user_password" nameKey="4" password="true" type="string"/>
 >       </CredentialKind>
->       <CredentialKind key="my_second_credential_type" nameKey="2" >
->           <CredentialField required="true" dispOrder="0" enum="false" key="second_user_name" nameKey="3" password="false" type="string"/>
->           <CredentialField required="false" dispOrder="1" enum="false" key="second_user_password" nameKey="4" password="true" type="string"/>
+>       <CredentialKind key="token_credential" nameKey="2" >
+>           <CredentialField required="true" dispOrder="1" enum="false" key="token" nameKey="4" password="true" type="string"/>
 >       </CredentialKind>
 >   </CredentialKinds>
 >   <ResourceKinds>
->       <ResourceKind key="MyAdapter_adapter_instance" nameKey="2" type="7" credentialKind="my_credential_type,my_second_credential_type"/>
+>       <ResourceKind key="MyAdapter_adapter_instance" nameKey="2" type="7" credentialKind="basic_auth_credential,token_credential"/>
 >   </ResourceKinds>
 > </AdapterKind>
 > ```
@@ -221,8 +223,10 @@ page. After the account has been created, credential fields will be available `A
 `collect`, `test`, and `get_endpoints` methods.(See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
-the credential is available in the [AdapterInstance](../lib/python/doc/aria/ops/adapter_instance.html) object passed to
-the `collect`, `test`, and `get_endpoint` methods in `app/adapter.py` .(See [Creating an Adapter Instance](#creating-an-adapter-instance).)
+the credentials are available in the [AdapterInstance](../lib/python/doc/aria/ops/adapter_instance.html) object passed to
+the `collect`, `test`, and `get_endpoint` methods in `app/adapter.py`(See [Creating an Adapter Instance](#creating-an-adapter-instance).).
+If an adapter supports multiple credentials, **AdapterInstance.get_credential_type** function returns the type of the
+credential used by this adapter instance, or `None` if the adapter instance does not have a credential.
 
 ## Creating an Adapter Instance
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
@@ -244,7 +248,8 @@ password = adapter_instance.get_credential_value("password")
 
 For other languages, or using Python without the VMware Aria Operations Integration SDK Library module, JSON representing
 the adapter instance is sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the
-filename of the named pipe.
+filename of the named pipe. The adapter instance JSON is described in the
+[VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Adding an Object Type to the Object Model
 An object type is a class of objects (resources) that share the same set of metrics, properties, and identifiers. For
@@ -260,12 +265,12 @@ use the `AdapterDefinition.define_object_type` function of [AdapterDefinition](.
 > def get_adapter_definition() -> AdapterDefinition:
 >     definition = AdapterDefinition("MyAdapter", "My Adapter")
 >
->     definition.define_object_type("my_database_resource_kind", "Data Base")
+>     definition.define_object_type("my_database_resource_kind", "Database")
 > ```
 > The `AdapterDefinition` will generate a describe.xml equivalent to the one below
 > ### describe.xml
 > ```xml
-> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="MyAdapter" nameKey="1" version="1">
 >     <!--...-->
 >   <ResourceKinds>
 >     <!--...-->
@@ -284,14 +289,14 @@ not used for this purpose.
 > def get_adapter_definition() -> AdapterDefinition:
 >     definition = AdapterDefinition("MyAdapter", "My Adapter")
 >
->     data_base = definition.define_object_type("my_database_resource_kind", "Data Base")
+>     data_base = definition.define_object_type("my_database_resource_kind", "Database")
 >     data_base.define_string_identifier("server_ip", "IP")
 >     data_base.define_string_identifier("server_port", "Port")
 > ```
 > The `AdapterDefinition` will generate a describe.xml equivalent to the one below
 > ### describe.xml
 > ```xml
-> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="MyAdapter" nameKey="1" version="1">
 >     <!--...-->
 >   <ResourceKinds>
 >     <!--...-->
@@ -318,14 +323,14 @@ Once the object type is defined in the [object model](#defining-an-adapter-and-a
 it can be used in the adapter code. See [Creating an object](#creating-an-object).
 
 ## Creating an Object
-Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type).
+Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type-to-the-object-model).
 
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
 the canonical method for creating a new object is to use the `CollectResult` object.
 
 ```python
 result = CollectResult()
-database1 = result.object(adapter_kind="my_adapter", object_kind="my_database_resource_kind", name="db1",
+database1 = result.object(adapter_kind="MyAdapter", object_kind="my_database_resource_kind", name="db1",
                           identifiers=[
                               Identifier("server_ip", "10.0.34.1"),
                               Identifier("server_port", 110)
@@ -341,7 +346,7 @@ result.send_result()
 >
 > Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.
 
-For other languages, or using Python without the VMware Aria Operations Integration module, objects must be returned as json, described
+For other languages, or using Python without the VMware Aria Operations Integration module, objects must be returned as JSON, described
 in
 the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
@@ -366,7 +371,7 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
 > def get_adapter_definition() -> AdapterDefinition:
 >     definition = AdapterDefinition("MyAdapter", "My Adapter")
 >
->     data_base = definition.define_object_type("my_database_resource_kind", "Data Base")
+>     data_base = definition.define_object_type("my_database_resource_kind", "Database")
 >     data_base.define_string_identifier("server_ip", "IP")
 >     data_base.define_string_identifier("server_port", "Port")
 >
@@ -379,7 +384,7 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
 > The `AdapterDefinition` will generate a describe.xml equivalent to the one below
 > ### describe.xml
 > ```xml
-> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
+> <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="MyAdapter" nameKey="1" version="1">
 >   <!--...-->
 >   <ResourceKinds>
 >     <!--...-->
@@ -400,7 +405,7 @@ For more information about the Python module visit [VMware Aria Operations Integ
 Once an attribute is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
 
 ## Creating a Metric or Property
-Before creating a metric or property, ensure that the attribute describing the data is [present in the object model](#adding-an-attribute).
+Before creating a metric or property, ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
 
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
 , metrics and properties can be added using the attribute key and a value. In the case of attributes in groups, the
@@ -418,11 +423,11 @@ database1.with_metric("session_count", 5)
 > Result of the above code. Since the numbers and strings are hard-coded, these values will never change.
 > For a real adapter, the values will be the result of querying the target for up-to-date information.
 > Note that there are a number of automatically generated metrics and properties. The metric groups 'Badge',
-> 'vRealize Operations Generated', and 'vRealize Operations Manager Generated Properties' (and the metrics
+> 'VMware Aria Operations Generated', and 'VMware Aria Operations Manager Generated Properties' (and the metrics
 > and properties inside) are present on every object.
 
 For other languages, or using Python without the VMware Aria Operations Integration module, metrics and properties
-are returned as json inside of objects, described in the
+are returned as JSON inside of objects, described in the
 [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Creating an Event
@@ -442,7 +447,7 @@ database1.with_event(
 > Result of the above code. Note that the criticality is affecting the health of the db1 object it is attached to.
 
 For other languages, or using Python without the VMware Aria Operations Integration SDK Library module, events are
-returned as json inside of objects, described in the
+returned as JSON inside of objects, described in the
 [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
@@ -472,7 +477,7 @@ database2.add_parent(instance)
 > Result of the above code. The db1 and db2 objects are both children of the 'instance' object. The health of a child
 > object can impact the health of a parent object.
 
-For other languages, or using Python without the VMware Aria Operations Integration module, relationships are returned as json inside a
+For other languages, or using Python without the VMware Aria Operations Integration module, relationships are returned as JSON inside a
 collect result object, described in
 the [VMware Aria Operations Collector Framework OpenAPI Document](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
