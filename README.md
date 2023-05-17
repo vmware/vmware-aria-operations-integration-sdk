@@ -1,5 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/vmware_aria_operations_integration_sdk.svg)](https://badge.fury.io/py/vmware_aria_operations_integration_sdk)
 [![Aria Operations Integration SDK](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml/badge.svg)](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml)
+
 VMware Aria Operations Integration SDK
 =====================
 
