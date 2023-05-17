@@ -17,7 +17,7 @@ Examples
 
 - [vCenter Extension MP](../samples/vcenter-extension-mp)
     - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](../README.md).
-    This Management Pack collect some data from vCenter and attaches them to object created by the vCenter Management
+    This Management Pack collects some additional Host and VM data from vCenter and attaches them to the corresponding objects created by the vCenter Management
     Pack.
 
 [//]: # (- [NSX ALB AVI MP]&#40;https://gitlab.eng.vmware.com/cmbu-tvg/nxl-alb-avi-mp&#41;)
