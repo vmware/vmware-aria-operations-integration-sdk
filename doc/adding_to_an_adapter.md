@@ -225,8 +225,8 @@ page. After the account has been created, credential fields will be available `A
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
 the credentials are available in the [AdapterInstance](../lib/python/doc/aria/ops/adapter_instance.html) object passed to
 the `collect`, `test`, and `get_endpoint` methods in `app/adapter.py`(See [Creating an Adapter Instance](#creating-an-adapter-instance).).
-If an adapter supports multiple credentials, **AdapterInstance.get_credential_type** function returns the type of the
-credential used by this adapter instance, or `None` if the adapter instance does not have a credential.
+If an adapter supports multiple credential types, the **AdapterInstance.get_credential_type()** function can be used to determine the type of the
+credential used by the adapter instance.
 
 ## Creating an Adapter Instance
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
