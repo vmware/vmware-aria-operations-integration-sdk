@@ -22,9 +22,9 @@ method will be ignored.
 To define an adapter in the `conf/describe.xml` file use the top-level `AdapterKind` element. Only one adapter can be
 defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used when creating objects (See [Creating an object](#creating-an-object)),
 and must also be present in the `manifest.txt` file in the `"adapter_kinds"` array. When defining an adapter, we also
-have to define an adapter instance. An adapter instance is a special object in VMware Aria Operations that stores user
-configuration for a connection. Every adapter must have exactly one adapter instance type. Adapter instances are set by
-defining a `ResourceKind` element with attribute `type=7`. in Python,
+have to define an adapter instance type. An adapter instance type is a special object in VMware Aria Operations that stores user
+configuration for a connection. Every adapter must have exactly one adapter instance type. The Adapter instance type is 
+set by defining a `ResourceKind` element with attribute `type=7`. in Python,
 we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter_definition.html).
 
 > ### VMware Aria Operations Integration SDK Library
@@ -35,7 +35,7 @@ we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter
 >> Note: The `AdapterDefinition` will generate a describe.xml equivalent to the one below
 > ### describe.xml
 > ```xml
-> <AdapterKind key="MyAdapter" nameKey="My Adapter" version="1" >
+> <AdapterKind key="MyAdapter" nameKey="1" version="1" >
 >     <CredentialKinds/>
 >     <ResourceKinds>
 >         <ResourceKind key="MyAdapter_adapter_instance" nameKey="2" type="7" credentialKind=""/>
