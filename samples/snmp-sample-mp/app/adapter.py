@@ -151,12 +151,12 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
                 data = {str(key): value for (key, value) in var_binds}
 
                 if SYSTEM_NAME in data:
-                    device = result.object(
-                        ADAPTER_KIND, DEVICE, str(data[SYSTEM_NAME])
-                    )
+                    device = result.object(ADAPTER_KIND, DEVICE, str(data[SYSTEM_NAME]))
                     device.with_property(DESCRIPTION_KEY, str(data[SYSTEM_DESC]))
                     device.with_property(OID_KEY, str(data[SYSTEM_OBJECT_ID]))
-                    device.with_property(UPTIME_KEY, int(data[SYSTEM_UPTIME] / 8640000.0))
+                    device.with_property(
+                        UPTIME_KEY, int(data[SYSTEM_UPTIME] / 8640000.0)
+                    )
                     device.with_property(CONTACT_KEY, str(data[SYSTEM_CONTACT]))
                     device.with_property(LOCATION_KEY, str(data[SYSTEM_LOCATION]))
 
