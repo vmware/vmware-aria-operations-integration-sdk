@@ -82,6 +82,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Docker 20.10.0 or later. Updating to the latest stable version is recommended. For instructions on installing Docker,
   go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   follow the instructions provided for your operating system.
+* Container registry with read and write access (see [FAQ and Troubleshooting](doc/troubleshooting_and_faq.md) for additional information).
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   and follow the instructions provided for your operating system.
@@ -279,7 +280,7 @@ It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
-minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to 
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to
 **Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](doc/test-adapter-cpu-idle-time.png)
