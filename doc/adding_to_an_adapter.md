@@ -20,12 +20,12 @@ method will be ignored.
 
 ## Defining an Adapter and Adapter Instance in the Object Model
 To define an adapter in the `conf/describe.xml` file use the top-level `AdapterKind` element. Only one adapter can be
-defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used when creating objects (See [Creating an object](#creating-an-object)),
-and must also be present in the `manifest.txt` file in the `"adapter_kinds"` array. When defining an adapter, we also
-have to define an adapter instance type. An adapter instance type is a special object in VMware Aria Operations that stores user
-configuration for a connection. Every adapter must have exactly one adapter instance type. The Adapter instance type is 
-set by defining a `ResourceKind` element with attribute `type=7`. in Python,
-we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter_definition.html).
+defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used
+when creating objects (See [Creating an object](#creating-an-object)), and must also be present in the `manifest.txt`
+file in the `"adapter_kinds"` array. When defining an adapter, we also have to define an adapter instance type. An adapter
+instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter
+must have exactly one adapter instance type. The Adapter instance type is set by defining a `ResourceKind` element with
+attribute `type=7`. in Python, we can use the [AdapterDefinition](../lib/python/doc/aria/ops/definition/adapter_definition.html).
 
 > ### VMware Aria Operations Integration SDK Library
 > ```python
@@ -89,8 +89,8 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
 >     <ResourceKind key="MyAdapter" nameKey="5" type="7" >
 >         <ResourceIdentifier dispOrder="1" key="instance" nameKey="6" required="true" type="string" identType="1"/>
 >         <ResourceIdentifier dispOrder="2" key="ssl_mode" nameKey="7" required="true" type="string" identType="2" enum="true">
->             <enum default="true" value="Disable" />
->             <enum default="false" value="Require" />
+>             <enum default="false" value="Disable" />
+>             <enum default="true" value="Require" />
 >         </ResourceIdentifier>
 >         <ResourceIdentifier dispOrder="3" key="max_events" nameKey="8" required="false" type="integer" identType="2"/>
 >     </ResourceKind>
