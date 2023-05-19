@@ -17,7 +17,12 @@ from constants import AUTH_PASS_PHRASE
 from constants import AUTH_PROTOCOL
 from constants import AUTH_PROTOCOLS
 from constants import COMMUNITY_STRING
+from constants import CONTACT_KEY
+from constants import DESCRIPTION_KEY
+from constants import DEVICE
 from constants import HOSTNAME
+from constants import LOCATION_KEY
+from constants import OID_KEY
 from constants import PORT
 from constants import PRIVACY_PASS_PHRASE
 from constants import PRIVACY_PROTOCOL
@@ -30,6 +35,7 @@ from constants import SYSTEM_LOCATION
 from constants import SYSTEM_NAME
 from constants import SYSTEM_OBJECT_ID
 from constants import SYSTEM_UPTIME
+from constants import UPTIME_KEY
 from constants import USER
 from pysnmp.hlapi import *
 from pysnmp_util import handle_errors
@@ -63,12 +69,12 @@ def get_adapter_definition() -> AdapterDefinition:
         )
         snmp_v3.define_password_parameter(PRIVACY_PASS_PHRASE, "Privacy Passphrase")
 
-        device = definition.define_object_type("device", "SNMP Device")
-        device.define_string_property("description", "Description")
-        device.define_string_property("oid", "Object ID")
-        device.define_numeric_property("uptime", "Uptime", unit=Units.TIME.DAYS)
-        device.define_string_property("contact", "Contact")
-        device.define_string_property("location", "Location")
+        device = definition.define_object_type(DEVICE, "SNMP Device")
+        device.define_string_property(DESCRIPTION_KEY, "Description")
+        device.define_string_property(OID_KEY, "Object ID")
+        device.define_numeric_property(UPTIME_KEY, "Uptime", unit=Units.TIME.DAYS)
+        device.define_string_property(CONTACT_KEY, "Contact")
+        device.define_string_property(LOCATION_KEY, "Location")
 
         logger.debug(f"Returning adapter definition: {definition.to_json()}")
         return definition
@@ -146,13 +152,13 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
 
                 if SYSTEM_NAME in data:
                     device = result.object(
-                        ADAPTER_KIND, "device", str(data[SYSTEM_NAME])
+                        ADAPTER_KIND, DEVICE, str(data[SYSTEM_NAME])
                     )
-                    device.with_property("description", str(data[SYSTEM_DESC]))
-                    device.with_property("oid", str(data[SYSTEM_OBJECT_ID]))
-                    device.with_property("uptime", int(data[SYSTEM_UPTIME] / 8640000.0))
-                    device.with_property("contact", str(data[SYSTEM_CONTACT]))
-                    device.with_property("location", str(data[SYSTEM_LOCATION]))
+                    device.with_property(DESCRIPTION_KEY, str(data[SYSTEM_DESC]))
+                    device.with_property(OID_KEY, str(data[SYSTEM_OBJECT_ID]))
+                    device.with_property(UPTIME_KEY, int(data[SYSTEM_UPTIME] / 8640000.0))
+                    device.with_property(CONTACT_KEY, str(data[SYSTEM_CONTACT]))
+                    device.with_property(LOCATION_KEY, str(data[SYSTEM_LOCATION]))
 
         except Exception as e:
             logger.error("Unexpected collection error")

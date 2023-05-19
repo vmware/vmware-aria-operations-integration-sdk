@@ -39,9 +39,20 @@ PRIVACY_PASS_PHRASE = "privacy_pass_phrase"
 DEVICE = "device"
 
 SYSTEM = "1.3.6.1.2.1.1"
+
+DESCRIPTION_KEY = "description"
 SYSTEM_DESC = f"{SYSTEM}.1.0"
+
+OID_KEY = "oid"
 SYSTEM_OBJECT_ID = f"{SYSTEM}.2.0"
+
+UPTIME_KEY = "uptime"
 SYSTEM_UPTIME = f"{SYSTEM}.3.0"
+
+CONTACT_KEY = "contact"
 SYSTEM_CONTACT = f"{SYSTEM}.4.0"
+
 SYSTEM_NAME = f"{SYSTEM}.5.0"
+
+LOCATION_KEY = "location"
 SYSTEM_LOCATION = f"{SYSTEM}.6.0"
