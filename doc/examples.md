@@ -1,11 +1,27 @@
 Examples
 ========
 
-- [NSX ALB AVI MP](https://gitlab.eng.vmware.com/cmbu-tvg/nxl-alb-avi-mp)
-   - A Management Pack written in python using the [VMware Aria Operations Integration SDK](../README.md) that aims to 
-     provide a simple management pack template. The management pack consumes NSX ALB AVI's rest API and creates objects 
-     with metrics, properties, and relationships, to eventually send them to VMware Aria Operations. NSX ALB AVI 
-     management pack also uses our [python package](../lib/python/README.md), an object model for interacting with the 
-     VMware Aria Operations containerized integration API, to facilitate the building of objects, metrics, 
-     relationships, and more. For more information about NSX ALB, visit VMware's 
-     [product page for NSX ALB](https://www.vmware.com/products/nsx-advanced-load-balancer.html).
+
+- [Alibaba Cloud MP](../samples/alibaba-cloud-mp)
+    - This Management Pack collects some data about Alibaba Cloud ECS Instances and Security Groups. This Management
+      Pack has a [walkthrough](../README.md#creating-a-new-management-pack)
+      guide that shows how to create a new Management Pack.
+
+- [MySQL Extension MP](../samples/mysql-extension-mp)
+      - A Management Pack collects some data from MySQL and attaches them to objects created by the MySQL Management
+      Pack. This Management Pack has a [walkthrough](../README.md#extending-an-existing-management-pack) how to extend an
+      existing Management Pack.
+ 
+- [vCenter Extension MP](../samples/vcenter-extension-mp)
+    - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](../README.md).
+    This Management Pack collects some additional Host and VM data from vCenter and attaches them to the corresponding objects created by the vCenter Management
+    Pack.
+
+[//]: # (- [NSX ALB AVI MP]&#40;https://gitlab.eng.vmware.com/cmbu-tvg/nxl-alb-avi-mp&#41;)
+[//]: # (   - a management pack written in python using the [vmware aria operations integration sdk]&#40;../readme.md&#41; that aims to )
+[//]: # (     provide a simple management pack template. the management pack consumes nsx alb avi's rest api and creates objects )
+[//]: # (     with metrics, properties, and relationships, to eventually send them to vmware aria operations. nsx alb avi )
+[//]: # (     management pack also uses our [python package]&#40;../lib/python/readme.md&#41;, an object model for interacting with the )
+[//]: # (     vmware aria operations containerized integration api, to facilitate the building of objects, metrics, )
+[//]: # (     relationships, and more. for more information about nsx alb, visit vmware's )
+[//]: # (     [product page for nsx alb]&#40;https://www.vmware.com/products/nsx-advanced-load-balancer.html&#41;.)

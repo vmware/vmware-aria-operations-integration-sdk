@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/vmware_aria_operations_integration_sdk.svg)](https://badge.fury.io/py/vmware_aria_operations_integration_sdk)
+[![Aria Operations Integration SDK](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml/badge.svg)](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml)
 
 VMware Aria Operations Integration SDK
 =====================
@@ -79,12 +80,12 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 
 #### Dependencies
 * Docker 20.10.0 or later. Updating to the latest stable version is recommended. For instructions on installing Docker,
-  go to [Docker's installation documentation](https://docs.docker.com/engine/install/), 
+  go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   follow the instructions provided for your operating system.
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
-  to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download), 
+  to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   and follow the instructions provided for your operating system.
-* Pipx (recommended) or pip. If Python3 is installed, pip is most likely also installed. 
+* Pipx (recommended) or pip. If Python3 is installed, pip is most likely also installed.
   For instructions on installing pipx, go to [pipx's installation documentation](https://pypa.github.io/pipx/installation/), and follow the instructions provided.
   For instructions on installing pip, go to [pip's installation documentation](https://pip.pypa.io/en/stable/installation/), and follow the instructions provided.
 * Git 2.35.0 or later. Updating to the latest stable version is recommended.
@@ -105,26 +106,26 @@ the creation of a new management pack project.
 
 1. `Enter a directory to create the project in. This is the directory where adapter code, metadata, and content will reside. If the directory doesn't already exist, it will be created. Path:`
 
-    The path can be an absolute or relative path. The path should end in an empty or non-existing directory. 
-    If the directory does not exist, it will be created. This directory will contain a new Management Pack project.
+   The path can be an absolute or relative path. The path should end in an empty or non-existing directory.
+   If the directory does not exist, it will be created. This directory will contain a new Management Pack project.
 
 2. `Management Pack display name`
 
-    The Management Pack display name will show up in VMware Aria Operations (**Data Sources &rarr; Integrations &rarr;
-    Repository**), or when adding an account.
+   The Management Pack display name will show up in VMware Aria Operations (**Data Sources &rarr; Integrations &rarr;
+   Repository**), or when adding an account.
 
-    ![Integration Card for the 'TestAdapter' Management Pack](doc/test-adapter-integration-card.png)
+   ![Integration Card for the 'TestAdapter' Management Pack](doc/test-adapter-integration-card.png)
 
-    *This Management Pack's display name is 'TestAdapter', and uses the default icon*
+   *This Management Pack's display name is 'TestAdapter', and uses the default icon*
 
 3. `Management Pack adapter key`
 
-    This field is used internally to identify the Management Pack and Adapter Kind. By default, it is set to the
-    Management Pack display name with special characters and whitespace stripped from it.
+   This field is used internally to identify the Management Pack and Adapter Kind. By default, it is set to the
+   Management Pack display name with special characters and whitespace stripped from it.
 
 4. `Management Pack description`
 
-    This field should describe what the Management Pack will do or monitor.
+   This field should describe what the Management Pack will do or monitor.
 
 5. `Management Pack vendor`
 
@@ -153,17 +154,17 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 ### Template Project
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](doc/mp-init.md) documentation. `app/adapter.py` is the adapter's
-entry point and the best starting point. 
+entry point and the best starting point.
 
 `adapter.py` is a template adapter that collects several objects and metrics from the
-container in which the adapter is running. The template adapter has comments throughout its code that explain what the code does 
-and how to customize it for your adapter. 
+container in which the adapter is running. The template adapter has comments throughout its code that explain what the code does
+and how to customize it for your adapter.
 
 The methods inside the adapter template are required, and should be modified to generate a custom
-adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using 
-`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)). 
+adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
+`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
 
-The adapter is stateless. This means the adapter cannot store any data for use in later method calls. 
+The adapter is stateless. This means the adapter cannot store any data for use in later method calls.
 
 Each method is described below:
 
@@ -171,10 +172,10 @@ Each method is described below:
   Performs a test connection using the information given to the adapter_instance to verify the adapter instance has been configured properly.
   A typical test connection will generally consist of:
 
-     1. Read identifier values from adapter_instance that are required to connect to the target(s)
-     2. Connect to the target(s), and retrieve some sample data
-     3. If any of the above failed, return an error, otherwise pass.
-     4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
+    1. Read identifier values from adapter_instance that are required to connect to the target(s)
+    2. Connect to the target(s), and retrieve some sample data
+    3. If any of the above failed, return an error, otherwise pass.
+    4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
 
 - get_endpoints(adapter_instance):
   This method is run before the 'test' method, and VMware Aria Operations will use
@@ -196,11 +197,11 @@ Each method is described below:
 
 - get_adapter_definition():
   Optional method that defines the Adapter Instance configuration. The Adapter Instance
-  configuration is the set of parameters and credentials used to connect to the target and 
-  configure the adapter. It also defines the object types and attribute types present in a 
-  collection. Setting these helps VMware Aria Operations to validate, process, and display 
-  the data correctly. If this method is omitted, a `describe.xml` file should be manually 
-  created inside the `conf` directory with the same data. Generally, this is only necessary 
+  configuration is the set of parameters and credentials used to connect to the target and
+  configure the adapter. It also defines the object types and attribute types present in a
+  collection. Setting these helps VMware Aria Operations to validate, process, and display
+  the data correctly. If this method is omitted, a `describe.xml` file should be manually
+  created inside the `conf` directory with the same data. Generally, this is only necessary
   when using advanced features of the `describe.xml` file that are not present in this method.
 
 
@@ -236,9 +237,9 @@ reads the `conf/describe.xml` file to find the connection parameters and credent
 prompts for each. This is similar to creating a new _Adapter Instance_ in the VMware Aria Operations UI. Connections are automatically
 saved per project, and can be reused when re-running the `mp-test` tool.
 
-> Note: In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on, 
-> this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an 
-> example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection 
+> Note: In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
+> this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an
+> example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection
 > will fail.
 
 The test tool also asks for the method to test. There are four options:
@@ -278,8 +279,8 @@ It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
-minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to **
-Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to 
+**Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](doc/test-adapter-cpu-idle-time.png)
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
@@ -1290,271 +1291,7 @@ When everything is working as expected locally using `mp-test`, we can run
 
 </details>
 
-## Troubleshooting
-
-<details>
-  <summary><h3>When starting Docker, I get 'Permission denied while trying to connect to the Docker daemon'</h3></summary>
-
-  If you're having trouble getting Docker to run on your system, you can refer to the Docker documentation for instructions
-  on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install/), [Linux](https://docs.docker.com/desktop/install/debian/#launch-docker-desktop), and [Windows 10 and 11](https://docs.docker.com/desktop/install/windows-install/#start-docker-desktop).
-</details>
-
-<details>
-  <summary><h3>When starting Docker on Windows, I get 'Cannot connect to Docker daemon'</h3></summary>
-
-  If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
-  on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
-</details>
-
-<details>
-  <summary><h3>How can I set up an AWS container registry for my project?</h3></summary>
-
-  AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before
-  running `mp-build`.
-
-  1. [Log in to your registry using aws CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-authenticate-registry)
-  2. [Create a repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository:~:text=your%20default%20registry-,Step%203%3A%20Create%20a%20repository,-Step%204%3A%20Push)
-  3. Run `mp-build` and use the registry tag when prompted about it (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/hello-repository`)
-</details>
-
-<details>
-  <summary><h3>How can I set up a Docker Hub container registry for my project?</h3></summary>
-
-  Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
-
-  1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).
-  2. Open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag of
-  the Docker Hub repository prepended with `docker.io`. For example, if the docker tag is `username/docker-registry-test:tagname`
-  then the key-value will be `docker.io/username/docker-registry-test`.
-
-  VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period).
-</details>
-
-<details>
-  <summary><h3>How can I set up a Management Pack that uses a private container registry?</h3></summary>
-
-  VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
-
-  1. ssh into the cloud proxy where the adapter is going to be set up
-  2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
-  3. Install Management Pack in VMware Aria operations
-</details>
-
-
-<details>
-  <summary><h3>How can I change the container registry for my project?</h3></summary>
-
-
-  Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
-  repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
-</details>
-
-<details>
-  <summary><h3> Where are the adapter logs stored locally?</h3></summary>
-
- Logs generated by `mp-test` or `mp-build` are stored in the `logs` sub-directory of the
- project.
-</details>
-<details>
-  <summary><h3> Where are the adapter logs stored in VMware Aria Operations?</h3></summary>
-
-  Logs are generated and stored on the cloud proxy where the adapter is running at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
-
-  `ADAPTERKEY` should match the adapter key used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
-  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
-  The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
-
-  ![highlight of the checkbox where internal id can be enabled](doc/enable_internal_id_column.png)
-
-  ![highlight of the internal id](doc/highlight_internal_id_column.png)
-  </details>
-
-  <details>
-    <summary><h3>What are the different log files used for?</h3></summary>
-
-  There are five types of log files: adapter, server, build, test, and validation logs. Each log file is prepended with the type of
-  log file followed by a number that represents rollover.
-
-  - `server.log`:
-  Contains all logs related to the HTTP server inside the container. Server logs can't be modified since the server code comes packaged
-  inside the [base-adapter](https://projects.registry.vmware.com/harbor/projects/46752/repositories/base-adapter/artifacts-tab) Python image.
-
-  - `adapter.log`
-  Contains all logs related to the adapter. Adapter logs are all the logs generated by adapter code (e.g., the test() method or the collect() methods inside
-  `app/adapter.py`).
-
-  - `test.log`
-  Contains all logs related to `mp-test`.
-
-  - `build.log`
-  Contains all logs related to `mp-build`.
-
-  - `validation.log`
-  Contains a log of the validations performed by `mp-test` on the collection results. Validation logs are only generated locally.
-</details>
-
-<details>
-  <summary><h3> How do I add logs to my adapter?</h3></summary>
-
-
-  The template adapter defines a logger variable in the `adapter.py` file that configures all adapter logging using [adapter_logging](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/299ce55ac0b1e53dde9c1b4b3e217ab41df57299/lib/python/src/aria/ops/adapter_logging.py) from the Python SDK.
-  The logger only needs to be configured once; to generate logs in other files, simply import the Python [logging](https://docs.python.org/3/library/logging.html) module. Eg.
-
-  ```python
-  import logging
-
-  logger = logging.getLogger(__name__)
-
-  def my_method():
-    logger.info("info log")
-    logger.warning("warning log")
-    logger.error("error log")
-    logger.debug("debug log")
-     ...
-  ```
-</details>
-
-
-<details>
-  <summary><h3> How do I change the server and/or adapter log level?</h3></summary>
-
-  You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and on the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
-  If the file does not exist, the system generates it after a collection/test.
-
-  `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
-  found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
-  The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
-
-  ![highlight of the checkbox where internal id can be enabled](doc/enable_internal_id_column.png)
-
-  ![highlight of the internal id](doc/highlight_internal_id_column.png)
-
-</details>
-
-<details>
-  <summary><h3> How do I change the log level of mp-init, mp-test, or mp-build?</h3></summary>
-
-  All SDK tools read the LOG_LEVEL environment variable to set the log level of their console output. For example, to set log level
-  to debug to see a verbose output of the any of the CLI tools we can set the LOG_LEVEL variable:
-
-  For Linux and macOS
-  ```shell
-  LOG_LEVEL=debug mp-build
-  ```
-  For Windows
-  ```
-  set LOG_LEVEL=debug
-  mp-build
-  ```
-  For Windows, set the log level back to `info` after debugging.
-
-  The SDK CLI tools support `debug`, `warn`, `info`, and `error` levels.
-
-</details>
-
-<details>
-  <summary><h3>Collection returns '500 INTERNAL SERVER ERROR'</h3></summary>
-
-  Internal server errors can happen for various reasons; however, the most common cause is an unhandled exception or syntax error in
-  the adapter's code. Check the server logs for clues about the issue. Sometimes, the problem may be detected using `mp-test` and
-  going over the terminal output.
-
-</details>
-
-<details>
-  <summary><h3>Collection returns 'No collection result was found'</h3></summary>
-
-  `mp-test` runs a series of validations test after collection; if the collection has no results, then each validation step will report the result as missing.
-  When a collection result is missing, it usually means an error occurred during collection, but the Adapter handled the error. When the Adapter handles an error,
-  the response contains an error message; The console displays the error message. For example:
-
-  ```python
-  def collect(adapter_instance: AdapterInstance) -> CollectResult:
-    result = CollectResult()
-    try:
-      raise Exception("oops")
-
-      #...
-    except Exception as e:
-      logger.error("Unexpected collection error")
-      logger.exception(e)
-      result.with_error("Unexpected collection error: " + repr(e))
-      return result
-  ```
-
-  This code will output
-
-  ```
-  Building adapter [Finished]
-  Waiting for adapter to start [Finished]
-  Running Collect [Finished]
-  Collection Failed: Unexpected collection error: Exception('oops')
-
-  Avg CPU %                     | Avg Memory Usage %         | Memory Limit | Network I/O         | Block I/O
-  ------------------------------+----------------------------+--------------+---------------------+--------------
-  21.1 % (0.0% / 21.1% / 42.2%) | 4.0 % (4.0% / 4.0% / 4.0%) | 1.0 GiB      | 3.24 KiB / 6.67 KiB | 0.0 B / 0.0 B
-
-  Collection completed in 0.45 seconds.
-
-  No collection result was found.
-  No collection result was found.
-  All validation logs written to '/Users/user/management-pack/test-management-pack/logs/validation.log'
-  ```
-  As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
-  Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
-</details>
-
-<details>
-  <summary><h3>mp-build returns 'Unable to build pak file'</h3></summary>
-
-  In most cases, this error indicates issues with building the container image. The most probable causes are:
-
-  1. Unknown Instruction :
-
-  ```
-  mp-build
-  Building adapter [Finished]
-  Unable to build pak file
-  ERROR: Unable to build Docker file at /Users/user/code/aria_ops/management-packs/test:
-   {'message': 'dockerfile parse error line 7: unknown instruction: COP'}
-
-  ```
-  2. A command  inside the Dockerfile failed:
-
-  ```
-  mp-build
-  Building adapter [Finished]
-  Unable to build pak file
-  ERROR: Unable to build Docker file at /Users/user/code/management-packs/test:
-   The command '/bin/sh -c pip3 install -r adapter_requirements.txt --upgrade' returned a non-zero code: 1
-  ```
-  The solution for case 1 to fix the typo/command by editing the Dockerfile. For case 2, however, the solution might not be evident at first sight. Since the error
-  comes from building the image itself, we can run `docker build .` in the project's root directory and look at the stack trace for clues.
-
-</details>
-
-<details>
-  <summary><h3>VMware Aria Operations returns 'Unknown adapter type' when setting up new adapter instance</h3></summary>
-
- ![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](doc/unknown_adapter_type.png)
-> Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
-If the pak file installs successfully but errors when creating an account (adapter instance), check that:
-- The Collector/Group the MP is running on is a Cloud Proxy, and
-- Check that the Cloud Proxy supports containerized adapters. Containerized adapter 
-  support is supported in VMware Aria Operations version 8.10.0 and later.
-
-</details>
-
-<details>
-  <summary><h3>I don't see an answer to my issue</h3></summary>
-
-  If the none of the above resolve your issue, please open a `Q & A` discussion on the 
-  [GitHub Discussions page](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions)
-  that describes the issue you are having.
-
-  You can also submit a new bug report issue [here](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues/new?assignees=&labels=bug&template=bug-report.yml),
-  but we recommend opening a discussion first.
-</details>
+## [Troubleshooting and FAQ](doc/troubleshooting_and_faq.md)
 
 ## Contributing
 
