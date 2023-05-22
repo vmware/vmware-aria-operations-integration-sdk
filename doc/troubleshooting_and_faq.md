@@ -11,6 +11,14 @@ on how to start Docker on [macOS](https://docs.docker.com/docker-for-mac/install
 If you're having trouble with permissions on a Windows system, you can refer to the Docker documentation for instructions
 on how to [Understand permission requirements for Windows](https://docs.docker.com/desktop/windows/permission-requirements/).
 
+### Why do I need a container registry?
+
+Containerized adapters use container registries to store, distribute, and install adapters. During the development of an adapter, mp-build
+requires a container registry to upload the resulting container. After uploading the container to the given registry,
+mp-build saves the host, and the container digest in the manifest.txt file bundled inside the pak file. During
+installation, VMware Aria Operations uses the information inside the manifest.txt file to pull the container from the registry and
+run the container.
+
 ### How are docker credential managed?
 
 Docker credential are managed by the Docker daemon. To learn more about how the docker daemon manages credentials
