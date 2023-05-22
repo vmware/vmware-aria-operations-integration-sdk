@@ -23,19 +23,5 @@ Contents
   * describe.xml
   * commands.cfg
 
-* VMware Aria Operations Integration Library
-  * [Python](python-integration-module.md)
-    * Object model
-      * Adapter Instance
-        * Identifiers
-        * Advanced Identifiers
-        * Credentials
-      * Resources
-        * Name
-        * Identifiers
-        * State
-        * Status
-        * Metrics
-        * Properties
-        * Events
-      * Relationships
+* [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+  
