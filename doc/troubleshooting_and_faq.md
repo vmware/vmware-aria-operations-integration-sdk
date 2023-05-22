@@ -16,7 +16,7 @@ on how to [Understand permission requirements for Windows](https://docs.docker.c
 Containerized adapters use container registries to store, distribute, and install adapters. During the development of an adapter, mp-build
 requires a container registry to upload the resulting container. After uploading the container to the given registry,
 mp-build saves the host, and the container digest in the manifest.txt file bundled inside the pak file. During
-installation, Aria Operations uses the information inside the manifest.txt file to pull the container from the registry and
+installation, VMware Aria Operations uses the information inside the manifest.txt file to pull the container from the registry and
 run the container.
 
 ### How are docker credential managed?
