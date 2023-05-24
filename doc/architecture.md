@@ -14,6 +14,7 @@ A management pack consists of content, metadata, and an adapter.
   Operations.
 
 ### Adapter Container Image
+
 The adapter container image consists of two parts:
 * A REST server specified by [Collector Framework 2](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 * The adapter code that performs the collection.
@@ -49,7 +50,9 @@ Some benefits of a stateless adapter are:
   adapter in an inconsistent state is reduced.
  
 Note that it is possible to pass data between collections by writing and reading to a 
-file on the container filesystem, but not encouraged.
+file on the container filesystem, but not encouraged. Any restarts of the adapter 
+instance (either by manual action or automatic migration) will create a new container, 
+and any data on the container filesystem will be lost.
 
 ![Cloud Proxy Components running two Adapter Container Images](cloud-proxy-components.png)
 
@@ -78,6 +81,26 @@ server call the above test command will look similar to this:
 ```
 /usr/local/bin/python app/adapter.py test /tmp/tmpe1iu4msr/input_pipe /tmp/tmpe1iu4msr/output_pipe
 ```
+
+### Adapter Container Lifecycle
+Containers are managed by the _Collector_ process that runs on a Cloud Proxy. A new
+temporary container will be started each time 'Validate Connection' is run from the
+Account creation dialog, and when saving a new account. This container will be stopped
+once the test is complete or the new account has been created. After the account/adapter
+instance has been created, the Collector process then creates a new container. This
+container is long-lived and tied to the specific adapter instance it was created for.
+
+That is, if there are three running adapter instances for a given management pack,
+there will also be three running containers. This allows isolation between adapter
+instances, and for simultaneous collections to occur without having to guard against
+race conditions, deadlocks, etc. within the adapter's collection code.
+
+Each container will continue to exist until or unless:
+* The adapter instance is stopped or deleted
+* The adapter instance is moved to a new collector, or migrates between collectors in a
+  collector group
+* An unrecoverable error occurs in the container (such as exceeding the container's
+  memory limit)
 
 ### Collection
 When performing a collection, test connection, definition, or get endpoints request,

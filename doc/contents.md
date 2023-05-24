@@ -55,7 +55,6 @@ VMware Aria Operations Integration SDK Contents
   * Version
   * Endpoint URLs
   * describe.xml
-  * commands.cfg
 * [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
   * [API Reference](../lib/python/doc/aria/ops.html)
 
