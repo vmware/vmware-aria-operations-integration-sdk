@@ -1,7 +1,7 @@
 References
 ==========
 Contents
-* Architecture
+* [Architecture](architecture.md)
   * VMware Aria Operations Collector &rarr; Management Pack &rarr; Adapter &rarr; Server &rarr; User Code
   * Container Images
     * [Building container images](docker.md)
@@ -24,4 +24,4 @@ Contents
   * commands.cfg
 
 * [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
-  
+  * [API Reference](../lib/python/doc/aria/ops.html)
