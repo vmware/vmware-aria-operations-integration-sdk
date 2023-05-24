@@ -1,4 +1,4 @@
-site_name: Aria Operations Integration SDK
+site_name: VMware Aria Operations Integration SDK
 repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
 docs_dir: docs
 plugins:
@@ -9,15 +9,12 @@ plugins:
         paths: lib/python/src
         options:
           show_docstring_attributes: true
-
-
 theme:
   name: material
   fetures:
-  - navigation.tabs
   - navigation.sections
+  - navigation.top
   - toc.integrate
-  - navigation.top0
   - search.suggest
   - search.highlight
   - content.tabs.link
