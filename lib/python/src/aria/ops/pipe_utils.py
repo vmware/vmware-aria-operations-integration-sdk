@@ -10,7 +10,15 @@ from typing import Union
 logger = logging.getLogger(__name__)
 
 
-def read_from_pipe(input_pipe: str) -> Optional[dict | list]:
+def read_from_pipe(input_pipe: str) -> Optional[Union[dict, list]]:
+    """Reads data from the input pipe.
+
+    Args:
+        input_pipe (str): The path to the input pipe.
+
+    Returns:
+        Optional[Union[dict, list]]: The data read from the input pipe, or None if there was an error.
+    """
     logger.debug(f"Input Pipe: {input_pipe}")
     try:
         with open(input_pipe, "r") as input_file:
@@ -22,7 +30,13 @@ def read_from_pipe(input_pipe: str) -> Optional[dict | list]:
         return None
 
 
-def write_to_pipe(output_pipe: str, result: Optional[dict | list]) -> None:
+def write_to_pipe(output_pipe: str, result: Optional[Union[dict, list]]) -> None:
+    """Writes data to the output pipe.
+
+    Args:
+        output_pipe (str): The path to the output pipe.
+        result (Optional[Union[dict, list]]): The data to write to the output pipe.
+    """
     logger.debug(repr(result))
     logger.debug(f"Output Pipe: {output_pipe}")
     try:

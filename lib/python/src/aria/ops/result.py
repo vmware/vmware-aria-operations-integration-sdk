@@ -31,7 +31,8 @@ class TestResult:
     def is_success(self) -> bool:
         """
 
-        :return: True if the TestResult represents a successful test
+        Returns:
+             True if the TestResult represents a successful test
         """
         return self._error_message is None
 
@@ -42,8 +43,8 @@ class TestResult:
         If this method is called multiple times, only the most recent error message
         will be recorded. If error_message is set, the test is considered failed.
 
-        :param error_message: A string containing the error message
-        :return: None
+        Args:
+            error_message (str): A string containing the error message
         """
         self._error_message = error_message
 
@@ -54,7 +55,8 @@ class TestResult:
         Aria Operations, indicating either a successful test, or a failed test with
         error message.
 
-        :return: A JSON representation of this TestResult
+        Returns:
+             A JSON representation of this TestResult
         """
         if self.is_success():
             return {}
@@ -65,6 +67,9 @@ class TestResult:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
+
+        Args:
+            output_pipe (str): The path to the input pipe. Defaults to sys.argv[-1]
         """
         # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())
@@ -90,9 +95,8 @@ class EndpointResult:
         If this method is called multiple times, each url will be called by Aria
         Operations.
 
-        :param endpoint_url: A string containing the url
-
-        :return: None
+        Args:
+            endpoint_url (srt): A string containing the url
         """
         self.endpoints.append(endpoint_url)
 
@@ -102,7 +106,8 @@ class EndpointResult:
         Returns a JSON representation of this EndpointResult in the format required
         by Aria Operations.
 
-        :return: A JSON representation of this EndpointResult
+        Returns:
+             A JSON representation of this EndpointResult
         """
         return {"endpointUrls": self.endpoints}
 
@@ -110,6 +115,9 @@ class EndpointResult:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
+
+        Args:
+            output_pipe (str): The path to the input pipe. Defaults to sys.argv[-1]
         """
         # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())
@@ -166,11 +174,11 @@ class CollectResult:
         Each object has a key containing one or more identifiers plus the object type
         and adapter type. Keys must be unique across objects in a Result.
 
-        :param obj_list: an optional list of objects to send to Aria Operations.
-        Objects can be added later using add_object
-
-        :param target_definition: an optional description of the returned objects,
-        used for validation purposes
+        Args:
+            obj_list (Optional[List[Object]]): an optional list of objects to send to Aria Operations. Objects can be
+                added later using add_object. Defaults to None
+            target_definition (AdapterDefinition): an optional description of the returned objects, used for validation
+                purposes. Defaults to None.
         """
         self.objects: dict[Key, Object] = {}
         if type(obj_list) is list:
@@ -206,11 +214,14 @@ class CollectResult:
         If this method is used to create an object, it does not need to be added
         later using `add_object` (or `add_objects`)
 
-        :param adapter_kind: The adapter kind of the object
-        :param object_kind: The resource kind of the object
-        :param name: The name of the object
-        :param identifiers:
-        :return: The object with the given key
+        Args:
+            adapter_kind (str): The adapter kind of the object
+            object_kind (str): The resource kind of the object
+            name (str): The name of the object
+            identifiers (Optional[List[Identifier]]): An optional list of Identifiers for the object
+
+        Returns:
+             The object with the given key
         """
         obj = Object(Key(adapter_kind, object_kind, name, identifiers))
         return self.objects.setdefault(obj.get_key(), obj)
@@ -218,8 +229,11 @@ class CollectResult:
     def get_object(self, obj_key: Key) -> Optional[Object]:
         """Get and return the object corresponding to the given key, if it exists
 
-        :param obj_key: The object key to search for
-        :return: The object with the given key, or None if the key is not in the result
+        Args:
+            obj_key (Key): The object key to search for
+
+        Returns:
+             The object with the given key, or None if the key is not in the result
         """
         return self.objects.get(obj_key, None)
 
@@ -229,9 +243,12 @@ class CollectResult:
         """Returns all objects with the given type. If adapter_type is present,
         the objects must also be from the given adapter type.
 
-        :param object_type: The object type to return
-        :param adapter_type: The adapter type of the objects to return
-        :return: A list of objects matching the object type and adapter type
+        Args:
+            object_type (str): The object type to return
+            adapter_type (Optional[str]): The adapter type of the objects to return. Defaults to None
+
+        Returns:
+             A list of objects matching the object type and adapter type
         """
         return [
             obj
@@ -245,12 +262,17 @@ class CollectResult:
 
         Adds the given object to the Result and returns it. A different object with
         the same key cannot already exist in the Result. If it does,
-        an :class:`ObjectKeyAlreadyExistsException` will be raised.
+        an ObjectKeyAlreadyExistsException will be raised.
 
-        :param obj: An object to add to the Result
-        :return: The object
-        :raises: ObjectKeyAlreadyExistsException if a different object with the same key
-        already exists in the Result
+        Args:
+            obj (Object): An object to add to the Result.
+
+        Returns:
+            Object: The object.
+
+        Raises:
+            ObjectKeyAlreadyExistsException: If a different object with the same key
+                already exists in the Result.
         """
         o = self.objects.setdefault(obj.get_key(), obj)
         if o is obj:
@@ -266,10 +288,15 @@ class CollectResult:
         cannot already exist in the Result. If it does, an
         :class:`ObjectKeyAlreadyExistsException` will be raised.
 
-        :param obj_list: A list of objects to add to the Result
-        :return: The object
-        :raises: ObjectKeyAlreadyExistsException if a different object with the same
-        key already exists in the Result
+        Args:
+            obj_list (List[Object]): A list of objects to add to the Result
+
+        Returns:
+            The object
+
+        Raises:
+            ObjectKeyAlreadyExistsException: if a different object with the same
+                key already exists in the Result
         """
         for obj in obj_list:
             self.add_object(obj)
@@ -281,8 +308,8 @@ class CollectResult:
         will be recorded. If error_message is set, no results (objects, relationships)
         will be returned.
 
-        :param error_message: A string containing the error message
-        :return: None
+        Args:
+            error_message (str): A string containing the error message
         """
         self._error_message = error_message
 
@@ -294,7 +321,8 @@ class CollectResult:
         events, properties, and metrics) in the Result. Relationships are returned
         following the update_relationships flag (See RelationshipUpdateMode).
 
-        :return: A JSON representation of this Result
+        Returns:
+            A JSON representation of this Result
         """
         if self._error_message is None:
             result = {
@@ -343,6 +371,9 @@ class CollectResult:
         """Opens the output pipe and sends results directly back to the server
 
         This method can only be called once per collection.
+
+        Args:
+            output_pipe (str): The path to the input pipe. Defaults to sys.argv[-1]
         """
         # The server always invokes methods with the output file as the last argument
         write_to_pipe(output_pipe, self.get_json())

@@ -22,13 +22,14 @@ class Parameter(ABC):
         display_order: int = 0,
     ) -> None:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+            default (Optional[Union[str, int]]): The default value of the parameter.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+            display_order (int): Determines the order parameters will be displayed in the UI.
         """
         self.key = validate_key(key, "Parameter/Identifier")
         self.label = label
@@ -64,13 +65,15 @@ class IntParameter(Parameter):
         display_order: int = 0,
     ) -> None:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+            default (Optional[str]): The default value of the parameter.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+            display_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(
             key, label, description, default, required, advanced, display_order
@@ -96,14 +99,15 @@ class StringParameter(Parameter):
         display_order: int = 0,
     ) -> None:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param max_length: The max length of the parameter value. Defaults to 512.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+        Args:
+           key (str): Used to identify the parameter.
+           label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+           description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+           default (Optional[str]): The default value of the parameter.
+           max_length (int): The max length of the parameter value. Defaults to 512.
+           required (bool): True if user is required to provide this parameter. Defaults to True.
+           advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+           display_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(
             key, label, description, default, required, advanced, display_order
@@ -131,15 +135,19 @@ class EnumParameter(Parameter):
         display_order: int = 0,
     ) -> None:
         """
-        :param key: Used to identify the parameter.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value. Enum values are not localizable.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+
+        Args:
+            key (str): Used to identify the parameter.
+            values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified
+                and not part of this array, it will be added as an additional enum value. Enum values are not
+                localizable.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the
+                VMware Aria Operations UI.
+            default (Optional[str]): The default value of the parameter.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+            display_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(
             key, label, description, default, required, advanced, display_order

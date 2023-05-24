@@ -11,12 +11,15 @@ log_handler: Optional[RotatingFileHandler] = None
 
 def setup_logging(filename: str, file_count: int = 5, max_size: int = 0) -> None:
     """
-    :param filename The name of the file to log to
-    :param file_count The total number of files to retain. Defaults to 5.
-    :param max_size The maximum size in bytes of each file before the file
-                    automatically rotates to a new one. Defaults to '0', which will
-                    do no automatic rotation. Requires calling the 'rotate()' function
-                    manually to ensure logs do not become too large.
+    Sets up logging using the given parameters.
+
+    Args:
+        filename (str): The name of the file to log to.
+        file_count (int, optional): The total number of files to retain. Defaults to 5.
+        max_size (int, optional): The maximum size in bytes of each file before the file
+                                  automatically rotates to a new one. Defaults to '0', which will
+                                  do no automatic rotation. Requires calling the 'rotate()' function
+                                  manually to ensure logs do not become too large.
     """
     try:
         global log_handler
@@ -37,6 +40,16 @@ def setup_logging(filename: str, file_count: int = 5, max_size: int = 0) -> None
 
 
 def _get_default_log_level(default_level: int = logging.INFO) -> int:
+    """
+    Retrieves the default logging level from a config file, or returns a default value.
+
+    Args:
+        default_level (int, optional): The default logging level if not set in the config file.
+                                        Defaults to logging.INFO.
+
+    Returns:
+        int: The default logging level.
+    """
     default_level_name = logging.getLevelName(default_level)
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
@@ -63,6 +76,9 @@ def _get_default_log_level(default_level: int = logging.INFO) -> int:
 
 
 def _set_log_levels() -> None:
+    """
+    Sets the logging levels for each logger as defined in a config file.
+    """
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
     config.read(log_config_file)
@@ -71,7 +87,15 @@ def _set_log_levels() -> None:
 
 
 def getLogger(name: str) -> logging.Logger:
-    # convenience function to avoid having to import logging and adapter_logging
+    """
+    A convenience function to get a logger with a specific name.
+
+    Args:
+        name (str): The name of the logger.
+
+    Returns:
+        logging.Logger: The requested logger.
+    """
     return logging.getLogger(name)
 
 
@@ -79,7 +103,6 @@ def rotate() -> None:
     """
     Rotates the current adapter logs to their backups (e.g., `adapter.log` to
     `adapter.log.1`) and starts logging to the new adapter.log file.
-    :return: None
     """
     if log_handler:
         log_handler.doRollover()

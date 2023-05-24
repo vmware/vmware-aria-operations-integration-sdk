@@ -18,10 +18,11 @@ class CredentialParameter(ABC):
         display_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            display_order (0): Determines the order parameters will be displayed in the UI.
         """
         self.key = validate_key(key, "Credential parameter")
         self.label = label
@@ -43,10 +44,11 @@ class CredentialParameter(ABC):
 
 class CredentialIntParameter(CredentialParameter):
     """
-    :param key: Used to identify the parameter.
-    :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-    :param required: True if user is required to provide this parameter. Defaults to True.
-    :param display_order: Determines the order parameters will be displayed in the UI.
+    Args:
+        key (str): Used to identify the parameter.
+        label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        required (bool): True if user is required to provide this parameter. Defaults to True.
+        display_order (int): Determines the order parameters will be displayed in the UI.
     """
 
     def __init__(
@@ -73,10 +75,11 @@ class CredentialStringParameter(CredentialParameter):
         display_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            display_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(key, label, required, display_order)
 
@@ -95,10 +98,11 @@ class CredentialPasswordParameter(CredentialParameter):
         display_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param display_order: Determines the order parameters will be displayed in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            display_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(key, label, required, display_order)
 
@@ -111,13 +115,14 @@ class CredentialPasswordParameter(CredentialParameter):
 
 class CredentialEnumParameter(CredentialParameter):
     """
-    :param key: Used to identify the parameter.
-    :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-           will be added as an additional enum value. Enum values are not localizable.
-    :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-    :param default: The default value of the enum.
-    :param required: True if user is required to provide this parameter. Defaults to True.
-    :param display_order: Determines the order parameters will be displayed in the UI.
+    Args:
+        key (str): Used to identify the parameter.
+        values (list[Union[str, tuple[str,str]]]): An array containing all enum values. If 'default' is specified and
+            not part of this array, it will be added as an additional enum value. Enum values are not localizable.
+        label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+        default (Optional[str]): The default value of the enum.
+        required (bool): True if user is required to provide this parameter. Defaults to True.
+        display_order (int): Determines the order parameters will be displayed in the UI.
     """
 
     def __init__(
@@ -168,10 +173,14 @@ class CredentialType:
     ) -> CredentialStringParameter:
         """
         Create a new string credential parameter and apply it to this credential definition.
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :return The created string parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+
+        Returns:
+             The created string parameter definition.
         """
         field = CredentialStringParameter(key, label, required)
         self.add_parameter(field)
@@ -182,10 +191,14 @@ class CredentialType:
     ) -> CredentialIntParameter:
         """
         Create a new int credential parameter and apply it to this credential definition.
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :return The created int parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+
+        Returns:
+             The created int parameter definition.
         """
         field = CredentialIntParameter(key, label, required)
         self.add_parameter(field)
@@ -196,10 +209,14 @@ class CredentialType:
     ) -> CredentialPasswordParameter:
         """
         Create a new password credential parameter and apply it to this credential definition.
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :return The created password parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+
+        Returns:
+            The created password parameter definition.
         """
         field = CredentialPasswordParameter(key, label, required)
         self.add_parameter(field)
@@ -215,13 +232,17 @@ class CredentialType:
     ) -> CredentialEnumParameter:
         """
         Create a new enum credential parameter and apply it to this credential definition.
-        :param key: Used to identify the parameter.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value. Enum values are not localizable.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param default: The default value of the enum.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :return The created enum parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter.
+            values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified
+                and not part of this array, it will be added as an additional enum value. Enum values are not localizable.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            default (Optional[str]): The default value of the enum.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+
+        Returns:
+             The created enum parameter definition.
         """
         field = CredentialEnumParameter(key, values, label, default, required)
         self.add_parameter(field)
@@ -229,16 +250,16 @@ class CredentialType:
 
     def add_parameters(self, credential_parameters: list[CredentialParameter]) -> None:
         """
-        :param credential_parameters: A list of parameters to add to the credential
-        :return None
+        Args:
+            credential_parameters (list[CredentialParameter]): A list of parameters to add to the credential
         """
         for credential_parameter in credential_parameters:
             self.add_parameter(credential_parameter)
 
     def add_parameter(self, credential_parameter: CredentialParameter) -> None:
         """
-        :param credential_parameter: The parameter to add to the credential
-        :return None
+        Args:
+            credential_parameter (CredentialParameter): The parameter to add to the credential
         """
         key = credential_parameter.key
         if key in self.credential_parameters:

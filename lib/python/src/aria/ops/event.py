@@ -1,4 +1,4 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
 from enum import Enum
@@ -16,19 +16,21 @@ class Criticality(Enum):
 
 @dataclass(frozen=True)
 class Event:
-    """Represents a Aria Operations Event
+    """
+    Represents an Aria Operations Event.
 
-    :param message: The message describes and identifies an event.
-    :param criticality: TODO
-    :param fault_key: TODO
-    :param auto_cancel: TODO
-    :param start_date: TODO
-    :param update_date: TODO
-    :param cancel_date: TODO
-    :param watch_wait_cycle: The number of times this event must be present in a collection before Aria Operations surfaces it
-    in the UI.
-    :param cancel_wait_cycle: The number of times this event must be absent in a collection before Aria Operations removes it
-    from the UI.
+    Args:
+        message (str): The message describes and identifies an event.
+        criticality (Criticality, optional): TODO. Defaults to Criticality.NONE.
+        fault_key (str, optional): TODO. Defaults to None.
+        auto_cancel (bool, optional): TODO. Defaults to False.
+        start_date (int, optional): TODO. Defaults to None.
+        update_date (int, optional): TODO. Defaults to None.
+        cancel_date (int, optional): TODO. Defaults to None.
+        watch_wait_cycle (int, optional): The number of times this event must be present in a collection before Aria
+                                          Operations surfaces it in the UI. Defaults to 1.
+        cancel_wait_cycle (int, optional): The number of times this event must be absent in a collection before Aria
+                                            Operations removes it from the UI. Defaults to 3.
     """
 
     message: str
@@ -42,11 +44,13 @@ class Event:
     cancel_wait_cycle: int = 3
 
     def get_json(self) -> dict:
-        """Get a JSON representation of this Event.
+        """
+        Get a JSON representation of this Event.
 
         Returns a JSON representation of this Event in the format required by Aria Operations.
 
-        :return: A JSON representation of this Event.
+        Returns:
+            dict: A JSON representation of this Event.
         """
         # message is the only required field. Other fields are optional but non-nullable if present
         json: dict = {"message": self.message}
