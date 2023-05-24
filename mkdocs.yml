@@ -6,7 +6,6 @@ plugins:
 - mkdocstrings:
     handlers:
       python:
-        paths: lib/python/src
         options:
           show_docstring_attributes: true
 theme:

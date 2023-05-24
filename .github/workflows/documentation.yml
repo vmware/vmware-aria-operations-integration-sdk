@@ -21,5 +21,6 @@ jobs:
         restore-keys: |
           mkdocs-material-
     - run: pip install \ mkdocs-material \ mkdocs-autorefs \ mkdocs-material-extensions \ mkdocstrings \ mkdocstrings-python
+    - run: pip install -e lib/python/
     - run: mkdocs gh-deploy --force
 
