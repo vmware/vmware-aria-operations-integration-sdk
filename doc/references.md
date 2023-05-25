@@ -60,3 +60,5 @@ Contents
   * [Result](../docs/result.md)
   * [Suite API Client](../docs/suite_api_client.md)
   * [Timer](../docs/timer.md)
+* [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+  
