@@ -16,7 +16,7 @@ Contents
   * build_images
 
 * Adapter
-  * Test
+  * Test 
   * Collect
   * Version
   * Endpoint URLs
@@ -39,24 +39,24 @@ Contents
         * Properties
         * Events
       * Relationships
+
 * [VMware Aria Operations Integration SDK Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
-* [Adapter instance](../docs/adapter_instance.md)
-* [Adapter logging](../docs/adapter_logging.md)
-* [Data](data.md)
-### Definition
-  * [adapter_definition](../docs/definition/adapter_definition.md)
-  * [assertions](../docs/definition/assertions.md)
-  * [attribute](../docs/definition/attribute.md)
-  * [credential_type](../docs/definition/credential_type.md)
-  * [exceptions](../docs/definition/exceptions.md)
-  * [group](../docs/definition/group.md)
-  * [object_type](../docs/definition/object_type.md)
-  * [parameter](../docs/definition/parameter.md)
-  * [units](../docs/definition/units.md)
-* [Event](../docs/event.md)
-* [Object](../docs/object.md)
-* [Pipe Utils](../docs/pipe_utils.md)
-* [Result](../docs/result.md)
-* [Suite API Client](../docs/suite_api_client.md)
-* [Timer](../docs/timer.md)
->>>>>>> Stashed changes
+  * [Adapter instance](../docs/adapter_instance.md)
+  * [Adapter logging](../docs/adapter_logging.md)
+  * [Data](data.md)
+    * Definition:
+      * [adapter_definition](../docs/definition/adapter_definition.md)
+      * [assertions](../docs/definition/assertions.md)
+      * [attribute](../docs/definition/attribute.md)
+      * [credential_type](../docs/definition/credential_type.md)
+      * [exceptions](../docs/definition/exceptions.md)
+      * [group](../docs/definition/group.md)
+      * [object_type](../docs/definition/object_type.md)
+      * [parameter](../docs/definition/parameter.md)
+      * [units](../docs/definition/units.md)
+  * [Event](../docs/event.md)
+  * [Object](../docs/object.md)
+  * [Pipe Utils](../docs/pipe_utils.md)
+  * [Result](../docs/result.md)
+  * [Suite API Client](../docs/suite_api_client.md)
+  * [Timer](../docs/timer.md)
