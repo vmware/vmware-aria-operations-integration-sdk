@@ -49,6 +49,11 @@ pytest = "^7.2.0"
 mypy = "^0.991"
 black = "^22.10.0"
 pre-commit = "^2.20.0"
+mkdocs-autorefs = "^0.4.1"
+mkdocs-material = "^9.1.14"
+mkdocs-material-extensions = "^1.1.1"
+mkdocstrings = "^0.21.2"
+mkdocstrings-python = "^1.0.0"
 
 [tool.poetry.scripts]
 mp-init = "vmware_aria_operations_integration_sdk.mp_init:main"

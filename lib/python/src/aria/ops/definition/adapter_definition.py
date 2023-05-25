@@ -29,14 +29,17 @@ class AdapterDefinition(GroupType):  # type: ignore
         version: int = 1,
     ):
         """
-        :param key: The adapter key is used to identify the adapter and its object types. It must be unique across
-               all Management Packs.
-        :param label: Label that is displayed in the VMware Aria Operations UI for this adapter. Defaults to the key.
-        :param adapter_instance_key: Object type of the adapter instance object. Defaults to
-               '{adapter key}_adapter_instance'.
-        :param adapter_instance_label: Label that is displayed in the VMware Aria Operations UI for the adapter instance
-               object type. Defaults to '{adapter label} Adapter Instance'.
-        :param version: Version of the definition. This should be incremented for new releases of the adapter.
+        Args:
+            key (str): The adapter key is used to identify the adapter and its object types. It must be unique across
+                all Management Packs.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI for this adapter.
+                Defaults to the key.
+            adapter_instance_key (Optional[str]): Object type of the adapter instance object. Defaults to
+                '{adapter key}_adapter_instance'.
+            adapter_instance_label (Optional[str]): Label that is displayed in the VMware Aria Operations UI for the
+                adapter instance object type. Defaults to '{adapter label} Adapter Instance'.
+            version (int): Version of the definition. This should be incremented for new releases of the adapter.
+                Defaults to 1
         """
         key = validate_key(key, "Adapter")
         if not key[0].isalpha():
@@ -113,14 +116,19 @@ class AdapterDefinition(GroupType):  # type: ignore
         """
         Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
-        :param key: Used to identify the parameter
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param max_length: The max length of the parameter value. Defaults to 512.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :return The created string parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the
+                VMware Aria Operations UI.
+            default (Optional[str]): The default value of the parameter. Defaults to None
+            max_length (int): The max length of the parameter value. Defaults to 512.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+
+        Returns:
+             The created string parameter definition.
         """
         parameter = StringParameter(
             key,
@@ -147,13 +155,17 @@ class AdapterDefinition(GroupType):  # type: ignore
         """
         Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
-        :param key: Used to identify the parameter
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :return The created int parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+            default (Optional[int]): The default value of the parameter.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+
+        Returns:
+             The created int parameter definition.
         """
         parameter = IntParameter(
             key,
@@ -180,15 +192,19 @@ class AdapterDefinition(GroupType):  # type: ignore
         """
         Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
-        :param key: Used to identify the parameter
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param description: More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-        :param default: The default value of the parameter.
-        :param required: True if user is required to provide this parameter. Defaults to True.
-        :param advanced: True if the parameter should be collapsed by default. Defaults to False.
-        :return The created enum parameter definition.
+
+        Args:
+            key (str): Used to identify the parameter
+            values (List[str]): An array containing all enum values. If 'default' is specified and not part of this array, it
+                will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+            default (Optional[str]): The default value of the parameter.
+            required (bool): True if user is required to provide this parameter. Defaults to True.
+            advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
+
+        Returns:
+             The created enum parameter definition.
         """
         parameter = EnumParameter(
             key,
@@ -207,8 +223,9 @@ class AdapterDefinition(GroupType):  # type: ignore
         """
         Add a parameter to the adapter instance. The user will be asked to provide a value for
         this parameter each time a new account/adapter instance is created.
-        :param parameter: The parameter to add to the adapter instance.
-        :return: None
+
+        Args:
+            parameter (Parameter): The parameter to add to the adapter instance.
         """
         key = parameter.key
         if key in self.parameters:
@@ -224,9 +241,13 @@ class AdapterDefinition(GroupType):  # type: ignore
         Create a new credential type and add it to this adapter instance. When more than one credential types are
         present, The user will be required to select the type and then fill in the parameters for that type, as only
         one credential type can be used for any given adapter instance.
-        :param key: Used to identify the credential type
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :return The created credential type.
+
+        Args:
+            key (str): Used to identify the credential type
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+
+        Returns:
+             The created credential type.
         """
         credential = CredentialType(key, label)
         self.add_credential_type(credential)
@@ -235,8 +256,9 @@ class AdapterDefinition(GroupType):  # type: ignore
     def add_credential_types(self, credential_types: list[CredentialType]) -> None:
         """
         Add a list of credential types to the adapter instance.
-        :param credential_types: A list of credential types to add.
-        :return: None
+
+        Args:
+            credential_types (List[CredentialType]): A list of credential types to add.
         """
         for credential_type in credential_types:
             self.add_credential_type(credential_type)
@@ -246,8 +268,9 @@ class AdapterDefinition(GroupType):  # type: ignore
         Add a credential type to the adapter instance. When more than one credential types are present, The user will
         be required to select the type and then fill in the parameters for that type, as only one credential type can be
         used for any given adapter instance.
-        :param credential_type: The credential type to add.
-        :return: None
+
+        Args:
+            credential_type (CredentialType): The credential type to add.
         """
         key = credential_type.key
         if key in self.credentials:
@@ -259,9 +282,13 @@ class AdapterDefinition(GroupType):  # type: ignore
     def define_object_type(self, key: str, label: Optional[str] = None) -> ObjectType:
         """
         Create a new object type definition and add it to this adapter definition.
-        :param key: The object type
-        :param label: Label that is displayed in the VMware Aria Operations UI for this object type. Defaults to the key.
-        :return: The created object type definition
+
+        Args:
+            key (str): The object type
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI for this object type. Defaults to the key.
+
+        Returns:
+             The created object type definition
         """
         object_type = ObjectType(key, label)
         self.add_object_type(object_type)
@@ -270,8 +297,8 @@ class AdapterDefinition(GroupType):  # type: ignore
     def add_object_types(self, object_types: list[ObjectType]) -> None:
         """
         Adds a list of object types to this adapter definition
-        :param object_types: A list of object type definitions.
-        :return: None
+        Args:
+            object_types (List[ObjectType]): A list of object type definitions.
         """
         for object_type in object_types:
             self.add_object_type(object_type)
@@ -279,8 +306,9 @@ class AdapterDefinition(GroupType):  # type: ignore
     def add_object_type(self, object_type: ObjectType) -> None:
         """
         Adds an object type to this adapter definition
-        :param object_type: An object type definition.
-        :return: None
+
+        Args:
+            object_type (ObjectType): An object type definition.
         """
         key = object_type.key
         if key in self.object_types:

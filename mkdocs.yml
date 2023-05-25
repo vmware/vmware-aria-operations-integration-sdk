@@ -1,0 +1,39 @@
+site_name: VMware Aria Operations Integration SDK
+repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
+docs_dir: docs
+plugins:
+- search
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_docstring_attributes: true
+theme:
+  name: material
+  fetures:
+  - navigation.sections
+  - navigation.top
+  - toc.integrate
+  - search.suggest
+  - search.highlight
+  - content.tabs.link
+  - content.code.annotation
+  - contant.code.copy
+  language: en
+  palette:
+  - scheme: default
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: dark mode
+    primary: red
+    accent: indigo
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: light mode
+    primary: red
+    accent: indigo
+
+copyright: |
+  &copy; 2023 VMware, Inc.
+

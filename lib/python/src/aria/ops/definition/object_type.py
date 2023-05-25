@@ -1,4 +1,4 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
@@ -19,8 +19,10 @@ class ObjectType(GroupType):  # type: ignore
     def __init__(self, key: str, label: Optional[str] = None):
         """
         Create a new object type definition
-        :param key: The key of the object type
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+
+        Args:
+            key (str): The key of the object type
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
         """
         self.key = validate_key(key, "Object type")
         self.label = label
@@ -41,12 +43,16 @@ class ObjectType(GroupType):  # type: ignore
         Create a new string identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the
         object name will be used for identification.
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if this parameter is required. Defaults to True.
-        :param is_part_of_uniqueness: True if the parameter should be used for object identification. Defaults to True.
-        :param default: The default value of the parameter.
-        :return The created String Identifier.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optinal[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if this parameter is required. Defaults to True.
+            is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
+            default (Optional[str]): The default value of the parameter.
+
+        Returns:
+             The created String Identifier.
         """
         parameter = StringParameter(
             key,
@@ -71,12 +77,15 @@ class ObjectType(GroupType):  # type: ignore
         Create a new int identifier and apply it to this object type definition.
         All identifiers marked 'part of uniqueness' are used to determine object identification. If none exist, the
         object name will be used for identification.
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if this parameter is required. Defaults to True.
-        :param is_part_of_uniqueness: True if the parameter should be used for object identification. Defaults to True.
-        :param default: The default value of the parameter.
-        :return The created Int Identifier.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if this parameter is required. Defaults to True.
+            is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
+            default ([Optional[int]): The default value of the parameter.
+
+        Returns:
+             The created Int Identifier.
         """
         parameter = IntParameter(
             key,
@@ -102,14 +111,16 @@ class ObjectType(GroupType):  # type: ignore
         Create a new enum identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the
         object name will be used for identification.
-        :param key: Used to identify the parameter.
-        :param values: An array containing all enum values. If 'default' is specified and not part of this array, it
-               will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param required: True if this parameter is required. Defaults to True.
-        :param is_part_of_uniqueness: True if the parameter should be used for object identification. Defaults to True.
-        :param default: The default value of the parameter.
-        :return The created Enum Identifier.
+            key (str): Used to identify the parameter.
+            values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified and not part of this array, it
+            will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
+            label [Optinal[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            required (bool): True if this parameter is required. Defaults to True.
+            is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
+            default (Optional[str]): The default value of the parameter.
+
+        Returns:
+            The created Enum Identifier.
         """
         parameter = EnumParameter(
             key,
@@ -125,8 +136,9 @@ class ObjectType(GroupType):  # type: ignore
 
     def add_identifiers(self, identifiers: list[Parameter]) -> None:
         """
-        :param identifiers: A list of identifiers to add to this object type
-        :return: None
+
+        Args:
+            identifiers: A list of identifiers to add to this object type
         """
         for identifier in identifiers:
             self.add_identifier(identifier)
@@ -135,8 +147,9 @@ class ObjectType(GroupType):  # type: ignore
         """
         Add an identifier to this object type. All 'identifying' identifiers are used to determine object uniqueness.
         If no 'identifying' identifiers exist, they object name will be used for uniqueness.
-        :param identifier: The identifier to add to the object type definition.
-        :return: None
+
+        Args:
+            identifier (Parameter): The identifier to add to the object type definition.
         """
         key = identifier.key
         if key in self.identifiers:

@@ -30,10 +30,11 @@ class SuiteApiConnectionParameters:
     ):
         """Initialize SuiteApi Connection Parameters
 
-        :param host: The host to use for connecting to the SuiteAPI.
-        :param username: Username used to authenticate to SuiteAPI
-        :param password: Password used to authenticate to SuiteAPI
-        :param auth_source: Source of authentication
+        Args:
+            host (str): The host to use for connecting to the SuiteAPI.
+            username (str): Username used to authenticate to SuiteAPI
+            password (str): Password used to authenticate to SuiteAPI
+            auth_source (str): Source of authentication. Defaults to "LOCAL"
         """
         if "http" in host:
             self.host = f"{host}/suite-api/"
@@ -63,7 +64,8 @@ class SuiteApiClient:
     def __init__(self, connection_params: SuiteApiConnectionParameters):
         """Initializes a SuiteAPI client.
 
-        :param connection_params: Connection parameters for the Suite API.
+        Args:
+             connection_params (SuiteApiConnectionParameters): Connection parameters for the Suite API.
         """
         self.credential = connection_params
         self.token = ""
@@ -71,7 +73,8 @@ class SuiteApiClient:
     def __enter__(self) -> SuiteApiClient:
         """Acquire a token upon entering the 'with' context
 
-        :return: self
+        Returns:
+            SuiteApiClient: The current instance of the class.
         """
         self.token = self.get_token()
         return self
@@ -84,10 +87,10 @@ class SuiteApiClient:
     ) -> None:
         """Release the token upon exiting the 'with' context
 
-        :param exception_type: Unused
-        :param exception_value: Unused
-        :param traceback: Unused
-        :return: None
+        Args:
+            exception_type (Optional[Type[BaseException]]): Unused
+            exception_value (Optional[BaseException]): Unused
+            traceback (Optional[TracebackType]): Unused
         """
         self.release_token()
 
@@ -96,7 +99,8 @@ class SuiteApiClient:
 
         Gets the current authentication token. If no current token exists, acquires an authentication token first.
 
-        :return: The authentication token
+        Returns:
+             The authentication token
         """
         if self.token == "":
             with self.post(
@@ -118,10 +122,8 @@ class SuiteApiClient:
         return self.token
 
     def release_token(self) -> None:
-        """Release the authentication token, if it exists
+        """Release the authentication token, if it exists"""
 
-        :return: None
-        """
         if self.token != "":
             self.post("auth/token/release").close()
             self.token = ""
@@ -131,19 +133,25 @@ class SuiteApiClient:
         The 'Response' object should be used in a 'with' block or
         manually closed after use
 
-        :param url: URL to send GET request to
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send GET request to
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+            The API response
         """
         return self._request_wrapper(requests.get, url, **kwargs)
 
     def paged_get(self, url: str, key: str, **kwargs: Any) -> dict:
         """Send a GET request to the SuiteAPI that gets a paged response
 
-        :param url: URL to send GET request to
-        :param key: Json key that contains the paged data
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send GET request to
+            key (str): Json key that contains the paged data
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         return self._paged_request(requests.get, url, key, **kwargs)
 
@@ -152,9 +160,12 @@ class SuiteApiClient:
         The 'Response' object should be used in a 'with' block or
         manually closed after use
 
-        :param url: URL to send POST request to
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send POST request to
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         kwargs.setdefault("headers", {})
         kwargs["headers"].setdefault("Content-Type", "application/json")
@@ -163,10 +174,13 @@ class SuiteApiClient:
     def paged_post(self, url: str, key: str, **kwargs: Any) -> dict:
         """Send a POST request to the SuiteAPI that gets a paged response.
 
-        :param url: URL to send POST request to
-        :param key: Json key that contains the paged data
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send POST request to
+            key (str): Json key that contains the paged data
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         kwargs.setdefault("headers", {})
         kwargs["headers"].setdefault("Content-Type", "application/json")
@@ -177,9 +191,12 @@ class SuiteApiClient:
         The 'Response' object should be used in a 'with' block or
         manually closed after use
 
-        :param url: URL to send PUT request to
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send PUT request to
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         return self._request_wrapper(requests.put, url, **kwargs)
 
@@ -188,9 +205,12 @@ class SuiteApiClient:
         The 'Response' object should be used in a 'with' block or
         manually closed after use
 
-        :param url: URL to send PATCH request to
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send PATCH request to
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+            The API response
         """
         return self._request_wrapper(requests.patch, url, **kwargs)
 
@@ -199,9 +219,12 @@ class SuiteApiClient:
         The 'Response' object should be used in a 'with' block or
         manually closed after use
 
-        :param url: URL to send DELETE request to
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url (str): URL to send DELETE request to
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         return self._request_wrapper(requests.delete, url, **kwargs)
 
@@ -228,9 +251,12 @@ class SuiteApiClient:
         the resulting Objects. If information other than the Object itself is needed,
         you will need to call the endpoint and process the results manually.
 
-        :param query: json of the resourceQuery, as defined in the SuiteAPI docs:
-        https://[[aria-ops-hostname]]/suite-api/doc/swagger-ui.html#/Resources/getMatchingResourcesUsingPOST
-        :return list of sdk Objects representing each of the returned objects.
+        Args:
+            query (Dict[str, Any]): json of the resourceQuery, as defined in the SuiteAPI docs:
+                https://[[aria-ops-hostname]]/suite-api/doc/swagger-ui.html#/Resources/getMatchingResourcesUsingPOST
+
+        Returns:
+             list of sdk Objects representing each of the returned objects.
         """
         try:
             results = []
@@ -277,10 +303,13 @@ class SuiteApiClient:
            "{key}": [aggregated data]
         }
 
-        :param url: URL to send request to
-        :param key: Json key that contains the paged data
-        :param kwargs: Additional keyword arguments to pass to request
-        :return: The API response
+        Args:
+            url(str): URL to send request to
+            key (str): Json key that contains the paged data
+            kwargs (Any): Additional keyword arguments to pass to request
+
+        Returns:
+             The API response
         """
         kwargs = self._add_paging(**kwargs)
         with self._request_wrapper(request_func, url, **kwargs) as page_0:

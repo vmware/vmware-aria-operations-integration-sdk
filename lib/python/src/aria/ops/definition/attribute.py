@@ -21,20 +21,22 @@ class Attribute(ABC):
         dashboard_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            unit (Optional[str]): Specifies what unit this metric is returned in. This allows the UI to display the units in a
         consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point)
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
-        :param dashboard_order: Determines the order parameters will be displayed in the UI.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+            will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than continuous
+            (floating point). Defaults to False.
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+            'Self - Health Score' metric, which can affect the 'Anomalies' Badge. Defaults to False.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+            proxy to a root cause, but not the root cause itself. Defaults to False.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
+            dashboard_order (int): Determines the order parameters will be displayed in the UI. Defaults to 0
         """
         self.key = validate_key(key, "Attribute")
         self.label = label
@@ -76,20 +78,22 @@ class MetricAttribute(Attribute):
         dashboard_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
-        consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point)
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
-        :param dashboard_order: Determines the order parameters will be displayed in the UI.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            unit (Optional[Unit]): Specifies what unit this metric is returned in. This allows the UI to display the units in a
+                consistent manner, and perform conversions when appropriate.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+                will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than continuous
+                (floating point)
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+                'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+                proxy to a root cause, but not the root cause itself.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
+            dashboard_order (bool): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(
             key,
@@ -125,21 +129,23 @@ class PropertyAttribute(Attribute):
         dashboard_order: int = 0,
     ):
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param is_string: Determines if the property is numeric or string (text).
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
-        consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point). Defaults to False, unless 'is_string' is set, in which case it will always be set to True.
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
-        :param dashboard_order: Determines the order parameters will be displayed in the UI.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            is_string (bool): Determines if the property is numeric or string (text).
+            unit (Optional[Unit]): Specifies what unit this metric is returned in. This allows the UI to display the units in a
+                consistent manner, and perform conversions when appropriate.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+                will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than continuous
+                (floating point). Defaults to False, unless 'is_string' is set, in which case it will always be set to True.
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+                'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+                proxy to a root cause, but not the root cause itself.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
+            dashboard_order (int): Determines the order parameters will be displayed in the UI.
         """
         super().__init__(
             key,
