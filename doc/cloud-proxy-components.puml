@@ -24,11 +24,11 @@ component "Container 2" as c2 {
 
 ah <--> c1r : HTTPS
 c1r <-d- c1c
-c1r -> c1a : Named Pipe
+c1r -> c1a : Named Pipes
 c1r <- c1a
 
 ah <--> c2r : HTTPS
 c2r <-d- c2c
-c2r -> c2a : Named Pipe
+c2r -> c2a : Named Pipes
 c2r <- c2a
 @enduml
