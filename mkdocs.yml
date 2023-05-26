@@ -11,7 +11,10 @@ plugins:
 theme:
   name: material
   fetures:
+  - toc.follow
   - navigation.sections
+  - navigation.tabs
+  - navigation.tabs.sticky
   - navigation.top
   - toc.integrate
   - search.suggest
@@ -19,6 +22,7 @@ theme:
   - content.tabs.link
   - content.code.annotation
   - contant.code.copy
+  - content.code.select
   language: en
   palette:
   - scheme: default
@@ -33,6 +37,19 @@ theme:
       name: light mode
     primary: red
     accent: indigo
+
+markdown_extensions:
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- admonition
+- pymdownx.details
+- pymdownx.inlinehilite
+- pymdownx.superfences
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
 
 copyright: |
   &copy; 2023 VMware, Inc.

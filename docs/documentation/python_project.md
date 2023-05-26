@@ -35,6 +35,7 @@ Contains all the source adapter source code. This directory is copied into the c
  - To re-define the file the HTTP server uses to perform HTTP requests for the server, the user should modify the commands.cfg file.
  - The adapter uses the python VMware Aria Operations library.
  - API calls table
+ - 
 | Request/Parameter  | Description   |
 | :----------------: | :------------ |
 | test               | The adapter should test connection to the server| TODO define what test connection looks like
@@ -62,6 +63,7 @@ TODO: what are reports ?
 ### manifest.txt (file)
 The manifest file contains top-level information that you need to install and maintain a management pack.
 TODO: create table for manifest file properties
+
 | Manifest Property  | Value         |
 | :----------------: | :------------ |
 | Content Cell       | Content Cell  |
