@@ -3,6 +3,7 @@ repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
 docs_dir: docs
 plugins:
 - search
+- awesome-pages
 - mkdocstrings:
     handlers:
       python:
@@ -10,15 +11,6 @@ plugins:
           show_docstring_attributes: true
 theme:
   name: material
-  fetures:
-  - navigation.sections
-  - navigation.top
-  - toc.integrate
-  - search.suggest
-  - search.highlight
-  - content.tabs.link
-  - content.code.annotation
-  - contant.code.copy
   language: en
   palette:
   - scheme: default
@@ -33,7 +25,34 @@ theme:
       name: light mode
     primary: red
     accent: indigo
+  fetures:
+  - toc.follow
+  - navigation.sections
+  - navigation.instant
+  - navigation.top
+  - toc.integrate
+  - search.suggest
+  - search.highlight
+  - content.tabs.link # this should enable tabs to be link to one another, but it isn't working at the moment
+  - content.code.annotation
+  - contant.code.copy
+  - content.code.select
+  - content.tooltips
+
+
+
+markdown_extensions:
+- def_list
+- pymdownx.tabbed:
+    alternate_style: true
+- admonition
+- pymdownx.details
+- pymdownx.inlinehilite
+- pymdownx.superfences
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
 
 copyright: |
   &copy; 2023 VMware, Inc.
-

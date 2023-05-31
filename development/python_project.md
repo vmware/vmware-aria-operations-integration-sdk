@@ -23,7 +23,7 @@ Contains all necessary instructions to build a container with an HTTP server, th
 code, and any additional dependencies specified by the user.
 
 ### adapter_requirements.txt (file)
-TODO  talk about pip3 install -r
+<!-- TODO  talk about pip3 install -r -->
 Contains all python dependencies needed by the adapter. This file will be used during the construction of the container
 to ensure all dependencies are included in the container.
 
@@ -35,12 +35,13 @@ Contains all the source adapter source code. This directory is copied into the c
  - To re-define the file the HTTP server uses to perform HTTP requests for the server, the user should modify the commands.cfg file.
  - The adapter uses the python VMware Aria Operations library.
  - API calls table
+ - 
 | Request/Parameter  | Description   |
 | :----------------: | :------------ |
 | test               | The adapter should test connection to the server| TODO define what test connection looks like
 | collect            | The adapter should run a collection and return a list of all collected objects|
 
-TODO link the swagger API, so the use can see all requests
+<!-- TODO link the swagger API, so the use can see all requests -->
 
 ### commands.cfg (file)
 This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the command. By default, all commands are run by executing the adapter.py file along with a parameter that defines a command. For example; when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test` and runs the process defined by the key value.
@@ -50,18 +51,19 @@ This files contains a list of the commands the HTTP server can run, along with t
 
 ### content Folder(directory)
 This folder contains all the components included in a management pack such as: alerts, groups, dashboards, policies, recommendations, reports, resources, supermetrics, symptoms, and traversal specs.
-#### dashboards (directory)
-TODO: Provide sample dashboard
-
-#### files (directory)
-TODO: what should be inside this directory ?
-
-#### reports (directory)
-TODO: what are reports ?
+<!-- #### dashboards (directory) -->
+<!-- TODO: Provide sample dashboard -->
+<!---->
+<!-- #### files (directory) -->
+<!-- TODO: what should be inside this directory ? -->
+<!---->
+<!-- #### reports (directory) -->
+<!-- TODO: what are reports ? -->
 
 ### manifest.txt (file)
 The manifest file contains top-level information that you need to install and maintain a management pack.
-TODO: create table for manifest file properties
+<!-- TODO: create table for manifest file properties -->
+
 | Manifest Property  | Value         |
 | :----------------: | :------------ |
 | Content Cell       | Content Cell  |
@@ -71,4 +73,4 @@ TODO: create table for manifest file properties
 A file that contains English labels for various objects. VMware Aria Operations supports localization, so users can add additional file(s) to support other languages.
 To support another language, create a file with resources_[LANGUAGE_CODE].properties, then VMware Aria Operations will use the appropriate labels when set to that language.
 #### resources.properties (file)
-TODO: Add example file
+<!-- TODO: Add example file -->
