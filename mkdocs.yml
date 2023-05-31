@@ -3,6 +3,7 @@ repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
 docs_dir: docs
 plugins:
 - search
+- awesome-pages
 - mkdocstrings:
     handlers:
       python:
@@ -40,6 +41,7 @@ theme:
 
 
 markdown_extensions:
+- def_list
 - pymdownx.tabbed:
     alternate_style: true
 - admonition
