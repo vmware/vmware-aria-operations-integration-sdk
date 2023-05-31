@@ -17,7 +17,10 @@ Adding Content
      ![](../images/../images/export_dashboard_1.png)
 
      ![](../images/export_dashboard_2.png)
-     > Note: Selecting multiple dashboards will combine them into a single dashboard.json file (see step 3). All the following steps are identical in this case, but exporting each dashboard individually is recommended as it makes managing the content easier within the Management Pack project.
+
+    ???+ note
+
+        Selecting multiple dashboards will combine them into a single dashboard.json file (see step 3). All the following steps are identical in this case, but exporting each dashboard individually is recommended as it makes managing the content easier within the Management Pack project.
       
      ![](../images/export_dashboard_3.png)
 
@@ -31,7 +34,9 @@ Adding Content
           └── resources.properties
         ```
 
-    > Note: A newly created dashboard will not contain a `resources` directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
+    ???+ note
+
+        A newly created dashboard will not contain a `resources` directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
 
     Unzip the file and move the root `dashboard` directory to the `[project_dir]/content/dashboards` directory. The `dashboard` directory and dashboard file (`dashboard.json`) can be renamed, but should match. For example, with two dashboards, `myDashboard` and `myOtherDashboard`, the project's content directory should look like this:
 
@@ -64,11 +69,16 @@ Adding Content
     ![](../images/export_report_1.png)
 
     ![](../images/export_report_2.png)
-    > Note: Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of two things:
-    >  * Select all report templates with the shared view, so that they are combined into a single file and the view is not duplicated, or
-    >  * Duplicate the view before exporting, so that each report template has its own unique view that can be modified separately.
-    > 
-    > The reason for this is that if a view is shared between two report templates, but is defined in multiple files, than the view could be modified in multiple places, leading to potential conflicts.
+
+    ???+ note
+
+        Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of two things:
+
+          - Select all report templates with the shared view, so that they are combined into a single file and the view is not duplicated, or
+          - Duplicate the view before exporting, so that each report template has its own unique view that can be modified separately.
+
+        The reason for this is that if a view is shared between two report templates, but is defined in multiple files, than the view could be modified in multiple places, leading to potential conflicts.
+
 
     ![](../images/export_report_3.png)
 
@@ -81,7 +91,9 @@ Adding Content
      └── content.properties
     ```
 
-     > Note: A newly created report template will not contain a `resources` directory, unless it was cloned and/or edited from an existing report template that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
+    ???+ note
+
+        A newly created report template will not contain a `resources` directory, unless it was cloned and/or edited from an existing report template that contained localization (See [Adding Localization](#adding-localization)). If localization is not required, ignore the `resources` directories in the following steps.
       
      Unzip the file and move the root directory to the `[project_dir]/content/reports` directory. The directory and report file (`content.xml`) can be renamed to match, if desired. For example, with two reports, `myReport` and `myOtherReport`, the project's content directory should look like this:
 
@@ -112,16 +124,19 @@ Adding Content
    
      ![](../images/export_alert_2.png)
    
-     > Note: Selecting multiple alert definitions will combine them into a single xml file (see step 3). All the following steps are identical in this case, but exporting each alert individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple alert definitions share symptoms or recommendations. In this case, best practice is to do one of three things:
-     > * Select all alert definitions with a shared dependency, so that they are combined into a single file and the dependency is not duplicated, or
-     > * Move the shared dependency out of the alert definition xml file and into its own xml file, which then goes in the `content/recommendations` or `content/symptoms` directory.
-     > * Duplicate the symptom or recommendation before exporting, so that each alert definition has its own unique dependency that can be modified separately.
-     > 
-     > The reason for this is that if a dependency is shared between two alerts, but is defined in multiple files, than the dependency could be modified in multiple places, leading to potential conflicts.
+    ???+ note
+
+         Selecting multiple alert definitions will combine them into a single xml file (see step 3). All the following steps are identical in this case, but exporting each alert individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple alert definitions share symptoms or recommendations. In this case, best practice is to do one of three things:
+
+          * Select all alert definitions with a shared dependency, so that they are combined into a single file and the dependency is not duplicated, or
+          * Move the shared dependency out of the alert definition xml file and into its own xml file, which then goes in the `content/recommendations` or `content/symptoms` directory.
+          * Duplicate the symptom or recommendation before exporting, so that each alert definition has its own unique dependency that can be modified separately.
+          
+         The reason for this is that if a dependency is shared between two alerts, but is defined in multiple files, than the dependency could be modified in multiple places, leading to potential conflicts.
      
      ![](../images/export_alert_3.png)
 
-  4. After selecting `Export` a zip file will download containing a single xml file that contains the alert definition and any dependent content (e.g., symptoms, recommendations)
+  3. After selecting `Export` a zip file will download containing a single xml file that contains the alert definition and any dependent content (e.g., symptoms, recommendations)
 
     Unzip the file and move the alert xml file to the `[project_dir]/content/alertdefs` directory. The alert file can be renamed. For example, with two alerts, `myAlert` and `myOtherAlert`, the project's content directory should look like this:
 
@@ -133,11 +148,14 @@ Adding Content
         └── <...>
         ```
 
-  5. Once the alert definition(s) are present in the content directory as above, run `mp-build` to create a new pak file that includes the alert definitions.
+  4. Once the alert definition(s) are present in the content directory as above, run `mp-build` to create a new pak file that includes the alert definitions.
 
 ## Adding a Traversal
 
-> Note: Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.
+
+???+ note 
+
+    Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.
  
 A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the `describe.xml` file.
 Each path consists of two or more _nodes_, and each node is separated by two bars (`||`).
@@ -183,7 +201,9 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
    </TraversalSpecKinds>
 </AdapterKind>
 ```
-> For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd#L4).
+???+ info 
+
+    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd#L4).
 
 When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
@@ -225,7 +245,9 @@ version=1
 183=<...>
 ...
 ```
-> Note: `NameKey` integers do not have to be in order or contiguous.
+???+ note
+
+    `NameKey` integers do not have to be in order or contiguous.
 
 To supply an additional translation, create an additional file with the form `resources_<locale>.properties`, with the same set of keys as the original file but mapping to translated values.
 A locale specifier can have two parts, a two-letter language ID and an optional two-letter country code.

@@ -35,18 +35,18 @@ opposed to agent-based monitoring, where the monitoring code runs in the same lo
 as the endpoint).
 
 For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
-[Creating a new Management Pack](#creating-a-new-management-pack)
+[Creating a new Management Pack](guides/creating_a_new_management_pack.md)
 
 The Integration SDK can also be used to extend objects created by another Management
 Pack with additional metrics, properties, events, or relationships. This can be useful
 to ensure access to custom data without having to re-implement already existing data.
 
 For an example walkthrough of the steps required to extend another management pack, see
-[Extending an Existing Management Pack](#extending-an-existing-management-pack)
+[Extending an Existing Management Pack](guides/extending_an_existing_management_pack.md)
 
 ## Where should I start?
-* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](#get-started) tutorial.
-* If you have completed the Get Started tutorial, the [walkthroughs](#walkthroughs) are guides for modifying your adapter.
+* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](get_started.md) tutorial.
+* If you have completed the Get Started tutorial, the `Guides` section contains guides for modifying your adapter.
 
 ## Contributing
 

@@ -1,4 +1,4 @@
-Management Pack Initialization Tool
+# mp-init
 -----------------------------------
 
 ## Purpose
@@ -9,7 +9,7 @@ calling `mp-init`, the user will be prompted with a series of questions. The scr
 an initial project structure and create classifiers that other tools and VMware Aria Operations will use.
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../../README.md#installation) is installed, with the virtual environment active.
 
 ## Input
 
@@ -131,7 +131,7 @@ and runs the process defined by the key value, `/usr/local/bin/python app/adapte
 ### app (directory)
 By default, this directory contains a template adapter. The template adapter collects several objects and metrics from the container that the adapter
 is running in, and can be used as a starting point for creating a new adapter. The template adapter uses [vmware-aria-operations-integration-sdk-lib](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/) to streamline the process of building adapter.
-The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our [Walkthroughs](../README.md#walkthroughs) section.
+The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our `Guides` section.
 
 ### eula.txt (file)
 This file defines the End User License Agreement (EULA); If no EULA was provided then `mp-init` generates a template EULA.
@@ -164,7 +164,7 @@ mark. If your editor automatically includes the byte-order mark when saving to U
 
 <sup>1</sup> This property is required.
 
-<sup>2</sup> Localized fields are specified in the property files located in the `resources/` directory. See [Adding Localization](../guides/adding_content.md#adding-localization).
+<sup>2</sup> Localized fields are specified in the property files located in the `resources/` directory. See [Adding Localization](../../guides/adding_content.md#adding-localization).
 
 ### venv-ADAPTER NAME (directory)
 
@@ -180,7 +180,7 @@ The conf directory contains configuration files used by VMware Aria Operations t
 - describeSchema.xsd: A file that defines what elements and attributes may appear in the `describe.xml` document. This file does not need to be included in a Management Pack but is useful for validating that the `describe.xml` file is error-free.
 
 ### content (directory)
-Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, and traversal specs. To learn more about adding content, consult the [Adding Content](../guides/adding_content.md) guide.
+Contains all the content included in a management pack such as: alerts, dashboards, reports, recommendations, symptoms, and traversal specs. To learn more about adding content, consult the [Adding Content](../../guides/adding_content.md) guide.
 
 ### resources (directory)
-The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `manifest.txt`. For more information see [Adding Localization](../guides/adding_content.md#adding-localization).
+The resources directory contains localization file(s), by default `resources.properties`. This file specifies the mapping of `nameKey` attribute of elements inside the `manifest.txt`. For more information see [Adding Localization](../../guides/adding_content.md#adding-localization).

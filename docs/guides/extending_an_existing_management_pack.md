@@ -1,5 +1,5 @@
-
 # Extending an Existing Management Pack
+* * *
 
 This guide assumes you have already set up the SDK and know how to create a new project.
 It walks you through the steps necessary to extend an existing Management Pack to add
@@ -41,19 +41,20 @@ project generation completed
 ```
 
 The completed management pack is found in
-[the 'samples' directory](samples/mysql-extension-mp), and can be used as a reference
+[the 'samples' directory](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/mysql-extension-mp), and can be used as a reference
 for this walkthrough or as a starting point for creating your own.
 
 Once the project finished generating, we can change directory into the project
 and activate the Python virtual environment.
 
 Next, we need to modify the adapter code. We will break this up into several steps:
-1. [Add a library for connecting to MySQL](#add-a-library-for-connection-to-mysql)
-2. [Modify the adapter definition to add fields for connecting to MySQL](#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql)
-3. [Modify the `test` method to create a MySQL connection and run a query](#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query)
-4. [Modify the `collect` method to collect metrics, and attach them to the correct
-   database objects](#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects)
-5. [Verify the MP](#verify-the-mp)
+
+  1. [Add a library for connecting to MySQL](#add-a-library-for-connection-to-mysql)
+  2. [Modify the adapter definition to add fields for connecting to MySQL](#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql)
+  3. [Modify the `test` method to create a MySQL connection and run a query](#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query)
+  4. [Modify the `collect` method to collect metrics, and attach them to the correct
+     database objects](#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects)
+  5. [Verify the MP](#verify-the-mp)
 
 #### Add a library for connection to MySQL
 
@@ -70,10 +71,12 @@ psutil
 mysql-connector-python>=8.0.32
 ```
 
-> Note: We can also remove the `psutil` library, as that is only used in the sample code
-> that we will be replacing. However, we would then no longer be able to run `mp-test`
-> until we have removed the sample code that depends on `psutil`, so for now we will
-> keep it.
+???+ note
+
+    We can also remove the `psutil` library, as that is only used in the sample code
+    that we will be replacing. However, we would then no longer be able to run `mp-test`
+    until we have removed the sample code that depends on `psutil`, so for now we will
+    keep it.
 
 #### Modify the adapter definition to add fields for connecting to MySQL
 

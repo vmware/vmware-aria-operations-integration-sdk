@@ -1,4 +1,5 @@
 # Creating a New Management Pack
+* * * 
 
 This guide assumes you have already set up the SDK and know how to create a new project.
 It walks you through the steps necessary to monitor an endpoint, using Alibaba Cloud as
@@ -36,7 +37,7 @@ project generation completed
 ```
 
 The completed management pack is found in
-[the 'samples' directory](samples/alibaba-cloud-mp), and can be used as a reference
+[the 'samples' directory](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/alibaba-cloud-mp), and can be used as a reference
 for this walkthrough or as a starting point for creating your own.
 
 Once the project finished generating, we can change directory into the project
@@ -46,9 +47,9 @@ Next, we need to modify the adapter code. We will break this up into several ste
 
   1. [Add a library for connecting to Alibaba](#add-a-library-for-connection-to-alibaba-cloud)
   2. [Modify the adapter definition to add fields for connecting to Alibaba Cloud](#modify-the-adapter-definition-to-add-fields-for-connecting-to-alibaba-cloud)
-  3. [Modify the `test` method to create an Alibaba Cloud connection and run a query](#modify-the-test-method-to-create-an-alibaba-could-connection-and-run-a-query)
+  3. [Modify the `test` method to create an Alibaba Cloud connection and run a query](#modify-the-test-method-to-create-an-alibaba-cloud-connection-and-run-a-query)
   4. [Modify the `collect` method to collect objects, metrics, properties, and
-     relationships](#modify-the-collect-method-to-collect-objects--metrics--properties--and-relationships)
+     relationships](#modify-the-collect-method-to-collect-objects-metrics-properties-and-relationships)
   5. [Verify the Alibaba Cloud MP](#verify-the-alibaba-cloud-mp)
 
 #### Add a library for connection to Alibaba Cloud
@@ -158,7 +159,7 @@ def get_adapter_definition() -> AdapterDefinition:
 Now that we've defined the connection parameters, we should define the objects that
 we will collect. For now, let's collect some information about ECS Instances.
 This is a small example. The implementation in the
-[samples directory](samples/alibaba-cloud-mp) includes ECS Metrics and an additional
+[samples directory](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/alibaba-cloud-mp) includes ECS Metrics and an additional
 Security Group object type.
 
 ```python
@@ -272,7 +273,7 @@ both `test` and `collect` is worthwhile.
 Next, we'll run several queries to get the data from Alibaba Cloud that we want, add
 the objects to the `result`, add data to the objects, and return the result. This
 collects all the properties in the small definition above. The implementation in the
-[samples directory](samples/alibaba-cloud-mp) has more data.
+[samples directory](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/alibaba-cloud-mp) has more data.
 
 
 ```python

@@ -9,12 +9,12 @@ an object model that provides object types, object properties, and semantic defi
 metric data's meaning. The object model can be defined by using a `describe.xml` file, which should be defined in the
 `conf` directory, or it can be defined using the `definition` module
 from the [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
-by defining the [AdapterDefinition](../Vmware_Aria_Operations_Integration_SDK_Library/definition/adapter_definition.md) object returned by
-The **get_adapter_definition()** method in `app/adapter.py`.
+by defining the [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object returned by
+The `#!python get_adapter_definition()` method in `app/adapter.py`.
 
 ### describe.xml vs. AdapterDefinition?
-when running `mp-build`, `mp-test collect `, or `mp-test test` they call the **get_adapter_definition** method
-and then generate `describe.xml` file with the [AdapterDefinition](../Vmware_Aria_Operations_Integration_SDK_Library/definition/adapter_definition.md)
+when running `mp-build`, `mp-test collect `, or `mp-test test` they call the `#!python get_adapter_definition()` method
+and then generate `describe.xml` file with the [AdapterDefinition](../references/python-lib/definition/adapter_definition.md)
 object. If a `describe.xml` file is present in the `conf` directory, then the object returned by the **get_adapter_definition**
 method will be ignored.
 
@@ -25,7 +25,7 @@ when creating objects (See [Creating an object](#creating-an-object)), and must 
 file in the `"adapter_kinds"` array. When defining an adapter, we also have to define an adapter instance type. An adapter
 instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter
 must have exactly one adapter instance type. The Adapter instance type is set by defining a `ResourceKind` element with
-attribute `type=7`. in Python, we can use the [AdapterDefinition](../Vmware_Aria_Operations_Integration_SDK_Library/definition/adapter_definition.md).
+attribute `type=7`. in Python, we can use the [AdapterDefinition](../references/python-lib/definition/adapter_definition.md).
 
 === "Python Adapter Library"
 
@@ -112,7 +112,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
 In the `describe.xml` adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the
 identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
 is `2`, the identifier is _non-identifying_, and will show up under the 'advanced' section of the configuration page.
-In Python, the [Parameter](../Vmware_Aria_Operations_Integration_SDK_Library/definition/parameter.md
+In Python, the [Parameter](../references/python-lib/definition/parameter.md
 ) object has an `advanced` attribute that
 determines identType.
 
@@ -120,7 +120,7 @@ determines identType.
 >
 > Creating an account from the above xml (plus a credential). `ssl_mode` and `max_events` have an identType of 2, so they are present in 'Advanced Settings'.
 
-> Note: If there are any existing connections used by the [`mp-test`](../tools/mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
+> Note: If there are any existing connections used by the [`mp-test`](../references/tools/mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) will be prompted to the user when
 creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations` page.
@@ -134,7 +134,7 @@ To add a credential to the Adapter using in the `conf/describe.xml`, add a `Cred
 The `CredentialKind` element takes one or more `CredentialField` elements which correspond to an individual piece
 of data needed for a credential. In Python, we can use the `AdapterDefinition.define_credential_type` function
 to define a new credential type and add it to the `AdapterDefinition` object; then we can specify each credential
-field using the returned [CredentialType](../Vmware_Aria_Operations_Integration_SDK_Library/definition/credential_type.md).
+field using the returned [CredentialType](../references/python-lib/definition/credential_type.md).
 A typical credential that requires a username and password might look like this:
 
 === "Python Adapter Library"
@@ -191,7 +191,7 @@ instance is a special `ResourceKind` that is used to configure an adapter. It is
 > Adding a credential to an adapter instance with the `username` and `password` fields as defined above. 'Credential name'
 > is always added (by VMware Aria Operations), and allows for credentials to be reused between adapter instances.
 
-Both `describe.xml` and [AdapterDefinition](../Vmware_Aria_Operations_Integration_SDK_Library/definition/adapter_definition.md) allow for the
+Both `describe.xml` and [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) allow for the
 use of multiple credential types.
 
 === "Python Adapter Library"
@@ -233,7 +233,7 @@ use of multiple credential types.
 Once the credential is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code.
 !!! note 
 
-    If there are any existing connections used by the [`mp-test`](../tools/mp-test.md) tool before the credential was created
+    If there are any existing connections used by the [`mp-test`](../references/tools/mp-test.md) tool before the credential was created
     or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any credential defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model)
@@ -242,7 +242,7 @@ page. After the account has been created, credential fields will be available `A
 `collect`, `test`, and `get_endpoints` methods.(See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
-the credentials are available in the [AdapterInstance](../Vmware_Aria_Operations_Integration_SDK_Library/adapter_instance.md) object passed to
+the credentials are available in the [AdapterInstance](../references/python-lib/adapter_instance.md) object passed to
 the `collect`, `test`, and `get_endpoint` methods in `app/adapter.py`(See [Creating an Adapter Instance](#creating-an-adapter-instance).).
 If an adapter supports multiple credential types, the **AdapterInstance.get_credential_type()** function can be used to determine the type of the
 credential used by the adapter instance.
@@ -279,7 +279,7 @@ application, several 'database' objects are created representing distinct databa
 To create a new object type in the `conf/describe.xml` file, add a `ResourceKind` element inside `AdapterKind/ResourceKinds`.
 A `key` attribute is required, and must be unique among other object types within the `describe.xml` file.
 To create a new object type using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
-use the `AdapterDefinition.define_object_type` function of [AdapterDefinition](../Vmware_Aria_Operations_Integration_SDK_Library/definition/adapter_definition.md) object.
+use the `AdapterDefinition.define_object_type` function of [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object.
 
 === "Python Adapter Library"
     ```python linenums="1"
@@ -349,7 +349,7 @@ it can be used in the adapter code. See [Creating an object](#creating-an-object
 Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type-to-the-object-model).
 
 Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
-the canonical method for creating a new object is to use the [CollectResult](../Vmware_Aria_Operations_Integration_SDK_Library/result.md) object.
+the canonical method for creating a new object is to use the [CollectResult](../references/python-lib/result.md) object.
 
 ```python linenums="1"
 result = CollectResult()

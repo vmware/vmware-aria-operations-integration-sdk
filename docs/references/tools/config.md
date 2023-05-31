@@ -1,3 +1,5 @@
+# config.json
+* * * 
 
 **`default_container_registry_path`** (string, optional): Specifies the default container registry path to be used by [mp-build](mp-build.md) any time the local **config.json** file doesn't contain a container registry. This key value should contain the path used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a new repository. 
 

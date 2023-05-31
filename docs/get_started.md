@@ -94,11 +94,11 @@ the creation of a new management pack project.
      PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
      setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](tools/mp-init.md).
+For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/tools/mp-init.md).
 
 ### Template Project
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
-Each file and directory is discussed in depth in the [mp-init](tools/mp-init.md) documentation. `app/adapter.py` is the adapter's
+Each file and directory is discussed in depth in the [mp-init](references/tools/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point.
 
 `adapter.py` is a template adapter that collects several objects and metrics from the
@@ -150,7 +150,7 @@ Each method is described below:
   when using advanced features of the `describe.xml` file that are not present in this method.
 
 
-For further guidance on using the template project, consult the [Walkthroughs](#walkthroughs) section.
+For further guidance on using the template project, consult the `Guides` section.
 
 ### Testing a Management Pack
 
@@ -206,7 +206,7 @@ For more information on these endpoints, see
 the [Swagger API documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json). Each
 response is validated against the API.
 
-For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](tools/mp-test.md).
+For complete documentation of the `mp-test` tool see the [MP Test Tool Documentation](references/tools/mp-test.md).
 
 ### Building and Installing a Management Pack
 To build a project, run `mp-build` in the virtual environment.
@@ -234,5 +234,5 @@ minutes later, the objects' metrics, properties, and events should appear. These
 ![CPU Idle Time](images/test-adapter-cpu-idle-time.png)
 *The CPU object's `idle-time` metric in a Management Pack named `QAAdapterName`.*
 
-For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](tools/mp-build.md).
+For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](references/tools/mp-build.md).
 

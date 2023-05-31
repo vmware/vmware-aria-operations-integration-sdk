@@ -4,12 +4,12 @@ Examples
 
 - [Alibaba Cloud MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/alibaba-cloud-mp)
     - This Management Pack collects some data about Alibaba Cloud ECS Instances and Security Groups. This Management
-      Pack has a [walkthrough](README.md#creating-a-new-management-pack)
+      Pack has a [walkthrough](guides/creating_a_new_management_pack.md)
       guide that shows how to create a new Management Pack.
 
 - [MySQL Extension MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/mysql-extension-mp)
       - A Management Pack collects some data from MySQL and attaches them to objects created by the MySQL Management
-      Pack. This Management Pack has a [walkthrough](README.md#extending-an-existing-management-pack) how to extend an
+      Pack. This Management Pack has a [walkthrough](guides/extending_an_existing_management_pack.md) how to extend an
       existing Management Pack.
  
 - [vCenter Extension MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/vcenter-extension-mp)
