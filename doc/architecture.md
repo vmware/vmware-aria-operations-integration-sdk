@@ -36,6 +36,7 @@ The Collection code is the main user-written code. It provides three functions:
 * 'Get Endpoints': If the connection to the external source uses HTTPS, this method can
    be used to tell VMware Aria Operations where to find certificates, and if they are
    not signed by a Certificate Authority, present them to the user.
+
 Optionally, the adapter can provide a fourth method:
 * 'Definition': If present, this is used by `mp-build` and `mp-test` to 
    generate a `describe.xml` file. Otherwise, a `describe.xml` file must be manually
