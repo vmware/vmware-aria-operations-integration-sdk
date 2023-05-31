@@ -14,12 +14,12 @@ Adding Content
 
   2. Once the dashboard is created, click `Manage` on the `Visualize` &rarr; `Dashboards` page. Select the dashboard, click the `...` button, and select `Export`.
 
-     ![](export_dashboard_1.png)
-s
-     ![](export_dashboard_2.png)
+     ![](../images/../images/export_dashboard_1.png)
+
+     ![](../images/export_dashboard_2.png)
      > Note: Selecting multiple dashboards will combine them into a single dashboard.json file (see step 3). All the following steps are identical in this case, but exporting each dashboard individually is recommended as it makes managing the content easier within the Management Pack project.
       
-     ![](export_dashboard_3.png)
+     ![](../images/export_dashboard_3.png)
 
 
   3. After selecting `Export` a zip file will download with the following files and directories:
@@ -61,16 +61,16 @@ s
 
   2. Once the report template is created, click `Manage` on the `Visualize` &rarr; `reports` page. Select the report, click the `...` button, and select `Export`.
 
-    ![](export_report_1.png)
+    ![](../images/export_report_1.png)
 
-    ![](export_report_2.png)
+    ![](../images/export_report_2.png)
     > Note: Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of two things:
     >  * Select all report templates with the shared view, so that they are combined into a single file and the view is not duplicated, or
     >  * Duplicate the view before exporting, so that each report template has its own unique view that can be modified separately.
     > 
     > The reason for this is that if a view is shared between two report templates, but is defined in multiple files, than the view could be modified in multiple places, leading to potential conflicts.
 
-    ![](export_report_3.png)
+    ![](../images/export_report_3.png)
 
   4. After selecting `Export` a zip file will download with the following files and directories:
 
@@ -108,9 +108,9 @@ s
 
   2. Once the alert definition is created, click `Manage` on the `Configure` &rarr; `Alerts` &rarr; `Alert Definitions` page. Select the alert, click the `...` button, and select `Export`.
 
-     ![](export_alert_1.png)
+     ![](../images/export_alert_1.png)
    
-     ![](export_alert_2.png)
+     ![](../images/export_alert_2.png)
    
      > Note: Selecting multiple alert definitions will combine them into a single xml file (see step 3). All the following steps are identical in this case, but exporting each alert individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple alert definitions share symptoms or recommendations. In this case, best practice is to do one of three things:
      > * Select all alert definitions with a shared dependency, so that they are combined into a single file and the dependency is not duplicated, or
@@ -119,7 +119,7 @@ s
      > 
      > The reason for this is that if a dependency is shared between two alerts, but is defined in multiple files, than the dependency could be modified in multiple places, leading to potential conflicts.
      
-     ![](export_alert_3.png)
+     ![](../images/export_alert_3.png)
 
   4. After selecting `Export` a zip file will download containing a single xml file that contains the alert definition and any dependent content (e.g., symptoms, recommendations)
 
@@ -165,7 +165,7 @@ Now, say that we want to be able to select an instance and see all the databases
 ```
 When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
 
-![Simple Traversal in VMware Aria Operations](traversal_1.png)
+![Simple Traversal in VMware Aria Operations](../images/traversal_1.png)
 
 Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:
 
@@ -183,16 +183,16 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
    </TraversalSpecKinds>
 </AdapterKind>
 ```
-> For more information about the supported elements and attributes, see the [describe.xml documentation](../vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd).
+> For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd#L4).
 
 When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
 
-![MyTraversal in VMware Aria Operations](traversal_2.png)
+![MyTraversal in VMware Aria Operations](../images/traversal_2.png)
 
 In the second traversal ("MyReversedTraversal"), instead of starting from the instance, the traversal's root node is a database. This traversal has a single path, from database to instance to VM. Thus, every database will show up at the top level, and each can be expanded to show the instance it resides on, and the instance can be expanded to show the VM:
 
-![MyReversedTraversal in VMware Aria Operations](traversal_3.png)
+![MyReversedTraversal in VMware Aria Operations](../images/traversal_3.png)
 
 ## Adding Localization
 
@@ -272,4 +272,4 @@ version=1
 12=<...>
 ...
 ```
-![Example of a tooltip description on a Configuration Field](configuration_field_description.png)
+![Example of a tooltip description on a Configuration Field](../images/configuration_field_description.png)

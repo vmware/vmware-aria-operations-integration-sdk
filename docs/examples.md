@@ -2,18 +2,18 @@ Examples
 ========
 
 
-- [Alibaba Cloud MP](../samples/alibaba-cloud-mp)
+- [Alibaba Cloud MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/alibaba-cloud-mp)
     - This Management Pack collects some data about Alibaba Cloud ECS Instances and Security Groups. This Management
-      Pack has a [walkthrough](../README.md#creating-a-new-management-pack)
+      Pack has a [walkthrough](README.md#creating-a-new-management-pack)
       guide that shows how to create a new Management Pack.
 
-- [MySQL Extension MP](../samples/mysql-extension-mp)
+- [MySQL Extension MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/mysql-extension-mp)
       - A Management Pack collects some data from MySQL and attaches them to objects created by the MySQL Management
-      Pack. This Management Pack has a [walkthrough](../README.md#extending-an-existing-management-pack) how to extend an
+      Pack. This Management Pack has a [walkthrough](README.md#extending-an-existing-management-pack) how to extend an
       existing Management Pack.
  
-- [vCenter Extension MP](../samples/vcenter-extension-mp)
-    - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](../README.md).
+- [vCenter Extension MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/vcenter-extension-mp)
+    - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](README.md).
     This Management Pack collects some additional Host and VM data from vCenter and attaches them to the corresponding objects created by the vCenter Management
     Pack.
 

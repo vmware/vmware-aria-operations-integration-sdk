@@ -1,5 +1,6 @@
 # Server Development
 * * *
+
 ### Images
 There are three different images in this project:
 - base-adapter:python (base image)

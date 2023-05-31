@@ -10,19 +10,6 @@ plugins:
           show_docstring_attributes: true
 theme:
   name: material
-  fetures:
-  - toc.follow
-  - navigation.sections
-  - navigation.tabs
-  - navigation.tabs.sticky
-  - navigation.top
-  - toc.integrate
-  - search.suggest
-  - search.highlight
-  - content.tabs.link
-  - content.code.annotation
-  - contant.code.copy
-  - content.code.select
   language: en
   palette:
   - scheme: default
@@ -37,9 +24,22 @@ theme:
       name: light mode
     primary: red
     accent: indigo
+  fetures:
+  - toc.follow
+  - navigation.sections
+  - navigation.instant
+  - navigation.top
+  - toc.integrate
+  - search.suggest
+  - search.highlight
+  - content.tabs.link # this should enable tabs to be link to one another, but it isn't working at the moment
+  - content.code.annotation
+  - contant.code.copy
+  - content.code.select
+
+
 
 markdown_extensions:
-- pymdownx.superfences
 - pymdownx.tabbed:
     alternate_style: true
 - admonition

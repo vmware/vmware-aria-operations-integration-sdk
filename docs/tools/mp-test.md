@@ -93,7 +93,7 @@ In order to test an adapter, the tool needs to know which adapter to test. This 
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
 #### Connection
-A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in VMware Aria Operations. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance) and [Adding a Credential](adding_to_an_adapter.md#adding-a-credential). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
+A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in VMware Aria Operations. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](../guides/adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance) and [Adding a Credential](../guides/adding_to_an_adapter.md#adding-a-credential). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
 * If the `-c CONNECTION_NAME` or `--connection CONNECTION_NAME` argument is specified, the connection with the given name will be used. 
 * If a command line argument was not provided, or it was not a valid connection name, the tool will prompt the user to select an existing connection or create one:
     ```
@@ -138,7 +138,7 @@ The result is simply a JSON representation of the return value of the method tha
 After the result is received, the tool does some automatic validation of the results. If any issues are detected, the tool will write `Validation Failed:` to the console below the JSON result, followed by a list of the errors.
 The tool performs the following validation:
 * Ensure that the result JSON conforms to
-  the [VMware Aria Operations Collector API Spec](../vmware_aria_operations_integration_sdk/src/aria/ops/tools/api/vmware-aria-operations-collector-fwk2.json)
+  the [VMware Aria Operations Collector API Spec](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
   .
 
 ### Logs
