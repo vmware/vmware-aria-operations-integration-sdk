@@ -1,3 +1,4 @@
 nav:
   - VMware Aria Operations Integration SDK: python-lib
   - ...
+  - config.md

@@ -120,7 +120,7 @@ determines identType.
 >
 > Creating an account from the above xml (plus a credential). `ssl_mode` and `max_events` have an identType of 2, so they are present in 'Advanced Settings'.
 
-> Note: If there are any existing connections used by the [`mp-test`](../references/tools/mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
+> Note: If there are any existing connections used by the [`mp-test`](../references/mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) will be prompted to the user when
 creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations` page.
@@ -233,7 +233,7 @@ use of multiple credential types.
 Once the credential is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code.
 !!! note 
 
-    If there are any existing connections used by the [`mp-test`](../references/tools/mp-test.md) tool before the credential was created
+    If there are any existing connections used by the [`mp-test`](../references/mp-test.md) tool before the credential was created
     or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any credential defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model)

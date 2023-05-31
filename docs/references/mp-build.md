@@ -7,7 +7,7 @@ The mp-build tool builds a pak file and uploads the adapter container to a regis
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../../README.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 * Write permissions to a container registry that is accessible from VMware Aria Operations.
  
