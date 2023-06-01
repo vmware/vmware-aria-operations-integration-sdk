@@ -7,21 +7,21 @@ Aria Operations Collector.
 ## Management Pack
 A management pack consists of content, metadata, and an adapter.
 
-* Content includes [Dashboards](./adding_content.md#adding-a-dashboard), 
-  [Reports](./adding_content.md#adding-a-report-template), 
-  [Symptoms and Alerts](./adding_content.md#adding-alert-definitions), 
-  [Traversals](./adding_content.md#adding-a-traversal), and
-  [Localization](./adding_content.md#adding-localization).
+* Content includes [Dashboards](../guides/adding_content.md#adding-a-dashboard), 
+  [Reports](../guides/adding_content.md#adding-a-report-template), 
+  [Symptoms and Alerts](../guides/adding_content.md#adding-alert-definitions), 
+  [Traversals](../guides/adding_content.md#adding-a-traversal), and
+  [Localization](../guides/adding_content.md#adding-localization).
 * Metadata includes the `describe.xml` file that describes an adapter, and the 
   `manifest.txt` file that describes the management pack as a whole.
 * The Adapter is a container that performs the collection and sends the data to 
   VMware Aria Operations. The adapter container image consists of two parts:
   * The Adapter/Collection code. This is the portion written by the SDK developer.
-  * A REST server specified by [Collector Framework 2](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json),
+  * A REST server specified by [Collector Framework 2](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json),
     which handles communication between the collection code and the VMware Aria 
     Operations collector process.
 
-> ![Cloud Proxy Components running two Adapter Container Images](cloud-proxy-components.png)
+> ![Cloud Proxy Components running two Adapter Container Images](../images/cloud-proxy-components.png)
 > 
 > A Cloud Proxy collector process managing adapter containers, which each correspond to
 > one adapter instance. Within each container is the REST server and the adapter 
@@ -43,7 +43,7 @@ Optionally, the adapter can provide a fourth method:
    created. 
 
 ### Rest Server
-The REST server specified by [Collector Framework 2](../vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json),
+The REST server specified by [Collector Framework 2](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json),
 handles communication between the collection code and the VMware Aria Operations 
 collector process. The SDK includes a base container image that includes a REST 
 server. In the adapter's dockerfile, this is specified in the 'FROM' directive on the 
@@ -61,7 +61,7 @@ COPY app app
 
 This server implements all the required endpoints, provides error handling, and adds 
 some additional context to the user code that is not present in the original REST 
-requests. The server also adds a [definition endpoint](../vmware_aria_operations_integration_sdk/api/integration-sdk-definition-endpoint.json)
+requests. The server also adds a [definition endpoint](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/integration-sdk-definition-endpoint.json)
 which allows the collection code to describe itself, rather than requiring a 
 `describe.xml` file to be manually created, and some features that improve the debugging
 experience.
@@ -120,10 +120,12 @@ Importantly, this model enforces that adapters remain stateless. Because each ca
 results in a new subprocess being created, there is no way to preserve state in the
 runtime environment. 
  
-Note: It _is_ possible to pass data between collections by writing and reading to a 
-file on the container filesystem, but not encouraged. Any restarts of the adapter 
-instance (either by manual action or automatic migration) will create a new container, 
-and any data on the container filesystem will be lost.
+???+ note 
+
+    It _is_ possible to pass data between collections by writing and reading to a 
+    file on the container filesystem, but not encouraged. Any restarts of the adapter 
+    instance (either by manual action or automatic migration) will create a new container, 
+    and any data on the container filesystem will be lost.
 
 
 ## Adapter Container Lifecycle
@@ -140,6 +142,7 @@ instances, and for simultaneous collections to occur without having to guard aga
 race conditions, deadlocks, etc. within the adapter's collection code.
 
 Each container will continue to exist until or unless:
+
 * The adapter instance is stopped or deleted
 * The adapter instance is moved to a new collector, or migrates between collectors in a
   collector group
@@ -157,7 +160,7 @@ and image digest SHA.
 The following diagram shows how the processes for building and installing a Management 
 Pack work together with the registry.
 
-> ![Building and installing a Pack File](registry.png)
+> ![Building and installing a Pack File](../images/registry.png)
 > 
 > Management Pack is composed of two artifacts: The Pack File, and the adapter image.
 > Both are generated by the `mp-build` tool, and both are consumed by VMware Aria 
