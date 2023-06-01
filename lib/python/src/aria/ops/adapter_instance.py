@@ -68,15 +68,19 @@ class AdapterInstance(Object):  # type: ignore
     def get_credential_type(self) -> Optional[str]:
         """Get the type (key) of credential. This is useful if an adapter supports multiple types of credentials.
 
-        :return: the type of the credential used by this adapter instance, or None if the adapter instance does not have a credential.
+        Returns:
+            the type of the credential used by this adapter instance, or None if the adapter instance does not have a credential.
         """
         return self.credential_type  # type: ignore[no-any-return]
 
     def get_credential_value(self, credential_key: str) -> Optional[str]:
         """Retrieve the value of a given credential
 
-        :param credential_key: Key of the credential field
-        :return: value associated with the credential field, or None if a credential field with the given key does not exist.
+        Args:
+            credential_key (str): Key of the credential field
+
+        Returns:
+            value associated with the credential field, or None if a credential field with the given key does not exist.
         """
         return self.credentials.get(credential_key)
 

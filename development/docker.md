@@ -1,5 +1,6 @@
 # Server Development
 * * *
+
 ### Images
 There are three different images in this project:
 - base-adapter:python (base image)
@@ -19,30 +20,31 @@ All commands are run from the root folder of the project and assume that the ver
 The next section will cover tags and their conventions.
 
 1. Build base image
-```
+```{.zsh .copy}
 docker build --no-cache http-server --tag base-adapter:python-0.3.0
 ```
 2. Build powershell image
-```
+```{.zsh .copy}
 docker build --no-cache powershell-client --tag base-adapter:powershell-0.3.0
 ```
 3. Build java image
-```
+```{.zsh .copy}
 docker build --no-cache java-client --tag base-adapter:java-0.3.0
 ```
 
 #### Tagging Convention
 Tags differentiate characteristics of the built image. Every image must have a _unique tag_, plus optional additional tags known as _stable tags_:
 
->   Stable tags mean a developer, or a build system, can continue to pull a specific tag, which
->   continues to get updates. Stable doesn’t mean the contents are frozen. Rather, stable implies the image
->   should be stable for the intent of that version. To stay “stable”, it might be serviced to apply
->   patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-image-tag-version#:~:text=Stable%20tags%20mean,or%20framework%20updates.)).
+!!! quote
+    Stable tags mean a developer, or a build system, can continue to pull a specific tag, which
+    continues to get updates. Stable doesn’t mean the contents are frozen. Rather, stable implies the image
+    should be stable for the intent of that version. To stay “stable”, it might be serviced to apply
+    patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-image-tag-version#:~:text=Stable%20tags%20mean,or%20framework%20updates.)).
 
 ##### Unique Tag
 Each image should have a unique tag with the following format:
 
-- [LANGUAGE]-[SERVER_VERSION]: the main language supported by the image, followed by server version.
+- `[LANGUAGE]-[SERVER_VERSION]`: the main language supported by the image, followed by server version.
 
 ###### Language
 The language component of a tag specifies the main language supported by the generated container.
@@ -60,8 +62,8 @@ Therefore, the image version is based on the API version and follows [semantic v
 ##### Stable Tags
 The stable tag convention for this project is as follows:
 
-- [LANGUAGE]-latest: points to the latest stable tag, no matter what the current major version is
-- [LANGUAGE]-[MAJOR_VERSION]: points to the latest stable image of the specific major version
+- `[LANGUAGE]-latest`: points to the latest stable tag, no matter what the current major version is
+- `[LANGUAGE]-[MAJOR_VERSION]`: points to the latest stable image of the specific major version
 
 The graphic below shows how stable and unique tags are assigned over time in a project with a similar tag convention:
 ![tagging convention](https://stevelaskerblog.files.wordpress.com/2018/03/stabletagging.gif)
@@ -70,12 +72,12 @@ The graphic below shows how stable and unique tags are assigned over time in a p
 The template below shows where each component should be for any image generated
 in the project:
 
- - base-adapter:[LANGUAGE]-[VERSION]
+ - `base-adapter:[LANGUAGE]-[VERSION]`
 
 This image should then be tagged by any additional applicable tags using the
 following template:
 
- - base-adapter:[LANGUAGE]-[STABLE-TAG]
+ - `base-adapter:[LANGUAGE]-[STABLE-TAG]`
 
 #### Tagging Images
 Images should always be tagged with the unique tag at build time. This example uses an image with

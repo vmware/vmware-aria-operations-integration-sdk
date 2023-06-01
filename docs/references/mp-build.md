@@ -1,4 +1,4 @@
-Management Pack Build Tool
+# mp-build
 --------------------------
 
 ## Purpose

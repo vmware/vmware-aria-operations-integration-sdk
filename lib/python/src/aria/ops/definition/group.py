@@ -24,9 +24,13 @@ class GroupType(ABC):
     def define_group(self, key: str, label: Optional[str] = None) -> Group:
         """
         Create a new group that can hold attributes and subgroups.
-        :param key: The key for the group.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :return: The created group.
+
+        Args:
+            key (str): The key for the group.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+
+        Returns:
+             The created group.
         """
         group = Group(key, label)
         self.add_group(group)
@@ -40,12 +44,16 @@ class GroupType(ABC):
         its subgroups and attributes can appear multiple times, once for each instance value. For example, a group
         containing metrics for a network interface might be instanced for each discovered interface on the parent
         object.
-        :param key: The key for the group.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param instance_required: If true, then this group must be created with an instance. Otherwise, it can be
-        created both with and without an instance. Creating an instanced group without an instance can be done to
-        provide a location for aggregate metrics across all instances, for example.
-        :return: The created group.
+
+        Args:
+            key (str): The key for the group.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            instance_required (bool): If true, then this group must be created with an instance. Otherwise, it can be
+                created both with and without an instance. Creating an instanced group without an instance can be done
+                to provide a location for aggregate metrics across all instances, for example.
+
+        Returns:
+             The created group.
         """
         group = Group(key, label, instanced=True, instance_required=instance_required)
         self.add_group(group)
@@ -54,8 +62,9 @@ class GroupType(ABC):
     def add_groups(self, groups: list[Group]) -> None:
         """
         Adds a list of groups as subgroups of this group.
-        :param groups: A list of groups.
-        :return: None
+
+        Args:
+            groups (list[Group]): A list of groups.
         """
         for group in groups:
             self.add_group(group)
@@ -63,8 +72,9 @@ class GroupType(ABC):
     def add_group(self, group: Group) -> None:
         """
         Adds a group as a subgroup of this group.
-        :param group: A group.
-        :return: None
+
+        Args:
+            group (Group): A group.
         """
         key = group.key
         if key in self.groups:
@@ -85,19 +95,20 @@ class GroupType(ABC):
         is_key_attribute: bool = False,
     ) -> MetricAttribute:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
-        consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point)
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            unit (Optional[Unit]): Specifies what unit this metric is returned in. This allows the UI to display the
+                units in a consistent manner, and perform conversions when appropriate.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+                will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than
+                continuous (floating point)
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+                'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could
+                be a proxy to a root cause, but not the root cause itself.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
         """
         metric = MetricAttribute(
             key,
@@ -125,19 +136,22 @@ class GroupType(ABC):
         is_key_attribute: bool = False,
     ) -> PropertyAttribute:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
-        consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point). Defaults to False, unless 'is_string' is set, in which case it will always be set to True.
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
+
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            unit (Optional[Unit]): Specifies what unit this metric is returned in. This allows the UI to display the
+                units in a consistent manner, and perform conversions when appropriate.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+                will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than
+                continuous (floating point). Defaults to False, unless 'is_string' is set, in which case it will always
+                be set to True.
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+                'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could
+                be a proxy to a root cause, but not the root cause itself.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
         """
         _property = PropertyAttribute(
             key,
@@ -166,19 +180,21 @@ class GroupType(ABC):
         is_key_attribute: bool = False,
     ) -> PropertyAttribute:
         """
-        :param key: Used to identify the parameter.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param unit: Specifies what unit this metric is returned in. This allows the UI to display the units in a
-        consistent manner, and perform conversions when appropriate.
-        :param is_rate: Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
-        will be set automatically. Otherwise, defaults to False.
-        :param is_discrete: Declares that this attribute's range of values is discrete (integer) rather than continuous
-        (floating point). Defaults to False, unless 'is_string' is set, in which case it will always be set to True.
-        :param is_kpi: If set, threshold breaches for this metric will be used in the calculation of the object's
-        'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
-        :param is_impact: If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
-        proxy to a root cause, but not the root cause itself.
-        :param is_key_attribute: True if the attribute should be shown in some object summary widgets in the UI.
+        Args:
+            key (str): Used to identify the parameter.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            unit (Optional[Unit]): Specifies what unit this metric is returned in. This allows the UI to display the
+                units in a consistent manner, and perform conversions when appropriate.
+            is_rate (bool): Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+                will be set automatically. Otherwise, defaults to False.
+            is_discrete (bool): Declares that this attribute's range of values is discrete (integer) rather than
+                continuous (floating point). Defaults to False, unless 'is_string' is set, in which case it will always
+                be set to True.
+            is_kpi (bool): If set, threshold breaches for this metric will be used in the calculation of the object's
+                'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+            is_impact (bool): If set, this attribute will never be the 'root cause' of an issue. For example, it could
+                be a proxy to a root cause, but not the root cause itself.
+            is_key_attribute (bool): True if the attribute should be shown in some object summary widgets in the UI.
         """
         _property = PropertyAttribute(
             key,
@@ -198,8 +214,9 @@ class GroupType(ABC):
     def add_attributes(self, attributes: list[Attribute]) -> None:
         """
         Adds a list of attributes to this group.
-        :param attributes: A list of attributes (metric or property definitions).
-        :return: None
+
+        Args:
+            attributes (list[Attribute]): A list of attributes (metric or property definitions).
         """
         for attribute in attributes:
             self.add_attribute(attribute)
@@ -207,8 +224,9 @@ class GroupType(ABC):
     def add_attribute(self, attribute: Attribute) -> None:
         """
         Adds an attribute to this group.
-        :param attribute: An attribute (metric or property definition).
-        :return: None
+
+        Args:
+            attribute (Attribute): An attribute (metric or property definition).
         """
         key = attribute.key
         if key in self.attributes:
@@ -237,15 +255,17 @@ class Group(GroupType):
     ) -> None:
         """
         Create a new group that can hold attributes and subgroups.
-        :param key: The key for the group.
-        :param label: Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
-        :param instanced: If True, this group can be 'instanced' with a value, so that its subgroups and attributes can
-        appear multiple times, once for each instance value. For example, a group containing
-        metrics for a network interface might be instanced for each discovered interface on the parent object.
-        :param instance_required: If true, then this group must be created with an instance. Otherwise, it can be
-        created both with and without an instance. Creating an instanced group without an instance can be done to
-        provide a location for aggregate metrics across all instances, for example. This does nothing if 'instanced' is
-        False.
+
+        Args:
+            key (str): The key for the group.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            instanced (bool): If True, this group can be 'instanced' with a value, so that its subgroups and attributes
+                can appear multiple times, once for each instance value. For example, a group containing
+                metrics for a network interface might be instanced for each discovered interface on the parent object.
+            instance_required (bool): If true, then this group must be created with an instance. Otherwise, it can be
+                created both with and without an instance. Creating an instanced group without an instance can be done
+                to provide a location for aggregate metrics across all instances, for example. This does nothing if
+                'instanced' is False.
         """
         self.key = validate_key(key, "Group")
         self.label = label
