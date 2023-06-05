@@ -34,10 +34,14 @@ running `mp-build`.
 
 ### How can I set up a Docker Hub container registry for my project?
 
+!!! warning
+
+    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). To use a private registry see [How can I set up a Management Pack that uses a private container registry?](#how-can-i-set-up-a-management-pack-that-uses-a-private-container-registry)
+
 Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
 
-1. Create a docker hub container registry with the same name as the docker string in the `adapter_kinds`  key inside the `manifest.txt`  file.
-2. Login to docker hub using the CLI docker login 
+1. Go to [Docker Hub](https://hub.docker.com/repository/create?) and create a new repository 
+2. Login to docker hub using the CLI docker login
 
     ```{ .shell .copy}
     docker login
@@ -46,18 +50,15 @@ Docker CLI recommends using a token when using docker hub instead of your login 
 3. Run `mp-build`.When prompted about the tag for the container registry, use the following format:
 
     ``` {.shell .copy}
-    docker.io/USER_NAME/ADAPTER_KINDS_KEY
+    docker.io/USER_NAME/CONTAINER_REGISTRY
     ```
-The `USER_NAME` should be the same username used to login into docker hub in step 3, and the `ADAPTER_KINDS_KEY` should be the same one used in step 1.
+The `USER_NAME` should be the same username used to login into docker hub in step 3, and the `CONTAINER_REGISTRY` should be the registry created in step one.
 After entering the tag, you will be prompted to enter your credentials to log into Docker Hub. Enter the same credentials used in step 2.
 
 ???+ note
 
     If `mp-build` doesn't prompt for a tag for the container registry, open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag.
 
-!!! warning
-
-    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period).
 
 ### How can I set up a Management Pack that uses a private container registry?
 
