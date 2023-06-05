@@ -289,8 +289,8 @@ version=1
 1=<...>
 ...
 10=<...>
-11=Host
-11.description=VMware Aria Operations Cluster Host
+11=vROps Host
+11.description= vROps Cluster Host
 12=<...>
 ...
 ```
