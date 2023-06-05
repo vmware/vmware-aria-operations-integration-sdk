@@ -48,11 +48,16 @@ markdown_extensions:
 - admonition
 - pymdownx.details
 - pymdownx.inlinehilite
+- pymdownx.highlight:
+    auto_title: true
+    anchor_linenums: true
 - pymdownx.superfences
 - pymdownx.highlight:
     anchor_linenums: true
     line_spans: __span
     pygments_lang_class: true
+- toc:
+    permalink: true
 
 copyright: |
   &copy; 2023 VMware, Inc.
