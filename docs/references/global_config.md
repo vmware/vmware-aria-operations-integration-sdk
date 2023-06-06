@@ -3,7 +3,7 @@
 
 ### `default_container_registry_path` (string, optional)
 
-Specifies the default container registry path to be used by [mp-build](mp-build.md) any time the local **config.json** file doesn't contain a container registry. This key value should contain the path used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a new repository.
+Specifies the default container registry path to be used by [mp-build](mp-build.md) any time the [project config file](project_config.md#dockerregistry-string) doesn't contain a container registry. This key value should contain the path used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a new repository.
 
 ??? example
     ```json
@@ -13,7 +13,7 @@ Specifies the default container registry path to be used by [mp-build](mp-build.
     }
     ```
 
-Will by used by `mp-build` to construct a tag using the **default_container_registry_path** and the lowercase value  of the `adapter_kinds` key  in the `manifest.txt` file. If the adapter_kinds value is "AdapterName" the resulting tag would be `harbor.my-organization.com/my-project-registry/adaptername`.
+`mp-build` constructs a tag using the **default_container_registry_path** and the lowercase value  of the `adapter_kinds` key  in the `manifest.txt` file. If the adapter_kinds value is "AdapterName" the resulting tag would be `harbor.my-organization.com/my-project-registry/adaptername`.
 
 
 ### `projects` (array of strings)

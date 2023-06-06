@@ -10,15 +10,39 @@ Operations uses this data to help automate and simplify operations management.
 Creating a connection usually involves specifying the IP address or hostname of the external system, along with the appropriate
 [credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model) to access that system. After establishing the connection, an Adapter can collect data from the connected system.
 
+!!! warning
+
+    Credentials for connections are stored in plain text in the 
+    [project config file](project_config.md). For this reason, we recommend that this 
+    file is not included in version control (it is included in the .gitignore file by 
+    defualt), and credentials should be revokable and have the minimum set of
+    permissions necessary for the Adapter to function (Usually Read-Only is sufficient).
+
+In addition, sometimes it is desirable for an Adapter to query VMware Aria Operations' 
+`SuiteAPI`. To facilitate using the API, credentials and connection information are 
+automatically provided to the Adapter when running on a Cloud Proxy. To mimic this when 
+running locally using `mp-test`, `mp-test` needs the SuiteAPI hostname, username, and 
+password.
+
 ??? note
 
-    Suite API connections are handled per project, configuration, unless a connection has its own Suite API credentials. To learn more
-    about Suite API connections go to [project config](project_config.md#suite_api_hostname-string)
+    Suite API documentation can be found on any VMware Aria Operations Cluster, by
+    opening `https://[[vmware_aria_operations_cluster_hostname]]/suite-api/doc/swagger-ui.html`. 
+
+When setting up a new connection, `mp-test` will ask if you want to set up a connection
+information for the SuiteAPI. If you are not using this functionality, this can be 
+skipped, otherwise, the hostname should be the VMware Aria Operations Cluster hostname, 
+and the username and password can be any user with permission to access the Suite API.
+`mp-test` will also prompt if you want to set the SuiteAPI credentials as the project 
+default. If you select 'yes', then every connection in this project will use the 
+provided credentials, unless they explicitly override them. To learn more about how 
+Suite API connections are handled see the 
+[Project Config](project_config.md#suiteapihostname-string) documentation.
 
 ### How are Connections Stored?
 
-Connections are stored locally in a [project config file](project_config.md) file located at the root of every project the project.
-If no project config file file exist at the time of creating a connection, one will be created.
+Connections are stored locally in a [project config file](project_config.md) located at the root of every project the project.
+If no project config file exists at the time of creating a connection, one will be created.
 
 
 ### Managing Connections

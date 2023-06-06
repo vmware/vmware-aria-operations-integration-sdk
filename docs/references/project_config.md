@@ -1,5 +1,7 @@
 # Project Config File
 * * *
+The project config file is a json file called `config.json` located in the project's 
+root directory. This document describes what data is present in the file.
 
 ## `connections` (array of objects)
 
@@ -44,7 +46,7 @@ An object that contains credential information.
 
 ### `identifiers` (object)
 
-An object that contains one or many identifiers. The identifiers should match the [adapter instance identifiers]() defined in the [Object Model]()
+An object that contains one or more identifiers. The identifiers should match the [adapter instance identifiers](../guides/adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model) defined in the [Object Model](../guides/adding_to_an_adapter.md#object-model).
 
 ??? example
 
@@ -216,4 +218,32 @@ The suite API user name used to login to the specified host. If there isn't one,
         suite_api_password: "my_password",
         suite_api_username: "my_username",
      }
+    ```
+
+## `default_memory_limit` (int, default: 1024)
+Determines how much memory can be allocated to the container running the adapter. In 
+addition to the memory required by the Adapter, this includes memory used by the Base 
+OS layer and the Adapter's REST server. If this limit is exceeded, the container will 
+immediately exit.
+
+## `docker_port` (int, default: 8080)
+Specifies the port for connecting to the Adapter's REST server. This should only need to 
+be changed if there is another process already using port 8080.
+
+## `docker_registry` (string)
+Specifies the container registry path to be used by [mp-build](mp-build.md). 
+This key value should contain the registry path used to 
+[tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a 
+repository in that registry. 
+
+This overrides the [default_container_registry_path](global_config.md#defaultcontainerregistrypath-string-optional), 
+if it is present.
+
+??? example
+
+    ```json
+    {
+        "docker_registry" : "harbor.my-organization.com/my-project-registry/adaptername"
+        ...
+    }
     ```
