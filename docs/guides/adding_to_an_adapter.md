@@ -8,12 +8,12 @@ At runtime, Aria Operations Manager creates objects representing data sources in
 an object model that provides object types, object properties, and semantic definitions describing resources and the
 metric data's meaning. The object model can be defined by using a `describe.xml` file, which should be defined in the
 `conf` directory, or it can be defined using the `definition` module
-from the [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+from the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 by defining the [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object returned by
 The `#!python get_adapter_definition()` method in `app/adapter.py`.
 
-### describe.xml vs. AdapterDefinition?
-when running `mp-build`, `mp-test collect `, or `mp-test test` they call the `#!python get_adapter_definition()` method
+### describe.xml vs. AdapterDefinition
+When running `mp-build`, `mp-test collect `, or `mp-test test` they call the `#!python get_adapter_definition()` method
 and then generate `describe.xml` file with the [AdapterDefinition](../references/python-lib/definition/adapter_definition.md)
 object. If a `describe.xml` file is present in the `conf` directory, then the object returned by the **get_adapter_definition**
 method will be ignored.
@@ -47,7 +47,7 @@ attribute `type=7`. in Python, we can use the [AdapterDefinition](../references/
 ??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    For more information about the Python module visit [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
+    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) and credentials (`CredentialKind` element)
 will be prompted to the user when creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations`
@@ -107,7 +107,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
 ??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    For more information about the Python module visit [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
+    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
 
 In the `describe.xml` adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the
 identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
@@ -165,7 +165,7 @@ A typical credential that requires a username and password might look like this:
 ??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    For more information about the Python module visit [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
+    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
 
 When defining a credential in `conf/describe.xml` file, it must be added to the Adapter Instance. The adapter
 instance is a special `ResourceKind` that is used to configure an adapter. It is marked with the xml attribute/value
@@ -241,14 +241,14 @@ will be prompted to the user when creating an account in VMware Aria Operations 
 page. After the account has been created, credential fields will be available `AdapterInstance` object passed to the
 `collect`, `test`, and `get_endpoints` methods.(See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md),
 the credentials are available in the [AdapterInstance](../references/python-lib/adapter_instance.md) object passed to
 the `collect`, `test`, and `get_endpoint` methods in `app/adapter.py`(See [Creating an Adapter Instance](#creating-an-adapter-instance).).
 If an adapter supports multiple credential types, the **AdapterInstance.get_credential_type()** function can be used to determine the type of the
 credential used by the adapter instance.
 
 ## Creating an Adapter Instance
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md),
 the canonical method for creating an adapter instance is using the `AdapterInstance` object. Configuration fields and
 credentials can be accessed using `get_identifier_value` and `get_credential_value`, respectively. These methods return
 `None` if the given key does not exist in the adapter instance.
@@ -278,7 +278,7 @@ example an adapter might have a 'Database' object kind, and when an adapter inst
 application, several 'database' objects are created representing distinct databases in the application.
 To create a new object type in the `conf/describe.xml` file, add a `ResourceKind` element inside `AdapterKind/ResourceKinds`.
 A `key` attribute is required, and must be unique among other object types within the `describe.xml` file.
-To create a new object type using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+To create a new object type using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 use the `AdapterDefinition.define_object_type` function of [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object.
 
 === "Python Adapter Library"
@@ -334,13 +334,13 @@ not used for this purpose.
     identifier will be used for determining uniqueness. If the type is `2`, the identifier is _non-identifying_, and will
     show up in the identifiers of an object but will not cause a new object to be created if it changes. If _all_
     identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. When using
-    [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+    [Python Adapter Library](../references/python-lib/adapter_instance.md)
     the **define_string_identifier** accepts a `is_part_of_uniqueness` parameter, which is True by default.
 
 ??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    For more information about the Python module visit [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
+    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
 
 Once the object type is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model),
 it can be used in the adapter code. See [Creating an object](#creating-an-object).
@@ -348,7 +348,7 @@ it can be used in the adapter code. See [Creating an object](#creating-an-object
 ## Creating an Object
 Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type-to-the-object-model).
 
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/),
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md),
 the canonical method for creating a new object is to use the [CollectResult](../references/python-lib/result.md) object.
 
 ```python linenums="1"
@@ -431,14 +431,14 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
 ??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    For more information about the Python module visit [Python Adapter Library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/).
+    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
 
 Once an attribute is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
 
 ## Creating a Metric or Property
 Before creating a metric or property, ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
 
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 , metrics and properties can be added using the attribute key and a value. In the case of attributes in groups, the
 group key(s) and attribute key are separated by a pipe "|" and form the metric or property key.
 
@@ -464,7 +464,7 @@ are returned as JSON inside of objects, described in the
 ## Creating an Event
 Events do not need to be declared in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model) file, and can simply be added to an object at runtime.
 
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 , events are added to resources. The only required parameter is the message, which describes and uniquely identifies the event.
 
 ```python linenums="1"
@@ -487,7 +487,7 @@ Relationships do not need to be declared in the [object model](#defining-an-adap
 Relationships are always between a _parent_ and _child_, and if object1 is a parent of object2, that implies object2
 is a child of object1.
 
-Using the [VMware Aria Operations Integration SDK library](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/)
+Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 , relationships are added to resources.
 ```python linenums="1"
 instance = # Object

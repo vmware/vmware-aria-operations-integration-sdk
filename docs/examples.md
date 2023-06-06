@@ -13,7 +13,7 @@ Examples
       existing Management Pack.
  
 - [vCenter Extension MP](https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/vcenter-extension-mp)
-    - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](README.md).
+    - A Management Pack written in Python using the [VMware Aria Operations Integration SDK](index.md).
     This Management Pack collects some additional Host and VM data from vCenter and attaches them to the corresponding objects created by the vCenter Management
     Pack.
 

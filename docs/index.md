@@ -1,5 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/vmware_aria_operations_integration_sdk.svg)](https://badge.fury.io/py/vmware_aria_operations_integration_sdk)
 [![Aria Operations Integration SDK](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml/badge.svg)](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml)
+![GitHub](https://img.shields.io/github/license/vmware/vmware-aria-operations-integration-sdk?style=plastic)
 
 VMware Aria Operations Integration SDK
 =====================
@@ -51,7 +52,7 @@ For an example walkthrough of the steps required to extend another management pa
 ## Contributing
 
 The vmware-aria-operations-integration-sdk project team welcomes contributions from the community. Before you start
-working with this project please read and sign our Contributor License Agreement (https://cla.vmware.com/cla/1/preview).
+working with this project please read and sign our [Contributor License Agreement](https://cla.vmware.com/cla/1/preview).
 If you wish to contribute code and you have not signed our Contributor Licence Agreement (CLA), our bot will prompt you
 to do so when you open a Pull Request. For any questions about the CLA process, please refer to our
 [FAQ](https://cla.vmware.com/faq).

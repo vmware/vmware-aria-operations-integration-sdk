@@ -1,3 +1,6 @@
+#  Copyright 2023 VMware, Inc.
+#  SPDX-License-Identifier: Apache-2.0
+
 ADAPTER_KIND = "ExtendedMySQLMP"
 ADAPTER_NAME = "Extended MySQL MP"
 
