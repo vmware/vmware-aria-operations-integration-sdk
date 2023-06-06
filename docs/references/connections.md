@@ -20,7 +20,7 @@ If no project config file file exist at the time of creating a connection, one w
 
 #### Creating New Connections
 
-To create a connection, simply run [mp-test](mp-test.md) and then select `New Connection`. [mp-test](mp-test.md) will then create a new connection by
+To create a connection, run `mp-test` and then select `New Connection`. [mp-test](mp-test.md) will then create a new connection by
 parsing over the object model and using any [identifiers](../guides/adding_to_an_adapter.md#defining-an-adapter-and-adapter-instance-in-the-object-model)
 and [credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model). The new connection is then stored in the
 [project config file](project_config.md) in the root of the project.
