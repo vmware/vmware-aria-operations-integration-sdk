@@ -4,6 +4,7 @@ docs_dir: docs
 plugins:
 - search
 - awesome-pages
+- open-in-new-tab
 - mkdocstrings:
     handlers:
       python:
