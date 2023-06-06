@@ -74,7 +74,7 @@ An object that contains one or many identifiers. The identifiers should match th
 ### `custom_collection_number` (int, optional)
 
 The collection number `mp-test` passes to the adapter instance. This is helpful when testing adapter behaviours
-that are triggered based on collection number (sometimes expensive computations).
+that are triggered based on collection number (for example, an expensive computation that can doesn't need to happen every collection).
 
 ??? example
 
