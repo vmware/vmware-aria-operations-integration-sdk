@@ -47,11 +47,12 @@ For an example walkthrough of the steps required to extend another management pa
 [Extending an Existing Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#extending-an-existing-management-pack)
 
 ## Where should I start?
-* [Requirements](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#requirements)
-* [Installation](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#installation)
-* [Creating a Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-management-pack)
-* [Testing a Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#testing-a-management-pack)
-* [Building and Installing a Management Pack](#https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/building-and-installing-a-management-pack)
+* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](#get-started) tutorial, or jump to a specific section:
+    * [Requirements](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#requirements)
+    * [Installation](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#installation)
+    * [Creating a Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-management-pack)
+    * [Testing a Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#testing-a-management-pack)
+    * [Building and Installing a Management Pack](#https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/building-and-installing-a-management-pack)
 * If you have completed the Get Started tutorial, the `Guides` in our website have walk-throughs on how [create a new management pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/guides/creating_a_new_management_pack/), [extend an existing management pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/guides/extending_an_existing_management_pack/) and more.
 * All documentation is available at [https://vmware.github.io/vmware-aria-operations-integration-sdk/](https://vmware.github.io/vmware-aria-operations-integration-sdk/).
 ## Contributing
