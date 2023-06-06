@@ -34,14 +34,31 @@ running `mp-build`.
 
 ### How can I set up a Docker Hub container registry for my project?
 
+!!! warning
+
+    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). To use a private registry see [How can I set up a Management Pack that uses a private container registry?](#how-can-i-set-up-a-management-pack-that-uses-a-private-container-registry)
+
 Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
 
-1. Generate a [dockerhub token](https://hub.docker.com/settings/security?generateToken=true).
-2. Open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag of
-   the Docker Hub repository prepended with `docker.io`. For example, if the docker tag is `username/docker-registry-test:tagname`
-   then the key-value will be `docker.io/username/docker-registry-test`.
+1. Go to [Docker Hub](https://hub.docker.com/repository/create?) and create a new repository 
+2. Login to docker hub using the CLI docker login
 
-VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period).
+    ```{ .shell .copy}
+    docker login
+    ```
+
+3. Run `mp-build`.When prompted about the tag for the container registry, use the following format:
+
+    ``` {.shell .copy}
+    docker.io/USER_NAME/CONTAINER_REPOSITORY
+    ```
+The `USER_NAME` should be the same username used to login into docker hub in step 3, and the `CONTAINER_REPOSITORY` should be the registry created in step one.
+After entering the tag, you will be prompted to enter your credentials to log into Docker Hub. Enter the same credentials used in step 2.
+
+???+ note
+
+    If `mp-build` doesn't prompt for a tag for the container registry, open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag.
+
 
 ### How can I set up a Management Pack that uses a private container registry?
 
