@@ -9,7 +9,7 @@ If the test tool runs error-free on each endpoint, then the Management Pack shou
 
 ## Prerequisites
 
-* The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 
 ## Input
