@@ -1,3 +1,4 @@
+![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fvmware.github.io%2Fvmware-aria-operations-integration-sdk%2F)
 [![PyPI version](https://badge.fury.io/py/vmware_aria_operations_integration_sdk.svg)](https://badge.fury.io/py/vmware_aria_operations_integration_sdk)
 [![Aria Operations Integration SDK](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml/badge.svg)](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml)
 ![GitHub](https://img.shields.io/github/license/vmware/vmware-aria-operations-integration-sdk?style=plastic)
