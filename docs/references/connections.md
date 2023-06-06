@@ -8,7 +8,12 @@ virtual or physical infrastructure operations, which can then be analyzed and pr
 Operations uses this data to help automate and simplify operations management.
 
 Creating a connection usually involves specifying the IP address or hostname of the external system, along with the appropriate
-[credentials]() to access that system. After establishing the connection, an Adapter can collect data from the connected system.
+[credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model) to access that system. After establishing the connection, an Adapter can collect data from the connected system.
+
+??? note
+
+    Suite API connections are handled per project, configuration, unless a connection has its own Suite API credentials. To learn more
+    about Suite API connections go to [project config](project_config.md#suite_api_hostname-string)
 
 ### How are Connections Stored?
 
@@ -33,9 +38,9 @@ Connections can be edited by modifying the key-values in the [project config fil
 ??? example
 
     To edit the `container_memory_limit`  for connection with name `large-memory`, we can edit the key-value for
-    `container_memory_limit` inside the connection object (line 71).
+    `container_memory_limit` inside the connection object (line 44).
 
-    ```json title="config.json" linenums="1" hl_lines="71"
+    ```json title="config.json" linenums="1" hl_lines="44"
     {
       "connections": [
           {
@@ -61,33 +66,6 @@ Connections can be edited by modifying the key-values in the [project config fil
                   }
               },
               "name": "small-memory",
-              "suite_api_hostname": null,
-              "suite_api_password": null,
-              "suite_api_username": null
-          },
-          {
-              "certificates": [],
-              "credential": {},
-              "custom_collection_number": null,
-              "custom_collection_window": null,
-              "identifiers": {
-                  "api": {
-                      "part_of_uniqueness": true,
-                      "required": true,
-                      "value": "example.com"
-                  },
-                  "container_memory_limit": {
-                      "part_of_uniqueness": false,
-                      "required": true,
-                      "value": "1024"
-                  },
-                  "port": {
-                      "part_of_uniqueness": true,
-                      "required": true,
-                      "value": "443"
-                  }
-              },
-              "name": "medium-memory",
               "suite_api_hostname": null,
               "suite_api_password": null,
               "suite_api_username": null
@@ -195,33 +173,6 @@ To delete a connection remove the collection object from [project config file](p
               "suite_api_password": null,
               "suite_api_username": null
           },
-          {
-              "certificates": [],
-              "credential": {},
-              "custom_collection_number": null,
-              "custom_collection_window": null,
-              "identifiers": {
-                  "api": {
-                      "part_of_uniqueness": true,
-                      "required": true,
-                      "value": "ecample.com"
-                  },
-                  "container_memory_limit": {
-                      "part_of_uniqueness": false,
-                      "required": true,
-                      "value": "4096"
-                  },
-                  "port": {
-                      "part_of_uniqueness": true,
-                      "required": true,
-                      "value": "443"
-                  }
-              },
-              "name": "large-memory",
-              "suite_api_hostname": null,
-              "suite_api_password": null,
-              "suite_api_username": null
-          }
       ],
       "default_memory_limit": 1024,
       "docker_port": 8080,
