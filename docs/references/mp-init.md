@@ -9,7 +9,7 @@ calling `mp-init`, the user will be prompted with a series of questions. The scr
 an initial project structure and create classifiers that other tools and VMware Aria Operations will use.
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../README.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
 
 ## Input
 
