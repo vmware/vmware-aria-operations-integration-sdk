@@ -183,7 +183,7 @@ The suite API password used to login to the specified host. If there isn't one, 
      }
     ```
 
-#### `suite_api_username` (string)
+### `suite_api_username` (string)
 
 The suite API user name used to login to the specified host. If there isn't one, the values should be 'null'.
 
