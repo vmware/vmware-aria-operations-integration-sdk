@@ -4,7 +4,7 @@
 ### What are Connections?
 A **connection** refers to the link between an Adapter and other external systems, such as a vCenter Server, other
 databases, or cloud services. These connections allow an Adapter to gather performance and capacity data about your
-virtual or physical infrastructure operations, which can then be analyzed and presented in a unified, comprehensive view. Aria
+virtual or physical infrastructure operations, which can then be analyzed and presented in a unified, comprehensive view. VMware Aria
 Operations uses this data to help automate and simplify operations management.
 
 Creating a connection usually involves specifying the IP address or hostname of the external system, along with the appropriate
