@@ -1,2 +1,2 @@
-vmware-aria-operations-integration-sdk-lib==0.7.2
+vmware-aria-operations-integration-sdk-lib==0.7.*
 mysql-connector-python>=8.0.32
