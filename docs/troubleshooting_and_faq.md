@@ -50,9 +50,9 @@ Docker CLI recommends using a token when using docker hub instead of your login 
 3. Run `mp-build`.When prompted about the tag for the container registry, use the following format:
 
     ``` {.shell .copy}
-    docker.io/USER_NAME/CONTAINER_REGISTRY
+    docker.io/USER_NAME/CONTAINER_REPOSITORY
     ```
-The `USER_NAME` should be the same username used to login into docker hub in step 3, and the `CONTAINER_REGISTRY` should be the registry created in step one.
+The `USER_NAME` should be the same username used to login into docker hub in step 3, and the `CONTAINER_REPOSITORY` should be the registry created in step one.
 After entering the tag, you will be prompted to enter your credentials to log into Docker Hub. Enter the same credentials used in step 2.
 
 ???+ note
