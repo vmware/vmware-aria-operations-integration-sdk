@@ -3,7 +3,7 @@
 
 # Project Config
 
-### `connections` (array of objects)
+## `connections` (array of objects)
 
 This property stores a list of connection objects.
 
@@ -117,7 +117,7 @@ The name of the connection. This is used as the connection identifier and can be
 
 ### `suite_api_hostname` (string)
 
-The suite API host name used for this connection. If no none is specified, the value should be null
+The suite API host name used for this connection. If there isn't one, the values should be 'null'.
 
 ??? example
     ```json
@@ -125,16 +125,34 @@ The suite API host name used for this connection. If no none is specified, the v
         "connections" : [
               {
                  ...
-              suite_api_hostname: "my-host.example.com"
+                suite_api_hostname: "my-host.example.com"
               }
             ]
         ...
      }
     ```
 
+??? note
+
+    If this property is not provided for the connection, then it will fall back to the property defined outside of the connections.
+
+    ```json
+    {
+        "connections" : [
+              {
+                 ...
+              }
+            ]
+        ...
+        suite_api_hostname: "my-default-host.example.com",
+        suite_api_password: "my_password",
+        suite_api_username: "my_username",
+     }
+    ```
+
 ### `suite_api_password` (string)
 
-The suite API password used to login to the specified host. If no none is specified, the value should be null
+The suite API password used to login to the specified host. If there isn't one, the values should be 'null'.
 
 ??? example
     ```json
@@ -142,15 +160,34 @@ The suite API password used to login to the specified host. If no none is specif
         "connections" : [
               {
                  ...
-                }
+                suite_api_password: "my_password",
+              }
             ]
         ...
+     }
+    ```
+
+??? note
+
+    If this property is not provided for the connection, then it will fall back to the property defined outside of the connections.
+
+    ```json
+    {
+        "connections" : [
+              {
+                 ...
+              }
+            ]
+        ...
+        suite_api_hostname: "my-default-host.example.com",
+        suite_api_password: "my_password",
+        suite_api_username: "my_username",
      }
     ```
 
 #### `suite_api_username` (string)
 
-The suite API user name used to login to the specified host. If no none is specified, the value should be null
+The suite API user name used to login to the specified host. If there isn't one, the values should be 'null'.
 
 ??? example
     ```json
@@ -158,12 +195,30 @@ The suite API user name used to login to the specified host. If no none is speci
         "connections" : [
               {
                  ...
-                }
+                suite_api_username: "my_username",
+              }
             ]
         ...
      }
     ```
 
+??? note
+
+    If this property is not provided for the connection, then it will fall back to the property defined outside of the connections.
+
+    ```json
+    {
+        "connections" : [
+              {
+                 ...
+              }
+            ]
+        ...
+        suite_api_hostname: "my-default-host.example.com",
+        suite_api_password: "my_password",
+        suite_api_username: "my_username",
+     }
+    ```
 
 
 # Global Config
@@ -175,12 +230,12 @@ Specifies the default container registry path to be used by [mp-build](mp-build.
 ??? example
     ```json
     {
-      "default_container_registry_path" : "projects.registry.vmware.com/vmware_aria_operations_integration_sdk/"
+      "default_container_registry_path" : "harbor.my-organization.com/my-project-registry/"
       ...
     }
     ```
 
-Will by used by `mp-build` to construct a tag using the **default_container_registry_path** and the lowercase value  of the `adapter_kinds` key  in the manifest.txt file. If the adapter_kinds value is "AdapterName" the resulting tag would be `projects.registry.vmware.com/vmware_aria_operations_integration_sdk/adaptername`.
+Will by used by `mp-build` to construct a tag using the **default_container_registry_path** and the lowercase value  of the `adapter_kinds` key  in the `manifest.txt` file. If the adapter_kinds value is "AdapterName" the resulting tag would be `harbor.my-organization.com/my-project-registry/adaptername`.
 
 
 ### `projects` (array of strings)
@@ -197,3 +252,4 @@ This array of strings is used by the SDK tools to track the locations of the pro
         ...
      }
     ```
+
