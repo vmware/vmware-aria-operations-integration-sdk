@@ -37,7 +37,7 @@ opposed to agent-based monitoring, where the monitoring code runs in the same lo
 as the endpoint).
 
 For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
-[Creating a new Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-management-pack)
+[Creating a New Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/guides/creating_a_new_management_pack/)
 
 The Integration SDK can also be used to extend objects created by another Management
 Pack with additional metrics, properties, events, or relationships. This can be useful
