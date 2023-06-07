@@ -37,17 +37,17 @@ opposed to agent-based monitoring, where the monitoring code runs in the same lo
 as the endpoint).
 
 For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
-[Creating a new Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-new-management-pack)
+[Creating a new Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-management-pack)
 
 The Integration SDK can also be used to extend objects created by another Management
 Pack with additional metrics, properties, events, or relationships. This can be useful
 to ensure access to custom data without having to re-implement already existing data.
 
 For an example walkthrough of the steps required to extend another management pack, see
-[Extending an Existing Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#extending-an-existing-management-pack)
+[Extending an Existing Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/guides/extending_an_existing_management_pack/)
 
 ## Where should I start?
-* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](#get-started) tutorial, or jump to a specific section:
+* If you want to get started creating your first Management Pack, or don't know where to start, read the [Get Started](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/) tutorial, or jump to a specific section:
     * [Requirements](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#requirements)
     * [Installation](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#installation)
     * [Creating a Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#creating-a-management-pack)
@@ -58,8 +58,8 @@ For an example walkthrough of the steps required to extend another management pa
 ## Contributing
 
 The vmware-aria-operations-integration-sdk project team welcomes contributions from the community. Before you start
-working with this project please read and sign our Contributor License Agreement (https://cla.vmware.com/cla/1/preview).
-If you wish to contribute code and you have not signed our Contributor Licence Agreement (CLA), our bot will prompt you
+working with this project please read and sign our [Contributor License Agreement](https://cla.vmware.com/cla/1/preview).
+If you wish to contribute code, and you have not signed our Contributor Licence Agreement (CLA), our bot will prompt you
 to do so when you open a Pull Request. For any questions about the CLA process, please refer to our
 [FAQ](https://cla.vmware.com/faq).
 
