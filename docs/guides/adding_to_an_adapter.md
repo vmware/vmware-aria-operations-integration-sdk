@@ -44,7 +44,7 @@ attribute `type=7`. in Python, we can use the [AdapterDefinition](../references/
         </ResourceKinds>
     </AdapterKind>
     ```
-??? info 
+??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
@@ -104,7 +104,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
       </AdapterKind>
       ```
 
-??? info 
+??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
@@ -162,7 +162,7 @@ A typical credential that requires a username and password might look like this:
     </AdapterKind>
     ```
 
-??? info 
+??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
@@ -231,7 +231,7 @@ use of multiple credential types.
 
 
 Once the credential is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code.
-!!! note 
+!!! note
 
     If there are any existing connections used by the [`mp-test`](../references/mp-test.md) tool before the credential was created
     or updated, these will need to be deleted or updated.
@@ -285,7 +285,7 @@ use the `AdapterDefinition.define_object_type` function of [AdapterDefinition](.
     ```python linenums="1"
     def get_adapter_definition() -> AdapterDefinition:
         definition = AdapterDefinition("MyAdapter", "My Adapter")
-   
+
         definition.define_object_type("my_database_resource_kind", "Database")
     ```
 === "describe.xml"
@@ -308,7 +308,7 @@ not used for this purpose.
     ```python linenums="1"
     def get_adapter_definition() -> AdapterDefinition:
         definition = AdapterDefinition("MyAdapter", "My Adapter")
-   
+
         data_base = definition.define_object_type("my_database_resource_kind", "Database")
         data_base.define_string_identifier("server_ip", "IP")
         data_base.define_string_identifier("server_port", "Port")
@@ -337,7 +337,7 @@ not used for this purpose.
     [Python Adapter Library](../references/python-lib/adapter_instance.md)
     the **define_string_identifier** accepts a `is_part_of_uniqueness` parameter, which is True by default.
 
-??? info 
+??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
@@ -396,15 +396,15 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
     ```python linenums="1"
         def get_adapter_definition() -> AdapterDefinition:
             definition = AdapterDefinition("MyAdapter", "My Adapter")
-        
+
             data_base = definition.define_object_type("my_database_resource_kind", "Database")
             data_base.define_string_identifier("server_ip", "IP")
             data_base.define_string_identifier("server_port", "Port")
-        
+
             table_space_group = data_base.define_group("tablespace", "Tablespace")
             table_space_group.define_string_property("tablespace_name", "Name")
             table_space_group.define_metric("reads", "Reads")
-        
+
             data_base.define_metric("session_count", "Sessions")
     ```
 
@@ -428,7 +428,7 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
     </AdapterKind>
     ```
 
-??? info 
+??? info
 
     For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
