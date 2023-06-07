@@ -10,6 +10,7 @@ from aria.ops.data import Metric
 from aria.ops.data import Property
 from aria.ops.event import Event
 
+
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 
@@ -38,14 +39,15 @@ class Key:
         name: str,
         identifiers: Optional[List[Identifier]] = None,
     ) -> None:
-        """Initializes a Key, which uniquely identifies a vROps Object
+        """Initializes a Key, which uniquely identifies a vROps Object.
 
-        :param adapter_kind: The Adapter Kind this Object is associated with.
-        :param object_kind: The Object Kind (e.g., class) of this Object.
-        :param name: A human-readable name for this Object. Should be unique if possible.
-        :param identifiers: A list of :class:`Identifier` that uniquely identify the Object. If none are present than
-            the name must be unique and is used for identification. All Objects with the same adapter kind and Object
-            kind must have the same set of identifiers.
+        Args:
+            adapter_kind: The Adapter Kind this Object is associated with.
+            object_kind: The Object Kind (e.g., class) of this Object.
+            name: A human-readable name for this Object. Should be unique if possible.
+            identifiers: A list of :class:`Identifier` that uniquely identify the Object. If none are present than
+                the name must be unique and is used for identification. All Objects with the same adapter kind and Object
+                kind must have the same set of identifiers.
         """
         self.adapter_kind = adapter_kind
         self.object_kind = object_kind
@@ -85,14 +87,17 @@ class Key:
     def get_identifier(
         self, key: str, default_value: Optional[str] = None
     ) -> Optional[str]:
-        """Return the value for the given identifier key
+        """Return the value for the given identifier key.
 
-        :param key: The identifier key
-        :param default_value: An optional default value
-        :return: The value associated with the identifier.
-        If the value associated with the identifier is empty and 'default_value' is
-        provided, returns 'default_value'.
-        If the identifier does not exist, returns default_value if provided, else 'None'.
+        Args:
+            key: The identifier key.
+            default_value: An optional default value.
+
+        Returns:
+            The value associated with the identifier.
+            If the value associated with the identifier is empty and 'default_value' is
+            provided, returns 'default_value'.
+            If the identifier does not exist, returns default_value if provided, else 'None'.
         """
         if self.identifiers.get(key):
             if self.identifiers[key].value or default_value is None:
@@ -101,11 +106,12 @@ class Key:
         return default_value
 
     def get_json(self) -> dict:
-        """Get a JSON representation of this Key
+        """Get a JSON representation of this Key.
 
-        Returns a JSON representation of this Key in the format required by vROps.
+        This method returns a JSON representation of this Key in the format required by vROps.
 
-        :return: A JSON representation of this Key
+        Returns:
+            dict: A JSON representation of this Key.
         """
         return {
             "name": self.name,
@@ -131,15 +137,16 @@ class Identifier:
     def __init__(
         self, key: str, value: str, is_part_of_uniqueness: bool = True
     ) -> None:
-        """Creates an identifier which is used as part of an Object's identification in a :class:`Key`
+        """Creates an identifier which is used as part of an Object's identification in a :class:`Key`.
 
-        Represents a piece of data that identifies an Object. If `is_part_of_uniqueness` is False, this data can
-        change over time without creating a new Object. This is primarily used for human-readable values that are useful
-        in identification purposes, but may change at times.
+        This class represents a piece of data that identifies an Object. If `is_part_of_uniqueness` is False, this data
+        can change over time without creating a new Object. This is primarily used for human-readable values that are
+        useful in identification purposes, but may change at times.
 
-        :param key: A key that determines which identifier the value corresponds to.
-        :param value: The value of the identifier.
-        :param is_part_of_uniqueness: Determines if this key/value pair is used in the identification process
+        Args:
+            key: A key that determines which identifier the value corresponds to.
+            value: The value of the identifier.
+            is_part_of_uniqueness: Determines if this key/value pair is used in the identification process.
         """
         self.key = key
         self.value = value
@@ -173,11 +180,12 @@ class Identifier:
         return hash(self.__key())
 
     def get_json(self) -> dict:
-        """Get a JSON representation of this Identifier
+        """Get a JSON representation of this Identifier.
 
-        Returns a JSON representation of this Identifier in the format required by vROps.
+        This method returns a JSON representation of this Identifier in the format required by vROps.
 
-        :return: A JSON representation of this Identifier
+        Returns:
+            dict: A JSON representation of this Identifier.
         """
         return {
             "key": self.key,
@@ -196,11 +204,13 @@ class Object:
     def __init__(self, key: Key) -> None:
         """Create a new Object with a given Key.
 
-        The preferred way to create a new Object is to call the :class:`Result.object` method on the :class:`Result`
-        class, which ensures that for a given key only one Object exists.
+        This method is the preferred way to create a new Object. It should be called from the :class:`Result.object`
+        method on the :class:`Result` class, which ensures that for a given key only one Object exists.
 
-        :param key: The :class:`Key` that uniquely identifies this Object
+        Args:
+            key: The :class:`Key` that uniquely identifies this Object.
         """
+
         self._key: Key = key
         self._metrics: List[Metric] = []
         self._properties: List[Property] = []
@@ -214,21 +224,24 @@ class Object:
 
         An object's Key cannot change after it has been created.
 
-        :return: A copy of the object's key
+        Returns:
+            A copy of the object's key.
         """
         return copy.deepcopy(self._key)
 
     def adapter_type(self) -> str:
         """Get the adapter type of this object
 
-        :return: The adapter type of this object
+        Returns:
+             The adapter type of this object
         """
         return self._key.adapter_kind
 
     def object_type(self) -> str:
         """Get the type of this object
 
-        :return: The type of this object
+        Returns:
+             The type of this object
         """
         return self._key.object_kind
 
@@ -237,28 +250,31 @@ class Object:
     ) -> Optional[str]:
         """Retrieve the value of a given identifier
 
-        :param identifier_key: Key of the identifier
-        :param default_value: An optional default value
-        :return: The value associated with the identifier.
-        If the value associated with the identifier is empty and 'default_value' is
-        provided, returns 'default_value'.
-        If the identifier does not exist, returns default_value if provided, else 'None'.
+        Args:
+            identifier_key (str): Key of the identifier
+            default_value (str): An optional default value
+
+        Returns:
+            The value associated with the identifier.
+            If the value associated with the identifier is empty and 'default_value' is
+            provided, returns 'default_value'.
+            If the identifier does not exist, returns default_value if provided, else 'None'.
         """
         return self._key.get_identifier(identifier_key, default_value)
 
     def add_metric(self, metric: Metric) -> None:
-        """Method that adds a single Metric data point to this Object
+        """Adds a single Metric data point to this Object.
 
-        :param metric: A :class:`Metric` data point to add to this Object
-        :return: None
+        Args:
+            metric (Metric): A Metric data point to add to this Object.
         """
         self._metrics.append(metric)
 
     def add_metrics(self, metrics: List[Metric]) -> None:
-        """Method that adds a list of Metric data points to this Object
+        """Adds a list of Metric data points to this Object.
 
-        :param metrics: A list of :class:`Metric` data points to add to this Object
-        :return: None
+        Args:
+            metrics (List[Metric]): A list of Metric data points to add to this Object.
         """
         for metric in metrics:
             self.add_metric(metric)
@@ -267,23 +283,27 @@ class Object:
         """Method that handles creating a :class:`Metric` data point, and adding to this Object.
 
         The signature matches :class:`Metric.__init__`.
-        :return: None
         """
         self.add_metric(Metric(*args, **kwargs))
 
     def get_metric(self, key: str) -> List[Metric]:
         """
 
-        :param key: Metric key of the metric to return.
-        :return: All metrics matching the given key.
+        Args:
+         key (str): Metric key of the metric to return.
+
+        Returns:
+            All metrics matching the given key.
         """
         return list(filter(lambda metric: metric.key == key, self._metrics))
 
     def get_metric_values(self, key: str) -> List[float]:
         """
 
-        :param key: Metric key of the metric to return.
-        :return: A list of the metric values in chronological order.
+        Args:
+            key (str): Metric key of the metric to return.
+
+        Returns (List[float]): A list of the metric values in chronological order.
         """
         # find matching metrics
         metrics = self.get_metric(key)
@@ -296,8 +316,11 @@ class Object:
     def get_last_metric_value(self, key: str) -> Optional[float]:
         """
 
-        :param key: Metric key of the metric to return.
-        :return: The latest value of the metric or None if no metric exists with the given key.
+        Args:
+            key (str) : Metric key of the metric to return.
+
+        Returns:
+            The latest value of the metric or None if no metric exists with the given key.
         """
         metrics = self.get_metric_values(key)
 
@@ -309,16 +332,16 @@ class Object:
     def add_property(self, property_: Property) -> None:
         """Method that adds a single Property value to this Object
 
-        :param property_: A :class:`Property` value to add to this Object
-        :return: None
+        Args:
+            property_ (Property): A :class:`Property` value to add to this Object
         """
         self._properties.append(property_)
 
     def add_properties(self, properties: List[Property]) -> None:
         """Method that adds a list of Property values to this Object
 
-        :param properties: A list of :class:`Property` values to add to this Object
-        :return: None
+        Args:
+            properties (List[Property]): A list of :class:`Property` values to add to this Object
         """
         for property_ in properties:
             self.add_property(property_)
@@ -327,23 +350,28 @@ class Object:
         """Method that handles creating a :class:`Property` value, and adding to this Object.
 
         The signature matches :class:`Property.__init__`.
-        :return: None
         """
         self.add_property(Property(*args, **kwargs))
 
     def get_property(self, key: str) -> List[Property]:
         """
 
-        :param key: Property key of the property to return.
-        :return: All properties matching the given key
+        Args:
+            key (str): Property key of the property to return.
+
+        Returns:
+             All properties matching the given key
         """
         return list(filter(lambda property_: property_.key == key, self._properties))
 
     def get_property_values(self, key: str) -> List[str]:
         """
 
-        :param key: Property key of the property to return.
-        :return: A list of the property values in chronological order.
+        Args:
+            key (str): Property key of the property to return.
+
+        Returns:
+            A list of the property values in chronological order.
         """
         # find matching properties
         properties = self.get_property(key)
@@ -356,8 +384,11 @@ class Object:
     def get_last_property_value(self, key: str) -> Optional[str | float]:
         """
 
-        :param key: Property key of the property to return.
-        :return: The latest value of the property or None if no property exists with the given key.
+        Args:
+            key (str): Property key of the property to return.
+
+        Returns:
+             The latest value of the property or None if no property exists with the given key.
         """
         properties = self.get_property_values(key)
 
@@ -369,16 +400,16 @@ class Object:
     def add_event(self, event: Event) -> None:
         """Method that adds a single Event to this Object
 
-        :param event: An :class:`Event` to add to this Object
-        :return: None
+        Args:
+            event: An :class:`Event` to add to this Object
         """
         self._events.add(event)
 
     def add_events(self, events: List[Event]) -> None:
         """Method that adds a list of Events to this Object
 
-        :param events: A list of :class:`Event` to add to this Object
-        :return: None
+        Args:
+            events (List[Event]): A list of :class:`Event` to add to this Object
         """
         for event in events:
             self.add_event(event)
@@ -387,7 +418,6 @@ class Object:
         """Method that handles creating an :class:`Event`, and adding to this Object.
 
         The signature matches :class:`Event.__init__`.
-        :return: None
         """
         self.add_event(Event(*args, **kwargs))
 
@@ -398,8 +428,8 @@ class Object:
 
         Relationship cycles are not permitted.
 
-        :param parent: Parent :class:`Object`
-        :return: None
+        Args:
+            parent (Object): Parent :class:`Object`
         """
         self._parents.add(parent._key)
         parent._children.add(self._key)
@@ -411,15 +441,16 @@ class Object:
 
         Relationship cycles are not permitted.
 
-        :param parents: A list of parent :class:`Object`
-        :return: None
+        Args:
+            parents (List[Object]): A list of parent :class:`Object`
         """
         for parent in parents:
             self.add_parent(parent)
 
     def get_parents(self) -> Set[Key]:
         """
-        :return: A set of all object keys that are parents of this object
+        Returns:
+         A set of all object keys that are parents of this object
         """
         return self._parents
 
@@ -430,8 +461,8 @@ class Object:
 
         Relationship cycles are not permitted.
 
-        :param child: Child :class:`Object`
-        :return: None
+        Args:
+            child (Object): Child :class:`Object`
         """
         self._updated_children = True
         self._children.add(child._key)
@@ -444,8 +475,8 @@ class Object:
 
         Relationship cycles are not permitted.
 
-        :param children: A list of child :class:`Object`
-        :return: None
+        Args:
+            children (List[Object]): A list of child :class:`Object`
         """
         # We want to set this even in the case where the list is empty
         self._updated_children = True
@@ -454,13 +485,15 @@ class Object:
 
     def get_children(self) -> Set[Key]:
         """
-        :return: A set of all object keys that are children of this object
+        Returns:
+            A set of all object keys that are children of this object
         """
         return self._children
 
     def has_content(self) -> bool:
         """
-        :return: True if the object contains any metrics, properties or events; False otherwise.
+        Returns:
+             True if the object contains any metrics, properties or events; False otherwise.
         """
         return bool(self._metrics) or bool(self._properties) or bool(self._events)
 
@@ -469,7 +502,8 @@ class Object:
 
         Returns a JSON representation of this Object in the format required by vROps.
 
-        :return: A JSON representation of this Object
+        Returns:
+             A JSON representation of this Object
         """
         return {
             "key": self._key.get_json(),

@@ -1,0 +1,64 @@
+site_name: VMware Aria Operations Integration SDK
+repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
+docs_dir: docs
+plugins:
+- search
+- awesome-pages
+- open-in-new-tab
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_docstring_attributes: true
+theme:
+  name: material
+  language: en
+  palette:
+  - scheme: default
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: dark mode
+    primary: red
+    accent: indigo
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: light mode
+    primary: red
+    accent: indigo
+  fetures:
+  - toc.follow
+  - navigation.sections
+  - navigation.instant
+  - navigation.top
+  - toc.integrate
+  - search.suggest
+  - search.highlight
+  - content.tabs.link # this should enable tabs to be link to one another, but it isn't working at the moment
+  - content.code.annotation
+  - contant.code.copy
+  - content.code.select
+  - content.tooltips
+
+
+
+markdown_extensions:
+- def_list
+- pymdownx.tabbed:
+    alternate_style: true
+- admonition
+- pymdownx.details
+- pymdownx.inlinehilite
+- pymdownx.highlight:
+    auto_title: true
+    anchor_linenums: true
+- pymdownx.superfences
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
+- toc:
+    permalink: true
+
+copyright: |
+  &copy; 2023 VMware, Inc.
