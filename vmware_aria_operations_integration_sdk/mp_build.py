@@ -120,10 +120,10 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     try:
         if _is_docker_hub_registry_format(container_registry):
             if "registry_username" not in kwargs:
-                kwargs["registry_username"] = prompt("Enter Docker Hub username")
+                kwargs["registry_username"] = prompt("Enter Docker Hub username: ")
 
             if "registry_password" not in kwargs:
-                kwargs["registry_password"] = prompt("Password")
+                kwargs["registry_password"] = prompt("Password: ", is_password=True)
             login(**kwargs)
             container_registry = f"docker.io/{container_registry}"
 
@@ -163,14 +163,15 @@ def registry_prompt(default: str) -> str:
 def get_container_registry(
     adapter_kind_key: str,
     config_file: str,
-    conatiner_registry_arg: Optional[str],
+    container_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
-    conatiner_registry = get_config_value("conatiner_registry", config_file=config_file)
+    container_registry = get_config_value("container_registry", config_file=config_file)
     default_registry_value = get_config_value("default_container_registry_path")
 
-    original_value = conatiner_registry
-    if conatiner_registry is None and conatiner_registry_arg is None:
+    original_value = container_registry
+    print(f"{original_value} {container_registry}")
+    if container_registry is None and container_registry_arg is None:
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
             "class:information",
@@ -180,44 +181,44 @@ def get_container_registry(
             default_registry_value = (
                 f"{default_registry_value}{adapter_kind_key.lower()}"
             )
-            conatiner_registry = registry_prompt(default=default_registry_value)
+            container_registry = registry_prompt(default=default_registry_value)
         else:
-            conatiner_registry = registry_prompt(default="")
+            container_registry = registry_prompt(default="")
 
         first_time = True
-        while not is_valid_registry(conatiner_registry):
+        while not is_valid_registry(container_registry):
             if first_time:
                 print("Press Ctrl + C to cancel build", "class:information")
                 first_time = False
-            conatiner_registry = registry_prompt(default=conatiner_registry)
+            container_registry = registry_prompt(default=container_registry)
 
     else:
-        if conatiner_registry_arg is not None and not len(conatiner_registry_arg):
+        if container_registry_arg is not None and not len(container_registry_arg):
             # Prioritize config file over default value
-            conatiner_registry = (
+            container_registry = (
                 default_registry_value
-                if conatiner_registry is None
-                else conatiner_registry
+                if container_registry is None
+                else container_registry
             )
         else:
-            conatiner_registry = (
-                conatiner_registry_arg
-                if conatiner_registry_arg is not None
-                else conatiner_registry
+            container_registry = (
+                container_registry_arg
+                if container_registry_arg is not None
+                else container_registry
             )
 
-        if not is_valid_registry(conatiner_registry, **kwargs):
+        if not is_valid_registry(container_registry, **kwargs):
             raise LoginError
 
-    if _is_docker_hub_registry_format(conatiner_registry):
-        conatiner_registry = f"docker.io/{conatiner_registry}"
+    if _is_docker_hub_registry_format(container_registry):
+        container_registry = f"docker.io/{container_registry}"
 
-    if original_value != conatiner_registry:
+    if original_value != container_registry:
         set_config_value(
-            key="conatiner_registry", value=conatiner_registry, config_file=config_file
+            key="container_registry", value=container_registry, config_file=config_file
         )
 
-    return str(conatiner_registry)
+    return str(container_registry)
 
 
 def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
