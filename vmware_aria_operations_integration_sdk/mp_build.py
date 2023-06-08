@@ -109,47 +109,30 @@ def build_subdirectories(directory: str) -> None:
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def get_registry_components(docker_registry: str) -> Tuple[str, str]:
-    components = docker_registry.split("/")
+def get_registry_components(container_registry: str) -> Tuple[str, str]:
+    components = container_registry.split("/")
     host = components[0]
     path = "/".join(components[1:])
     return host, path
 
 
-def is_valid_registry(docker_registry: str, **kwargs: Any) -> bool:
+def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     try:
-        if _is_docker_hub_registry_format(docker_registry):
+        if _is_docker_hub_registry_format(container_registry):
             if "registry_username" not in kwargs:
                 kwargs["registry_username"] = prompt("Enter Docker Hub username")
 
             if "registry_password" not in kwargs:
                 kwargs["registry_password"] = prompt("Password")
-
             login(**kwargs)
-            docker_registry = f"docker.io/{docker_registry}"
+            container_registry = f"docker.io/{container_registry}"
 
-        login(docker_registry=docker_registry, **kwargs)
+        login(container_registry=container_registry, **kwargs)
 
     except LoginError:
         return False
 
     return True
-
-
-def registry_prompt(default: str) -> str:
-    return prompt(
-        "Enter the tag for the container registry: ",
-        default=default,
-        validator=NotEmptyValidator("Host"),
-        description="The tag of a container registry is used to login into the container registry. the tag is composed of\n"
-        "three parts: domain, port, and path. For example:\n"
-        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter breaks into\n"
-        "domain: projects.registry.vmware.com\n"
-        "port: 443\n"
-        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-        "Port number is optional, and defaults to 443.\n"
-        "If not tag is entered, then one will be generated for a Docker Hub registry",
-    )
 
 
 def _is_docker_hub_registry_format(registry: str) -> bool:
@@ -159,17 +142,35 @@ def _is_docker_hub_registry_format(registry: str) -> bool:
     return bool(re.match(pattern, registry))
 
 
-def get_docker_registry(
+def registry_prompt(default: str) -> str:
+    return prompt(
+        "Enter the full path for the container registry: ",
+        default=default,
+        validator=NotEmptyValidator("Host"),
+        description="The path of a container registry is used to login into the container registry. the path is composed of\n"
+        "four parts: domain, port, path, and tag. For example:\n"
+        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n"
+        "domain: projects.registry.vmware.com\n"
+        "port: 443\n"
+        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
+        "tag: latest\n"
+        "Port number is optional, and defaults to 443.\n"
+        "tag should be omited from the full path"
+        "for Docker Hub repositories simply spevify the path",
+    )
+
+
+def get_container_registry(
     adapter_kind_key: str,
     config_file: str,
-    docker_registry_arg: Optional[str],
+    conatiner_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
-    docker_registry = get_config_value("docker_registry", config_file=config_file)
+    conatiner_registry = get_config_value("conatiner_registry", config_file=config_file)
     default_registry_value = get_config_value("default_container_registry_path")
 
-    original_value = docker_registry
-    if docker_registry is None and docker_registry_arg is None:
+    original_value = conatiner_registry
+    if conatiner_registry is None and conatiner_registry_arg is None:
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
             "class:information",
@@ -179,42 +180,44 @@ def get_docker_registry(
             default_registry_value = (
                 f"{default_registry_value}{adapter_kind_key.lower()}"
             )
-            docker_registry = registry_prompt(default=default_registry_value)
+            conatiner_registry = registry_prompt(default=default_registry_value)
         else:
-            docker_registry = registry_prompt(default="")
+            conatiner_registry = registry_prompt(default="")
 
         first_time = True
-        while not is_valid_registry(docker_registry):
+        while not is_valid_registry(conatiner_registry):
             if first_time:
                 print("Press Ctrl + C to cancel build", "class:information")
                 first_time = False
-            docker_registry = registry_prompt(default=docker_registry)
+            conatiner_registry = registry_prompt(default=conatiner_registry)
 
     else:
-        if docker_registry_arg is not None and not len(docker_registry_arg):
+        if conatiner_registry_arg is not None and not len(conatiner_registry_arg):
             # Prioritize config file over default value
-            docker_registry = (
-                default_registry_value if docker_registry is None else docker_registry
+            conatiner_registry = (
+                default_registry_value
+                if conatiner_registry is None
+                else conatiner_registry
             )
         else:
-            docker_registry = (
-                docker_registry_arg
-                if docker_registry_arg is not None
-                else docker_registry
+            conatiner_registry = (
+                conatiner_registry_arg
+                if conatiner_registry_arg is not None
+                else conatiner_registry
             )
 
-        if not is_valid_registry(docker_registry, **kwargs):
+        if not is_valid_registry(conatiner_registry, **kwargs):
             raise LoginError
 
-    if _is_docker_hub_registry_format(docker_registry):
-        docker_registry = f"docker.io/{docker_registry}"
+    if _is_docker_hub_registry_format(conatiner_registry):
+        conatiner_registry = f"docker.io/{conatiner_registry}"
 
-    if original_value != docker_registry:
+    if original_value != conatiner_registry:
         set_config_value(
-            key="docker_registry", value=docker_registry, config_file=config_file
+            key="conatiner_registry", value=conatiner_registry, config_file=config_file
         )
 
-    return str(docker_registry)
+    return str(conatiner_registry)
 
 
 def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
@@ -245,7 +248,7 @@ def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -
 async def build_pak_file(
     project_path: str,
     insecure_communication: bool,
-    docker_registry_arg: Optional[str],
+    container_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
     docker_client = init()
@@ -302,16 +305,18 @@ async def build_pak_file(
 
         # We should ask the user for this before we populate them with default values
         # Default values are only accessible for authorize members, so we might want to add a message about it
-        docker_registry = get_docker_registry(
-            adapter_kind_key, config_file, docker_registry_arg, **kwargs
+        container_registry = get_container_registry(
+            adapter_kind_key, config_file, container_registry_arg, **kwargs
         )
         tag = manifest["version"] + "_" + str(time.time())
 
-        conf_registry_field, conf_repo_field = get_registry_components(docker_registry)
+        conf_registry_field, conf_repo_field = get_registry_components(
+            container_registry
+        )
 
         # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
 
-        registry_tag = f"{docker_registry}:{tag}"
+        registry_tag = f"{container_registry}:{tag}"
         logger.debug(f"registry tag: {registry_tag}")
 
         try:
@@ -485,7 +490,7 @@ def main() -> None:
         parsed_args = parser.parse_args()
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
-        docker_registry = parsed_args.registry_tag
+        container_registry = parsed_args.registry_tag
         registry_username = parsed_args.registry_username
         registry_password = parsed_args.registry_password
         if parsed_args.no_ttl:
@@ -547,7 +552,7 @@ def main() -> None:
                 build_pak_file(
                     project_dir,
                     insecure_communication,
-                    docker_registry,
+                    container_registry,
                     registry_username=registry_username,
                     registry_password=registry_password,
                 )
