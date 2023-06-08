@@ -6,6 +6,7 @@ import collections
 import json
 import logging
 import os
+import re
 import shutil
 import time
 import traceback
@@ -117,7 +118,14 @@ def get_registry_components(docker_registry: str) -> Tuple[str, str]:
 
 def is_valid_registry(docker_registry: str, **kwargs: Any) -> bool:
     try:
-        login(docker_registry, **kwargs)
+        if _is_docker_hub_registry_format(docker_registry):
+            kwargs["registry_username"] = prompt("Enter Docker Hub username")
+            kwargs["registry_password"] = prompt("Password")
+            login(**kwargs)
+            docker_registry = f"docker.io/{docker_registry}"
+
+        login(docker_registry=docker_registry, **kwargs)
+
     except LoginError:
         return False
 
@@ -135,8 +143,16 @@ def registry_prompt(default: str) -> str:
         "domain: projects.registry.vmware.com\n"
         "port: 443\n"
         "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-        "Port number is optional, and defaults to 443.",
+        "Port number is optional, and defaults to 443.\n"
+        "If not tag is entered, then one will be generated for a Docker Hub registry",
     )
+
+
+def _is_docker_hub_registry_format(registry: str) -> bool:
+    # if pattern for dockechub is username/repo
+    pattern = r"^[\w\-]+\/[\w\-]+$"
+
+    return bool(re.match(pattern, registry))
 
 
 def get_docker_registry(
@@ -185,6 +201,9 @@ def get_docker_registry(
 
         if not is_valid_registry(docker_registry, **kwargs):
             raise LoginError
+
+    if _is_docker_hub_registry_format(docker_registry):
+        docker_registry = f"docker.io/{docker_registry}"
 
     if original_value != docker_registry:
         set_config_value(
