@@ -136,7 +136,7 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
 
 
 def _is_docker_hub_registry_format(registry: str) -> bool:
-    # if pattern for dockechub is username/repo
+    # if pattern for dockerhub is username/repo
     pattern = r"^[\w\-]+\/[\w\-]+$"
 
     return bool(re.match(pattern, registry))
