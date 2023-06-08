@@ -1,4 +1,4 @@
-# Server Development
+# Docker Images
 * * *
 
 ### Images
@@ -51,11 +51,11 @@ The language component of a tag specifies the main language supported by the gen
 Language is one of `python`,`java`, or `powershell`. If an unsupported language is desired, the base
 image `base-adapter:python` can be used as a starting point to install an additional
 language or runtime environment. The base image contains the HTTP server, which is required to serve
-calls from VMware Aria Operations and the user's adapter. It is also possible to start from a different 
+calls from VMware Aria Operations and the user's adapter. It is also possible to start from a different
 base image, but in this case an HTTP server that conforms to the collector API must be manually added.
 
 ###### Server Version
-The main component in the project is the HTTP Server defined by the VMware Aria Operations Collector API. 
+The main component in the project is the HTTP Server defined by the VMware Aria Operations Collector API.
 Therefore, the image version is based on the API version and follows [semantic versioning](https://semver.org/).
 
 
@@ -92,7 +92,7 @@ unique tag `python-0.3.0`.
 	docker tag base-adapter:python-0.3.0 base-adapter:python-latest
 	```
 
-## [Harbor](https://confluence.eng.vmware.com/display/HARBOR/Harbor)
+## [Harbor](https://goharbor.io/)
 
 ### What is it?
 Harbor is an open source container image registry that secures images
@@ -103,7 +103,7 @@ native compute platforms like Kubernetes and Docker.
 
 ### Why use it?
 Harbor is a VMware platform that allows full control of projects for internal or external distribution
-without the liabilities of an externally hosted solution like Dockerhub.
+without the liabilities of an externally hosted solution like Docker Hub.
 
 ### Pulling Images
 1. Make sure you have access to Harbor by logging in to the [vmware_aria_operations_integration_sdk](https://projects.registry.vmware.com/harbor/projects/46752/repositories) registry,
