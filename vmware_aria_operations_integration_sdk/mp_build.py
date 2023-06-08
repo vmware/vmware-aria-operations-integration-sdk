@@ -119,8 +119,12 @@ def get_registry_components(docker_registry: str) -> Tuple[str, str]:
 def is_valid_registry(docker_registry: str, **kwargs: Any) -> bool:
     try:
         if _is_docker_hub_registry_format(docker_registry):
-            kwargs["registry_username"] = prompt("Enter Docker Hub username")
-            kwargs["registry_password"] = prompt("Password")
+            if "registry_username" not in kwargs:
+                kwargs["registry_username"] = prompt("Enter Docker Hub username")
+
+            if "registry_password" not in kwargs:
+                kwargs["registry_password"] = prompt("Password")
+
             login(**kwargs)
             docker_registry = f"docker.io/{docker_registry}"
 
