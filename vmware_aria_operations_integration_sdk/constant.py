@@ -31,6 +31,7 @@ except OSError as e:
 
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 CONFIG_CONTAINER_REGISTRY_KEY = "container_registry"
+CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY = "docker_registry"
 CONFIG_DEFAULT_MEMORY_LIMIT_KEY = "default_memory_limit"
 CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY = "default_container_registry_path"
 CONFIG_PROJECTS_PATH_KEY = "projects"

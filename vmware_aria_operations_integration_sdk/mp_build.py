@@ -34,6 +34,9 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -187,6 +190,11 @@ def get_container_registry(
     container_registry = get_config_value(
         CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
     )
+    if not container_registry:
+        container_registry = get_config_value(
+            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+
     default_registry_value = get_config_value(
         CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
     )
