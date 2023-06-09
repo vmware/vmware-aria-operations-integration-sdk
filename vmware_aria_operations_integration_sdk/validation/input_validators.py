@@ -1,6 +1,7 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import os
+import re
 from typing import List
 from typing import Optional
 
@@ -192,3 +193,22 @@ class ChainValidator(Validator):  # type: ignore
     def validate(self, document: Document) -> None:
         for validator in self.validators:
             validator.validate(document)
+
+
+class ContainerRegistryValidator(NotEmptyValidator):
+    def __init__(self, label: str) -> None:
+        super().__init__(label)
+        self.label = label
+        self.host_regex = "(?P<host>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
+        self.port_regex = (
+            "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
+        )
+        self.path_regex = (
+            "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
+        )
+        self.regex = f"^(?:{self.host_regex}{self.port_regex})?{self.path_regex}$"
+
+    def validate(self, document: Document) -> None:
+        super().validate(document)
+        if not bool(re.fullmatch(self.regex, document.text)):
+            raise ValidationError(message=f"{self.label} has invalid format")
