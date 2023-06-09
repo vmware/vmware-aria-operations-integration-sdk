@@ -30,6 +30,15 @@ from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import COLLECT_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_HOSTNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_PASSWORD_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_USERNAME_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import CONNECT_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
@@ -573,13 +582,19 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 
 def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
     suiteapi_hostname = get_config_value(
-        "suite_api_hostname", "hostname", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_HOSTNAME_KEY,
+        "hostname",
+        os.path.join(project.path, "config.json"),
     )
     suiteapi_username = get_config_value(
-        "suite_api_username", "username", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_USERNAME_KEY,
+        "username",
+        os.path.join(project.path, "config.json"),
     )
     suiteapi_password = get_config_value(
-        "suite_api_password", "password", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_PASSWORD_KEY,
+        "password",
+        os.path.join(project.path, "config.json"),
     )
     has_default = False if suiteapi_hostname == "hostname" else True
     suite_api_prompt = "Set connection information for SuiteAPI calls? "
@@ -607,17 +622,17 @@ def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
             == "yes"
         ):
             set_config_value(
-                "suite_api_hostname",
+                CONFIG_SUITE_API_HOSTNAME_KEY,
                 suiteapi_hostname,
                 os.path.join(project.path, "config.json"),
             )
             set_config_value(
-                "suite_api_username",
+                CONFIG_SUITE_API_USERNAME_KEY,
                 suiteapi_username,
                 os.path.join(project.path, "config.json"),
             )
             set_config_value(
-                "suite_api_password",
+                CONFIG_SUITE_API_PASSWORD_KEY,
                 suiteapi_password,
                 os.path.join(project.path, "config.json"),
             )

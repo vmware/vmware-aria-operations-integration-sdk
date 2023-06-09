@@ -25,6 +25,15 @@ from vmware_aria_operations_integration_sdk.adapter_container import AdapterCont
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_CONTAINER_REGISTRY_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -166,8 +175,12 @@ def get_container_registry(
     container_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
-    container_registry = get_config_value("container_registry", config_file=config_file)
-    default_registry_value = get_config_value("default_container_registry_path")
+    container_registry = get_config_value(
+        CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+    )
+    default_registry_value = get_config_value(
+        CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
+    )
 
     original_value = container_registry
     print(f"{original_value} {container_registry}")
@@ -215,7 +228,9 @@ def get_container_registry(
 
     if original_value != container_registry:
         set_config_value(
-            key="container_registry", value=container_registry, config_file=config_file
+            key=CONFIG_CONTAINER_REGISTRY_KEY,
+            value=container_registry,
+            config_file=config_file,
         )
 
     return str(container_registry)
@@ -262,7 +277,7 @@ async def build_pak_file(
     config_file = os.path.join(project_path, "config.json")
     adapter_container = AdapterContainer(project_path, docker_client)
     memory_limit = get_config_value(
-        "default_memory_limit", 1024, os.path.join(project_path, "config.json")
+        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project_path, "config.json")
     )
     adapter_container.start(memory_limit)
     try:

@@ -14,6 +14,7 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
@@ -149,7 +150,7 @@ def get_project(arguments: Any) -> Project:
         return _find_project_by_path(os.getcwd())
 
     # Finally, prompt the user for the project
-    project_paths: List[str] = get_config_value("projects", [])
+    project_paths: List[str] = get_config_value(CONFIG_PROJECTS_PATH_KEY, [])
     path = selection_prompt(
         "Select a project: ",
         [
@@ -184,10 +185,10 @@ def _find_project_by_path(path: str) -> Project:
 
 
 def _add_and_update_project_paths(path: str) -> None:
-    project_paths: Set[str] = set(get_config_value("projects", []))
+    project_paths: Set[str] = set(get_config_value(CONFIG_PROJECTS_PATH_KEY, []))
     project_paths.add(path)
     set_config_value(
-        "projects",
+        CONFIG_PROJECTS_PATH_KEY,
         sorted(
             list(
                 [

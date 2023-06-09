@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     )
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+)
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
@@ -70,7 +73,9 @@ class Describe:
                 )
             if not cls._adapter_container.started:
                 memory_limit: int = get_config_value(
-                    "default_memory_limit", 1024, os.path.join(cls._path, "config.json")
+                    CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+                    1024,
+                    os.path.join(cls._path, "config.json"),
                 )
                 cls._adapter_container.start(memory_limit)
                 await cls._adapter_container.wait_for_container_startup()
