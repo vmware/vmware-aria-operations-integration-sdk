@@ -134,7 +134,12 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
             if "registry_password" not in kwargs:
                 kwargs["registry_password"] = prompt("Password: ", is_password=True)
             login(**kwargs)
-            container_registry = f"docker.io/{container_registry}"
+
+            container_registry = (
+                container_registry
+                if container_registry.startswith("docker.io")
+                else f"docker.io/{container_registry}"
+            )
 
         login(container_registry=container_registry, **kwargs)
 
@@ -227,7 +232,9 @@ def get_container_registry(
         if not is_valid_registry(container_registry, **kwargs):
             raise LoginError
 
-    if _is_docker_hub_registry_format(container_registry):
+    if _is_docker_hub_registry_format(
+        container_registry
+    ) and not container_registry.startswith("docker.io"):
         container_registry = f"docker.io/{container_registry}"
 
     if original_value != container_registry:
