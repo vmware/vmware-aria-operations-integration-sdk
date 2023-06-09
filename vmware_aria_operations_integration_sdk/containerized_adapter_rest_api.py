@@ -11,6 +11,15 @@ from httpx import Response
 from requests import Request
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_HOSTNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_PASSWORD_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_USERNAME_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
@@ -96,13 +105,19 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
         )
 
     default_hostname = get_config_value(
-        "suite_api_hostname", "hostname", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_HOSTNAME_KEY,
+        "hostname",
+        os.path.join(project.path, "config.json"),
     )
     default_username = get_config_value(
-        "suite_api_username", "username", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_USERNAME_KEY,
+        "username",
+        os.path.join(project.path, "config.json"),
     )
     default_password = get_config_value(
-        "suite_api_password", "password", os.path.join(project.path, "config.json")
+        CONFIG_SUITE_API_PASSWORD_KEY,
+        "password",
+        os.path.join(project.path, "config.json"),
     )
 
     identifiers = []

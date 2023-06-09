@@ -43,9 +43,16 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-def login(docker_registry: str, **kwargs: Any) -> str:
-    print(f"Login into {docker_registry}")
-    command = ["docker", "login", f"{docker_registry}"]
+def login(**kwargs: Any) -> str:
+    command = ["docker", "login"]
+    if "container_registry" not in kwargs:
+        print(f"Login into Docker Hub")
+        container_registry = "docker.io"
+    else:
+        container_registry = kwargs["container_registry"]
+        print(f"Login into {container_registry}")
+        command.append(container_registry)
+
     if (
         "registry_username" in kwargs and kwargs["registry_username"] is not None
     ):  # TODO: should be constants
@@ -62,7 +69,7 @@ def login(docker_registry: str, **kwargs: Any) -> str:
     if response.returncode != 0:
         raise LoginError
 
-    return docker_registry
+    return container_registry
 
 
 def init() -> DockerClient:

@@ -30,6 +30,14 @@ except OSError as e:
     exit(1)
 
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
+CONFIG_CONTAINER_REGISTRY_KEY = "container_registry"
+CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY = "docker_registry"
+CONFIG_DEFAULT_MEMORY_LIMIT_KEY = "default_memory_limit"
+CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY = "default_container_registry_path"
+CONFIG_PROJECTS_PATH_KEY = "projects"
+CONFIG_SUITE_API_HOSTNAME_KEY = "suite_api_hostname"
+CONFIG_SUITE_API_USERNAME_KEY = "suite_api_username"
+CONFIG_SUITE_API_PASSWORD_KEY = "suite_api_password"
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
 REPO_NAME = "vmware-aria-operations-integration-sdk"
