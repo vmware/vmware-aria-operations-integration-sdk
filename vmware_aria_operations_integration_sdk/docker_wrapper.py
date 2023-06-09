@@ -45,13 +45,13 @@ logger.addHandler(consoleHandler)
 
 def login(**kwargs: Any) -> str:
     command = ["docker", "login"]
-    if "docker_registry" not in kwargs:
+    if "container_registry" not in kwargs:
         print(f"Login into Docker Hub")
-        docker_registry = "docker.io"
+        container_registry = "docker.io"
     else:
-        docker_registry = kwargs["docker_registry"]
-        print(f"Login into {docker_registry}")
-        command.append(docker_registry)
+        container_registry = kwargs["container_registry"]
+        print(f"Login into {container_registry}")
+        command.append(container_registry)
 
     if (
         "registry_username" in kwargs and kwargs["registry_username"] is not None
@@ -69,7 +69,7 @@ def login(**kwargs: Any) -> str:
     if response.returncode != 0:
         raise LoginError
 
-    return docker_registry
+    return container_registry
 
 
 def init() -> DockerClient:
