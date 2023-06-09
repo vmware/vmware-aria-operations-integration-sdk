@@ -15,7 +15,6 @@ from logging.handlers import RotatingFileHandler
 from typing import Any
 from typing import Dict
 from typing import Optional
-from typing import Tuple
 
 import httpx
 import pkg_resources
@@ -184,23 +183,14 @@ def registry_prompt(default: str) -> str:
 def get_container_registry(
     adapter_kind_key: str,
     config_file: str,
+    container_registry: Optional[str],
     container_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
-    container_registry = get_config_value(
-        CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
-    )
-    if not container_registry:
-        container_registry = get_config_value(
-            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
-        )
 
     default_registry_value = get_config_value(
         CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
     )
-
-    original_value = container_registry
-    print(f"{original_value} {container_registry}")
     if container_registry is None and container_registry_arg is None:
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
@@ -244,13 +234,6 @@ def get_container_registry(
         container_registry
     ) and not container_registry.startswith("docker.io"):
         container_registry = f"docker.io/{container_registry}"
-
-    if original_value != container_registry:
-        set_config_value(
-            key=CONFIG_CONTAINER_REGISTRY_KEY,
-            value=container_registry,
-            config_file=config_file,
-        )
 
     return str(container_registry)
 
@@ -338,10 +321,24 @@ async def build_pak_file(
             )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
+        container_registry = get_config_value(
+            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+        if not container_registry:
+            container_registry = get_config_value(
+                CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+            )
+
+        original_value = container_registry
+
         # We should ask the user for this before we populate them with default values
         # Default values are only accessible for authorize members, so we might want to add a message about it
         container_registry = get_container_registry(
-            adapter_kind_key, config_file, container_registry_arg, **kwargs
+            adapter_kind_key,
+            config_file,
+            container_registry,
+            container_registry_arg,
+            **kwargs,
         )
         tag = manifest["version"] + "_" + str(time.time())
 
@@ -360,6 +357,14 @@ async def build_pak_file(
 
             with Spinner(f"Pushing Adapter Image to {registry_tag}"):
                 digest = push_image(docker_client, registry_tag)
+
+            # We only set the value if we are able to push the image
+            if original_value != container_registry:
+                set_config_value(
+                    key=CONFIG_CONTAINER_REGISTRY_KEY,
+                    value=container_registry,
+                    config_file=config_file,
+                )
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
             if docker_client.images.list(registry_tag):
