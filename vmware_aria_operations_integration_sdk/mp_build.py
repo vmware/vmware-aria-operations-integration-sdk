@@ -145,8 +145,12 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
 
 
 def _is_docker_hub_registry_format(registry: str) -> bool:
-    # if pattern for dockechub is username/repo
-    pattern = r"^[a-z0-9]+\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
+    # should match username/repo or docker.io/username/repo
+    # user "ID must be between 4 and 30 characters long, and can only contain numbers and lowercase letters"
+    # repos must contain at least two characters, can't start or end with _ . -, can't contain uppercase letters
+    pattern = (
+        r"^(docker\.io\/[a-z0-9]{4,30}|[a-z0-9]{4,30})\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
+    )
 
     return bool(re.match(pattern, registry))
 
