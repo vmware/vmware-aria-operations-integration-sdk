@@ -1,5 +1,6 @@
 #  Copyright 2022 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
+import logging
 import os
 import re
 import string
@@ -11,6 +12,8 @@ from PIL import UnidentifiedImageError
 from prompt_toolkit.document import Document
 from prompt_toolkit.validation import ValidationError
 from prompt_toolkit.validation import Validator
+
+logger = logging.getLogger(__name__)
 
 
 class NotEmptyValidator(Validator):  # type: ignore
@@ -223,19 +226,27 @@ class ContainerRegistryValidator(NotEmptyValidator):
             port_match = re.search(self.port_regex, text)
             path_match = re.search(f"/{self.path_regex}", text)
 
-            # Validate path part always, as it's mandatory
-            # if ends or starts with _ . -
-            # remainder = text.strip(self.valid_characters)
-            # if remainder.upper() != remainder:
-            #     raise ValidationError(f"Invalid characters: {remainder}")
-            # else:
-            #     raise ValidationError(f"Path cannot contain uppercase letters")
-            #
-            # if text[0].isalnum():
-            #     raise ValidationError(f"Path should start with lowercase alphanumeric character but {text[0]} was detected")
-            # if text[-1].isalnum():
-            #     raise ValidationError(f"Path should end with lowercase alphanumeric character but {text[-1]} was detected")
-            #
+            remainder = text.strip(self.valid_characters)
+            if remainder:
+                if remainder.isalpha():
+                    raise ValidationError(
+                        message=f"Path cannot contain uppercase letters"
+                    )
+                else:
+                    raise ValidationError(
+                        message=f"Invalid character{'s' if len(remainder) > 1 else ''}: {remainder}"
+                    )
+
+            if not text[0].isalnum():
+                raise ValidationError(
+                    message=f"Path should start with lowercase alphanumeric character but {text[0]} was detected"
+                )
+            if not text[-1].isalnum():
+                raise ValidationError(
+                    message=f"Path should end with lowercase alphanumeric character but {text[-1]} was detected"
+                )
+
+            logger.error(f"SANTILOG 3")
             if not path_match:
                 raise ValidationError(message=f"{self.label} has invalid PATH format")
 
