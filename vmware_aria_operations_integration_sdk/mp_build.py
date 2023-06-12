@@ -177,8 +177,8 @@ def registry_prompt(default: str) -> str:
         "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
         "tag: latest\n"
         "Port number is optional, and defaults to 443.\n"
-        "tag should be omited from the full path"
-        "for Docker Hub repositories simply spevify the path",
+        "tag should be omitted from the full path"
+        "for Docker Hub repositories simply specify the path",
     )
 
 

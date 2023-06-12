@@ -205,6 +205,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
         self.label = label
         self.valid_characters = "-_./:" + string.ascii_lowercase + string.digits
         self.host_regex = "(?P<host>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
+        self.tag_regex = "(?P<tag>:{1}[a-zA-Z0-9.-]+$)"
         self.port_regex = (
             "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
         )
@@ -226,7 +227,9 @@ class ContainerRegistryValidator(NotEmptyValidator):
             port_match = re.search(self.port_regex, text)
             path_match = re.search(f"/{self.path_regex}", text)
 
-            remainder = text.strip(self.valid_characters)
+            remainder = "".join(
+                c if c not in self.valid_characters else "" for c in text
+            )
             if remainder:
                 if remainder.isalpha():
                     raise ValidationError(
@@ -246,14 +249,37 @@ class ContainerRegistryValidator(NotEmptyValidator):
                     message=f"Path should end with lowercase alphanumeric character but {text[-1]} was detected"
                 )
 
-            logger.error(f"SANTILOG 3")
             if not path_match:
-                raise ValidationError(message=f"{self.label} has invalid PATH format")
+                if len(text.split("/")):
+                    raise ValidationError(
+                        message=f"{self.label} should include namespace and repo explicitly"
+                    )
+                else:
+                    raise ValidationError(
+                        message=f"{self.label} has invalid PATH format"
+                    )
+
+            if len(tag := text.split[":"]):
+                raise ValidationError(
+                    message=f"{self.label} should not include a tag, but {tag[-1]} was provided"
+                )
 
             elif not re.search(self.port_regex, text) and ":" in text:
-                raise ValidationError(message=f"{self.label} has invalid PORT format")
+                port = text.split(":")[1].split("/")[0]
+                if not port.isnumeric():
+                    illegal_characters = port.strip(string.digits)
+                    raise ValidationError(
+                        message=f"Port should only use numbers, but {illegal_characters} was detected"
+                    )
+                elif len(port) < 5:
+                    raise ValidationError(message=f"Port should not exceed 5 digits")
+                else:
+                    raise ValidationError(
+                        message=f"{self.label} has invalid PORT format"
+                    )
 
             elif not host_match:
+                host = text.split("/")[0]
                 raise ValidationError(message=f"{self.label} has invalid HOST format")
 
             # If non of the previous check helped us find the spesifics of the error, provide a more generic error message
