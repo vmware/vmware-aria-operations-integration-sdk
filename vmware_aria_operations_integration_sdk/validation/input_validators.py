@@ -2,6 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 import os
 import re
+import string
 from typing import List
 from typing import Optional
 
@@ -199,10 +200,12 @@ class ContainerRegistryValidator(NotEmptyValidator):
     def __init__(self, label: str) -> None:
         super().__init__(label)
         self.label = label
+        self.valid_characters = "-_./:" + string.ascii_lowercase + string.digits
         self.host_regex = "(?P<host>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
         self.port_regex = (
             "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
         )
+
         self.path_regex = (
             "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
         )
@@ -210,5 +213,37 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
     def validate(self, document: Document) -> None:
         super().validate(document)
-        if not bool(re.fullmatch(self.regex, document.text)):
+
+        text = document.text
+
+        # Check the overall format first
+        if not bool(re.fullmatch(self.regex, text)):
+            # If host and port are present, validate their format
+            host_match = re.search(f"^{self.host_regex}", text)
+            port_match = re.search(self.port_regex, text)
+            path_match = re.search(f"/{self.path_regex}", text)
+
+            # Validate path part always, as it's mandatory
+            # if ends or starts with _ . -
+            # remainder = text.strip(self.valid_characters)
+            # if remainder.upper() != remainder:
+            #     raise ValidationError(f"Invalid characters: {remainder}")
+            # else:
+            #     raise ValidationError(f"Path cannot contain uppercase letters")
+            #
+            # if text[0].isalnum():
+            #     raise ValidationError(f"Path should start with lowercase alphanumeric character but {text[0]} was detected")
+            # if text[-1].isalnum():
+            #     raise ValidationError(f"Path should end with lowercase alphanumeric character but {text[-1]} was detected")
+            #
+            if not path_match:
+                raise ValidationError(message=f"{self.label} has invalid PATH format")
+
+            elif not re.search(self.port_regex, text) and ":" in text:
+                raise ValidationError(message=f"{self.label} has invalid PORT format")
+
+            elif not host_match:
+                raise ValidationError(message=f"{self.label} has invalid HOST format")
+
+            # If non of the previous check helped us find the spesifics of the error, provide a more generic error message
             raise ValidationError(message=f"{self.label} has invalid format")

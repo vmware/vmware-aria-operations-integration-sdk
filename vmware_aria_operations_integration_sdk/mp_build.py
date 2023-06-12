@@ -168,7 +168,7 @@ def registry_prompt(default: str) -> str:
     return prompt(
         "Enter the full path for the container registry: ",
         default=default,
-        validator=ContainerRegistryValidator("Container Registry Path"),
+        validator=ContainerRegistryValidator("Path"),
         description="The path of a container registry is used to login into the container registry. the path is composed of\n"
         "four parts: domain, port, path, and tag. For example:\n"
         "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n"
