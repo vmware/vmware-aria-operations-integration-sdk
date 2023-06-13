@@ -65,6 +65,9 @@ from vmware_aria_operations_integration_sdk.validation.describe_checks import (
     validate_describe,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ContainerRegistryValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NotEmptyValidator,
 )
 
@@ -155,9 +158,7 @@ def _is_docker_hub_registry_format(registry: str) -> bool:
     # should match namespace/repo or docker.io/namespace/repo
     # namespace must be between 4 and 30 characters long, and can only contain numbers and lowercase letters"
     # repos must contain at least two characters, can't start or end with _ . -, can't contain uppercase letters
-    pattern = (
-        r"^(docker\.io\/[a-z0-9]{4,30}|[a-z0-9]{4,30})\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
-    )
+    pattern = r"^(?:docker\.io\/[a-z0-9]{4,30}|[a-z0-9]{4,30})\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
 
     return bool(re.match(pattern, registry))
 
@@ -166,17 +167,17 @@ def registry_prompt(default: str) -> str:
     return prompt(
         "Enter the full path for the container registry: ",
         default=default,
-        validator=NotEmptyValidator("Host"),
-        description="The path of a container registry is used to login into the container registry. the path is composed of\n"
-        "four parts: domain, port, path, and tag. For example:\n"
-        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n"
-        "domain: projects.registry.vmware.com\n"
-        "port: 443\n"
-        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-        "tag: latest\n"
+        validator=ContainerRegistryValidator("Path"),
+        description="The full path of a container registry refers to the combination of domain, port, and path to a container registry.\n"
+        "Example:\n"
+        "'projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest' breaks into:\n\n"
+        "- domain: projects.registry.vmware.com\n"
+        "- port: 443\n"
+        "- path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
+        "- tag: latest\n\n"
         "Port number is optional, and defaults to 443.\n"
-        "tag should be omited from the full path"
-        "for Docker Hub repositories simply spevify the path",
+        "Tag should be omitted from the full path.\n"
+        "For Docker Hub repositories, simply specify the path.",
     )
 
 
