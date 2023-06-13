@@ -226,6 +226,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
             host_match = re.search(f"^{self.host_regex}", text)
             port_match = re.search(self.port_regex, text)
             path_match = re.search(f"/{self.path_regex}", text)
+            tag_match = re.search(self.tag_regex, text)
 
             remainder = "".join(
                 c if c not in self.valid_characters else "" for c in text
@@ -242,15 +243,15 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
             if not text[0].isalnum():
                 raise ValidationError(
-                    message=f"Path should start with lowercase alphanumeric character but {text[0]} was detected"
+                    message=f"{self.label} should start with lowercase alphanumeric character but {text[0]} was detected"
                 )
             if not text[-1].isalnum():
                 raise ValidationError(
-                    message=f"Path should end with lowercase alphanumeric character but {text[-1]} was detected"
+                    message=f"{self.label} should end with lowercase alphanumeric character but {text[-1]} was detected"
                 )
 
             if not path_match:
-                if len(text.split("/")):
+                if len(text.split("/")) > 1:
                     raise ValidationError(
                         message=f"{self.label} should include namespace and repo explicitly"
                     )
@@ -259,9 +260,9 @@ class ContainerRegistryValidator(NotEmptyValidator):
                         message=f"{self.label} has invalid PATH format"
                     )
 
-            if len(tag := text.split[":"]):
+            if tag_match:
                 raise ValidationError(
-                    message=f"{self.label} should not include a tag, but {tag[-1]} was provided"
+                    message=f"{self.label} should not include a tag, but {tag_match.group('tag')} was provided"
                 )
 
             elif not re.search(self.port_regex, text) and ":" in text:
