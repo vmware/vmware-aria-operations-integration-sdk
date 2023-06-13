@@ -182,18 +182,17 @@ def registry_prompt(default: str) -> str:
     )
 
 
-def get_container_registry(
+def validate_container_registry(
     adapter_kind_key: str,
     config_file: str,
-    container_registry_config_value: Optional[str],
-    container_registry_cli_arg: Optional[str],
+    container_registry: Optional[str],
     **kwargs: Any,
 ) -> str:
 
-    default_registry_value = get_config_value(
-        CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
-    )
-    if container_registry_config_value is None and container_registry_cli_arg is None:
+    if not container_registry:
+        default_registry_value = get_config_value(
+            CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
+        )
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
             "class:information",
@@ -203,47 +202,26 @@ def get_container_registry(
             default_registry_value = (
                 f"{default_registry_value}{adapter_kind_key.lower()}"
             )
-            container_registry_config_value = registry_prompt(
-                default=default_registry_value
-            )
+            container_registry = registry_prompt(default=default_registry_value)
         else:
-            container_registry_config_value = registry_prompt(default="")
+            container_registry = registry_prompt(default="")
 
         first_time = True
-        while not is_valid_registry(container_registry_config_value):
+        while not is_valid_registry(container_registry):
             if first_time:
                 print("Press Ctrl + C to cancel build", "class:information")
                 first_time = False
-            container_registry_config_value = registry_prompt(
-                default=container_registry_config_value
-            )
-
+            container_registry = registry_prompt(default=container_registry)
     else:
-        if container_registry_cli_arg is not None and not len(
-            container_registry_cli_arg
-        ):
-            # Prioritize config file over default value
-            container_registry_config_value = (
-                default_registry_value
-                if container_registry_config_value is None
-                else container_registry_config_value
-            )
-        else:
-            container_registry_config_value = (
-                container_registry_cli_arg
-                if container_registry_cli_arg is not None
-                else container_registry_config_value
-            )
-
-        if not is_valid_registry(container_registry_config_value, **kwargs):
+        if not is_valid_registry(container_registry, **kwargs):
             raise LoginError
 
     if _is_docker_hub_registry_format(
-        container_registry_config_value
-    ) and not container_registry_config_value.startswith("docker.io"):
-        container_registry_config_value = f"docker.io/{container_registry_config_value}"
+        container_registry
+    ) and not container_registry.startswith("docker.io"):
+        container_registry = f"docker.io/{container_registry}"
 
-    return str(container_registry_config_value)
+    return str(container_registry)
 
 
 def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -> Dict:
@@ -329,9 +307,11 @@ async def build_pak_file(
             )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
-        container_registry = get_config_value(
-            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
-        )
+        container_registry = container_registry_arg
+        if not container_registry:
+            container_registry = get_config_value(
+                CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+            )
         if not container_registry:
             container_registry = get_config_value(
                 CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
@@ -340,11 +320,10 @@ async def build_pak_file(
         # we want to keep track of the original value, so we can update it if nesessary
         original_value = container_registry
 
-        container_registry = get_container_registry(
+        container_registry = validate_container_registry(
             adapter_kind_key,
             config_file,
             container_registry,
-            container_registry_arg,
             **kwargs,
         )
         tag = manifest["version"] + "_" + str(time.time())
