@@ -204,7 +204,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
         super().__init__(label)
         self.label = label
         self.valid_characters = "-_./:" + string.ascii_lowercase + string.digits
-        self.host_regex = "(?P<host>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
+        self.domain_regex = "(?P<domain>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
         self.tag_regex = "(?P<tag>:{1}[a-zA-Z0-9.-]+$)"
         self.port_regex = (
             "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
@@ -213,7 +213,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
         self.path_regex = (
             "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
         )
-        self.regex = f"^(?:{self.host_regex}{self.port_regex})?{self.path_regex}$"
+        self.regex = f"^(?:{self.domain_regex}{self.port_regex})?{self.path_regex}$"
 
     def validate(self, document: Document) -> None:
         super().validate(document)
@@ -222,8 +222,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
         # Check the overall format first
         if not bool(re.fullmatch(self.regex, text)):
-            # If host and port are present, validate their format
-            host_match = re.search(f"^{self.host_regex}", text)
+            domain_match = re.search(f"^{self.domain_regex}", text)
             port_match = re.search(self.port_regex, text)
             path_match = re.search(f"/{self.path_regex}$", text)
             tag_match = re.search(self.tag_regex, text)
@@ -272,9 +271,9 @@ class ContainerRegistryValidator(NotEmptyValidator):
                         message=f"{self.label} has invalid port format"
                     )
 
-            elif not host_match:
-                host = text.split("/")[0]
-                raise ValidationError(message=f"{self.label} has invalid HOST format")
+            elif not domain_match:
+                domain = text.split("/")[0]
+                raise ValidationError(message=f"{self.label} has invalid domain format")
 
             # If non of the previous check helped us find the spesifics of the error, provide a more generic error message
             raise ValidationError(message=f"{self.label} has invalid format")

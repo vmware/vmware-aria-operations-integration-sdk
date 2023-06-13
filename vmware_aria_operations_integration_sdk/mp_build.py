@@ -171,14 +171,14 @@ def registry_prompt(default: str) -> str:
         validator=ContainerRegistryValidator("Path"),
         description="The path of a container registry is used to login into the container registry. the path is composed of\n"
         "four parts: domain, port, path, and tag. For example:\n"
-        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n"
-        "domain: projects.registry.vmware.com\n"
-        "port: 443\n"
-        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-        "tag: latest\n"
+        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n\n"
+        "- domain: projects.registry.vmware.com\n"
+        "- port: 443\n"
+        "- path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
+        "- tag: latest\n\n"
         "Port number is optional, and defaults to 443.\n"
-        "tag should be omitted from the full path"
-        "for Docker Hub repositories simply specify the path",
+        "Tag should be omitted from the full path.\n"
+        "For Docker Hub repositories, simply specify the path.",
     )
 
 

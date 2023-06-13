@@ -388,10 +388,10 @@ def test_container_registry_validator_fail_invalid_port_6_digits():
     assert str(error.value) == f"Port should not exceed 5 digits"
 
 
-def test_container_registry_validator_fail_invalid_host_format():
+def test_container_registry_validator_fail_invalid_domain_format():
     LABEL = "Container Registry Path"
     cv = ContainerRegistryValidator(LABEL)
     with pytest.raises(ValidationError) as error:
         cv.validate(Document("example_com:443/namespace/path"))
 
-    assert str(error.value) == f"{LABEL} has invalid HOST format"
+    assert str(error.value) == f"{LABEL} has invalid domain format"
