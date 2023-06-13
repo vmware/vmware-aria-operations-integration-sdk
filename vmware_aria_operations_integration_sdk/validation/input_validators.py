@@ -225,7 +225,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
             # If host and port are present, validate their format
             host_match = re.search(f"^{self.host_regex}", text)
             port_match = re.search(self.port_regex, text)
-            path_match = re.search(f"/{self.path_regex}", text)
+            path_match = re.search(f"/{self.path_regex}$", text)
             tag_match = re.search(self.tag_regex, text)
 
             remainder = "".join(
@@ -234,11 +234,11 @@ class ContainerRegistryValidator(NotEmptyValidator):
             if remainder:
                 if remainder.isalpha():
                     raise ValidationError(
-                        message=f"Path cannot contain uppercase letters"
+                        message=f"{self.label} cannot contain uppercase letters"
                     )
                 else:
                     raise ValidationError(
-                        message=f"Invalid character{'s' if len(remainder) > 1 else ''}: {remainder}"
+                        message=f"{self.label} has invalid character{'s' if len(remainder) > 1 else ''}: {remainder}"
                     )
 
             if not text[0].isalnum():
@@ -250,33 +250,26 @@ class ContainerRegistryValidator(NotEmptyValidator):
                     message=f"{self.label} should end with lowercase alphanumeric character but {text[-1]} was detected"
                 )
 
-            if not path_match:
-                if len(text.split("/")) > 1:
-                    raise ValidationError(
-                        message=f"{self.label} should include namespace and repo explicitly"
-                    )
-                else:
-                    raise ValidationError(
-                        message=f"{self.label} has invalid PATH format"
-                    )
-
             if tag_match:
                 raise ValidationError(
-                    message=f"{self.label} should not include a tag, but {tag_match.group('tag')} was provided"
+                    message=f"{self.label} should not include a tag, but '{tag_match.group('tag')}' was provided"
                 )
 
-            elif not re.search(self.port_regex, text) and ":" in text:
+            if not path_match:
+                raise ValidationError(message=f"{self.label} has invalid path format")
+
+            elif not port_match and ":" in text:
                 port = text.split(":")[1].split("/")[0]
                 if not port.isnumeric():
                     illegal_characters = port.strip(string.digits)
                     raise ValidationError(
                         message=f"Port should only use numbers, but {illegal_characters} was detected"
                     )
-                elif len(port) < 5:
+                elif len(port) > 5:
                     raise ValidationError(message=f"Port should not exceed 5 digits")
                 else:
                     raise ValidationError(
-                        message=f"{self.label} has invalid PORT format"
+                        message=f"{self.label} has invalid port format"
                     )
 
             elif not host_match:

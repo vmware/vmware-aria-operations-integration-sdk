@@ -15,6 +15,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
     ChainValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ContainerRegistryValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
     EulaValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
@@ -276,3 +279,119 @@ def test_chain_validator_pass_document_fail():
     )
     with pytest.raises(ValidationError):
         cv.validate(Document(""))
+
+
+def test_container_registry_validator_dockerhub_path_pass():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    cv.validate(Document("namespace/docker-hub-repository"))
+
+
+def test_container_registry_validator_aws_path_pass():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    cv.validate(
+        Document(
+            "123456789012.dkr.ecr.us-east-1.amazonaws.com/aws-registry-repository-test"
+        )
+    )
+
+
+def test_container_registry_validator_artifactory_path_pass():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    cv.validate(Document("integration-sdk.artifactory.com/artifactory-repository-test"))
+
+
+def test_container_registry_validator_fail_lowercase_letters():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("namespace/DOCKER-HUB-REPOSITORY"))
+
+    assert str(error.value) == f"{LABEL} cannot contain uppercase letters"
+
+
+def test_container_registry_validator_fail_invalid_character():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("namespace/docker-hub-repo$itory"))
+
+    assert str(error.value) == f"{LABEL} has invalid character: $"
+
+
+def test_container_registry_validator_fail_multiple_invalid_characters():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("name$pace/docker*hub-repo(sitory"))
+
+    assert str(error.value) == f"{LABEL} has invalid characters: $*("
+
+
+def test_container_registry_validator_fail_starts_with_special_character():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("_namespace/docker-hub-repository"))
+
+    assert (
+        str(error.value)
+        == f"{LABEL} should start with lowercase alphanumeric character but _ was detected"
+    )
+
+
+def test_container_registry_validator_fail_ends_with_special_character():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("namespace/docker-hub-repository-"))
+
+    assert (
+        str(error.value)
+        == f"{LABEL} should end with lowercase alphanumeric character but - was detected"
+    )
+
+
+def test_container_registry_validator_fail_include_tag():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("namespace/docker-hub-repository:latest"))
+
+    assert (
+        str(error.value)
+        == f"{LABEL} should not include a tag, but ':latest' was provided"
+    )
+
+
+def test_container_registry_validator_fail_invalid_port_with_special_character():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(
+            Document("namespace/docker-hub-repository:80./namespace/repository")
+        )
+
+    assert str(error.value) == f"Port should only use numbers, but . was detected"
+
+
+def test_container_registry_validator_fail_invalid_port_6_digits():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(
+            Document("namespace/docker-hub-repository:123456/namespace/repository")
+        )
+
+    assert str(error.value) == f"Port should not exceed 5 digits"
+
+
+def test_container_registry_validator_fail_invalid_host_format():
+    LABEL = "Container Registry Path"
+    cv = ContainerRegistryValidator(LABEL)
+    with pytest.raises(ValidationError) as error:
+        cv.validate(Document("example_com:443/namespace/path"))
+
+    assert str(error.value) == f"{LABEL} has invalid HOST format"
