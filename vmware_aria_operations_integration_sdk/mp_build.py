@@ -15,6 +15,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Tuple
 
 import httpx
 import pkg_resources
@@ -123,7 +124,7 @@ def build_subdirectories(directory: str) -> None:
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def get_registry_components(container_registry: str) -> tuple[str, str]:
+def get_registry_components(container_registry: str) -> Tuple[str, str]:
     components = container_registry.split("/")
     host = components[0]
     path = "/".join(components[1:])
