@@ -188,7 +188,6 @@ def validate_container_registry(
     container_registry: Optional[str],
     **kwargs: Any,
 ) -> str:
-
     if not container_registry:
         default_registry_value = get_config_value(
             CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
