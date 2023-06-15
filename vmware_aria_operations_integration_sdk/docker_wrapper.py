@@ -124,6 +124,7 @@ def push_image(client: DockerClient, image_tag: str) -> str:
     image_digest = ""
 
     for line in response:
+        logger.error(f"DOCKER: {line}")
         if "aux" in line:
             try:
                 image_digest = line["aux"]["Digest"]
@@ -139,9 +140,9 @@ def push_image(client: DockerClient, image_tag: str) -> str:
 def build_image(
     client: DockerClient,
     path: str,
-    tag: str,
     nocache: bool = True,
     labels: Optional[Dict[str, str]] = None,
+    **kwargs: Any,
 ) -> Tuple[Image, Any]:
     """
     Wraps the docker clients images.build method with some appropriate default values
@@ -158,12 +159,12 @@ def build_image(
     try:
         return client.images.build(  # type: ignore
             fileobj=context,
-            tag=tag,
             nocache=nocache,
             rm=True,
             labels=labels,
             custom_context=True,
             encoding="gzip",
+            **kwargs,
         )
     except docker.errors.BuildError as error:
         raise BuildError(

@@ -19,6 +19,8 @@ from typing import Tuple
 
 import httpx
 import pkg_resources
+from docker.api import Client
+from docker.models.images import Image
 
 from vmware_aria_operations_integration_sdk import ui
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
@@ -49,6 +51,7 @@ from vmware_aria_operations_integration_sdk.docker_wrapper import init
 from vmware_aria_operations_integration_sdk.docker_wrapper import login
 from vmware_aria_operations_integration_sdk.docker_wrapper import LoginError
 from vmware_aria_operations_integration_sdk.docker_wrapper import push_image
+from vmware_aria_operations_integration_sdk.docker_wrapper import PushError
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rm
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
@@ -164,6 +167,64 @@ def _is_docker_hub_registry_format(registry: str) -> bool:
     return bool(re.match(pattern, registry))
 
 
+def tag_and_push(
+    image: Image,
+    container_registry_arg: Optional[str],
+    config_file: str,
+    manifest: dict,
+    adapter_kind_key: str,
+    docker_client: Client,
+    **kwargs: Any,
+) -> tuple[str, Optional[str]]:
+
+    container_registry = container_registry_arg
+    if not container_registry:
+        container_registry = get_config_value(
+            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+    if not container_registry:
+        container_registry = get_config_value(
+            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+
+    # we want to keep track of the original value, so we can update it if nesessary
+    original_value = container_registry
+
+    container_registry = validate_container_registry(
+        adapter_kind_key,
+        config_file,
+        container_registry,
+        **kwargs,
+    )
+    tag = manifest["version"] + "_" + str(time.time())
+
+    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+
+    registry_tag = f"{container_registry}:{tag}"
+    logger.debug(f"registry tag: {registry_tag}")
+
+    image.tag(container_registry, tag)
+
+    try:
+        with Spinner(f"Pushing Adapter Image to {registry_tag}"):
+            digest = push_image(docker_client, registry_tag)
+    except PushError as push_error:
+        logger.error(
+            f"An error ocurred while trying to push container image: {push_error.message}"
+        )
+        return registry_tag, None
+
+    # We only set the value if we are able to push the image
+    if original_value != container_registry and digest:
+        set_config_value(
+            key=CONFIG_CONTAINER_REGISTRY_KEY,
+            value=container_registry,
+            config_file=config_file,
+        )
+
+    return container_registry, digest
+
+
 def registry_prompt(default: str) -> str:
     return prompt(
         "Enter the full path for the container registry: ",
@@ -188,6 +249,9 @@ def validate_container_registry(
     container_registry: Optional[str],
     **kwargs: Any,
 ) -> str:
+    logger.error(
+        f"adapter_kind_key: {adapter_kind_key} config_file: {config_file} container_registry:{container_registry} kwargs:{kwargs}"
+    )
     if not container_registry:
         default_registry_value = get_config_value(
             CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
@@ -306,56 +370,34 @@ async def build_pak_file(
             )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
-        container_registry = container_registry_arg
-        if not container_registry:
-            container_registry = get_config_value(
-                CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
-            )
-        if not container_registry:
-            container_registry = get_config_value(
-                CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
-            )
-
-        # we want to keep track of the original value, so we can update it if nesessary
-        original_value = container_registry
-
-        container_registry = validate_container_registry(
-            adapter_kind_key,
-            config_file,
-            container_registry,
-            **kwargs,
-        )
-        tag = manifest["version"] + "_" + str(time.time())
-
-        conf_registry_field, conf_repo_field = get_registry_components(
-            container_registry
-        )
-
-        # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
-
-        registry_tag = f"{container_registry}:{tag}"
-        logger.debug(f"registry tag: {registry_tag}")
+        registry_tag = "temp-tag"
+        logger.debug(f"SANTILOG: iterating trhough tag: {registry_tag}")
 
         try:
             with Spinner("Creating Adapter Image"):
-                build_image(docker_client, path=project_path, tag=f"{registry_tag}")
 
-            with Spinner(f"Pushing Adapter Image to {registry_tag}"):
-                digest = push_image(docker_client, registry_tag)
+                # The first item is the Image object for the image that was built.
+                # The second item is a generator of the build logs as JSON-decoded objects.
+                image, _ = build_image(docker_client, path=project_path)
 
-            # We only set the value if we are able to push the image
-            if original_value != container_registry:
-                set_config_value(
-                    key=CONFIG_CONTAINER_REGISTRY_KEY,
-                    value=container_registry,
-                    config_file=config_file,
+            digest = None
+            while not digest:
+                registry_tag, digest = tag_and_push(
+                    image,
+                    container_registry_arg,
+                    config_file,
+                    manifest,
+                    adapter_kind_key,
+                    docker_client,
+                    **kwargs,
                 )
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
-            if docker_client.images.list(registry_tag):
-                docker_client.images.remove(registry_tag)
+            if image:
+                image.remove(force=True)
 
         with Spinner("Assembling Pak File"):
+            conf_repo_field, conf_registry_field = get_registry_components(registry_tag)
             adapter_dir = adapter_kind_key + "_adapter3"
             mkdir(adapter_dir)
             shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
