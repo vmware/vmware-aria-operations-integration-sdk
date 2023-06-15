@@ -19,7 +19,7 @@ from typing import Tuple
 
 import httpx
 import pkg_resources
-from docker.api import Client
+from docker import DockerClient
 from docker.models.images import Image
 
 from vmware_aria_operations_integration_sdk import ui
@@ -173,7 +173,7 @@ def tag_and_push(
     config_file: str,
     manifest: dict,
     adapter_kind_key: str,
-    docker_client: Client,
+    docker_client: DockerClient,
     **kwargs: Any,
 ) -> tuple[str, Optional[str]]:
 
@@ -380,7 +380,9 @@ async def build_pak_file(
                 # The second item is a generator of the build logs as JSON-decoded objects.
                 image, _ = build_image(docker_client, path=project_path)
 
-            digest = None
+            # We have to add the Optional type anotation otherwise mypy will mark any line after the while loop as unreachable
+            # https://github.com/python/mypy/issues/5423
+            digest: Optional[str] = None
             while not digest:
                 registry_tag, digest = tag_and_push(
                     image,
