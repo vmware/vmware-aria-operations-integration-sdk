@@ -283,6 +283,14 @@ class ContainerRegistryValidator(NotEmptyValidator):
     @classmethod
     def get_container_registry_components(cls, container_registry: str) -> dict:
         if match := re.fullmatch(cls.regex, container_registry):
-            return match.groupdict()
+            # the regex group can't distinguis between host and path when no port is specified
+            groups = match.groupdict()
+            if not groups["host"]:
+                groups["host"], groups["path"] = (
+                    groups["path"].split("/")[0],
+                    groups["path"][1:],
+                )
+
+            return groups
         else:
             return {}
