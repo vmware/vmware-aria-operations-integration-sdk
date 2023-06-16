@@ -124,7 +124,6 @@ def push_image(client: DockerClient, image_tag: str) -> str:
     image_digest = ""
 
     for line in response:
-        logger.error(f"DOCKER: {line}")
         if "aux" in line:
             try:
                 image_digest = line["aux"]["Digest"]
@@ -132,7 +131,11 @@ def push_image(client: DockerClient, image_tag: str) -> str:
                 raise PushError("Image digest was not found in response from server")
 
         elif "errorDetail" in line:
-            raise PushError(line["errorDetail"]["message"])
+            message = line["errorDetail"]["message"]
+            # Clean the error message
+            if "unknown: bad request: invalid repository name" in message:
+                message = f"Invalid repository name: {message.split(':')[-1]}"
+            raise PushError(message)
 
     return image_digest
 

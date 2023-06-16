@@ -71,9 +71,6 @@ from vmware_aria_operations_integration_sdk.validation.describe_checks import (
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     ContainerRegistryValidator,
 )
-from vmware_aria_operations_integration_sdk.validation.input_validators import (
-    NotEmptyValidator,
-)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
@@ -127,13 +124,6 @@ def build_subdirectories(directory: str) -> None:
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def get_registry_components(container_registry: str) -> Tuple[str, str]:
-    components = container_registry.split("/")
-    host = components[0]
-    path = "/".join(components[1:])
-    return host, path
-
-
 def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     try:
         if _is_docker_hub_registry_format(container_registry):
@@ -158,7 +148,10 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     return True
 
 
-def _is_docker_hub_registry_format(registry: str) -> bool:
+def _is_docker_hub_registry_format(registry: Optional[str]) -> bool:
+
+    if not registry:
+        return False
     # should match namespace/repo or docker.io/namespace/repo
     # namespace must be between 4 and 30 characters long, and can only contain numbers and lowercase letters"
     # repos must contain at least two characters, can't start or end with _ . -, can't contain uppercase letters
@@ -167,7 +160,7 @@ def _is_docker_hub_registry_format(registry: str) -> bool:
     return bool(re.match(pattern, registry))
 
 
-def tag_and_push(
+def _tag_and_push(
     image: Image,
     container_registry_arg: Optional[str],
     config_file: str,
@@ -175,8 +168,9 @@ def tag_and_push(
     adapter_kind_key: str,
     docker_client: DockerClient,
     **kwargs: Any,
-) -> tuple[str, Optional[str]]:
+) -> tuple[str, str, str]:
 
+    logger.error(f"container registry arg: {container_registry_arg}")
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
@@ -190,39 +184,47 @@ def tag_and_push(
     # we want to keep track of the original value, so we can update it if nesessary
     original_value = container_registry
 
-    container_registry = validate_container_registry(
-        adapter_kind_key,
-        config_file,
-        container_registry,
-        **kwargs,
-    )
-    tag = manifest["version"] + "_" + str(time.time())
-
-    # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
-
-    registry_tag = f"{container_registry}:{tag}"
-    logger.debug(f"registry tag: {registry_tag}")
-
-    image.tag(container_registry, tag)
-
-    try:
-        with Spinner(f"Pushing Adapter Image to {registry_tag}"):
-            digest = push_image(docker_client, registry_tag)
-    except PushError as push_error:
-        logger.error(
-            f"An error ocurred while trying to push container image: {push_error.message}"
+    digest = ""
+    should_prompt = container_registry is None
+    while not digest:
+        container_registry = validate_container_registry(
+            adapter_kind_key,
+            config_file,
+            container_registry,
+            should_prompt,
+            **kwargs,
         )
-        return registry_tag, None
+        tag = manifest["version"] + "_" + str(time.time())
 
-    # We only set the value if we are able to push the image
-    if original_value != container_registry and digest:
-        set_config_value(
-            key=CONFIG_CONTAINER_REGISTRY_KEY,
-            value=container_registry,
-            config_file=config_file,
+        # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+
+        registry_tag = f"{container_registry}:{tag}"
+        logger.debug(f"registry tag: {registry_tag}")
+
+        image.tag(container_registry, tag)
+
+        try:
+            with Spinner(f"Pushing Adapter Image to {registry_tag}"):
+                digest = push_image(docker_client, registry_tag)
+        except PushError as push_error:
+            if should_prompt:
+                logger.error(push_error.message)
+            else:
+                raise push_error
+
+        # We only set the value if we are able to push the image
+        if original_value != container_registry and digest:
+            set_config_value(
+                key=CONFIG_CONTAINER_REGISTRY_KEY,
+                value=container_registry,
+                config_file=config_file,
+            )
+
+        components = ContainerRegistryValidator.get_container_registry_components(
+            container_registry
         )
 
-    return container_registry, digest
+    return (components["domain"], components["path"], digest)
 
 
 def registry_prompt(default: str) -> str:
@@ -247,12 +249,10 @@ def validate_container_registry(
     adapter_kind_key: str,
     config_file: str,
     container_registry: Optional[str],
+    should_prompt: bool = True,
     **kwargs: Any,
 ) -> str:
-    logger.error(
-        f"adapter_kind_key: {adapter_kind_key} config_file: {config_file} container_registry:{container_registry} kwargs:{kwargs}"
-    )
-    if not container_registry:
+    if should_prompt:
         default_registry_value = get_config_value(
             CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
         )
@@ -270,18 +270,18 @@ def validate_container_registry(
             container_registry = registry_prompt(default="")
 
         first_time = True
-        while not is_valid_registry(container_registry):
+        while not is_valid_registry(str(container_registry), **kwargs):
             if first_time:
                 print("Press Ctrl + C to cancel build", "class:information")
                 first_time = False
             container_registry = registry_prompt(default=container_registry)
     else:
-        if not is_valid_registry(container_registry, **kwargs):
+        if not is_valid_registry(str(container_registry), **kwargs):
             raise LoginError
 
-    if _is_docker_hub_registry_format(
+    if _is_docker_hub_registry_format(container_registry) and not str(
         container_registry
-    ) and not container_registry.startswith("docker.io"):
+    ).startswith("docker.io"):
         container_registry = f"docker.io/{container_registry}"
 
     return str(container_registry)
@@ -370,9 +370,6 @@ async def build_pak_file(
             )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
-        registry_tag = "temp-tag"
-        logger.debug(f"SANTILOG: iterating trhough tag: {registry_tag}")
-
         try:
             with Spinner("Creating Adapter Image"):
 
@@ -382,24 +379,22 @@ async def build_pak_file(
 
             # We have to add the Optional type anotation otherwise mypy will mark any line after the while loop as unreachable
             # https://github.com/python/mypy/issues/5423
-            digest: Optional[str] = None
-            while not digest:
-                registry_tag, digest = tag_and_push(
-                    image,
-                    container_registry_arg,
-                    config_file,
-                    manifest,
-                    adapter_kind_key,
-                    docker_client,
-                    **kwargs,
-                )
+
+            conf_repo_field, conf_registry_field, digest = _tag_and_push(
+                image,
+                container_registry_arg,
+                config_file,
+                manifest,
+                adapter_kind_key,
+                docker_client,
+                **kwargs,
+            )
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
             if image:
                 image.remove(force=True)
 
         with Spinner("Assembling Pak File"):
-            conf_repo_field, conf_registry_field = get_registry_components(registry_tag)
             adapter_dir = adapter_kind_key + "_adapter3"
             mkdir(adapter_dir)
             shutil.copytree("conf", os.path.join(adapter_dir, "conf"))

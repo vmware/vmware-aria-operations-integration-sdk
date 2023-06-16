@@ -61,7 +61,7 @@ class IntegerValidator(Validator):  # type: ignore
         try:
             if document.text.strip():
                 int(document.text)
-        except ValueError as e:
+        except ValueError:
             raise ValidationError(message=f"{self.label} must be an integer.")
 
 
@@ -98,7 +98,7 @@ class TimeValidator(NotEmptyValidator):
                 message=f"Invalid time. {label} should be a numeric value in minutes, or a numeric value "
                 "followed by the unit 'h', 'm', or 's'."
             )
-        except TypeError as e:
+        except TypeError:
             raise ValidationError(
                 message=f"Invalid time type. {label} should be a string, but instead was '{type(time_str)}'"
             )
@@ -200,35 +200,38 @@ class ChainValidator(Validator):  # type: ignore
 
 
 class ContainerRegistryValidator(NotEmptyValidator):
+    valid_characters = "-_./:" + string.ascii_lowercase + string.digits
+    domain_regex = "(?P<domain>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
+    tag_regex = "(?P<tag>:{1}[a-zA-Z0-9.-]+$)"
+    port_regex = (
+        "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
+    )
+
+    path_regex = (
+        "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
+    )
+
+    regex = f"^(?:{domain_regex}{port_regex})?{path_regex}$"
+
     def __init__(self, label: str) -> None:
         super().__init__(label)
         self.label = label
-        self.valid_characters = "-_./:" + string.ascii_lowercase + string.digits
-        self.domain_regex = "(?P<domain>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
-        self.tag_regex = "(?P<tag>:{1}[a-zA-Z0-9.-]+$)"
-        self.port_regex = (
-            "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
-        )
-
-        self.path_regex = (
-            "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
-        )
-        self.regex = f"^(?:{self.domain_regex}{self.port_regex})?{self.path_regex}$"
 
     def validate(self, document: Document) -> None:
         super().validate(document)
+        cls = self.__class__
 
         text = document.text
 
         # Check the overall format first
-        if not bool(re.fullmatch(self.regex, text)):
-            domain_match = re.search(f"^{self.domain_regex}", text)
-            port_match = re.search(self.port_regex, text)
-            path_match = re.search(f"/{self.path_regex}$", text)
-            tag_match = re.search(self.tag_regex, text)
+        if not bool(re.fullmatch(cls.regex, text)):
+            domain_match = re.search(f"^{cls.domain_regex}", text)
+            port_match = re.search(cls.port_regex, text)
+            path_match = re.search(f"/{cls.path_regex}$", text)
+            tag_match = re.search(cls.tag_regex, text)
 
             remainder = "".join(
-                c if c not in self.valid_characters else "" for c in text
+                c if c not in cls.valid_characters else "" for c in text
             )
             if remainder:
                 if remainder.isalpha():
@@ -272,8 +275,14 @@ class ContainerRegistryValidator(NotEmptyValidator):
                     )
 
             elif not domain_match:
-                domain = text.split("/")[0]
                 raise ValidationError(message=f"{self.label} has invalid domain format")
 
             # If non of the previous check helped us find the spesifics of the error, provide a more generic error message
             raise ValidationError(message=f"{self.label} has invalid format")
+
+    @classmethod
+    def get_container_registry_components(cls, container_registry: str) -> dict:
+        if match := re.fullmatch(cls.regex, container_registry):
+            return match.groupdict()
+        else:
+            return {}
