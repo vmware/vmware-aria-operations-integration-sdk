@@ -57,7 +57,7 @@ After entering the tag, you will be prompted to enter your credentials to log in
 
 ???+ note
 
-    If `mp-build` doesn't prompt for a tag for the container registry, open the `config.json` file in the project's root directory, then replace the key-value of `docker_registry` with the tag.
+    If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
 
 
 ### How can I set up a Management Pack that uses a private container registry?
@@ -70,7 +70,7 @@ VMware Aria Operations only supports anonymous pulling of images, however, cloud
 
 ### How can I change the container registry for my project?
 
-Open the `config.json` file located in the project's root directory, then replace the key-value for `docker_registry` with the tag of the
+Open the `config.json` file located in the project's root directory, then replace the key-value for `container_repository` with the tag of the
 repository you want to use. The next time `mp-build` is run, the new tag will be used and validated.
 
 ###  Where are the adapter logs stored locally?

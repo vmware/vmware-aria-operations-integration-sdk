@@ -1,6 +1,6 @@
 # Project Config File
 * * *
-The project config file is a json file called `config.json` located in the project's 
+The project config file is a json file called `config.json` located in the project's
 root directory. This document describes what data is present in the file.
 
 ## `connections` (array of objects)
@@ -221,29 +221,29 @@ The suite API user name used to login to the specified host. If there isn't one,
     ```
 
 ## `default_memory_limit` (int, default: 1024)
-Determines how much memory can be allocated to the container running the adapter. In 
-addition to the memory required by the Adapter, this includes memory used by the Base 
-OS layer and the Adapter's REST server. If this limit is exceeded, the container will 
+Determines how much memory can be allocated to the container running the adapter. In
+addition to the memory required by the Adapter, this includes memory used by the Base
+OS layer and the Adapter's REST server. If this limit is exceeded, the container will
 immediately exit.
 
 ## `docker_port` (int, default: 8080)
-Specifies the port for connecting to the Adapter's REST server. This should only need to 
+Specifies the port for connecting to the Adapter's REST server. This should only need to
 be changed if there is another process already using port 8080.
 
-## `docker_registry` (string)
-Specifies the container registry path to be used by [mp-build](mp-build.md). 
-This key value should contain the registry path used to 
-[tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a 
-repository in that registry. 
+## `container_repository` (string)
+Specifies the container repository to be used by [mp-build](mp-build.md).
+This key value should contain the  `host` and `path` used to
+[tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to
+the specified repository.
 
-This overrides the [default_container_registry_path](global_config.md#defaultcontainerregistrypath-string-optional), 
+This overrides the [default_container_registry_path](global_config.md#defaultcontainerregistrypath-string-optional),
 if it is present.
 
 ??? example
 
     ```json
     {
-        "docker_registry" : "harbor.my-organization.com/my-project-registry/adaptername"
+        "container_repository" : "harbor.my-organization.com/my-project-registry/adaptername"
         ...
     }
     ```

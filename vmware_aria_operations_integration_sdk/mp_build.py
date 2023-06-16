@@ -217,7 +217,6 @@ def _tag_and_push(
             container_registry
         )
 
-    logger.error(components)
     return (components["domain"], components["port"], components["path"], digest)
 
 
