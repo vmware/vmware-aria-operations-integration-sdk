@@ -170,7 +170,6 @@ def _tag_and_push(
     **kwargs: Any,
 ) -> tuple[str, str, str]:
 
-    logger.error(f"container registry arg: {container_registry_arg}")
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
