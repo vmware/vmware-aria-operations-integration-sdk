@@ -149,7 +149,6 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
 
 
 def _is_docker_hub_registry_format(registry: Optional[str]) -> bool:
-
     if not registry:
         return False
     # should match namespace/repo or docker.io/namespace/repo
@@ -169,7 +168,6 @@ def _tag_and_push(
     docker_client: DockerClient,
     **kwargs: Any,
 ) -> tuple[str, str, str, str]:
-
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
@@ -368,7 +366,6 @@ async def build_pak_file(
 
         try:
             with Spinner("Creating Adapter Image"):
-
                 # The first item is the Image object for the image that was built.
                 # The second item is a generator of the build logs as JSON-decoded objects.
                 image, _ = build_image(docker_client, path=project_path)
