@@ -379,7 +379,6 @@ async def build_pak_file(
                 **kwargs,
             )
 
-            # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
             conf_registry_field = domain if not port else f"{domain}:{port}"
             conf_repo_field = path
 

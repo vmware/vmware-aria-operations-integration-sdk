@@ -285,8 +285,8 @@ class ContainerRegistryValidator(NotEmptyValidator):
         if match := re.fullmatch(cls.regex, container_registry):
             # the regex group can't distinguis between host and path when no port is specified
             groups = match.groupdict()
-            if not groups["host"]:
-                groups["host"], groups["path"] = (
+            if not groups["domain"]:
+                groups["domain"], groups["path"] = (
                     groups["path"].split("/")[0],
                     groups["path"][1:],
                 )
