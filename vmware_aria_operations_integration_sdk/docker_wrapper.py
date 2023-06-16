@@ -103,7 +103,7 @@ def init() -> DockerClient:
             raise InitError(e)
 
 
-def push_image(client: DockerClient, image_tag: str) -> str:
+def push_image(client: DockerClient, repository: str, tag: str) -> str:
     """
     Pushes the given image tag and returns the images digest.
 
@@ -119,7 +119,9 @@ def push_image(client: DockerClient, image_tag: str) -> str:
     :param image_tag: An image tag that identifies the image to be pushed
     :return: A string version of the SHA256 digest
     """
-    response = client.images.push(image_tag, stream=True, decode=True)
+    response = client.images.push(
+        repository=repository, tag=tag, stream=True, decode=True
+    )
 
     image_digest = ""
 

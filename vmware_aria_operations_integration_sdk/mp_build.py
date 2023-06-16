@@ -193,18 +193,14 @@ def _tag_and_push(
             should_prompt,
             **kwargs,
         )
+
         tag = manifest["version"] + "_" + str(time.time())
-
-        # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
-
-        registry_tag = f"{container_registry}:{tag}"
-        logger.debug(f"registry tag: {registry_tag}")
 
         image.tag(container_registry, tag)
 
         try:
-            with Spinner(f"Pushing Adapter Image to {registry_tag}"):
-                digest = push_image(docker_client, registry_tag)
+            with Spinner(f"Pushing Adapter Image to {container_registry}"):
+                digest = push_image(docker_client, container_registry, tag)
         except PushError as push_error:
             if should_prompt:
                 logger.error(push_error.message)
