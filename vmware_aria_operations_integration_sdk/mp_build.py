@@ -168,7 +168,7 @@ def _tag_and_push(
     adapter_kind_key: str,
     docker_client: DockerClient,
     **kwargs: Any,
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str, str]:
 
     container_registry = container_registry_arg
     if not container_registry:
@@ -184,7 +184,7 @@ def _tag_and_push(
     original_value = container_registry
 
     digest = ""
-    should_prompt = container_registry is None
+    should_prompt = container_registry_arg is None
     while not digest:
         container_registry = validate_container_registry(
             adapter_kind_key,
@@ -219,7 +219,8 @@ def _tag_and_push(
             container_registry
         )
 
-    return (components["domain"], components["path"], digest)
+    logger.error(components)
+    return (components["domain"], components["port"], components["path"], digest)
 
 
 def registry_prompt(default: str) -> str:
@@ -372,10 +373,7 @@ async def build_pak_file(
                 # The second item is a generator of the build logs as JSON-decoded objects.
                 image, _ = build_image(docker_client, path=project_path)
 
-            # We have to add the Optional type anotation otherwise mypy will mark any line after the while loop as unreachable
-            # https://github.com/python/mypy/issues/5423
-
-            conf_repo_field, conf_registry_field, digest = _tag_and_push(
+            domain, port, path, digest = _tag_and_push(
                 image,
                 container_registry_arg,
                 config_file,
@@ -384,6 +382,11 @@ async def build_pak_file(
                 docker_client,
                 **kwargs,
             )
+
+            # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
+            conf_registry_field = f"{domain}:{port if port else '443'}"
+            conf_repo_field = path
+
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
             if image:
