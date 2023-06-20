@@ -103,7 +103,7 @@ def init() -> DockerClient:
             raise InitError(e)
 
 
-def push_image(client: DockerClient, image_tag: str) -> str:
+def push_image(client: DockerClient, repository: str, tag: str) -> str:
     """
     Pushes the given image tag and returns the images digest.
 
@@ -119,7 +119,9 @@ def push_image(client: DockerClient, image_tag: str) -> str:
     :param image_tag: An image tag that identifies the image to be pushed
     :return: A string version of the SHA256 digest
     """
-    response = client.images.push(image_tag, stream=True, decode=True)
+    response = client.images.push(
+        repository=repository, tag=tag, stream=True, decode=True
+    )
 
     image_digest = ""
 
@@ -131,7 +133,11 @@ def push_image(client: DockerClient, image_tag: str) -> str:
                 raise PushError("Image digest was not found in response from server")
 
         elif "errorDetail" in line:
-            raise PushError(line["errorDetail"]["message"])
+            message = line["errorDetail"]["message"]
+            # Clean the error message
+            if "unknown: bad request: invalid repository name" in message:
+                message = f"Invalid repository name: {message.split(':')[-1]}"
+            raise PushError(message)
 
     return image_digest
 
@@ -139,9 +145,9 @@ def push_image(client: DockerClient, image_tag: str) -> str:
 def build_image(
     client: DockerClient,
     path: str,
-    tag: str,
     nocache: bool = True,
     labels: Optional[Dict[str, str]] = None,
+    **kwargs: Any,
 ) -> Tuple[Image, Any]:
     """
     Wraps the docker clients images.build method with some appropriate default values
@@ -158,12 +164,12 @@ def build_image(
     try:
         return client.images.build(  # type: ignore
             fileobj=context,
-            tag=tag,
             nocache=nocache,
             rm=True,
             labels=labels,
             custom_context=True,
             encoding="gzip",
+            **kwargs,
         )
     except docker.errors.BuildError as error:
         raise BuildError(

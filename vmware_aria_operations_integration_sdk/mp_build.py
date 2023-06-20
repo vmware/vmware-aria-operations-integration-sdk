@@ -19,6 +19,8 @@ from typing import Tuple
 
 import httpx
 import pkg_resources
+from docker import DockerClient
+from docker.models.images import Image
 
 from vmware_aria_operations_integration_sdk import ui
 from vmware_aria_operations_integration_sdk.adapter_container import AdapterContainer
@@ -49,6 +51,7 @@ from vmware_aria_operations_integration_sdk.docker_wrapper import init
 from vmware_aria_operations_integration_sdk.docker_wrapper import login
 from vmware_aria_operations_integration_sdk.docker_wrapper import LoginError
 from vmware_aria_operations_integration_sdk.docker_wrapper import push_image
+from vmware_aria_operations_integration_sdk.docker_wrapper import PushError
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rm
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
@@ -66,7 +69,7 @@ from vmware_aria_operations_integration_sdk.validation.describe_checks import (
     validate_describe,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
-    NotEmptyValidator,
+    ContainerRegistryValidator,
 )
 
 logger = logging.getLogger(__name__)
@@ -121,13 +124,6 @@ def build_subdirectories(directory: str) -> None:
         shutil.move(os.path.join(directory, file), dir_path)
 
 
-def get_registry_components(container_registry: str) -> Tuple[str, str]:
-    components = container_registry.split("/")
-    host = components[0]
-    path = "/".join(components[1:])
-    return host, path
-
-
 def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     try:
         if _is_docker_hub_registry_format(container_registry):
@@ -152,56 +148,107 @@ def is_valid_registry(container_registry: str, **kwargs: Any) -> bool:
     return True
 
 
-def _is_docker_hub_registry_format(registry: str) -> bool:
+def _is_docker_hub_registry_format(registry: Optional[str]) -> bool:
+    if not registry:
+        return False
     # should match namespace/repo or docker.io/namespace/repo
     # namespace must be between 4 and 30 characters long, and can only contain numbers and lowercase letters"
     # repos must contain at least two characters, can't start or end with _ . -, can't contain uppercase letters
-    pattern = (
-        r"^(docker\.io\/[a-z0-9]{4,30}|[a-z0-9]{4,30})\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
-    )
+    pattern = r"^(?:docker\.io\/[a-z0-9]{4,30}|[a-z0-9]{4,30})\/[a-z0-9]+[a-z0-9._-]*[a-z0-9]+$"
 
     return bool(re.match(pattern, registry))
+
+
+def _tag_and_push(
+    image: Image,
+    container_registry_arg: Optional[str],
+    config_file: str,
+    manifest: dict,
+    adapter_kind_key: str,
+    docker_client: DockerClient,
+    **kwargs: Any,
+) -> tuple[str, str, str, str]:
+    container_registry = container_registry_arg
+    if not container_registry:
+        container_registry = get_config_value(
+            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+    if not container_registry:
+        container_registry = get_config_value(
+            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+        )
+
+    # we want to keep track of the original value, so we can update it if nesessary
+    original_value = container_registry
+
+    digest = ""
+    should_prompt = container_registry_arg is None
+    while not digest:
+        container_registry = validate_container_registry(
+            adapter_kind_key,
+            config_file,
+            container_registry,
+            should_prompt,
+            **kwargs,
+        )
+
+        tag = manifest["version"] + "_" + str(time.time())
+
+        image.tag(container_registry, tag)
+
+        try:
+            with Spinner(f"Pushing Adapter Image to {container_registry}"):
+                digest = push_image(docker_client, container_registry, tag)
+        except PushError as push_error:
+            if should_prompt:
+                logger.error(push_error.message)
+            else:
+                raise push_error
+
+        # We only set the value if we are able to push the image
+        if original_value != container_registry and digest:
+            set_config_value(
+                key=CONFIG_CONTAINER_REGISTRY_KEY,
+                value=container_registry,
+                config_file=config_file,
+            )
+
+        components = ContainerRegistryValidator.get_container_registry_components(
+            container_registry
+        )
+
+    return (components["domain"], components["port"], components["path"], digest)
 
 
 def registry_prompt(default: str) -> str:
     return prompt(
         "Enter the full path for the container registry: ",
         default=default,
-        validator=NotEmptyValidator("Host"),
-        description="The path of a container registry is used to login into the container registry. the path is composed of\n"
-        "four parts: domain, port, path, and tag. For example:\n"
-        "projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest breaks into\n"
-        "domain: projects.registry.vmware.com\n"
-        "port: 443\n"
-        "path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
-        "tag: latest\n"
+        validator=ContainerRegistryValidator("Path"),
+        description="The full path of a container registry refers to the combination of domain, port, and path to a container registry.\n"
+        "Example:\n"
+        "'projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest' breaks into:\n\n"
+        "- domain: projects.registry.vmware.com\n"
+        "- port: 443\n"
+        "- path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
+        "- tag: latest\n\n"
         "Port number is optional, and defaults to 443.\n"
-        "tag should be omited from the full path"
-        "for Docker Hub repositories simply spevify the path",
+        "Tag should be omitted from the full path.\n"
+        "For Docker Hub repositories, simply specify the path.",
     )
 
 
-def get_container_registry(
+def validate_container_registry(
     adapter_kind_key: str,
     config_file: str,
-    container_registry_arg: Optional[str],
+    container_registry: Optional[str],
+    should_prompt: bool = True,
     **kwargs: Any,
 ) -> str:
-    container_registry = get_config_value(
-        CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
-    )
-    if not container_registry:
-        container_registry = get_config_value(
-            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+    if should_prompt:
+        default_registry_value = get_config_value(
+            CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
         )
-
-    default_registry_value = get_config_value(
-        CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY
-    )
-
-    original_value = container_registry
-    print(f"{original_value} {container_registry}")
-    if container_registry is None and container_registry_arg is None:
         print(
             "mp-build needs to configure a container registry to store the adapter container image.",
             "class:information",
@@ -216,41 +263,19 @@ def get_container_registry(
             container_registry = registry_prompt(default="")
 
         first_time = True
-        while not is_valid_registry(container_registry):
+        while not is_valid_registry(str(container_registry), **kwargs):
             if first_time:
                 print("Press Ctrl + C to cancel build", "class:information")
                 first_time = False
             container_registry = registry_prompt(default=container_registry)
-
     else:
-        if container_registry_arg is not None and not len(container_registry_arg):
-            # Prioritize config file over default value
-            container_registry = (
-                default_registry_value
-                if container_registry is None
-                else container_registry
-            )
-        else:
-            container_registry = (
-                container_registry_arg
-                if container_registry_arg is not None
-                else container_registry
-            )
-
-        if not is_valid_registry(container_registry, **kwargs):
+        if not is_valid_registry(str(container_registry), **kwargs):
             raise LoginError
 
-    if _is_docker_hub_registry_format(
+    if _is_docker_hub_registry_format(container_registry) and not str(
         container_registry
-    ) and not container_registry.startswith("docker.io"):
+    ).startswith("docker.io"):
         container_registry = f"docker.io/{container_registry}"
-
-    if original_value != container_registry:
-        set_config_value(
-            key=CONFIG_CONTAINER_REGISTRY_KEY,
-            value=container_registry,
-            config_file=config_file,
-        )
 
     return str(container_registry)
 
@@ -338,32 +363,29 @@ async def build_pak_file(
             )
             manifest = fix_describe(describe_adapter_kind_key, manifest_file)
 
-        # We should ask the user for this before we populate them with default values
-        # Default values are only accessible for authorize members, so we might want to add a message about it
-        container_registry = get_container_registry(
-            adapter_kind_key, config_file, container_registry_arg, **kwargs
-        )
-        tag = manifest["version"] + "_" + str(time.time())
-
-        conf_registry_field, conf_repo_field = get_registry_components(
-            container_registry
-        )
-
-        # docker daemon seems to have issues when the port is specified: https://github.com/moby/moby/issues/40619
-
-        registry_tag = f"{container_registry}:{tag}"
-        logger.debug(f"registry tag: {registry_tag}")
-
         try:
             with Spinner("Creating Adapter Image"):
-                build_image(docker_client, path=project_path, tag=f"{registry_tag}")
+                # The first item is the Image object for the image that was built.
+                # The second item is a generator of the build logs as JSON-decoded objects.
+                image, _ = build_image(docker_client, path=project_path)
 
-            with Spinner(f"Pushing Adapter Image to {registry_tag}"):
-                digest = push_image(docker_client, registry_tag)
+            domain, port, path, digest = _tag_and_push(
+                image,
+                container_registry_arg,
+                config_file,
+                manifest,
+                adapter_kind_key,
+                docker_client,
+                **kwargs,
+            )
+
+            conf_registry_field = domain if not port else f"{domain}:{port}"
+            conf_repo_field = path
+
         finally:
             # We have to make sure the image was built, otherwise we can raise another exception
-            if docker_client.images.list(registry_tag):
-                docker_client.images.remove(registry_tag)
+            if image:
+                image.remove(force=True)
 
         with Spinner("Assembling Pak File"):
             adapter_dir = adapter_kind_key + "_adapter3"
