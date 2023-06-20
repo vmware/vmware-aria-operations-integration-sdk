@@ -1,4 +1,4 @@
-# Docker Images
+# Base Adapter Images
 * * *
 
 ### Images
