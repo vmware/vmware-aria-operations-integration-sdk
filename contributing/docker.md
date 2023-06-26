@@ -35,11 +35,10 @@ docker build --no-cache java-client --tag base-adapter:java-0.3.0
 #### Tagging Convention
 Tags differentiate characteristics of the built image. Every image must have a _unique tag_, plus optional additional tags known as _stable tags_:
 
-!!! quote
-    Stable tags mean a developer, or a build system, can continue to pull a specific tag, which
-    continues to get updates. Stable doesn’t mean the contents are frozen. Rather, stable implies the image
-    should be stable for the intent of that version. To stay “stable”, it might be serviced to apply
-    patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-image-tag-version#:~:text=Stable%20tags%20mean,or%20framework%20updates.)).
+> "Stable tags mean a developer, or a build system, can continue to pull a specific tag, which
+  continues to get updates. Stable doesn’t mean the contents are frozen. Rather, stable implies the image
+  should be stable for the intent of that version. To stay “stable”, it might be serviced to apply
+  patches or framework updates.([Steve Lasker](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-image-tag-version#:~:text=Stable%20tags%20mean,or%20framework%20updates.))."
 
 ##### Unique Tag
 Each image should have a unique tag with the following format:
