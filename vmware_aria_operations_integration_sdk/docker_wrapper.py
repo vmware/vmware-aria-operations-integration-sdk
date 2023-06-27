@@ -5,6 +5,7 @@ import io
 import json
 import logging
 import os
+import platform
 import stat
 import subprocess
 import sys
@@ -89,9 +90,15 @@ def init() -> DockerClient:
     except docker.errors.DockerException as e:
         if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:
             logger.debug(e, exc_info=True)
+
+            if platform.system() == "Windows":
+                host_os_port_path = "C:\ProgramData\docker"
+            else:
+                host_os_port_path = "/var/run/docker.dock"
+
             raise InitError(
                 message="Cannot connect to the Docker daemon",
-                recommendation="Ensure the docker daemon is running",
+                recommendation=f"Ensure the docker daemon is running and the default socket at {host_os_port_path} is accessible",
             )
         elif "PermissionError" in e.args[0]:
             logger.debug(e, exc_info=True)
