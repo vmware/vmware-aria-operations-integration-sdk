@@ -164,6 +164,7 @@ def create_project(
     eula_file: str,
     icon_file: str,
     language: str,
+    template_style: str,
 ) -> None:
     mkdir(path)
 
@@ -204,7 +205,7 @@ def create_project(
 
     # create project structure
     executable_directory_path = build_project_structure(
-        path, adapter_key, name, language
+        path, adapter_key, name, language, template_style
     )
 
     # create Dockerfile
@@ -319,8 +320,22 @@ def main() -> None:
         #     description="The language for the Management Pack determines the language for the template\n"
         #     "source and build files.",
         # )
-        # create project_directory
+        template_style = selection_prompt(
+            "Select a language for the adapter.",
+            items=[
+                ("template", "Template Project"),
+                ("blank_template", "Blank Template (Advanced users)"),
+            ],
+            description="""- Template Project: Provides a template adapter that collects several objects and metrics from the container in which the
+adapter is running. The template adapter has comments throughout its code that explain what the code does and how to customize
+it for your adapter.
+- Blank Template: Provides 'try', 'except', and  Timer blocks for each of the required methods.
 
+Both templates contain a file system that has the basic project structure required to develop and build a Management Pack.
+For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project""",
+        )
+
+        # create project_directory
         with Spinner("Creating Project"):
             create_project(
                 path,
@@ -331,6 +346,7 @@ def main() -> None:
                 eula_file,
                 icon_file,
                 language,
+                template_style,
             )
         print("")
         print("")
@@ -421,7 +437,7 @@ def create_commands_file(
 
 
 def build_project_structure(
-    path: str, adapter_kind: str, name: str, language: str
+    path: str, adapter_kind: str, name: str, language: str, template_style: str
 ) -> str:
     logger.debug("generating project structure")
     project_directory = ""  # this is where all the source code will reside
@@ -433,7 +449,8 @@ def build_project_structure(
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            requirements.write("psutil==5.9.4\n")
+            if template_style != "blank":
+                requirements.write("psutil==5.9.4\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
         # create development requirements file
@@ -466,6 +483,7 @@ def build_project_structure(
             )
 
         # copy adapter.py into app directory
+        # TODO: intead of copiying file, we could write only what we want
         with resources.path(adapter_template, "adapter.py") as src:
             dest = os.path.join(path, project_directory)
             copy(src, dest)
