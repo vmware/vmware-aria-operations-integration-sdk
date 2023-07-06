@@ -112,12 +112,11 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
                 result.with_error("The ID is bad")
             # otherwise, the test has passed
         except Exception as e:
-            # TODO: If any connections are still open, make sure they are closed before
-            #  returning
             logger.error("Unexpected connection test error")
             logger.exception(e)
             result.with_error("Unexpected connection test error: " + repr(e))
         finally:
+            # TODO: If any connections are still open, make sure they are closed before returning
             logger.debug(f"Returning test result: {result.get_json()}")
             return result
 
@@ -186,11 +185,11 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
             system.add_child(disk)
             system.add_child(cpu)
         except Exception as e:
-            # TODO: If any connections are still open, make sure they are closed before returning
             logger.error("Unexpected collection error")
             logger.exception(e)
             result.with_error("Unexpected collection error: " + repr(e))
         finally:
+            # TODO: If any connections are still open, make sure they are closed before returning
             logger.debug(f"Returning collection result {result.get_json()}")
             return result
 

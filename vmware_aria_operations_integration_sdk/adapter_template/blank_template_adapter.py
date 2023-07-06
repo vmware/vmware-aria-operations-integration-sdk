@@ -66,8 +66,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
             logger.exception(e)
             result.with_error("Unexpected connection test error: " + repr(e))
         finally:
-            # TODO: If any connections are still open, make sure they are closed before
-            #  returning
+            # TODO: If any connections are still open, make sure they are closed before returning
             logger.debug(f"Returning test result: {result.get_json()}")
             return result
 
