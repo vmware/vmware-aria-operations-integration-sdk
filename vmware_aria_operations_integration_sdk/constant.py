@@ -47,3 +47,7 @@ CONNECT_ENDPOINT = "test"
 ENDPOINTS_URLS_ENDPOINT = "endpointURLs"
 ADAPTER_DEFINITION_ENDPOINT = "adapterDefinition"
 API_VERSION_ENDPOINT = "apiVersion"
+
+# CLI keys
+TEMPLATE_ADAPTER_KEY = "template_adapter"
+BLANK_ADAPTER_KEY = "blank_adapter"

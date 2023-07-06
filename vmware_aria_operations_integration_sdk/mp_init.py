@@ -17,10 +17,12 @@ from git import Repo
 from vmware_aria_operations_integration_sdk import adapter_template
 from vmware_aria_operations_integration_sdk.adapter_template import java
 from vmware_aria_operations_integration_sdk.adapter_template import powershell
+from vmware_aria_operations_integration_sdk.constant import BLANK_ADAPTER_KEY
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
 from vmware_aria_operations_integration_sdk.constant import REPO_NAME
+from vmware_aria_operations_integration_sdk.constant import TEMPLATE_ADAPTER_KEY
 from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
@@ -323,16 +325,15 @@ def main() -> None:
         template_style = selection_prompt(
             "Select a language for the adapter.",
             items=[
-                ("template", "Template Project"),
-                ("blank_template", "Blank Template (Advanced users)"),
+                (TEMPLATE_ADAPTER_KEY, "Template Adapter Project"),
+                (BLANK_ADAPTER_KEY, "Blank Template Adapter Project (Advanced users)"),
             ],
-            description="""- Template Project: Provides a template adapter that collects several objects and metrics from the container in which the
-adapter is running. The template adapter has comments throughout its code that explain what the code does and how to customize
-it for your adapter.
-- Blank Template: Provides 'try', 'except', and  Timer blocks for each of the required methods.
-
-Both templates contain a file system that has the basic project structure required to develop and build a Management Pack.
-For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project""",
+            description="- Template Adapter Project: Provides a template adapter that collects several objects and metrics from the container in which the\n"
+            "adapter is running. The template adapter has comments throughout its code that explain what the code does and how to customize\n"
+            "it for your adapter.\n"
+            "- Blank Template: Provides 'try', 'except', and  Timer blocks for each of the required methods.\n"
+            "Both templates contain a file system that has the basic project structure required to develop and build a Management Pack.\n"
+            "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project",
         )
 
         # create project_directory
@@ -449,7 +450,7 @@ def build_project_structure(
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            if template_style != "blank":
+            if template_style != BLANK_ADAPTER_KEY:
                 requirements.write("psutil==5.9.4\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
@@ -482,10 +483,16 @@ def build_project_structure(
                 "Could not install sdk tools into the development virtual environment."
             )
 
-        # copy adapter.py into app directory
-        # TODO: intead of copiying file, we could write only what we want
-        with resources.path(adapter_template, "adapter.py") as src:
-            dest = os.path.join(path, project_directory)
+        # copy the teamplate code into app/adapter.py file
+        template = (
+            "adapter.py"
+            if template_style == TEMPLATE_ADAPTER_KEY
+            else "blank_template_adapter"
+        )
+        with resources.as_file(
+            resources.files(adapter_template).joinpath(template)
+        ) as src:
+            dest = os.path.join(path, project_directory, "adapter.py")
             copy(src, dest)
 
         with open(
