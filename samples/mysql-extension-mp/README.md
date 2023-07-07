@@ -4,7 +4,7 @@ Sample Extension Management Pack
 This is a sample management pack that collects some data from MySQL and attaches them 
 to objects created by the MySQL management pack.
 
-For more information, see the [walkthrough section](../../README.md#extending-an-existing-management-pack).
+For more information, see the [walkthrough section](../../docs/guides/extending_an_existing_management_pack.md).
 
 This sample can be used as-is, as a reference, or as a starting point for 
 adding more or different data to the MySQL Management Pack.
