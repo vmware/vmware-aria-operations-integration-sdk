@@ -1,12 +1,6 @@
 # Contributing
 
-Contributing to the project does not necessarily require familiarity with every component. To find a quick breakdown
-of the smaller parts of this project, consult the [index](index.md), which breaks down the SDK Structure into small
-components and references to help contributors find the necessary references without having to go in-depth into the
-project's overall structure. For a more in-depth breakdown of the project structure, it would be beneficial for you
-to have a look at the [documentation](vmware.github.io/vmware-aria-operations-integration-sdk/),
-[issue tracker](https://github.com/vmware/vmware-aria-operations-integration-sdk/issues),
-[project structure](index.md), and basic functioning of every component.
+Contributing to the project does not necessarily require familiarity with every component. The [index page](index.md) explains the project structure and links to some high-level project documentation. If you require detailed information not covered here, please open a [discussion](https://github.com/vmware/vmware-aria-operations-integration-sdk/discussions/new?category=general)
 
 ## Environment
 This project uses Python 3.9 - 3.12. All other dependencies can be installed via [poetry](https://python-poetry.org/),
