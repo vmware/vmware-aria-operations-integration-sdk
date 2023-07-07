@@ -17,12 +17,16 @@ from git import Repo
 from vmware_aria_operations_integration_sdk import adapter_template
 from vmware_aria_operations_integration_sdk.adapter_template import java
 from vmware_aria_operations_integration_sdk.adapter_template import powershell
-from vmware_aria_operations_integration_sdk.constant import BLANK_ADAPTER_KEY
+from vmware_aria_operations_integration_sdk.constant import (
+    BOILERPLATE_ENTRYPOINT_OPTION_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
 from vmware_aria_operations_integration_sdk.constant import REPO_NAME
-from vmware_aria_operations_integration_sdk.constant import TEMPLATE_ADAPTER_KEY
+from vmware_aria_operations_integration_sdk.constant import (
+    TEMPLATE_ADAPTER_ENTRYPOINT_OPTION_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
@@ -325,8 +329,14 @@ def main() -> None:
         template_style = selection_prompt(
             "Select an entry point template for your project",
             items=[
-                (TEMPLATE_ADAPTER_KEY, "Template Adapter Entry Point"),
-                (BLANK_ADAPTER_KEY, "Boilerplate Entrypoint (Advanced users)"),
+                (
+                    TEMPLATE_ADAPTER_ENTRYPOINT_OPTION_KEY,
+                    "Template Adapter Entry Point",
+                ),
+                (
+                    BOILERPLATE_ENTRYPOINT_OPTION_KEY,
+                    "Boilerplate Entrypoint (Advanced users)",
+                ),
             ],
             description="- `Template Adapter Entry Point`: Ideal for first-time users; it comes with a template adapter\n"
             "that collects several objects and metrics from the container the adapter is running. The template\n"
@@ -450,7 +460,7 @@ def build_project_structure(
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            if template_style != BLANK_ADAPTER_KEY:
+            if template_style != BOILERPLATE_ENTRYPOINT_OPTION_KEY:
                 requirements.write("psutil==5.9.4\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
@@ -486,7 +496,7 @@ def build_project_structure(
         # copy the template code into app/adapter.py file
         template = (
             "adapter.py"
-            if template_style == TEMPLATE_ADAPTER_KEY
+            if template_style == TEMPLATE_ADAPTER_ENTRYPOINT_OPTION_KEY
             else "blank_template_adapter"
         )
         with resources.as_file(
