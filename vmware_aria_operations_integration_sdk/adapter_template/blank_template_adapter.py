@@ -27,9 +27,11 @@ def get_adapter_definition() -> AdapterDefinition:
         definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
 
         # The key 'container_memory_limit' is a special key read by the VMware Aria Operations
-        # collector to determine how much memory to allocate to the docker container running this
-        # adapter. It does not need to be read inside the adapter code. If the adapter doesn't
-        # read the key, the container running this adapter will be given 1024 MB of memory.
+        # collector to determine how much memory to allocate to the docker container running
+        # this adapter. It does not need to be read inside the adapter code. However, removing
+        # the definition from the object model will remove the ability to change the container
+        # memory limit during the adapter's configuration, and the VMware Aria Operations collector
+        # will give 1024 MB of memory to the container running the adapter instance.
         definition.define_int_parameter(
             "container_memory_limit",
             label="Adapter Memory Limit (MB)",
