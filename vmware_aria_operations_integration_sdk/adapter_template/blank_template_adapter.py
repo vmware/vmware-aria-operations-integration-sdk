@@ -58,7 +58,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
             #    error occurs)
             # 4. If any of the above failed, return an error, otherwise pass.
 
-            # TODO: Add collection testing logic
+            # TODO: Add connection testing logic
             pass  # TODO: remove pass statement
 
         except Exception as e:
