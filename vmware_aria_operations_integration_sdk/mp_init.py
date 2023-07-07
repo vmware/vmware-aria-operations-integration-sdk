@@ -498,7 +498,7 @@ def build_project_structure(
         template = (
             "adapter.py"
             if template_style == TEMPLATE_ADAPTER_ENTRYPOINT_OPTION_KEY
-            else "blank_template_adapter"
+            else "blank_template_adapter.py"
         )
         with resources.as_file(
             resources.files(adapter_template).joinpath(template)
