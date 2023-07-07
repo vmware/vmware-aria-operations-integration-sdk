@@ -63,7 +63,7 @@ If you wish to contribute code, and you have not signed our Contributor Licence 
 to do so when you open a Pull Request. For any questions about the CLA process, please refer to our
 [FAQ](https://cla.vmware.com/faq).
 
-For additional information about contributing, go to the [contribution documentation](contributrion/README.md)
+For additional information about contributing, go to the [contribution section](contribution/README.md)
 
 ## License
 
