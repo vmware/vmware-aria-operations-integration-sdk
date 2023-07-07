@@ -26,9 +26,10 @@ def get_adapter_definition() -> AdapterDefinition:
     with Timer(logger, "Get Adapter Definition"):
         definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
 
-        # The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
-        # determine how much memory to allocate to the docker container running this adapter. It does not
-        # need to be read inside the adapter code.
+        # The key 'container_memory_limit' is a special key read by the VMware Aria Operations
+        # collector to determine how much memory to allocate to the docker container running this
+        # adapter. It does not need to be read inside the adapter code. If the adapter doesn't
+        # read the key, the container running this adapter will be given 1024 MB of memory.
         definition.define_int_parameter(
             "container_memory_limit",
             label="Adapter Memory Limit (MB)",
@@ -49,8 +50,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
     with Timer(logger, "Test"):
         result = TestResult()
         try:
-            # Sample test connection code follows. Replace with your own test connection
-            # code. A typical test connection will generally consist of:
+            # A typical test connection will generally consist of:
             # 1. Read identifier values from adapter_instance that are required to
             #    connect to the target(s)
             # 2. Connect to the target(s), and retrieve some sample data
@@ -75,8 +75,7 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
     with Timer(logger, "Collection"):
         result = CollectResult()
         try:
-            # Sample collection code follows. Replace this with your own collection
-            # code. A typical collection will generally consist of:
+            # A typical collection will generally consist of:
             # 1. Read identifier values from adapter_instance that are required to
             #    connect to the target(s)
             # 2. Connect to the target(s), and retrieve data
