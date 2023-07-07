@@ -323,17 +323,17 @@ def main() -> None:
         #     "source and build files.",
         # )
         template_style = selection_prompt(
-            "Select a language for the adapter.",
+            "Select an entry point template for your project",
             items=[
-                (TEMPLATE_ADAPTER_KEY, "Template Adapter Project"),
-                (BLANK_ADAPTER_KEY, "Blank Template Adapter Project (Advanced users)"),
+                (TEMPLATE_ADAPTER_KEY, "Template Adapter Entry Point"),
+                (BLANK_ADAPTER_KEY, "Boilerplate Entrypoint (Advanced users)"),
             ],
-            description="- Template Adapter Project: Provides a template adapter that collects several objects and metrics from the container in which the\n"
-            "adapter is running. The template adapter has comments throughout its code that explain what the code does and how to customize\n"
-            "it for your adapter.\n"
-            "- Blank Template: Provides 'try', 'except', and  Timer blocks for each of the required methods.\n"
-            "Both templates contain a file system that has the basic project structure required to develop and build a Management Pack.\n"
-            "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project",
+            description="- `Template Adapter Entry Point`: Ideal for first-time users; it comes with a template adapter\n"
+            "that collects several objects and metrics from the container the adapter is running. The template\n"
+            "adapter has comments throughout its code that explain what the code does and how to customize\n"
+            "it for your adapter.\n "
+            "- `Boilerplate Entrypoint`: Ideal for experienced users; it comes with the necessary code\n"
+            "and comments to implement test connection, collection, adapter definition, and endpoints logic.",
         )
 
         # create project_directory
@@ -483,7 +483,7 @@ def build_project_structure(
                 "Could not install sdk tools into the development virtual environment."
             )
 
-        # copy the teamplate code into app/adapter.py file
+        # copy the template code into app/adapter.py file
         template = (
             "adapter.py"
             if template_style == TEMPLATE_ADAPTER_KEY
