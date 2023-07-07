@@ -96,7 +96,7 @@ the creation of a new management pack project.
 
 For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
 
-### Template Project and Entry Point
+### Template Projects
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. Users can pick between two entry points when creating their project:
