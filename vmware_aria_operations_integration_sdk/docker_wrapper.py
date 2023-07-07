@@ -88,7 +88,14 @@ def init() -> DockerClient:
 
         return client
     except docker.errors.DockerException as e:
-        if "ConnectionRefusedError" or "FileNotFoundError" or "CreateFile" in e.args[0]:
+
+        # FileNotFoundError(Mac OS and Linux): When the port is not accessible because the advanced setting ins't ennabled or the service is not running.
+        # ConnectionRefusedError (Linux): When docker service isn't running on machine
+        # CreateFile (Windows): Happens when docker ins't running in machine
+        if any(
+            m in e.args[0]
+            for m in ("FileNotFoundError", "ConnectionRefusedError", "CreateFile")
+        ):
             logger.debug(e, exc_info=True)
 
             if platform.system() == "Windows":
