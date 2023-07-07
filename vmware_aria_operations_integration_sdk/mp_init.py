@@ -343,7 +343,8 @@ def main() -> None:
             "adapter has comments throughout its code that explain what the code does and how to customize\n"
             "it for your adapter.\n "
             "- `Boilerplate Entrypoint`: Ideal for experienced users; it comes with the necessary code\n"
-            "and comments to implement test connection, collection, adapter definition, and endpoints logic.",
+            "and comments to implement test connection, collection, adapter definition, and endpoints logic.\n\n"
+            "For additional information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project-and-entry-point",
         )
 
         # create project_directory
