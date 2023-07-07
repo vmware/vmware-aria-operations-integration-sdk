@@ -88,7 +88,6 @@ def init() -> DockerClient:
 
         return client
     except docker.errors.DockerException as e:
-
         # FileNotFoundError(Mac OS and Linux): When the port is not accessible because the advanced setting ins't ennabled or the service is not running.
         # ConnectionRefusedError (Linux): When docker service isn't running on machine
         # CreateFile (Windows): Happens when docker ins't running in machine
