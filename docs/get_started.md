@@ -101,12 +101,12 @@ For complete documentation of the `mp-init` tool including an overview of its ou
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. Users can pick between two entry points when creating their project:
-- `Template Adapter Entry Point`:  Ideal for first-time users;
+- `Sample Adapter`: Ideal for first-time users;
   it comes with a template adapter that collects several objects and metrics from the container the adapter is running.
   The template adapter has comments throughout its code
   that explain what the code does and how to customize it for your adapter.
 
-- `Boilerplate Entrypoint`: Ideal for experienced users;
+- `New Adapter`: Ideal for experienced users;
   it comes without any examples, just the necessary code and comments to implement test connection,
   collection, adapter definition, and endpoints logic.
 

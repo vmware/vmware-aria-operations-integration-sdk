@@ -340,7 +340,7 @@ def main() -> None:
             ],
             description="- Sample Adapter: Generates a working adapter with comments throughout its code (Ideal for first time users)\n"
             "- New Adapter: Generates all the necessary code to start developing an adapter\n\n"
-            "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-project",
+            "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-projects",
         )
 
         # create project_directory
