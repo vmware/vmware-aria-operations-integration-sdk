@@ -327,7 +327,7 @@ def main() -> None:
         #     "source and build files.",
         # )
         template_style = selection_prompt(
-            "Select an entry point template for your project",
+            "Select a template for your project",
             items=[
                 (
                     SAMPLE_ADAPTER_OPTION_KEY,
@@ -335,11 +335,11 @@ def main() -> None:
                 ),
                 (
                     NEW_ADAPTER_OPTION_KEY,
-                    "New Adapter (Advanced users)",
+                    "New Adapter",
                 ),
             ],
-            description="- Sample Adapter: Generates a working adapter with comments throughout its code (Ideal for first time users)\n"
-            "- New Adapter: Generates all the necessary code to start developing an adapter\n\n"
+            description="- Sample Adapter: Generates a working adapter with comments throughout its code\n"
+            "- New Adapter: The minimum necessary code to start developing an adapter\n\n"
             "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-projects",
         )
 

@@ -95,20 +95,23 @@ the creation of a new management pack project.
      PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
      setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
+8. `Select a template for your project`
+
+    `Sample Adapter`: Ideal for first-time users;
+    it comes with a template adapter that collects several objects and metrics from the container the adapter is running.
+    The template adapter has comments throughout its code
+    that explain what the code does and how to customize it for your adapter.
+
+    `New Adapter`: Ideal for experienced users;
+    it comes without any examples, just the necessary code and comments to implement test connection,
+    collection, adapter definition, and endpoints logic.
+
+    For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
 
 ### Template Projects
 Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. Users can pick between two entry points when creating their project:
-- `Sample Adapter`: Ideal for first-time users;
-  it comes with a template adapter that collects several objects and metrics from the container the adapter is running.
-  The template adapter has comments throughout its code
-  that explain what the code does and how to customize it for your adapter.
-
-- `New Adapter`: Ideal for experienced users;
-  it comes without any examples, just the necessary code and comments to implement test connection,
-  collection, adapter definition, and endpoints logic.
 
 The methods inside the `adapter.py` are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
