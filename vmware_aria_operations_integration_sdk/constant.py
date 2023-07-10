@@ -49,5 +49,5 @@ ADAPTER_DEFINITION_ENDPOINT = "adapterDefinition"
 API_VERSION_ENDPOINT = "apiVersion"
 
 # CLI options keys
-TEMPLATE_ADAPTER_ENTRYPOINT_OPTION_KEY = "template_adapter"
-BOILERPLATE_ENTRYPOINT_OPTION_KEY = "boilerplate"
+SAMPLE_ADAPTER_OPTION_KEY = "sample_adapter"
+NEW_ADAPTER_OPTION_KEY = "new_adapter"
