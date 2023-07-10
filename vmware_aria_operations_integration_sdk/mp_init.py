@@ -500,7 +500,7 @@ def build_project_structure(
         template = (
             "adapter.py"
             if template_style == SAMPLE_ADAPTER_OPTION_KEY
-            else "blank_template_adapter.py"
+            else "new_adapter_template.py"
         )
         with resources.as_file(
             resources.files(adapter_template).joinpath(template)
