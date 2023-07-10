@@ -490,8 +490,10 @@ def build_project_structure(
                 "Could not install sdk tools into the development virtual environment."
             )
 
-        namespace_package_indicator_file = os.path.join(path, "__init__.py")
-        with open(namespace_package_indicator_file):
+        namespace_package_indicator_file = os.path.join(
+            path, project_directory, "__init__.py"
+        )
+        with open(namespace_package_indicator_file, "w"):
             os.utime(namespace_package_indicator_file)
 
         # copy the template code into app/adapter.py file
