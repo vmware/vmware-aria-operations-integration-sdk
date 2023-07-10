@@ -63,6 +63,8 @@ If you wish to contribute code, and you have not signed our Contributor Licence 
 to do so when you open a Pull Request. For any questions about the CLA process, please refer to our
 [FAQ](https://cla.vmware.com/faq).
 
+For additional information about contributing, go to the [contributing section](contributing/README.md)
+
 ## License
 
 This project is licensed under the APACHE-2 License.
