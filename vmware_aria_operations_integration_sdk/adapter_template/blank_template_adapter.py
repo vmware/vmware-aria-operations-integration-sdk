@@ -42,7 +42,7 @@ def get_adapter_definition() -> AdapterDefinition:
             default=1024,
         )
 
-        # TODO: Add definitions
+        # TODO: Define Object Model
 
         logger.debug(f"Returning adapter definition: {definition.to_json()}")
         return definition
@@ -61,7 +61,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
             # 4. If any of the above failed, return an error, otherwise pass.
 
             # TODO: Add connection testing logic
-            pass  # TODO: remove pass statement
+            pass  # TODO: Remove pass statement
 
         except Exception as e:
             logger.error("Unexpected connection test error")
@@ -87,7 +87,7 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
             # 5. Return the CollectResult.
 
             # TODO: Add collection logic
-            pass  # TODO: remove pass statement
+            pass  # TODO: Remove pass statement
 
         except Exception as e:
             logger.error("Unexpected collection error")
