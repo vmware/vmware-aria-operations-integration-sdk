@@ -457,7 +457,7 @@ def build_project_structure(
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            if template_style != NEW_ADAPTER_OPTION_KEY:
+            if template_style == SAMPLE_ADAPTER_OPTION_KEY:
                 requirements.write("psutil==5.9.4\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
