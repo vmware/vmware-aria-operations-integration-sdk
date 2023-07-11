@@ -27,7 +27,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
   go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   follow the instructions provided for your operating system. Finally, make sure the Docker default socket is enabled in the
   **Advanced** tab in **Settings** (version 4.18.0 and above).
-* Container registry with read and write access (see [FAQ and Troubleshooting](troubleshooting_and_faq.md#why-do-i-need-a-container-registry?) for additional information).
+* Container registry with read and write access (see [FAQ and Troubleshooting](troubleshooting_and_faq.md#why-do-i-need-a-container-registry) for additional information).
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   and follow the instructions provided for your operating system.
@@ -97,14 +97,11 @@ the creation of a new management pack project.
 
 8. `Select a template for your project`
 
-    `Sample Adapter`: Ideal for first-time users;
-    it comes with a template adapter that collects several objects and metrics from the container the adapter is running.
-    The template adapter has comments throughout its code
-    that explain what the code does and how to customize it for your adapter.
+    `Sample Adapter`: Comes with a template adapter that collects several objects and metrics from the container the adapter is running.
+     The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
 
-    `New Adapter`: Ideal for experienced users;
-    it comes without any examples, just the necessary code and comments to implement test connection,
-    collection, adapter definition, and endpoints logic.
+    `New Adapter`: Comes without any examples, just the necessary methods and minimal comments and code to implement test
+     connection, collection, adapter definition, and endpoints logic.
 
     For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
 
@@ -178,7 +175,7 @@ For Windows:
 ```cmd
 venv\Scripts\activate.bat
 ```
-???+ note 
+???+ note
 
     To exit the virtual environment, run `deactivate` in the virtual environment.
 
@@ -192,7 +189,7 @@ reads the `conf/describe.xml` file to find the connection parameters and credent
 prompts for each. This is similar to creating a new _Adapter Instance_ in the VMware Aria Operations UI. Connections are automatically
 saved per project, and can be reused when re-running the `mp-test` tool.
 
-???+ note 
+???+ note
 
     In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
     this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an
@@ -236,7 +233,7 @@ It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
-minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to 
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to
 **Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](images/test-adapter-cpu-idle-time.png)
