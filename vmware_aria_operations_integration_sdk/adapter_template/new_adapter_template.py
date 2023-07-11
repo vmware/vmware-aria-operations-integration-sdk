@@ -26,6 +26,8 @@ def get_adapter_definition() -> AdapterDefinition:
     with Timer(logger, "Get Adapter Definition"):
         definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
 
+        # TODO: Add parameters and credentials
+
         # The key 'container_memory_limit' is a special key read by the VMware Aria Operations
         # collector to determine how much memory to allocate to the docker container running
         # this adapter. It does not need to be read inside the adapter code. However, removing
@@ -42,7 +44,7 @@ def get_adapter_definition() -> AdapterDefinition:
             default=1024,
         )
 
-        # TODO: Define Object Model
+        # TODO: Add object types, including identifiers, metrics, and properties
 
         logger.debug(f"Returning adapter definition: {definition.to_json()}")
         return definition
