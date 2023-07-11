@@ -8,8 +8,8 @@ from pysnmp.hlapi import usmDESPrivProtocol
 from pysnmp.hlapi import usmHMACMD5AuthProtocol
 from pysnmp.hlapi import usmHMACSHAAuthProtocol
 
-ADAPTER_KIND = "SNMP_Sample"
-ADAPTER_NAME = "SNMP Sample Adapter"
+ADAPTER_KIND = "SNMP_Template"
+ADAPTER_NAME = "SNMP Template Adapter"
 
 SNMP_V2 = "snmp_v2"
 SNMP_V3 = "snmp_v3"
