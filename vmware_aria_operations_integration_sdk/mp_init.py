@@ -103,7 +103,7 @@ def create_manifest_file(
     manifest_file = os.path.join(path, "manifest.txt")
     manifest = {
         "display_name": "DISPLAY_NAME",
-        "name": adapter_key,
+        "name": f"iSDK_{adapter_key}",
         "description": "DESCRIPTION",
         "version": "1.0.0",
         "vcops_minimum_version": "8.10.0",
