@@ -27,7 +27,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
   go to [Docker's installation documentation](https://docs.docker.com/engine/install/),
   follow the instructions provided for your operating system. Finally, make sure the Docker default socket is enabled in the
   **Advanced** tab in **Settings** (version 4.18.0 and above).
-* Container registry with read and write access (see [FAQ and Troubleshooting](troubleshooting_and_faq.md#why-do-i-need-a-container-registry?) for additional information).
+* Container registry with read and write access (see [FAQ and Troubleshooting](troubleshooting_and_faq.md#why-do-i-need-a-container-registry) for additional information).
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   and follow the instructions provided for your operating system.
