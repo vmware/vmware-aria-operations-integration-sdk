@@ -1,4 +1,4 @@
-# Troubleshooting & FAQ 
+# Troubleshooting & FAQ
 
 ### When starting Docker, I get 'Permission denied while trying to connect to the Docker daemon'
 
@@ -12,18 +12,29 @@ on how to [Understand permission requirements for Windows](https://docs.docker.c
 
 ### Why do I need a container registry?
 
-Containerized adapters use container registries to store, distribute, and install adapters. During the development of an adapter, mp-build
-requires a container registry to upload the resulting container. After uploading the container to the given registry,
-mp-build saves the host, and the container digest in the manifest.txt file bundled inside the pak file. During
-installation, VMware Aria Operations uses the information inside the manifest.txt file to pull the container from the registry and
-run the container.
+Containerized adapters use container registries to store, distribute, and install adapters. During the development of an
+adapter, mp-build requires a container registry to upload the resulting container. After uploading the container to the
+given registry, `mp-build` saves the host, and the container digest in the `manifest.txt` file bundled inside the pak
+file. During installation, VMware Aria Operations uses the information inside the `manifest.txt` file to pull the
+container from the registry and run the container.
 
-### How are docker credential managed?
+!!! info
 
-Docker credential are managed by the Docker daemon. To learn more about how the docker daemon manages credentials
+    For help setting up a container registry see:
+
+    - [How can I set up a private container registry for my project](#how-can-i-set-up-a-private-container-registry-for-my-project)
+    - [How can I set up an AWS container registry for my project](#how-can-i-set-up-an-aws-container-registry-for-my-project)
+    - [How can I set up a Docker Hub container registry for my project](#how-can-i-set-up-a-docker-hub-container-registry-for-my-project)
+
+### How are docker credentials managed?
+
+The Docker daemon manages docker credentials. To learn more about how the docker daemon manages credentials,
 visit the docker [credential store page](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
 
 ### How can I set up an AWS container registry for my project?
+
+!!! todo
+    Add a note about registries being public
 
 AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before
 running `mp-build`.
@@ -36,11 +47,11 @@ running `mp-build`.
 
 !!! warning
 
-    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Donwload rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). To use a private registry see [How can I set up a Management Pack that uses a private container registry?](#how-can-i-set-up-a-management-pack-that-uses-a-private-container-registry)
+    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Download rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). To use a private registry see [How can I set up a private container registry for my project?](#how-can-i-set-up-a-private-container-registry-for-my-project)
 
 Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
 
-1. Go to [Docker Hub](https://hub.docker.com/repository/create?) and create a new repository 
+1. Go to [Docker Hub](https://hub.docker.com/repository/create?) and create a new repository
 2. Login to docker hub using the CLI docker login
 
     ```{ .shell .copy}
@@ -60,7 +71,7 @@ After entering the tag, you will be prompted to enter your credentials to log in
     If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
 
 
-### How can I set up a Management Pack that uses a private container registry?
+### How can I set up a private container registry for my project?
 
 VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
 
@@ -247,13 +258,13 @@ If the pak file installs successfully but errors when creating an account (adapt
 - Check that the Cloud Proxy supports containerized adapters. Containerized adapter
   support is supported in VMware Aria Operations version 8.10.0 and later.
 
-### How can I implement Policy and Capacity models? 
+### How can I implement Policy and Capacity models?
 
 Policy and capacity models can only be specified by writing a `describe.xml` file in the `conf` directory.
 
 ### Are there replacements for  `onConfigure`, `onStopCollection`, and `onDiscard` methods?
 
-The `onConfigure`, `onStopCollection`, and `onDiscard` methods have no replacement in the new integration SDK. 
+The `onConfigure`, `onStopCollection`, and `onDiscard` methods have no replacement in the new integration SDK.
 
 ### Is there a way to cache data for subsequent collections?
 
