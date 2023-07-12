@@ -97,16 +97,20 @@ the creation of a new management pack project.
 
 8. `Select a template for your project`
 
-    `Sample Adapter`: Comes with a template adapter that collects several objects and metrics from the container the adapter is running.
-     The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+     Both of the available options will generate a project structure that can be modified into an adapter:
 
-    `New Adapter`: Comes without any examples, just the necessary methods and minimal comments and code to implement test
-     connection, collection, adapter definition, and endpoints logic.
+     `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+      The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
 
-    For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
+     `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+      connection, collection, adapter definition, and endpoints logic.
 
-### Template Projects
-Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
+     Select **Sample Adapter** if you are following along the walkthrough.
+     For complete documentation of the `mp-init` tool including an overview of its output,
+     see the [MP Initialization Tool Documentation](references/mp-init.md).
+
+### Project Templates
+Both templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. Users can pick between two entry points when creating their project:
 
@@ -155,7 +159,7 @@ Each method is described below:
   when using advanced features of the `describe.xml` file that are not present in this method.
 
 
-For further guidance on using the template project, consult the `Guides` section.
+For further guidance on using the sample adapter, consult the `Guides` section.
 
 ### Testing a Management Pack
 
@@ -191,7 +195,7 @@ saved per project, and can be reused when re-running the `mp-test` tool.
 
 ???+ note
 
-    In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
+    In the sample adapter, the only connection parameter is `ID`, and because it connects to the container it is running on,
     this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an
     example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection
     will fail.
