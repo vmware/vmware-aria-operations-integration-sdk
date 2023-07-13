@@ -105,8 +105,10 @@ the creation of a new management pack project.
      `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
       connection, collection, adapter definition, and endpoints logic.
 
-     Select **Sample Adapter** if you are following along the walkthrough.
-     For complete documentation of the `mp-init` tool including an overview of its output,
+???+ note
+
+     If you are following along the *Get Started*, select **Sample Adapter**.
+     For complete documentation of the `mp-init` tool, including an overview of its output,
      see the [MP Initialization Tool Documentation](references/mp-init.md).
 
 ### Project Templates
