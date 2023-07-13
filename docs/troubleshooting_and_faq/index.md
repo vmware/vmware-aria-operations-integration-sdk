@@ -6,10 +6,10 @@ If none of the sections resolve your issue, please open a `Q & A` discussion on 
 
 ---
 
-- [Build](build.md)
-- [Collections](collections.md)
-- [Container Registries](container_registries.md)
-- [Docker](docker.md)
-- [Logs](logs.md)
-- [VMware Aria Operations Platform](vmware_aria_operations_platform.md)
-- [Other](other.md)
+- [Build](build.md): Pack file building errors relating the `Unable to build pak file` error from mp-build.
+- [Collections](collections.md): Common collection errors, and other collection related questions.
+- [Container Registries](container_registries.md): Clarification for the role of container registries, and guides for setting different container registries.
+- [Docker](docker.md): Troubleshooting common Docker related issues.
+- [Logs](logs.md): Logs in relation to adapters, focusing on storage, types, usage, and configuration.
+- [VMware Aria Operations Platform](vmware_aria_operations_platform.md): Common errors during installation en the platform.
+- [Other](other.md): Capacity models, and Java SDK migration

@@ -48,3 +48,10 @@ This code will output
 As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
 Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
 
+### Is there a way to cache data for subsequent collections?
+
+The containerized adapter does not support caching data between collections.
+
+### Can I implement on-demand collections?
+
+The containerized adapter does not support on-demand collections.
