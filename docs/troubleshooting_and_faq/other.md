@@ -1,3 +1,5 @@
+# Other
+
 ### How can I implement Policy and Capacity models?
 
 Policy and capacity models can only be specified by writing a `describe.xml` file in the `conf` directory.

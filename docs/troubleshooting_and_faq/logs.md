@@ -14,9 +14,9 @@ Logs are generated and stored on the cloud proxy where the adapter is running at
 found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
 The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
-![highlight of the checkbox where internal id can be enabled](images/enable_internal_id_column.png)
+![highlight of the checkbox where internal id can be enabled](../images/enable_internal_id_column.png)
 
-![highlight of the internal id](images/highlight_internal_id_column.png)
+![highlight of the internal id](../images/highlight_internal_id_column.png)
 
 ### What are the different log files used for?
 
@@ -69,9 +69,9 @@ If the file does not exist, the system generates it after a collection/test.
 found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
 The `Internal ID` column is not displayed by default. To display the Internal ID, enable the `Internal ID` column by clicking the lower left 'column' icon and then checking the `Internal ID` box.
 
-![highlight of the checkbox where internal id can be enabled](images/enable_internal_id_column.png)
+![highlight of the checkbox where internal id can be enabled](../images/enable_internal_id_column.png)
 
-![highlight of the internal id](images/highlight_internal_id_column.png)
+![highlight of the internal id](../images/highlight_internal_id_column.png)
 
 
 ###  How do I change the log level of mp-init, mp-test, or mp-build?
