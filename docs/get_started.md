@@ -112,7 +112,7 @@ the creation of a new management pack project.
 ### Project Templates
 Both templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
-entry point and the best starting point. Users can pick between two entry points when creating their project:
+entry point and the best starting point. 
 
 The methods inside the `adapter.py` are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
