@@ -114,7 +114,7 @@ Both templates create a file system that has the basic project structure require
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point. 
 
-The methods inside the `adapter.py` are required, and should be modified to generate a custom
+The methods inside `adapter.py` are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
 `mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
 
