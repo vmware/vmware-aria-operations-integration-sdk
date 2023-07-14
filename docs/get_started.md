@@ -105,16 +105,17 @@ the creation of a new management pack project.
      `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
       connection, collection, adapter definition, and endpoints logic.
 
-???+ note
-
      If you are following along the *Get Started*, select **Sample Adapter**.
+
+???+ info
+
      For complete documentation of the `mp-init` tool, including an overview of its output,
      see the [MP Initialization Tool Documentation](references/mp-init.md).
 
 ### Project Templates
 Both templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
-entry point and the best starting point. 
+entry point and the best starting point.
 
 The methods inside `adapter.py` are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
