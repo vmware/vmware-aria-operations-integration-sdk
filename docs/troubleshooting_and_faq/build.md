@@ -1,4 +1,4 @@
-# Build
+# mp-build
 
 
 ### mp-build returns 'Unable to build pak file'
@@ -27,10 +27,3 @@ In most cases, this error indicates issues with building the container image. Th
 The solution for case 1 to fix the typo/command by editing the Dockerfile. For case 2, however, the solution might not be evident at first sight. Since the error
 comes from building the image itself, we can run `docker build .` in the project's root directory and look at the stack trace for clues.
 
-### Is there a way to cache data for subsequent collections?
-
-The containerized adapter does not support caching data between collections.
-
-### Can I implement on-demand collections?
-
-The containerized adapter does not support on-demand collections.

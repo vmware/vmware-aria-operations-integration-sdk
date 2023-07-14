@@ -55,3 +55,11 @@ The containerized adapter does not support caching data between collections.
 ### Can I implement on-demand collections?
 
 The containerized adapter does not support on-demand collections.
+
+### Is there a way to cache data for subsequent collections?
+
+The containerized adapter does not support caching data between collections.
+
+### Can I implement on-demand collections?
+
+The containerized adapter does not support on-demand collections.
