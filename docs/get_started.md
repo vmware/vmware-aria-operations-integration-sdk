@@ -105,7 +105,7 @@ the creation of a new management pack project.
      `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
       connection, collection, adapter definition, and endpoints logic.
 
-     If you are following along the *Get Started*, select **Sample Adapter**.
+     For the purposes of this *Get Started* guide, select **Sample Adapter**.
 
 ???+ info
 
