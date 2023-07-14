@@ -3,13 +3,13 @@
 
 ## Purpose
 
-The mp-init tool generates a template project that contains all the requirements to develop a Management Pack with a
+The `mp-init` tool generates project templates that contain all the requirements to develop a Management Pack with a
 containerized adapter for VMware Aria Operations. To build a Management Pack, use the [build tool](mp-build.md). When
 calling `mp-init`, the user will be prompted with a series of questions. The script will use these questions to generate
 an initial project structure and create classifiers that other tools and VMware Aria Operations will use.
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with the virtual environment active.
 
 ## Input
 

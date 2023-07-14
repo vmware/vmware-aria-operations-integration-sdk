@@ -1,4 +1,4 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import argparse
 import json
@@ -20,7 +20,13 @@ from vmware_aria_operations_integration_sdk.adapter_template import powershell
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
+from vmware_aria_operations_integration_sdk.constant import (
+    NEW_ADAPTER_OPTION_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import REPO_NAME
+from vmware_aria_operations_integration_sdk.constant import (
+    SAMPLE_ADAPTER_OPTION_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
@@ -164,6 +170,7 @@ def create_project(
     eula_file: str,
     icon_file: str,
     language: str,
+    template_style: str,
 ) -> None:
     mkdir(path)
 
@@ -204,7 +211,7 @@ def create_project(
 
     # create project structure
     executable_directory_path = build_project_structure(
-        path, adapter_key, name, language
+        path, adapter_key, name, language, template_style
     )
 
     # create Dockerfile
@@ -319,8 +326,24 @@ def main() -> None:
         #     description="The language for the Management Pack determines the language for the template\n"
         #     "source and build files.",
         # )
-        # create project_directory
+        template_style = selection_prompt(
+            "Select a template for your project",
+            items=[
+                (
+                    SAMPLE_ADAPTER_OPTION_KEY,
+                    "Sample Adapter",
+                ),
+                (
+                    NEW_ADAPTER_OPTION_KEY,
+                    "New Adapter",
+                ),
+            ],
+            description="- Sample Adapter: Generates a working adapter with comments throughout its code\n"
+            "- New Adapter: The minimum necessary code to start developing an adapter\n\n"
+            "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-projects",
+        )
 
+        # create project_directory
         with Spinner("Creating Project"):
             create_project(
                 path,
@@ -331,6 +354,7 @@ def main() -> None:
                 eula_file,
                 icon_file,
                 language,
+                template_style,
             )
         print("")
         print("")
@@ -421,7 +445,7 @@ def create_commands_file(
 
 
 def build_project_structure(
-    path: str, adapter_kind: str, name: str, language: str
+    path: str, adapter_kind: str, name: str, language: str, template_style: str
 ) -> str:
     logger.debug("generating project structure")
     project_directory = ""  # this is where all the source code will reside
@@ -433,7 +457,8 @@ def build_project_structure(
         # create template requirements.txt
         requirements_file = os.path.join(path, "adapter_requirements.txt")
         with open(requirements_file, "w") as requirements:
-            requirements.write("psutil==5.9.4\n")
+            if template_style == SAMPLE_ADAPTER_OPTION_KEY:
+                requirements.write("psutil==5.9.4\n")
             requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
 
         # create development requirements file
@@ -465,9 +490,22 @@ def build_project_structure(
                 "Could not install sdk tools into the development virtual environment."
             )
 
-        # copy adapter.py into app directory
-        with resources.path(adapter_template, "adapter.py") as src:
-            dest = os.path.join(path, project_directory)
+        namespace_package_indicator_file = os.path.join(
+            path, project_directory, "__init__.py"
+        )
+        with open(namespace_package_indicator_file, "w"):
+            os.utime(namespace_package_indicator_file)
+
+        # copy the template code into app/adapter.py file
+        template = (
+            "adapter.py"
+            if template_style == SAMPLE_ADAPTER_OPTION_KEY
+            else "new_adapter_template.py"
+        )
+        with resources.as_file(
+            resources.files(adapter_template).joinpath(template)
+        ) as src:
+            dest = os.path.join(path, project_directory, "adapter.py")
             copy(src, dest)
 
         with open(

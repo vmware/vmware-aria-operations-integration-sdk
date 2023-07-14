@@ -95,18 +95,29 @@ the creation of a new management pack project.
      PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
      setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-For complete documentation of the `mp-init` tool including an overview of its output, see the [MP Initialization Tool Documentation](references/mp-init.md).
+8. `Select a template for your project`
 
-### Template Project
-Every new project creates a file system that has the basic project structure required to develop and build a Management Pack.
+     Both of the available options will generate a project structure that can be modified into an adapter:
+
+     `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+      The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+
+     `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+      connection, collection, adapter definition, and endpoints logic.
+
+     For the purposes of this *Get Started* guide, select **Sample Adapter**.
+
+???+ info
+
+     For complete documentation of the `mp-init` tool, including an overview of its output,
+     see the [MP Initialization Tool Documentation](references/mp-init.md).
+
+### Project Templates
+Both templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
 entry point and the best starting point.
 
-`adapter.py` is a template adapter that collects several objects and metrics from the
-container in which the adapter is running. The template adapter has comments throughout its code that explain what the code does
-and how to customize it for your adapter.
-
-The methods inside the adapter template are required, and should be modified to generate a custom
+The methods inside `adapter.py` are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
 `mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
 
@@ -151,7 +162,7 @@ Each method is described below:
   when using advanced features of the `describe.xml` file that are not present in this method.
 
 
-For further guidance on using the template project, consult the `Guides` section.
+For further guidance on using the sample adapter, consult the `Guides` section.
 
 ### Testing a Management Pack
 
@@ -171,7 +182,7 @@ For Windows:
 ```cmd
 venv\Scripts\activate.bat
 ```
-???+ note 
+???+ note
 
     To exit the virtual environment, run `deactivate` in the virtual environment.
 
@@ -185,9 +196,9 @@ reads the `conf/describe.xml` file to find the connection parameters and credent
 prompts for each. This is similar to creating a new _Adapter Instance_ in the VMware Aria Operations UI. Connections are automatically
 saved per project, and can be reused when re-running the `mp-test` tool.
 
-???+ note 
+???+ note
 
-    In the template project, the only connection parameter is `ID`, and because it connects to the container it is running on,
+    In the sample adapter, the only connection parameter is `ID`, and because it connects to the container it is running on,
     this parameter is not necessary; it is only there as an example, and can be set to any value. The template also implements an
     example Test Connection. If a Test Connection is run (see below), with the `ID` set to the text `bad`, then the Test Connection
     will fail.
@@ -229,7 +240,7 @@ It should return successfully, then click `ADD`.
 
 By default, a collection will run every 5 minutes. The first collection should happen immediately. However, newly-created
 objects cannot have metrics, properties, and events added to them. After the second collection, approximately five
-minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to 
+minutes later, the objects' metrics, properties, and events should appear. These can be checked by navigating to
 **Environment &rarr; Object Browser &rarr; All Objects** and expanding the Adapter and associated object types and object.
 
 ![CPU Idle Time](images/test-adapter-cpu-idle-time.png)

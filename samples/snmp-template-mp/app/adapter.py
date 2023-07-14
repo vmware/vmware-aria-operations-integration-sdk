@@ -13,31 +13,70 @@ from aria.ops.result import TestResult
 from aria.ops.timer import Timer
 from constants import ADAPTER_KIND
 from constants import ADAPTER_NAME
+from constants import ADDRESS_KEY
+from constants import ADMIN_STATUS_KEY
+from constants import ADMIN_STATUS_VALUES
 from constants import AUTH_PASS_PHRASE
 from constants import AUTH_PROTOCOL
 from constants import AUTH_PROTOCOLS
 from constants import COMMUNITY_STRING
 from constants import CONTACT_KEY
+from constants import DATA_GROUP
+from constants import DATA_KEY
 from constants import DESCRIPTION_KEY
-from constants import DEVICE
+from constants import DEVICE_OBJECT
+from constants import DISCARDS_KEY
+from constants import ERRORS_KEY
 from constants import HOSTNAME
+from constants import IN_DATA_KEY
+from constants import IN_DISCARDS_KEY
+from constants import IN_ERRORS_KEY
+from constants import IN_UNICAST_KEY
+from constants import INTERFACE_ADMIN_STATUS
+from constants import INTERFACE_DESCRIPTION
+from constants import INTERFACE_IN_DATA
+from constants import INTERFACE_IN_DISCARDS
+from constants import INTERFACE_IN_ERRORS
+from constants import INTERFACE_IN_UNICAST
+from constants import INTERFACE_MTU
+from constants import INTERFACE_OBJECT
+from constants import INTERFACE_OPERATIONAL_STATUS
+from constants import INTERFACE_OUT_DATA
+from constants import INTERFACE_OUT_DISCARDS
+from constants import INTERFACE_OUT_ERRORS
+from constants import INTERFACE_OUT_UNICAST
+from constants import INTERFACE_PHYSICAL_ADDRESS
+from constants import INTERFACE_SPEED
+from constants import INTERFACE_TYPE
 from constants import LOCATION_KEY
+from constants import MTU_KEY
 from constants import OID_KEY
+from constants import OPERATIONAL_STATUS_KEY
+from constants import OPERATIONAL_STATUS_VALUES
+from constants import OUT_DATA_KEY
+from constants import OUT_DISCARDS_KEY
+from constants import OUT_ERRORS_KEY
+from constants import OUT_UNICAST_KEY
 from constants import PORT
 from constants import PRIVACY_PASS_PHRASE
 from constants import PRIVACY_PROTOCOL
 from constants import PRIVACY_PROTOCOLS
 from constants import SNMP_V2
 from constants import SNMP_V3
+from constants import SPEED_KEY
 from constants import SYSTEM_CONTACT
 from constants import SYSTEM_DESC
 from constants import SYSTEM_LOCATION
 from constants import SYSTEM_NAME
 from constants import SYSTEM_OBJECT_ID
 from constants import SYSTEM_UPTIME
+from constants import TYPE_KEY
+from constants import TYPE_VALUES
+from constants import UNICAST_KEY
 from constants import UPTIME_KEY
 from constants import USER
-from pysnmp.hlapi import *
+from pysnmp.smi.rfc1902 import ObjectIdentity
+from pysnmp.smi.rfc1902 import ObjectType
 from pysnmp_util import handle_errors
 from pysnmp_util import SNMPClient
 
@@ -69,12 +108,28 @@ def get_adapter_definition() -> AdapterDefinition:
         )
         snmp_v3.define_password_parameter(PRIVACY_PASS_PHRASE, "Privacy Passphrase")
 
-        device = definition.define_object_type(DEVICE, "SNMP Device")
+        device = definition.define_object_type(DEVICE_OBJECT, "SNMP Device")
         device.define_string_property(DESCRIPTION_KEY, "Description")
         device.define_string_property(OID_KEY, "Object ID")
         device.define_numeric_property(UPTIME_KEY, "Uptime", unit=Units.TIME.DAYS)
         device.define_string_property(CONTACT_KEY, "Contact")
         device.define_string_property(LOCATION_KEY, "Location")
+
+        interface = definition.define_object_type(INTERFACE_OBJECT, "Interface")
+        interface.define_string_property(DESCRIPTION_KEY, "Description")
+        interface.define_string_property(TYPE_KEY, "Type")
+        interface.define_numeric_property(MTU_KEY, "MTU (octets)")
+        interface.define_string_property(ADDRESS_KEY, "MAC Address")
+        interface.define_string_property(ADMIN_STATUS_KEY, "Admin Status")
+        interface.define_string_property(OPERATIONAL_STATUS_KEY, "Operational Status")
+        interface.define_metric(
+            SPEED_KEY, "Current Bandwidth", unit=Units.DATA_RATE.BIT_PER_SECOND
+        )
+        data_group = interface.define_instanced_group(DATA_GROUP, "Data")
+        data_group.define_metric(DATA_KEY, "Total (octets)")
+        data_group.define_metric(UNICAST_KEY, "Unicast", unit=Units.MISC.PACKETS)
+        data_group.define_metric(DISCARDS_KEY, "Discards", unit=Units.MISC.PACKETS)
+        data_group.define_metric(ERRORS_KEY, "Errors", unit=Units.MISC.PACKETS)
 
         logger.debug(f"Returning adapter definition: {definition.to_json()}")
         return definition
@@ -151,7 +206,9 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
                 data = {str(key): value for (key, value) in var_binds}
 
                 if SYSTEM_NAME in data:
-                    device = result.object(ADAPTER_KIND, DEVICE, str(data[SYSTEM_NAME]))
+                    device = result.object(
+                        ADAPTER_KIND, DEVICE_OBJECT, str(data[SYSTEM_NAME])
+                    )
                     device.with_property(DESCRIPTION_KEY, str(data[SYSTEM_DESC]))
                     device.with_property(OID_KEY, str(data[SYSTEM_OBJECT_ID]))
                     device.with_property(
@@ -159,6 +216,88 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
                     )
                     device.with_property(CONTACT_KEY, str(data[SYSTEM_CONTACT]))
                     device.with_property(LOCATION_KEY, str(data[SYSTEM_LOCATION]))
+
+            # Get some sample data from the IF-MIB. Most SNMP devices implement
+            # this MIB. Use 'next_command' to get all interfaces for each OID
+            iterator = client.next_command(
+                ObjectType(ObjectIdentity(INTERFACE_DESCRIPTION)),
+                ObjectType(ObjectIdentity(INTERFACE_TYPE)),
+                ObjectType(ObjectIdentity(INTERFACE_MTU)),
+                ObjectType(ObjectIdentity(INTERFACE_SPEED)),
+                ObjectType(ObjectIdentity(INTERFACE_PHYSICAL_ADDRESS)),
+                ObjectType(ObjectIdentity(INTERFACE_ADMIN_STATUS)),
+                ObjectType(ObjectIdentity(INTERFACE_OPERATIONAL_STATUS)),
+                ObjectType(ObjectIdentity(INTERFACE_IN_DATA)),
+                ObjectType(ObjectIdentity(INTERFACE_IN_UNICAST)),
+                ObjectType(ObjectIdentity(INTERFACE_IN_DISCARDS)),
+                ObjectType(ObjectIdentity(INTERFACE_IN_ERRORS)),
+                ObjectType(ObjectIdentity(INTERFACE_OUT_DATA)),
+                ObjectType(ObjectIdentity(INTERFACE_OUT_UNICAST)),
+                ObjectType(ObjectIdentity(INTERFACE_OUT_DISCARDS)),
+                ObjectType(ObjectIdentity(INTERFACE_OUT_ERRORS)),
+                # Looking up the MIB gets more metadata about the OID we are passing in
+                # (and allows querying by name instead of OID), but the number of
+                # built-in MIBS in PySNMP is limited. Since we don't need them, we'll
+                # disable this feature.
+                lookupMib=False,
+                lexicographicMode=False,
+            )
+            for error_indication, error_status, error_index, var_binds in iterator:
+                if handle_errors(
+                    logger,
+                    result,
+                    error_indication,
+                    error_status,
+                    error_index,
+                    var_binds,
+                ):
+                    # If we got an error, log and continue
+                    continue
+
+                # Build a dictionary from the result for easier processing. The
+                # rsplit removes the table row identifier so that we can index into the
+                # data.
+                data = {str(key).rsplit(".", 1)[0]: value for (key, value) in var_binds}
+
+                if_id = f"IF-{str(var_binds[0][0]).rsplit('.', 1)[1]}"
+
+                interface = result.object(ADAPTER_KIND, INTERFACE_OBJECT, if_id)
+                device.add_child(interface)
+
+                interface.with_property(
+                    DESCRIPTION_KEY, str(data[INTERFACE_DESCRIPTION])
+                )
+
+                if_type = TYPE_VALUES.get(int(data[INTERFACE_TYPE]), "Unknown")
+                interface.with_property(TYPE_KEY, if_type)
+                interface.with_property(MTU_KEY, int(data[INTERFACE_MTU]))
+
+                address = ":".join(
+                    [f"{s:0x}" for s in data[INTERFACE_PHYSICAL_ADDRESS]]
+                )
+                interface.with_property(ADDRESS_KEY, address)
+
+                admin_status = ADMIN_STATUS_VALUES.get(
+                    int(data[INTERFACE_ADMIN_STATUS]), "Unknown"
+                )
+                interface.with_property(ADMIN_STATUS_KEY, admin_status)
+
+                operational_status = OPERATIONAL_STATUS_VALUES.get(
+                    int(data[INTERFACE_OPERATIONAL_STATUS]), "Unknown"
+                )
+                interface.with_property(OPERATIONAL_STATUS_KEY, operational_status)
+
+                interface.with_metric(SPEED_KEY, int(data[INTERFACE_SPEED]))
+                interface.with_metric(IN_DATA_KEY, int(data[INTERFACE_IN_DATA]))
+                interface.with_metric(OUT_DATA_KEY, int(data[INTERFACE_OUT_DATA]))
+                interface.with_metric(IN_UNICAST_KEY, int(data[INTERFACE_IN_UNICAST]))
+                interface.with_metric(OUT_UNICAST_KEY, int(data[INTERFACE_OUT_UNICAST]))
+                interface.with_metric(IN_DISCARDS_KEY, int(data[INTERFACE_IN_DISCARDS]))
+                interface.with_metric(
+                    OUT_DISCARDS_KEY, int(data[INTERFACE_OUT_DISCARDS])
+                )
+                interface.with_metric(IN_ERRORS_KEY, int(data[INTERFACE_IN_ERRORS]))
+                interface.with_metric(OUT_ERRORS_KEY, int(data[INTERFACE_OUT_ERRORS]))
 
         except Exception as e:
             logger.error("Unexpected collection error")
