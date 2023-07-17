@@ -21,7 +21,7 @@ There are multiple causes for this error; the most common causes and solutions a
     - See Docker's documentation for [troubleshooting the Docker daemon](https://docs.docker.com/config/daemon/troubleshoot/)
 
 2. The Docker daemon is running, but the socket is not open or accessible. Possible solutions are:
-    - Open Docker Desktop application :fontawesome-solid-arrow-right: navigate to :material-cog: (Settings) on the top right corner :fontawesome-solid-arrow-right: :material-cogs: Advanced :fontawesome-solid-arrow-right: make sure "Allow the default Docker socket to be used" is enabled.
+    - Open Docker Desktop application &rarr; navigate to Settings on the top right corner (Cog icon) &rarr; Advanced (Cogs icon) &rarr; make sure "Allow the default Docker socket to be used" is enabled.
     - Ensure permissions to access the Docker daemon socket are enabled:
         - For [MacOs](https://docs.docker.com/desktop/mac/permission-requirements/)
         - For [Windows](https://docs.docker.com/desktop/windows/permission-requirements/)
