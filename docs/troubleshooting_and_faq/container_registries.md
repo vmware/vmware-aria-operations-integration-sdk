@@ -17,7 +17,7 @@ container from the registry and run the container.
     - [How can I set up an AWS container registry for my project](#how-can-i-set-up-an-aws-container-registry-for-my-project)
     - [How can I set up a Docker Hub container registry for my project](#how-can-i-set-up-a-docker-hub-container-registry-for-my-project)
 
-### How are docker credentials managed?
+### How are registry credentials managed?
 
 The Docker daemon manages docker credentials. To learn more about how the docker daemon manages credentials,
 visit the docker [credential store page](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
