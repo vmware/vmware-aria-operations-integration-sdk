@@ -6,7 +6,7 @@
 
 
 - [mp-build](build.md): Pack file building errors relating to the "`Unable to build pak file`" error from `mp-build`.
-- [Collections](collections.md): Common collection errors troubleshooting steps, and other collection-related questions.
+- [mp-test](collections.md): Common collection errors troubleshooting steps, and other collection-related questions.
 - [Container Registries](container_registries.md): Container registry-related questions, such as credentials and setting up registries.
 - [Docker](docker.md): Common Docker related troubleshooting steps.
 - [Logs](logs.md): Adapter and Server logs, logs storage, log levels, and more logs-related questions.
