@@ -1,6 +1,6 @@
 {
     "display_name": "DISPLAY_NAME",
-    "name": "RESTTemplateMP",
+    "name": "iSDK_RESTTemplateMP",
     "description": "DESCRIPTION",
     "version": "1.0.0",
     "vcops_minimum_version": "8.10.0",
