@@ -2,7 +2,7 @@
 ---
 !!! tip
 
-    Use the search bar above; it might help you find what you want faster.
+    Use the search bar above to help you find what you want faster.
 
 
 - [mp-build](build.md): Pack file building errors relating to the "`Unable to build pak file`" error from `mp-build`.
