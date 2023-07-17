@@ -10,7 +10,6 @@
 - [Container Registries](container_registries.md): Container registry-related questions, such as credentials and setting up registries.
 - [Docker](docker.md): Common Docker related troubleshooting steps.
 - [Logs](logs.md): Adapter and Server logs, logs storage, log levels, and more logs-related questions.
-- [VMware Aria Operations Platform](vmware_aria_operations_platform.md): Common errors when installing containerized management paks in VMware Aria Operations.
 - [Other](other.md): Capacity models and Java SDK-related questions
 
 !!! info
