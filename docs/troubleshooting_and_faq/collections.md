@@ -1,7 +1,7 @@
 # mp-test
 
 
-### Collection returns '500 INTERNAL SERVER ERROR'
+### `mp-test` returns '500 INTERNAL SERVER ERROR'
 
 Internal server errors can happen for various reasons; however, the most common cause is an unhandled exception or syntax error in
 the adapter's code. Check the server logs for clues about the issue. Sometimes, the problem may be detected using `mp-test` and
