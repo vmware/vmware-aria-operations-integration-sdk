@@ -1,10 +1,9 @@
 nav:
   - index.md
   - introduction.md
-  - get_started.md 
+  - get_started.md
   - guides
   - examples.md
   - references
-  - ... 
-  - troubleshooting_and_faq.md 
-
+  - ...
+  - Troubleshooting and FAQs: troubleshooting_and_faq

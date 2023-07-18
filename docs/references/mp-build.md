@@ -10,7 +10,14 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
 * The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 * Write permissions to a container registry that is accessible from VMware Aria Operations.
+* Access to the Docker daemon
  
+???+ info
+
+    When the Docker daemon is not accessible, mp-init might crash with the "Cannot connect to the Docker daemon"
+    error. For more information about this error, visit the [Docker](../troubleshooting_and_faq/docker.md#when-using-mp-test-and-mp-build-i-get-a-cannot-connect-to-the-docker-daemon-error)
+    Troubleshooting and FAQs section.
+
 ## Input
 
 ### Command-line Arguments

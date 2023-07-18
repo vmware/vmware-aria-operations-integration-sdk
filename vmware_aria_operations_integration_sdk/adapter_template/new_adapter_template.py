@@ -1,15 +1,11 @@
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import sys
 from typing import List
 
 import aria.ops.adapter_logging as logging
-import psutil
 from aria.ops.adapter_instance import AdapterInstance
-from aria.ops.data import Metric
-from aria.ops.data import Property
 from aria.ops.definition.adapter_definition import AdapterDefinition
-from aria.ops.definition.units import Units
 from aria.ops.result import CollectResult
 from aria.ops.result import EndpointResult
 from aria.ops.result import TestResult
@@ -30,16 +26,14 @@ def get_adapter_definition() -> AdapterDefinition:
     with Timer(logger, "Get Adapter Definition"):
         definition = AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME)
 
-        definition.define_string_parameter(
-            "ID",
-            label="ID",
-            description="Example identifier. Using a value of 'bad' will cause "
-            "test connection to fail; any other value will pass.",
-            required=True,
-        )
-        # The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
-        # determine how much memory to allocate to the docker container running this adapter. It does not
-        # need to be read inside the adapter code.
+        # TODO: Add parameters and credentials
+
+        # The key 'container_memory_limit' is a special key read by the VMware Aria Operations
+        # collector to determine how much memory to allocate to the docker container running
+        # this adapter. It does not need to be read inside the adapter code. However, removing
+        # the definition from the object model will remove the ability to change the container
+        # memory limit during the adapter's configuration, and the VMware Aria Operations collector
+        # will give 1024 MB of memory to the container running the adapter instance.
         definition.define_int_parameter(
             "container_memory_limit",
             label="Adapter Memory Limit (MB)",
@@ -50,34 +44,7 @@ def get_adapter_definition() -> AdapterDefinition:
             default=1024,
         )
 
-        cpu = definition.define_object_type("cpu", "CPU")
-        cpu.define_numeric_property("cpu_count", "CPU Count", is_discrete=True)
-        cpu.define_metric("user_time", "User Time", Units.TIME.SECONDS)
-        cpu.define_metric(
-            "nice_time", "Nice Time", Units.TIME.SECONDS, is_key_attribute=True
-        )
-        cpu.define_metric("system_time", "System Time", Units.TIME.SECONDS)
-        cpu.define_metric("idle_time", "Idle Time", Units.TIME.SECONDS)
-
-        disk = definition.define_object_type("disk", "Disk")
-        disk.define_string_property("partition", "Partition")
-        disk.define_metric(
-            "total_space", "Total Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
-        )
-        disk.define_metric(
-            "used_space", "Used Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
-        )
-        disk.define_metric(
-            "free_space", "Free Space", is_discrete=True, unit=Units.DATA_SIZE.BIBYTE
-        )
-        disk.define_metric(
-            "percent_used_space",
-            "Disk Utilization",
-            unit=Units.RATIO.PERCENT,
-            is_key_attribute=True,
-        )
-
-        system = definition.define_object_type("system", "System")
+        # TODO: Add object types, including identifiers, metrics, and properties
 
         logger.debug(f"Returning adapter definition: {definition.to_json()}")
         return definition
@@ -87,8 +54,7 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
     with Timer(logger, "Test"):
         result = TestResult()
         try:
-            # Sample test connection code follows. Replace with your own test connection
-            # code. A typical test connection will generally consist of:
+            # A typical test connection will generally consist of:
             # 1. Read identifier values from adapter_instance that are required to
             #    connect to the target(s)
             # 2. Connect to the target(s), and retrieve some sample data
@@ -96,21 +62,9 @@ def test(adapter_instance: AdapterInstance) -> TestResult:
             #    error occurs)
             # 4. If any of the above failed, return an error, otherwise pass.
 
-            # Read the 'ID' identifier in the adapter instance and use it for a
-            # connection test.
-            id = adapter_instance.get_identifier_value("ID")
+            # TODO: Add connection testing logic
+            pass  # TODO: Remove pass statement
 
-            # In this case the adapter does not need to connect
-            # to anything, as it reads directly from the host it is running on.
-            if id is None:
-                result.with_error("No ID Found")
-            elif id.lower() == "bad":
-                # As there is not an actual failure condition to test for, this
-                # example only shows the mechanics of reading identifiers and
-                # constructing test results. Here we add an error to the result
-                # that is returned.
-                result.with_error("The ID is bad")
-            # otherwise, the test has passed
         except Exception as e:
             logger.error("Unexpected connection test error")
             logger.exception(e)
@@ -125,8 +79,7 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
     with Timer(logger, "Collection"):
         result = CollectResult()
         try:
-            # Sample collection code follows. Replace this with your own collection
-            # code. A typical collection will generally consist of:
+            # A typical collection will generally consist of:
             # 1. Read identifier values from adapter_instance that are required to
             #    connect to the target(s)
             # 2. Connect to the target(s), and retrieve data
@@ -135,55 +88,9 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
             #    error occurs)
             # 5. Return the CollectResult.
 
-            # CPU
-            cpu = result.object(ADAPTER_KIND, "cpu", "CPU")
-            # properties
-            cpu_count_property = Property("cpu_count", psutil.cpu_count())
-            cpu.add_property(cpu_count_property)
+            # TODO: Add collection logic
+            pass  # TODO: Remove pass statement
 
-            # metrics
-            cpu_percent = Metric("cpu_percent", psutil.cpu_percent(1))
-            user, nice, system, idle, *_ = psutil.cpu_times()
-
-            user_time = Metric("user_time", user)
-            nice_time = Metric("nice_time", nice)
-            system_time = Metric("system_time", system)
-            idle_time = Metric("idle_time", idle)
-
-            # adding metrics to CPU
-            cpu.add_metric(user_time)
-            cpu.add_metric(nice_time)
-            cpu.add_metric(system_time)
-            cpu.add_metric(idle_time)
-
-            # Disk
-            disk = result.object(ADAPTER_KIND, "disk", "Disk")
-            # gathering properties
-            partition, mount_point, *_ = psutil.disk_partitions().pop()
-            partition_property = Property("partition", partition)
-
-            # adding properties
-            disk.add_property(partition_property)
-
-            # gathering metrics
-            total, used, free, percent = psutil.disk_usage(mount_point)
-
-            total_space = Metric("total_space", total)
-            used_space = Metric("used_space", used)
-            free_space = Metric("free_space", free)
-            percent_used_space = Metric("percent_used_space", percent)
-
-            # adding metrics to Disk
-            disk.add_metric(total_space)
-            disk.add_metric(used_space)
-            disk.add_metric(free_space)
-            disk.add_metric(percent_used_space)
-
-            # Add system object to demonstrate relationships
-            system = result.object(ADAPTER_KIND, "system", "System")
-
-            system.add_child(disk)
-            system.add_child(cpu)
         except Exception as e:
             logger.error("Unexpected collection error")
             logger.exception(e)
@@ -216,6 +123,9 @@ def get_endpoints(adapter_instance: AdapterInstance) -> EndpointResult:
         # AdapterInstance object that is passed to the 'test' and 'collect' methods.
         # Any certificate that is encountered in those methods should then be validated
         # against the certificate(s) in the AdapterInstance.
+
+        # TODO: Add any additional endpoints if any
+
         logger.debug(f"Returning endpoints: {result.get_json()}")
         return result
 
