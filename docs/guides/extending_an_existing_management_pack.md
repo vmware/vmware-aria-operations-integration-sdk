@@ -259,7 +259,7 @@ These will be used to ensure that the metrics are attached to existing MySQL obj
 rather than creating new ones.
 
 To get this information, we will `ssh` into the collector where the MySQL management
-pack is running. Then `cd` to `$ALIVE_BASE/user/plugin/inbound/mysql_adapter3/conf/`.
+pack is running. Then `cd` to `$ALIVE_BASE/user/plugin/inbound/mysql/conf/`.
 From there, open the `describe.xml` file. The Adapter Kind key is at the top on the
 fourth line:
 ```xml

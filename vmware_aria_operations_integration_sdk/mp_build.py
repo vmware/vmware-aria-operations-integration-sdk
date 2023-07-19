@@ -388,7 +388,7 @@ async def build_pak_file(
                 image.remove(force=True)
 
         with Spinner("Assembling Pak File"):
-            adapter_dir = adapter_kind_key + "_adapter3"
+            adapter_dir = adapter_kind_key
             mkdir(adapter_dir)
             shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
             if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
