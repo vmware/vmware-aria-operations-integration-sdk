@@ -1,6 +1,6 @@
 {
     "display_name": "DISPLAY_NAME",
-    "name": "VCenterExtensionMP",
+    "name": "iSDK_VCenterExtensionMP",
     "description": "DESCRIPTION",
     "version": "0.2.0",
     "vcops_minimum_version": "8.10.0",
