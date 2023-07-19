@@ -49,6 +49,7 @@ def get_config_values(
 
         values = {}
 
+        # TODO: when parsing key-values if the key-value is a ref to another file, we should get the value of the reference, not the reference string
         for key in keys:
             if key in config_json:
                 values[key] = config_json[key]

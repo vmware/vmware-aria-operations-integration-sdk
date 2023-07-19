@@ -581,11 +581,14 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 
 
 def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
+    # TODO: save this info in connections.json file
     suiteapi_hostname = get_config_value(
         CONFIG_SUITE_API_HOSTNAME_KEY,
         "hostname",
         os.path.join(project.path, "config.json"),
     )
+
+    # TODO: save this infromation in the secrets.json file
     suiteapi_username = get_config_value(
         CONFIG_SUITE_API_USERNAME_KEY,
         "username",
@@ -621,11 +624,13 @@ def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
             )
             == "yes"
         ):
+            # TODO: set this values on the connections.json file
             set_config_value(
                 CONFIG_SUITE_API_HOSTNAME_KEY,
                 suiteapi_hostname,
                 os.path.join(project.path, "config.json"),
             )
+            # TODO: set this values on the secrets.json file
             set_config_value(
                 CONFIG_SUITE_API_USERNAME_KEY,
                 suiteapi_username,

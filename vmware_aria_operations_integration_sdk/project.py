@@ -107,6 +107,7 @@ class Project:
         return get_project_name(self.path)
 
     def record(self) -> None:
+        # TODO: add path for connections.json file
         config_file = os.path.join(self.path, "config.json")
         set_config_value(
             "connections", [conn.__dict__ for conn in self.connections], config_file

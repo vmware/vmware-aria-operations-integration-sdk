@@ -104,6 +104,7 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
             "exists."
         )
 
+    # TODO: we should retrieve this values from the connections.json file
     default_hostname = get_config_value(
         CONFIG_SUITE_API_HOSTNAME_KEY,
         "hostname",
