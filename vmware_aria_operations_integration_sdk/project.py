@@ -14,7 +14,9 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
+from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
@@ -107,28 +109,40 @@ class Project:
         return get_project_name(self.path)
 
     def record(self) -> None:
-        # TODO: add path for connections.json file
-        config_file = os.path.join(self.path, "config.json")
+        config_file = os.path.join(self.path, CONFIG_FILE_NAME)
+        connections_file = os.path.join(self.path, CONNECTIONS_FILE_NAME)
         set_config_value(
-            "connections", [conn.__dict__ for conn in self.connections], config_file
+            "connections",
+            [conn.__dict__ for conn in self.connections],
+            connections_file,
         )
         set_config_value("docker_port", self.docker_port, config_file)
 
     @classmethod
     def extract(cls, path: str) -> Project:
-        local_config_file = os.path.join(path, "config.json")
-        if not os.path.isfile(local_config_file):
-            with open(local_config_file, "w") as config:
-                json.dump({}, config, indent=4, sort_keys=True)
+        local_config_file = os.path.join(path, CONFIG_FILE_NAME)
+        connections_file = os.path.join(path, CONNECTIONS_FILE_NAME)
 
-        with open(local_config_file, "r") as config:
-            json_config = json.load(config)
+        if not os.path.isfile(local_config_file):
+            with open(local_config_file, "w") as _config:
+                json.dump({}, _config, indent=4, sort_keys=True)
+
+        if not os.path.isfile(connections_file):
+            with open(connections_file, "w") as _connections:
+                json.dump({}, _connections, indent=4, sort_keys=True)
+
+        with open(local_config_file, "r") as _config:
+            json_config = json.load(_config)
+            docker_port = json_config.get("docker_port", 8080)
+
+        with open(connections_file, "r") as _connections:
+            json_config = json.load(_connections)
             connections = [
                 Connection.extract(connection)
                 for connection in json_config.get("connections", [])
             ]
-            docker_port = json_config.get("docker_port", 8080)
-            return Project(path, connections, docker_port)
+
+        return Project(path, connections, docker_port)
 
 
 def get_project_name(path: str) -> str:

@@ -20,6 +20,7 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_SUITE_API_USERNAME_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
@@ -104,21 +105,20 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
             "exists."
         )
 
-    # TODO: we should retrieve this values from the connections.json file
     default_hostname = get_config_value(
         CONFIG_SUITE_API_HOSTNAME_KEY,
         "hostname",
-        os.path.join(project.path, "config.json"),
+        os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     default_username = get_config_value(
         CONFIG_SUITE_API_USERNAME_KEY,
         "username",
-        os.path.join(project.path, "config.json"),
+        os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     default_password = get_config_value(
         CONFIG_SUITE_API_PASSWORD_KEY,
         "password",
-        os.path.join(project.path, "config.json"),
+        os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
 
     identifiers = []

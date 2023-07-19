@@ -226,7 +226,7 @@ def create_project(
     with open(git_ignore, "w") as git_ignore_fd:
         git_ignore_fd.write("logs\n")
         git_ignore_fd.write("build\n")
-        git_ignore_fd.write("config.json\n")
+        git_ignore_fd.write("connections.json\n")
         git_ignore_fd.write(f"venv-{name}\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)

@@ -30,7 +30,8 @@ except OSError as e:
     exit(1)
 
 GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
-# TODO:  create global variables for the connections.json and sercrets.json
+CONFIG_FILE_NAME = "config.json"
+CONNECTIONS_FILE_NAME = "connections.json"
 CONFIG_CONTAINER_REGISTRY_KEY = "container_registry"
 CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY = "docker_registry"
 CONFIG_DEFAULT_MEMORY_LIMIT_KEY = "default_memory_limit"
