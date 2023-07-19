@@ -591,6 +591,7 @@ def main() -> None:
         mkdir(build_dir)
 
         try:
+            mkdir(temp_dir)
             os.chdir(temp_dir)
 
             pak_file = asyncio.run(
