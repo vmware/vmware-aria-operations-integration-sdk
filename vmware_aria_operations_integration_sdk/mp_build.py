@@ -305,6 +305,10 @@ def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -
     return manifest
 
 
+def remove_sdk_prefix(name: str) -> str:
+    return name.removeprefix("iSDK_")
+
+
 async def build_pak_file(
     project_path: str,
     insecure_communication: bool,
@@ -451,7 +455,7 @@ async def build_pak_file(
             rm(adapter_conf.name)
             rmdir(adapter_dir)
 
-            name = manifest["name"] + "_" + manifest["version"]
+            name = remove_sdk_prefix(manifest["name"]) + "_" + manifest["version"]
 
             # Every config file in dashboards and reports should be in its own subdirectory
             build_subdirectories("content/dashboards")
