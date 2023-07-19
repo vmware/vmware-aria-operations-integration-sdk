@@ -29,8 +29,8 @@ except OSError as e:
     print(f"Error: {e}")
     exit(1)
 
-GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
 CONFIG_FILE_NAME = "config.json"
+GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, CONFIG_FILE_NAME)
 CONNECTIONS_FILE_NAME = "connections.json"
 CONFIG_CONTAINER_REGISTRY_KEY = "container_registry"
 CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY = "docker_registry"

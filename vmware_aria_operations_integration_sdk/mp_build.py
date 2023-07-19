@@ -39,6 +39,7 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -318,10 +319,12 @@ async def build_pak_file(
     with open(manifest_file) as manifest_fd:
         manifest = json.load(manifest_fd)
 
-    config_file = os.path.join(project_path, "config.json")
+    config_file = os.path.join(project_path, CONFIG_FILE_NAME)
     adapter_container = AdapterContainer(project_path, docker_client)
     memory_limit = get_config_value(
-        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project_path, "config.json")
+        CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+        1024,
+        os.path.join(project_path, CONFIG_FILE_NAME),
     )
     adapter_container.start(memory_limit)
     try:
