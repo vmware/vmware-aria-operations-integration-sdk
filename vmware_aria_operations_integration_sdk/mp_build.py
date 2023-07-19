@@ -286,8 +286,8 @@ def fix_describe(describe_adapter_kind_key: Optional[str], manifest_file: str) -
     if not selection_prompt(
         f"Update manifest.txt with adapter kind from describe.xml ('{describe_adapter_kind_key}')?",
         [(True, "Yes"), (False, "No")],
-        "Select 'Yes' to update the 'manifest.txt' file and continue with the build. Select 'No' to exit without "
-        "building and fix the issue manually.",
+        "Select 'Yes' to update the 'manifest.txt' file and continue with the build. "
+        "Select 'No' to exit without building and fix the issue manually.",
     ):
         exit(1)
     manifest = {}
@@ -591,22 +591,6 @@ def main() -> None:
         mkdir(build_dir)
 
         try:
-            # TODO: remove this copy and add logic to zip files from the source
-            shutil.copytree(
-                project.path,
-                temp_dir,
-                ignore=shutil.ignore_patterns(
-                    "build",
-                    "logs",
-                    "Dockerfile",
-                    "adapter_requirements",
-                    "commands.cfg",
-                    ".git",
-                    ".gitignore",
-                ),
-                dirs_exist_ok=True,
-            )
-
             os.chdir(temp_dir)
 
             pak_file = asyncio.run(
@@ -620,7 +604,8 @@ def main() -> None:
             )
 
             if os.path.exists(os.path.join(build_dir, pak_file)):
-                # NOTE: we could ask the user if they want to overwrite the current file instead of always deleting it
+                # NOTE: we could ask the user if they want to overwrite the current
+                # file instead of always deleting it
                 logger.debug("Deleting old pak file")
                 rm(os.path.join(build_dir, pak_file))
 
@@ -631,8 +616,8 @@ def main() -> None:
             if os.path.exists(temp_dir):
                 logger.debug(f"Deleting directory: '{temp_dir}'")
                 if os.getcwd() == temp_dir:
-                    # Change working directory to the build directory, otherwise we won't be able to delete the
-                    # directory in Windows based systems
+                    # Change working directory to the project directory, otherwise we
+                    # won't be able to delete the directory in Windows-based systems
                     os.chdir(project_dir)
                 rmdir(temp_dir)
     except DockerWrapperError as error:
