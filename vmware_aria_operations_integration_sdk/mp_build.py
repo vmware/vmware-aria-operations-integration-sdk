@@ -178,11 +178,11 @@ def _tag_and_push(
             CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
         )
 
-    # we want to keep track of the original value, so we can update it if nesessary
+    # we want to keep track of the original value, so we can update it if necessary
     original_value = container_registry
 
     digest = ""
-    should_prompt = container_registry_arg is None
+    should_prompt = container_registry is None
     while not digest:
         container_registry = validate_container_registry(
             adapter_kind_key,
