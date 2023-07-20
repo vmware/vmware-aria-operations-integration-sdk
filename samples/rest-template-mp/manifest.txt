@@ -1,12 +1,12 @@
 {
     "display_name": "DISPLAY_NAME",
-    "name": "iSDK_AlibabaCloud",
+    "name": "iSDK_RESTTemplateMP",
     "description": "DESCRIPTION",
     "version": "1.0.0",
     "vcops_minimum_version": "8.10.0",
     "disk_space_required": 500,
     "run_scripts_on_all_nodes": "true",
-    "eula_file": "eula.txt",
+    "eula_file": "LICENSE.txt",
     "platform": [
         "Linux Non-VA",
         "Linux VA"
@@ -26,7 +26,7 @@
         "adapter.zip"
     ],
     "adapter_kinds": [
-        "AlibabaCloud"
+        "RESTTemplateMP"
     ],
     "license_type": ""
 }

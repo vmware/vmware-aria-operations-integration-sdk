@@ -1,0 +1,2 @@
+ADAPTER_KIND = "RESTTemplateMP"
+ADAPTER_NAME = "REST Template MP"
