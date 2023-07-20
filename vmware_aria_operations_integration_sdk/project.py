@@ -250,5 +250,5 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
         logger.info(f"Appended {token} to .gitignore")
     except FileNotFoundError:
         logger.warning(
-            "file not found in {file_path} when attempting to safe append {token}"
+            f"File not found in {file_path} when attempting to append {token}"
         )
