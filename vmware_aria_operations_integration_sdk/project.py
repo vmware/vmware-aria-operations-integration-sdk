@@ -123,17 +123,38 @@ class Project:
         local_config_file = os.path.join(path, CONFIG_FILE_NAME)
         connections_file = os.path.join(path, CONNECTIONS_FILE_NAME)
 
+        if not os.path.isfile(connections_file):
+            if os.path.isfile(
+                local_config_file
+            ):  # if there is a config.json, but not a connections.json file, is a sign that is an old version of the config.json file
+                logger.warning(
+                    f"Possible {CONFIG_FILE_NAME} file detected. To learn more see https://vmware.github.io/vmware-aria-operations-integration-sdk/troubleshooting_and_faq/collections/#how-can-i-migrate-my-old-configjson-file-deprecated-fields-detected-in-configjson-file-warning"
+                )
+            with open(connections_file, "w") as _connections:
+                json.dump({}, _connections, indent=4, sort_keys=True)
+
+        _safe_append_to_gitignore(
+            os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
+        )
+
         if not os.path.isfile(local_config_file):
             with open(local_config_file, "w") as _config:
                 json.dump({}, _config, indent=4, sort_keys=True)
 
-        if not os.path.isfile(connections_file):
-            with open(connections_file, "w") as _connections:
-                json.dump({}, _connections, indent=4, sort_keys=True)
-
         with open(local_config_file, "r") as _config:
             json_config = json.load(_config)
             docker_port = json_config.get("docker_port", 8080)
+
+            if (
+                "suite_api_hostname" in json_config
+                or "suite_api_username" in json_config
+                or "suite_api_password" in json_config
+                or "suite_api_connection" in json_config
+                or "connections" in json_config
+            ):
+                logger.warning(
+                    f"Deprecated fields detected in {CONFIG_FILE_NAME}. To learn more see https://vmware.github.io/vmware-aria-operations-integration-sdk/troubleshooting_and_faq/collections/#how-can-i-migrate-my-old-configjson-file-deprecated-fields-detected-in-configjson-file-warning"
+                )
 
         with open(connections_file, "r") as _connections:
             json_config = json.load(_connections)
@@ -214,3 +235,20 @@ def _add_and_update_project_paths(path: str) -> None:
             )
         ),
     )
+
+
+def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
+    try:
+        with open(gitignore_file_path, "r") as gititnore:
+            for line in gititnore.readlines():
+                if token in line:
+                    return
+
+        with open(gitignore_file_path, "a") as gitignore:
+            gitignore.write(f"{token}\n")
+
+        logger.info("Appended {token} to .gitignore")
+    except FileNotFoundError:
+        logger.warning(
+            "file not found in {file_path} when attempting to safe append {token}"
+        )
