@@ -14,8 +14,34 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONFIG_CONNECTIONS_LIST_KEY
+from vmware_aria_operations_integration_sdk.constant import CONFIG_DOCKER_PORT_KEY
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_CONNECTION_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_HOSTNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_PASSWORD_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_SUITE_API_USERNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_NAME_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
@@ -80,13 +106,15 @@ class Connection:
 
     @classmethod
     def extract(cls, json_connection: Dict) -> Connection:
-        name = json_connection["name"]
-        identifiers = json_connection["identifiers"]
-        credential = json_connection["credential"]
-        certificates = json_connection.get("certificates", None)
-        hostname = json_connection.get("suite_api_hostname", None)
-        username = json_connection.get("suite_api_username", None)
-        password = json_connection.get("suite_api_password", None)
+        name = json_connection[CONNECTIONS_CONFIG_CONNECTION_NAME_KEY]
+        identifiers = json_connection[CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY]
+        credential = json_connection[CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY]
+        certificates = json_connection.get(
+            CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY, None
+        )
+        hostname = json_connection.get(CONFIG_SUITE_API_HOSTNAME_KEY, None)
+        username = json_connection.get(CONFIG_SUITE_API_USERNAME_KEY, None)
+        password = json_connection.get(CONFIG_SUITE_API_PASSWORD_KEY, None)
         return Connection(
             name, identifiers, credential, certificates, (hostname, username, password)
         )
@@ -112,11 +140,11 @@ class Project:
         config_file = os.path.join(self.path, CONFIG_FILE_NAME)
         connections_file = os.path.join(self.path, CONNECTIONS_FILE_NAME)
         set_config_value(
-            "connections",
+            CONFIG_CONNECTIONS_LIST_KEY,
             [conn.__dict__ for conn in self.connections],
             connections_file,
         )
-        set_config_value("docker_port", self.docker_port, config_file)
+        set_config_value(CONFIG_DOCKER_PORT_KEY, self.docker_port, config_file)
 
     @classmethod
     def extract(cls, path: str) -> Project:
@@ -133,16 +161,16 @@ class Project:
 
         connections_data = {}
         connection_file_keys = [
-            "suite_api_hostname",
-            "suite_api_username",
-            "suite_api_password",
-            "suite_api_connection",
-            "connections",
+            CONFIG_SUITE_API_HOSTNAME_KEY,
+            CONFIG_SUITE_API_USERNAME_KEY,
+            CONFIG_SUITE_API_PASSWORD_KEY,
+            CONFIG_SUITE_API_CONNECTION_KEY,
+            CONFIG_CONNECTIONS_LIST_KEY,
         ]
 
         with open(local_config_file, "r+") as _config:
             json_config = json.load(_config)
-            docker_port = json_config.get("docker_port", 8080)
+            docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
 
             for key in connection_file_keys:
                 if key in json_config:
@@ -173,7 +201,7 @@ class Project:
 
             connections = [
                 Connection.extract(connection)
-                for connection in json_config.get("connections", [])
+                for connection in json_config.get(CONFIG_CONNECTIONS_LIST_KEY, [])
             ]
 
         return Project(path, connections, docker_port)
