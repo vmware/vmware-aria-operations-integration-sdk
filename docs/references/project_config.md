@@ -1,8 +1,8 @@
 # Project Config File
 * * *
 
-The project config file is a json file called `config.json` located in the project's
-root directory. This document describes what data is present in the file.
+The project config file is a JSON file called `config.json` located at the root of the project.
+This document describes what data is present in the file.
 
 ## `default_memory_limit` (int, default: 1024)
 

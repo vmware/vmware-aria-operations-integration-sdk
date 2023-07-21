@@ -5,7 +5,7 @@
 
 Specifies the default container registry path
 to be used by [mp-build](mp-build.md) any time
-the [project config file](project_config.md#containerrepository-string) doesn't contain a container repository.
+the [project config file](project_config.md#containerrepository-string) doesn't contain a [container_repository](./project_config.md#containerrepository-string).
 This key value should contain the path
 used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to a new repository.
 
@@ -34,6 +34,7 @@ Any time a new project is created, tested, or built, the project is automaticall
 Projects that no longer exist in the specified location are automatically removed.
 
 ??? example
+
     ```json
     {
         "projects" : [

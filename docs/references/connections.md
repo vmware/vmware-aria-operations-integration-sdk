@@ -30,7 +30,7 @@ password.
     Suite API documentation can be found on any VMware Aria Operations Cluster, by
     opening `https://[[vmware_aria_operations_cluster_hostname]]/suite-api/doc/swagger-ui.html`. 
 
-When setting up a new connection, `mp-test` will ask if you want to set up connection
+When setting up a new connection, `mp-test` will ask if you want to set up the connection
 information for the SuiteAPI. If you are not using this functionality, this can be 
 skipped, otherwise, the hostname should be the VMware Aria Operations Cluster hostname, 
 and the username and password can be any user with permission to access the Suite API.
@@ -38,12 +38,12 @@ and the username and password can be any user with permission to access the Suit
 default. If you select 'yes', then every connection in this project will use the 
 provided credentials, unless they explicitly override them. To learn more about how 
 Suite API connections are handled, see the 
-[Project Config](project_connections_config.md#suiteapihostname-string) documentation.
+[Project Connections Config](project_connections_config.md#suiteapihostname-string) documentation.
 
 ### How are Connections Stored?
 
-Connections are stored locally in the [project connections file](project_connections_config.md) located at the root of 
-every project the project.
+Connections are stored locally in the [project connections file](project_connections_config.md)
+located in the root of the project.
 If no project config file exists at the time of creating a connection, one will be created.
 
 
@@ -58,9 +58,9 @@ and [credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the
 
 
 #### Editing Existing Connections
-
-Connections can be edited by modifying the key-values in the [project connections file](project_connections_config.md)
-at the root of the project that correspond to the value you want to modify.
+To edit connections,
+simply modify the key-values in the [project connections file](project_connections_config.md)
+located at the project's root that correspond to the value you want to change.
 
 ??? example
 
@@ -136,7 +136,8 @@ at the root of the project that correspond to the value you want to modify.
 
 #### Deleting Connections
 
-To delete a connection, remove the collection object from the [project connections file](project_connections_config.md)
+To delete a connection,
+remove the connection object from the `connections` list in the [project connections file](project_connections_config.md)
 at the root of the project that corresponds to the connection you want to delete.
 
 ??? example

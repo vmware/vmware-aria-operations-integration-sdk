@@ -162,7 +162,7 @@ class Project:
         )
 
         connections_data = {}
-        connection_file_keys = [
+        connection_file_element_keys = [
             CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
             CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
             CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
@@ -174,24 +174,26 @@ class Project:
             json_config = json.load(_config)
             docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
 
-            for key in connection_file_keys:
-                if key in json_config:
+            for element in connection_file_element_keys:
+                if element in json_config:
                     logger.warning(
-                        f"{CONNECTIONS_FILE_NAME} key '{key}' found in {CONFIG_FILE_NAME}."
+                        f"{CONNECTIONS_FILE_NAME} element '{element}' found in {CONFIG_FILE_NAME}."
                     )
-                    connections_data[key] = json_config.get(key)
-                    logger.debug(f"Deleting {key} from {CONNECTIONS_FILE_NAME}")
-                    del json_config[key]
+                    connections_data[element] = json_config.get(element)
+                    logger.debug(f"Deleting {element} from {CONNECTIONS_FILE_NAME}")
+                    del json_config[element]
 
             if len(connections_data):
                 _config.seek(0)
-                logger.info(f"Deleting connection-related keys from {CONFIG_FILE_NAME}")
+                logger.info(
+                    f"Deleting connection-related elements from {CONFIG_FILE_NAME}"
+                )
                 json.dump(json_config, _config, indent=4, sort_keys=True)
                 _config.truncate()
                 logger.info(
                     f"To learn more about this message, visit "
                     f"https://vmware.github.io/vmware-aria-operations-integration-sdk/troubleshooting_and_faq/other"
-                    f"/#why-am-i-seeing-deleting-connection-related-keys-from-configjson-message"
+                    f"/#why-am-i-seeing-deleting-connection-related-elements-from-configjson-message"
                 )
 
         if not os.path.isfile(connections_file):

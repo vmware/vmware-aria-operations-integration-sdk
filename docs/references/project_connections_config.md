@@ -109,6 +109,18 @@ that are triggered based on collection number (for example, an expensive computa
 
 The collection window duration `mp-test` passed to the adapter instance. This is helpful when testing behaviours that are triggered based on collection window duration.
 
+??? example
+
+    ```json title="config.json" linenums="1" hl_lines="3-16"
+    {
+        "connections" : [
+                "custom_collection_window": 20,
+                ...
+            ]
+        ...
+    }
+    ```
+
 ### `name` (string)
 
 The name of the connection. This is used as the connection identifier and can be used to specify a connection name when using `mp-test`.

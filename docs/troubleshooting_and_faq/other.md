@@ -21,15 +21,15 @@ If the pak file installs successfully but errors when creating an account (adapt
 - Check that the Cloud Proxy supports containerized adapters. Containerized adapter
   support is supported in VMware Aria Operations version 8.10.0 and later.
 
-### Why am I seeing "Deleting connection-related keys from config.json" message?
+### Why am I seeing "Deleting connection-related elements from config.json" message?
 
 As of version 1.0.0,
-we've removed all connection-related keys from the [project config file](../references/project_config.md)
+we've removed all connection-related elements from the [project config file](../references/project_config.md)
 and migrated them to a new
-[project connections file](../references/project_connections_config.md) (`connections.json`).
+[project connections JSON file](../references/project_connections_config.md)(`connections.json`).
 As part of this change, both `mp-test` and `mp-build` will migrate the connection-related
-keys to the `connections.json` file when present in the `config.json` file
-(The new `connections.json` file is also added to the `.gitignore`
+elements to the `connections.json` file when present in the `config.json` file
+(The new `connections.json` file is also added to the project's `.gitignore`
 to prevent sensitive information from being committed).
 Moving all the connection-related information away from the `config.json` file allows users
 to include their project configuration file in version control,
