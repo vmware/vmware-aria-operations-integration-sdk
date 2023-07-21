@@ -254,13 +254,13 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
     try:
         with open(gitignore_file_path, "r") as gitignore:
             for line in gitignore.readlines():
-                if token == line:
+                if token == line.rstrip("\n"):
                     return
 
         with open(gitignore_file_path, "a") as gitignore:
             gitignore.write(f"{token}\n")
 
-        logger.info(f"Appended {token} to .gitignore")
+        logger.info(f"Appended '{token}' to .gitignore")
     except FileNotFoundError:
         logger.warning(
             f"File not found in {gitignore_file_path} when attempting to append {token}"
