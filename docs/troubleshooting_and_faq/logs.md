@@ -8,7 +8,7 @@ project.
 
 ###  Where are the adapter logs stored in VMware Aria Operations?
 
-Logs are generated and stored on the cloud proxy where the adapter is running at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>`.
+Logs are generated and stored on the cloud proxy where the adapter is running at `$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>/<ADAPTER_INTERNAL_INSTANCE_ID>`.
 
 `ADAPTERKEY` should match the adapter key used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
 found in VMware Aria Operations at **Environment &rarr; Inventory &rarr; Adapter Instances &rarr; &lt;ADAPTER_DISPLAY_NAME&gt; &rarr; &lt;ADAPTER_INSTANCE&gt;** in the rightmost column.
@@ -62,7 +62,7 @@ The logger only needs to be configured once; to generate logs in other files, si
 
 ###  How do I change the server and/or adapter log level?
 
-You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and on the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>_adapter3/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
+You can set the log levels for the server and adapter inside the `loglevels.cfg` file, which is located in `logs/loglevels.cfg` locally and on the cloud proxy at `$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>/<ADAPTER_INTERNAL_INSTANCE_ID>/loglevels.cfg`.
 If the file does not exist, the system generates it after a collection/test.
 
 `ADAPTERKEY` should match the name of the adapter used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should match the Internal ID
