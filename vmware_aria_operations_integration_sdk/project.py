@@ -161,7 +161,7 @@ class Project:
                 json.dump(json_config, _config, indent=4, sort_keys=True)
                 _config.truncate()
                 logger.info(
-                    "To learn more about '{CONNECTIONS_FILE_NAME}' file visit https://vmware.github.io/vmware-aria-operations-integration-sdk/references/#how-can-i-migrate-my-old-configjson-file-deprecated-fields-detected-in-configjson-file-warning"
+                    "To learn more about '{CONNECTIONS_FILE_NAME}' file visit TODO: ADD LINK HERE"
                 )
 
         if not os.path.isfile(connections_file):
