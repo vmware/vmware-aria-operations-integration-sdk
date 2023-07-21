@@ -8,14 +8,15 @@ virtual or physical infrastructure operations, which can then be analyzed and pr
 Operations uses this data to help automate and simplify operations management.
 
 Creating a connection usually involves specifying the IP address or hostname of the external system, along with the appropriate
-[credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model) to access that system. After establishing the connection, an Adapter can collect data from the connected system.
+[credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model) to access that system.
+After establishing the connection, an Adapter can collect data from the connected system.
 
 !!! warning
 
     Credentials for connections are stored in plain text in the 
-    [project config file](project_config.md). For this reason, we recommend that this 
+    [project connections file](project_connections_config.md). For this reason, we recommend that this 
     file is not included in version control (it is included in the .gitignore file by 
-    defualt), and credentials should be revokable and have the minimum set of
+    default), and credentials should be revokable and have the minimum set of
     permissions necessary for the Adapter to function (Usually Read-Only is sufficient).
 
 In addition, sometimes it is desirable for an Adapter to query VMware Aria Operations' 
@@ -29,19 +30,20 @@ password.
     Suite API documentation can be found on any VMware Aria Operations Cluster, by
     opening `https://[[vmware_aria_operations_cluster_hostname]]/suite-api/doc/swagger-ui.html`. 
 
-When setting up a new connection, `mp-test` will ask if you want to set up a connection
+When setting up a new connection, `mp-test` will ask if you want to set up connection
 information for the SuiteAPI. If you are not using this functionality, this can be 
 skipped, otherwise, the hostname should be the VMware Aria Operations Cluster hostname, 
 and the username and password can be any user with permission to access the Suite API.
 `mp-test` will also prompt if you want to set the SuiteAPI credentials as the project 
 default. If you select 'yes', then every connection in this project will use the 
 provided credentials, unless they explicitly override them. To learn more about how 
-Suite API connections are handled see the 
-[Project Config](project_config.md#suiteapihostname-string) documentation.
+Suite API connections are handled, see the 
+[Project Config](project_connections_config.md#suiteapihostname-string) documentation.
 
 ### How are Connections Stored?
 
-Connections are stored locally in a [project config file](project_config.md) located at the root of every project the project.
+Connections are stored locally in the [project connections file](project_connections_config.md) located at the root of 
+every project the project.
 If no project config file exists at the time of creating a connection, one will be created.
 
 
@@ -52,12 +54,13 @@ If no project config file exists at the time of creating a connection, one will 
 To create a connection, run `mp-test` and then select `New Connection`. [mp-test](mp-test.md) will then create a new connection by
 parsing over the object model and using any [identifiers](../guides/adding_to_an_adapter.md#defining-an-adapter-and-adapter-instance-in-the-object-model)
 and [credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model). The new connection is then stored in the
-[project config file](project_config.md) in the root of the project.
+[project connections file](project_connections_config.md) in the root of the project.
 
 
 #### Editing Existing Connections
 
-Connections can be edited by modifying the key-values in the [project config file](project_config.md) file at the root of the project that correspond to the value you want to modify.
+Connections can be edited by modifying the key-values in the [project connections file](project_connections_config.md)
+at the root of the project that correspond to the value you want to modify.
 
 ??? example
 
@@ -131,9 +134,10 @@ Connections can be edited by modifying the key-values in the [project config fil
 
     ```
 
-#### Deleting Connecitons
+#### Deleting Connections
 
-To delete a connection remove the collection object from [project config file](project_config.md) file at the root of the project that correspond to the connection you want to delete.
+To delete a connection, remove the collection object from the [project connections file](project_connections_config.md)
+at the root of the project that corresponds to the connection you want to delete.
 
 ??? example
 
