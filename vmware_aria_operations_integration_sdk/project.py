@@ -185,13 +185,13 @@ class Project:
 
             if len(connections_data):
                 _config.seek(0)
-                logger.info(
-                    f"deleting {CONNECTIONS_FILE_NAME} keys from {CONFIG_FILE_NAME}"
-                )
+                logger.info(f"Deleting connection-related keys from {CONFIG_FILE_NAME}")
                 json.dump(json_config, _config, indent=4, sort_keys=True)
                 _config.truncate()
                 logger.info(
-                    f"To learn more about '{CONNECTIONS_FILE_NAME}' file visit TODO: ADD LINK HERE"
+                    f"To learn more about this message, visit "
+                    f"https://vmware.github.io/vmware-aria-operations-integration-sdk/troubleshooting_and_faq/other"
+                    f"/#why-am-i-seeing-deleting-connection-related-keys-from-configjson-message"
                 )
 
         if not os.path.isfile(connections_file):
