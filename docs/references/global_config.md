@@ -26,7 +26,12 @@ the resulting tag would be `harbor.my-organization.com/my-project-registry/adapt
 
 ### `projects` (array of strings)
 
-This array of strings is used by the SDK tools to track the locations of the projects. Each string value is a project location, formatted as a **UNIX** or **DOS** path (host OS). Tracking the location of each project allows the SDK tools be used anywhere in the console besides the project directory. Any time a new project is created, tested, or built, the project is automatically appended to the list. Projects that no longer exist in the specified location are automatically removed.
+The SDK tools use this array of strings to track the locations of the projects.
+Each string value is a project location, formatted as a **UNIX** or **DOS** path (host OS).
+Tracking the location of each project allows
+the SDK tools to be used anywhere in the console besides the project directory.
+Any time a new project is created, tested, or built, the project is automatically appended to the list.
+Projects that no longer exist in the specified location are automatically removed.
 
 ??? example
     ```json
