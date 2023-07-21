@@ -14,22 +14,9 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
-from vmware_aria_operations_integration_sdk.constant import CONFIG_CONNECTIONS_LIST_KEY
 from vmware_aria_operations_integration_sdk.constant import CONFIG_DOCKER_PORT_KEY
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
-from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_CONNECTION_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_HOSTNAME_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_PASSWORD_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_USERNAME_KEY,
-)
 from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY,
 )
@@ -41,6 +28,21 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_CONNECTION_NAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
@@ -112,9 +114,9 @@ class Connection:
         certificates = json_connection.get(
             CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY, None
         )
-        hostname = json_connection.get(CONFIG_SUITE_API_HOSTNAME_KEY, None)
-        username = json_connection.get(CONFIG_SUITE_API_USERNAME_KEY, None)
-        password = json_connection.get(CONFIG_SUITE_API_PASSWORD_KEY, None)
+        hostname = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY, None)
+        username = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY, None)
+        password = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY, None)
         return Connection(
             name, identifiers, credential, certificates, (hostname, username, password)
         )
@@ -140,7 +142,7 @@ class Project:
         config_file = os.path.join(self.path, CONFIG_FILE_NAME)
         connections_file = os.path.join(self.path, CONNECTIONS_FILE_NAME)
         set_config_value(
-            CONFIG_CONNECTIONS_LIST_KEY,
+            CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
             [conn.__dict__ for conn in self.connections],
             connections_file,
         )
@@ -161,11 +163,11 @@ class Project:
 
         connections_data = {}
         connection_file_keys = [
-            CONFIG_SUITE_API_HOSTNAME_KEY,
-            CONFIG_SUITE_API_USERNAME_KEY,
-            CONFIG_SUITE_API_PASSWORD_KEY,
-            CONFIG_SUITE_API_CONNECTION_KEY,
-            CONFIG_CONNECTIONS_LIST_KEY,
+            CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+            CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+            CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+            CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
+            CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
         ]
 
         with open(local_config_file, "r+") as _config:
@@ -201,7 +203,9 @@ class Project:
 
             connections = [
                 Connection.extract(connection)
-                for connection in json_config.get(CONFIG_CONNECTIONS_LIST_KEY, [])
+                for connection in json_config.get(
+                    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
+                )
             ]
 
         return Project(path, connections, docker_port)

@@ -12,13 +12,13 @@ from requests import Request
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_HOSTNAME_KEY,
+    CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_PASSWORD_KEY,
+    CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_SUITE_API_USERNAME_KEY,
+    CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
@@ -106,17 +106,17 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
         )
 
     default_hostname = get_config_value(
-        CONFIG_SUITE_API_HOSTNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
         "hostname",
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     default_username = get_config_value(
-        CONFIG_SUITE_API_USERNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
         "username",
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     default_password = get_config_value(
-        CONFIG_SUITE_API_PASSWORD_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
         "password",
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
