@@ -35,7 +35,7 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_CONTAINER_REGISTRY_KEY,
+    CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
@@ -172,7 +172,7 @@ def _tag_and_push(
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
-            CONNECTIONS_CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+            CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
         )
     if not container_registry:
         container_registry = get_config_value(
@@ -209,7 +209,7 @@ def _tag_and_push(
         # We only set the value if we are able to push the image
         if original_value != container_registry and digest:
             set_config_value(
-                key=CONNECTIONS_CONFIG_CONTAINER_REGISTRY_KEY,
+                key=CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY,
                 value=container_registry,
                 config_file=config_file,
             )
