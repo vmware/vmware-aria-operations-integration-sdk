@@ -161,7 +161,7 @@ class Project:
                 json.dump(json_config, _config, indent=4, sort_keys=True)
                 _config.truncate()
                 logger.info(
-                    "To learn more about '{CONNECTIONS_FILE_NAME}' file visit TODO: ADD LINK HERE"
+                    f"To learn more about '{CONNECTIONS_FILE_NAME}' file visit TODO: ADD LINK HERE"
                 )
 
         if not os.path.isfile(connections_file):
