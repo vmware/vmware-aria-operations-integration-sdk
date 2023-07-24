@@ -28,18 +28,18 @@ from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_CONTAINER_REPOSITORY_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
-from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
-)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -172,11 +172,11 @@ def _tag_and_push(
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
-            CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
+            CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
         )
     if not container_registry:
         container_registry = get_config_value(
-            CONNECTIONS_CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
         )
 
     # we want to keep track of the original value, so we can update it if nesessary
@@ -209,7 +209,7 @@ def _tag_and_push(
         # We only set the value if we are able to push the image
         if original_value != container_registry and digest:
             set_config_value(
-                key=CONNECTIONS_CONFIG_CONTAINER_REPOSITORY_KEY,
+                key=CONFIG_CONTAINER_REPOSITORY_KEY,
                 value=container_registry,
                 config_file=config_file,
             )

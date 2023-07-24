@@ -180,7 +180,6 @@ class Project:
                         f"{CONNECTIONS_FILE_NAME} element '{element}' found in {CONFIG_FILE_NAME}."
                     )
                     connections_data[element] = json_config.get(element)
-                    logger.debug(f"Deleting {element} from {CONNECTIONS_FILE_NAME}")
                     del json_config[element]
 
             if len(connections_data):
@@ -288,7 +287,7 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
     try:
         with open(gitignore_file_path, "r") as gitignore:
             for line in gitignore.readlines():
-                if token == line.rstrip("\n"):
+                if token == line.strip("\n"):
                     return
 
         with open(gitignore_file_path, "a") as gitignore:
@@ -297,5 +296,5 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
         logger.info(f"Appended '{token}' to .gitignore")
     except FileNotFoundError:
         logger.warning(
-            f"File not found in {gitignore_file_path} when attempting to append {token}"
+            f"Could not automatically set the file '{token}' to be ignored in version control."
         )
