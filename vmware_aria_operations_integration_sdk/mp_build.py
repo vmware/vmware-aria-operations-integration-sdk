@@ -57,6 +57,7 @@ from vmware_aria_operations_integration_sdk.filesystem import rm
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
 from vmware_aria_operations_integration_sdk.filesystem import zip_dir
 from vmware_aria_operations_integration_sdk.filesystem import zip_file
+from vmware_aria_operations_integration_sdk.filesystem import zip_sub_dir
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import get_project
@@ -311,6 +312,7 @@ def remove_sdk_prefix(name: str) -> str:
 
 async def build_pak_file(
     project_path: str,
+    temp_dir: str,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
     **kwargs: Any,
@@ -394,16 +396,35 @@ async def build_pak_file(
         with Spinner("Assembling Pak File"):
             adapter_dir = adapter_kind_key
             mkdir(adapter_dir)
-            shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
-            if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
+
+            shutil.copytree(
+                os.path.join(project_path, "conf"),
+                os.path.join(temp_dir, adapter_dir, "conf"),
+            )
+            shutil.copytree(
+                os.path.join(project_path, "resources"),
+                os.path.join(temp_dir, "resources"),
+            )
+            shutil.copytree(
+                os.path.join(project_path, "content"), os.path.join(temp_dir, "content")
+            )
+
+            if not os.path.exists(
+                os.path.join(temp_dir, adapter_dir, "conf", "describe.xml")
+            ):
                 write_describe(
-                    describe, os.path.join(adapter_dir, "conf", "describe.xml")
+                    describe,
+                    os.path.join(temp_dir, adapter_dir, "conf", "describe.xml"),
                 )
-                mkdir(os.path.join(adapter_dir, "conf", "resources"))
+                mkdir(os.path.join(temp_dir, adapter_dir, "conf", "resources"))
                 write_properties(
                     resources,
                     os.path.join(
-                        adapter_dir, "conf", "resources", "resources.properties"
+                        temp_dir,
+                        adapter_dir,
+                        "conf",
+                        "resources",
+                        "resources.properties",
                     ),
                 )
 
@@ -443,14 +464,26 @@ async def build_pak_file(
 
             with zipfile.ZipFile("adapter.zip", "w") as adapter:
                 zip_file(adapter, adapter_conf.name)
+                shutil.copy(
+                    os.path.join(project_path, "manifest.txt"),
+                    os.path.join(temp_dir, "manifest.txt"),
+                )
                 zip_file(adapter, "manifest.txt")
                 if eula_file:
+                    shutil.copy(
+                        os.path.join(project_path, eula_file),
+                        os.path.join(temp_dir, eula_file),
+                    )
                     zip_file(adapter, eula_file)
                 if icon_file:
+                    shutil.copy(
+                        os.path.join(project_path, icon_file),
+                        os.path.join(temp_dir, icon_file),
+                    )
                     zip_file(adapter, icon_file)
 
-                zip_dir(adapter, "resources")
-                zip_dir(adapter, adapter_dir)
+                zip_sub_dir(adapter, project_path, "resources")
+                zip_sub_dir(adapter, temp_dir, adapter_dir)
 
             rm(adapter_conf.name)
             rmdir(adapter_dir)
@@ -467,14 +500,26 @@ async def build_pak_file(
 
                 pak_validation_script = manifest["pak_validation_script"]["script"]
                 if pak_validation_script:
+                    shutil.copy(
+                        os.path.join(project_path, pak_validation_script),
+                        os.path.join(temp_dir, pak_validation_script),
+                    )
                     zip_file(pak, pak_validation_script)
 
                 post_install_script = manifest["adapter_post_script"]["script"]
                 if post_install_script:
+                    shutil.copy(
+                        os.path.join(project_path, post_install_script),
+                        os.path.join(temp_dir, post_install_script),
+                    )
                     zip_file(pak, post_install_script)
 
                 pre_install_script = manifest["adapter_pre_script"]["script"]
                 if pre_install_script:
+                    shutil.copy(
+                        os.path.join(project_path, pre_install_script),
+                        os.path.join(temp_dir, pre_install_script),
+                    )
                     zip_file(pak, pre_install_script)
 
                 if icon_file:
@@ -597,6 +642,7 @@ def main() -> None:
             pak_file = asyncio.run(
                 build_pak_file(
                     project_dir,
+                    temp_dir,
                     insecure_communication,
                     container_registry,
                     registry_username=registry_username,
