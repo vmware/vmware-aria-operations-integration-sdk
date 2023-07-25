@@ -143,15 +143,18 @@ def _read_with_merge_prompt(local_config_file: str) -> tuple[dict[Any, Any], Any
 
         if len(connections_data):
             should_merge = selection_prompt(
-                f"Found connection related elements in '{CONNECTIONS_FILE_NAME}', would you like to "
+                f"Found '{CONNECTIONS_FILE_NAME}' elements in '{CONFIG_FILE_NAME}', would you like to "
                 f"migrate them?",
                 [(True, "Yes"), (False, "No")],
-                description="All elements related to connection configuration will be migrated into the"
-                f" {CONNECTIONS_FILE_NAME} file.\n"
+                description=f"All elements related to {CONFIG_FILE_NAME} will be deleted.\n"
+                "If 'Yes' is selected, then the deleted elements will be migrated into"
+                f" {CONNECTIONS_FILE_NAME}.\n"
+                f"If 'No' is selected, then all deleted elements will not be migrated into "
+                f"{CONNECTIONS_FILE_NAME}.\n"
                 "To learn more about connection config file migration, visit\n"
                 f"https://vmware.github.io/vmware-aria-operations-integration-sdk"
                 f"/troubleshooting_and_faq/other"
-                f"/#why-am-i-seeing-deleting-connection-related-elements-from-configjson-message",
+                f"/#migrating-connection-related-elements-from-configjson-to-connectionsjson",
             )
 
             logger.info(f"Deleting connection-related elements from {CONFIG_FILE_NAME}")
