@@ -33,9 +33,6 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
@@ -262,7 +259,6 @@ def _migrate_connection_file(
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
         CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
         CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
         CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
     ]
 
