@@ -40,6 +40,7 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -565,6 +566,16 @@ def main() -> None:
             "--path",
             help="Path to root directory of project. Defaults to the current directory, "
             "or prompts if current directory is not a project.",
+        )
+
+        parser.add_argument(
+            "-P",
+            "--port",
+            help="Set the port number that the container exposes/uses",
+            type=int,
+            default=DEFAULT_PORT,
+            choices=range(0, 2**16),
+            metavar=f"[0, {2**16}]",
         )
 
         parser.add_argument(

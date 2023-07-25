@@ -41,6 +41,7 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
@@ -67,7 +68,6 @@ from vmware_aria_operations_integration_sdk.serialization import CollectionBundl
 from vmware_aria_operations_integration_sdk.serialization import ConnectBundle
 from vmware_aria_operations_integration_sdk.serialization import EndpointURLsBundle
 from vmware_aria_operations_integration_sdk.serialization import LongCollectionBundle
-from vmware_aria_operations_integration_sdk.serialization import ResponseBundle
 from vmware_aria_operations_integration_sdk.serialization import VersionBundle
 from vmware_aria_operations_integration_sdk.serialization import WaitBundle
 from vmware_aria_operations_integration_sdk.ui import countdown
@@ -726,6 +726,16 @@ def main() -> None:
         default=1,
         choices=range(0, 4),
         metavar="[0-3]",
+    )
+
+    parser.add_argument(
+        "-P",
+        "--port",
+        help="Set the port number that the container exposes/uses",
+        type=int,
+        default=DEFAULT_PORT,
+        choices=range(0, 2**16),
+        metavar=f"[0, {2**16}]",
     )
 
     methods = parser.add_subparsers(required=False)
