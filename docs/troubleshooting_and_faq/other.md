@@ -39,4 +39,4 @@ making using the same `container_repository` for the project easier.
 
     - `mp-build` and `mp-init` do not remove `config.json` from `.gitignore`, so users who want to share the project's
     `config.json` file must remove it manually.
-    - If `connections.json` exists, the user will not be prompoted.
+    - If `connections.json` exists, the user will not be prompted.
