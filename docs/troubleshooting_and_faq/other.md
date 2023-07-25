@@ -21,7 +21,7 @@ If the pak file installs successfully but errors when creating an account (adapt
 - Check that the Cloud Proxy supports containerized adapters. Containerized adapter
   support is supported in VMware Aria Operations version 8.10.0 and later.
 
-### Migrating connection-related elements from config.json to connections.json?
+### How do I migrate connection-related elements from config.json to connections.json?
 
 As of version 1.0.0,
 we've removed all connection-related elements from the [project config file](../references/project_config.md)
