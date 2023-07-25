@@ -24,7 +24,10 @@ if TYPE_CHECKING:
         AdapterContainer,
     )
 from vmware_aria_operations_integration_sdk.config import get_config_value
-from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    ADAPTER_DEFINITION_ENDPOINT,
+    CONFIG_FILE_NAME,
+)
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
 )
@@ -75,7 +78,7 @@ class Describe:
                 memory_limit: int = get_config_value(
                     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
                     1024,
-                    os.path.join(cls._path, "config.json"),
+                    os.path.join(cls._path, CONFIG_FILE_NAME),
                 )
                 cls._adapter_container.start(memory_limit)
                 await cls._adapter_container.wait_for_container_startup()

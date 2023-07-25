@@ -2,4 +2,5 @@ nav:
   - Python Adapter Library: python-lib
   - ...
   - project_config.md
+  - project_connections_config.md
   - global_config.md

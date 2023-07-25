@@ -28,7 +28,7 @@ from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_CONTAINER_REGISTRY_KEY,
+    CONFIG_CONTAINER_REPOSITORY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY,
@@ -39,6 +39,7 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -172,7 +173,7 @@ def _tag_and_push(
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
-            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+            CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
         )
     if not container_registry:
         container_registry = get_config_value(
@@ -209,7 +210,7 @@ def _tag_and_push(
         # We only set the value if we are able to push the image
         if original_value != container_registry and digest:
             set_config_value(
-                key=CONFIG_CONTAINER_REGISTRY_KEY,
+                key=CONFIG_CONTAINER_REPOSITORY_KEY,
                 value=container_registry,
                 config_file=config_file,
             )
@@ -324,10 +325,12 @@ async def build_pak_file(
     with open(manifest_file) as manifest_fd:
         manifest = json.load(manifest_fd)
 
-    config_file = os.path.join(project_path, "config.json")
+    config_file = os.path.join(project_path, CONFIG_FILE_NAME)
     adapter_container = AdapterContainer(project_path, docker_client)
     memory_limit = get_config_value(
-        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project_path, "config.json")
+        CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+        1024,
+        os.path.join(project_path, CONFIG_FILE_NAME),
     )
     adapter_container.start(memory_limit)
     try:

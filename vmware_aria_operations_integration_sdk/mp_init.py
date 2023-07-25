@@ -17,6 +17,7 @@ from git import Repo
 from vmware_aria_operations_integration_sdk import adapter_template
 from vmware_aria_operations_integration_sdk.adapter_template import java
 from vmware_aria_operations_integration_sdk.adapter_template import powershell
+from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
@@ -226,7 +227,7 @@ def create_project(
     with open(git_ignore, "w") as git_ignore_fd:
         git_ignore_fd.write("logs\n")
         git_ignore_fd.write("build\n")
-        git_ignore_fd.write("config.json\n")
+        git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
         git_ignore_fd.write(f"venv-{name}\n")
         git_ignore_fd.write("\n")
     repo.git.add(all=True)
