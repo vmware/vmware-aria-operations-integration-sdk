@@ -20,7 +20,6 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_SUITE_API_USERNAME_KEY,
 )
-from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
 from vmware_aria_operations_integration_sdk.project import Connection
@@ -55,7 +54,7 @@ async def send_post_to_adapter(
     try:
         request, response, elapsed_time = await post(
             client,
-            url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+            url=f"http://localhost:{project.port}/{endpoint}",
             json=await get_request_body(project, connection),
             headers={"Accept": "application/json"},
         )
@@ -73,12 +72,12 @@ async def send_post_to_adapter(
 
 
 async def send_get_to_adapter(
-    client: httpx.AsyncClient, endpoint: str
+    client: httpx.AsyncClient, port: int, endpoint: str
 ) -> Tuple[Request, Response, float]:
     try:
         request, response, elapsed_time = await get(
             client,
-            url=f"http://localhost:{DEFAULT_PORT}/{endpoint}",
+            url=f"http://localhost:{port}/{endpoint}",
             headers={"Accept": "application/json"},
         )
     except ReadTimeout as timeout:
@@ -95,7 +94,7 @@ async def send_get_to_adapter(
 
 
 async def get_request_body(project: Project, connection: Connection) -> Dict:
-    describe, resources = await Describe.get()
+    describe, resources = await Describe.get(project.port)
     adapter_instance = get_adapter_instance(describe)
     if adapter_instance is None:
         raise Exception(

@@ -60,6 +60,7 @@ from vmware_aria_operations_integration_sdk.filesystem import zip_file
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import get_project
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.propertiesfile import write_properties
 from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 from vmware_aria_operations_integration_sdk.ui import prompt
@@ -310,29 +311,31 @@ def remove_sdk_prefix(name: str) -> str:
 
 
 async def build_pak_file(
-    project_path: str,
+    project: Project,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
     **kwargs: Any,
 ) -> str:
     docker_client = init()
 
-    manifest_file = os.path.join(project_path, "manifest.txt")
+    manifest_file = os.path.join(project.path, "manifest.txt")
 
     with open(manifest_file) as manifest_fd:
         manifest = json.load(manifest_fd)
 
-    config_file = os.path.join(project_path, "config.json")
-    adapter_container = AdapterContainer(project_path, docker_client)
+    config_file = os.path.join(project.path, "config.json")
+    adapter_container = AdapterContainer(project.path, docker_client)
+    adapter_container.exposed_port = project.port
     memory_limit = get_config_value(
-        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project_path, "config.json")
+        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project.path, "config.json")
     )
-    adapter_container.start(memory_limit)
+    adapter_container.memory_limit = memory_limit
+    adapter_container.start()
     try:
         await adapter_container.wait_for_container_startup()
-        Describe.initialize(project_path, adapter_container)
-        describe, resources = await Describe.get()
-        validate_describe(project_path, describe)
+        Describe.initialize(project.path, adapter_container)
+        describe, resources = await Describe.get(project.port)
+        validate_describe(project.path, describe)
 
         try:
             describe_adapter_kind_key = get_adapter_kind(describe)
@@ -371,7 +374,7 @@ async def build_pak_file(
             with Spinner("Creating Adapter Image"):
                 # The first item is the Image object for the image that was built.
                 # The second item is a generator of the build logs as JSON-decoded objects.
-                image, _ = build_image(docker_client, path=project_path)
+                image, _ = build_image(docker_client, path=project.path)
 
             domain, port, path, digest = _tag_and_push(
                 image,
@@ -413,7 +416,7 @@ async def build_pak_file(
                 try:
                     async with httpx.AsyncClient(timeout=30) as client:
                         request, response, elapsed_time = await send_get_to_adapter(
-                            client, API_VERSION_ENDPOINT
+                            client, project.port, API_VERSION_ENDPOINT
                         )
                         if response.is_success:
                             api = json.loads(response.text)
@@ -578,9 +581,8 @@ def main() -> None:
         except Exception as e:
             logger.warning(f"Unable to save logs to {log_file_path}: {e}")
 
-        project_dir = project.path
         # We want to store pak files in the build dir
-        build_dir = os.path.join(project_dir, "build")
+        build_dir = os.path.join(project.path, "build")
         # Any artifacts for generating the pak file should be stored here
         temp_dir = os.path.join(build_dir, "tmp")
 
@@ -596,7 +598,7 @@ def main() -> None:
 
             pak_file = asyncio.run(
                 build_pak_file(
-                    project_dir,
+                    project,
                     insecure_communication,
                     container_registry,
                     registry_username=registry_username,
@@ -619,7 +621,7 @@ def main() -> None:
                 if os.getcwd() == temp_dir:
                     # Change working directory to the project directory, otherwise we
                     # won't be able to delete the directory in Windows-based systems
-                    os.chdir(project_dir)
+                    os.chdir(project.path)
                 rmdir(temp_dir)
     except DockerWrapperError as error:
         logger.error("Unable to build pak file")

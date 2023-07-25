@@ -95,13 +95,13 @@ class Project:
         self,
         path: str,
         connections: Optional[List[Connection]] = None,
-        docker_port: int = 8080,
+        port: int = 8080,
     ) -> None:
         if connections is None:
             connections = []
         self.path = os.path.abspath(path)
         self.connections = connections
-        self.docker_port = docker_port
+        self.port = port
 
     def name(self) -> str:
         return get_project_name(self.path)
@@ -111,7 +111,7 @@ class Project:
         set_config_value(
             "connections", [conn.__dict__ for conn in self.connections], config_file
         )
-        set_config_value("docker_port", self.docker_port, config_file)
+        set_config_value("docker_port", self.port, config_file)
 
     @classmethod
     def extract(cls, path: str) -> Project:

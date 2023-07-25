@@ -12,11 +12,6 @@
       "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
     }
   },
-  "servers": [
-    {
-      "url": "http://localhost:8080"
-    }
-  ],
   "paths": {
     "/apiVersion": {
       "get": {

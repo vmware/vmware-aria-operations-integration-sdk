@@ -267,7 +267,7 @@ async def run_get_adapter_definition(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_get_to_adapter(
-                    client, ADAPTER_DEFINITION_ENDPOINT
+                    client, adapter_container.exposed_port, ADAPTER_DEFINITION_ENDPOINT
                 )
             return AdapterDefinitionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -287,7 +287,7 @@ async def run_get_server_version(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_get_to_adapter(
-                    client, API_VERSION_ENDPOINT
+                    client, adapter_container.exposed_port, API_VERSION_ENDPOINT
                 )
             return VersionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -307,9 +307,11 @@ async def run(arguments: Any) -> None:
     project = get_project(arguments)
 
     # start to get/build container image as soon as possible, which requires project
-    # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
-    # the command line and there are interactive prompts, this can provide a noticeable speed increase.
+    # get_container_image is threaded, so it can build in the background. If the user
+    # didn't specify all parameters on the command line and there are interactive
+    # prompts, this can provide a noticeable speed increase.
     adapter_container = AdapterContainer(project.path)
+    adapter_container.exposed_port = project.port
     Describe.initialize(project.path, adapter_container)
 
     # Set up logger, which requires project
@@ -337,7 +339,8 @@ async def run(arguments: Any) -> None:
     connection = await get_connection(project, adapter_container, arguments)
 
     try:
-        adapter_container.start(connection.get_memory_limit())
+        adapter_container.memory_limit = connection.get_memory_limit()
+        adapter_container.start()
         # Get the method to test
         method = get_method(arguments)
         verbosity = arguments.verbosity
@@ -483,7 +486,7 @@ async def get_connection(
         exit(1)
 
     # We should ensure the 'describe' file is valid before parsing through it.
-    describe, resources = await Describe.get()
+    describe, resources = await Describe.get(project.port)
     validate_describe(project.path, describe)
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:

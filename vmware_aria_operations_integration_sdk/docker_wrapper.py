@@ -272,6 +272,7 @@ def run_image(
     image: Image,
     path: str,
     container_memory_limit: Optional[int] = DEFAULT_MEMORY_LIMIT,
+    exposed_port: Optional[int] = DEFAULT_PORT,
 ) -> Container:
     # Note: errors from running image (e.g., if there is a process using port 8080 it will cause an error) are handled
     # by the try/except block in the 'main' function
@@ -280,6 +281,10 @@ def run_image(
     if container_memory_limit:
         memory_limit = container_memory_limit
 
+    port = DEFAULT_PORT
+    if exposed_port:
+        port = exposed_port
+
     # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
     # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory
     # setting is a combination of memory and swap, so this will limit swap space to a max of 512MB regardless
@@ -287,7 +292,7 @@ def run_image(
     return client.containers.run(
         image,
         detach=True,
-        ports={"8080/tcp": DEFAULT_PORT},
+        ports={"8080/tcp": port},
         mem_limit=f"{memory_limit}m",
         memswap_limit=f"{memory_limit + 512}m",
         volumes={f"{path}/logs": {"bind": "/var/log/", "mode": "rw"}},
