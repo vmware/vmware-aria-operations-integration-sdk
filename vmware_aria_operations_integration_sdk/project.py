@@ -122,64 +122,6 @@ class Connection:
         )
 
 
-def _read_with_merge_prompt(
-    path: str,
-    local_config_file: str,
-    connections_file: str,
-) -> tuple[dict[Any, Any], Any]:
-    connections_data = {}
-    connection_file_exists = os.path.isfile(connections_file)
-    connection_file_element_keys = [
-        CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-        CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-        CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
-        CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
-    ]
-
-    with open(local_config_file, "r+") as _config:
-        json_config = json.load(_config)
-        docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
-
-        for element in connection_file_element_keys:
-            if element in json_config:
-                connections_data[element] = json_config.get(element)
-                del json_config[element]
-
-        if len(connections_data):
-            if not connection_file_exists and selection_prompt(
-                f"Found '{CONNECTIONS_FILE_NAME}' elements in '{CONFIG_FILE_NAME}', would you like to "
-                f"migrate them?",
-                [(True, "Yes"), (False, "No")],
-                description="If 'Yes' is selected, all elements will be migrated into"
-                f" {CONNECTIONS_FILE_NAME}.\n"
-                f"If 'No' is selected, then a new connections.json file will be created, and the connection related "
-                f"elements will remain in the {CONFIG_FILE_NAME}.\n"
-                "To learn more about connection config file migration, visit\n"
-                f"https://vmware.github.io/vmware-aria-operations-integration-sdk"
-                f"/troubleshooting_and_faq/other"
-                f"/#migrating-connection-related-elements-from-configjson-to-connectionsjson",
-            ):
-                logger.info(
-                    f"Deleting connection-related elements from {CONFIG_FILE_NAME}"
-                )
-                _config.seek(0)
-                json.dump(json_config, _config, indent=4, sort_keys=True)
-                _config.truncate()
-            else:
-                connections_data = {}
-
-    if not connection_file_exists:
-        with open(connections_file, "w") as _connections:
-            json.dump(connections_data, _connections, indent=4, sort_keys=True)
-
-        _safe_append_to_gitignore(
-            os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
-        )
-
-    return connections_data, docker_port
-
-
 class Project:
     def __init__(
         self,
@@ -300,6 +242,65 @@ def _add_and_update_project_paths(path: str) -> None:
             )
         ),
     )
+
+
+def _read_with_merge_prompt(
+    path: str,
+    local_config_file: str,
+    connections_file: str,
+) -> tuple[dict[Any, Any], Any]:
+    connections_data = {}
+    connection_file_exists = os.path.isfile(connections_file)
+    connection_file_element_keys = [
+        CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_CONNECTION_KEY,
+        CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
+    ]
+
+    with open(local_config_file, "r+") as _config:
+        json_config = json.load(_config)
+        docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
+
+        for element in connection_file_element_keys:
+            if element in json_config:
+                connections_data[element] = json_config.get(element)
+                del json_config[element]
+
+        if len(connections_data):
+            if not connection_file_exists and selection_prompt(
+                f"Found '{CONNECTIONS_FILE_NAME}' elements in '{CONFIG_FILE_NAME}', would you like to "
+                f"migrate them?",
+                [(True, "Yes"), (False, "No")],
+                description="If 'Yes' is selected, all elements will be migrated into"
+                f" {CONNECTIONS_FILE_NAME}.\n"
+                f"If 'No' is selected, then a new {CONNECTIONS_FILE_NAME} file will be created,"
+                " but the connection related "
+                f"elements will remain in the {CONFIG_FILE_NAME}.\n"
+                "To learn more about connection config file migration, visit\n"
+                f"https://vmware.github.io/vmware-aria-operations-integration-sdk"
+                f"/troubleshooting_and_faq/other"
+                f"/#how-do-i-migrate-connection-related-elements-from-configjson-to-connectionsjson",
+            ):
+                logger.info(
+                    f"Deleting connection-related elements from {CONFIG_FILE_NAME}"
+                )
+                _config.seek(0)
+                json.dump(json_config, _config, indent=4, sort_keys=True)
+                _config.truncate()
+            else:
+                connections_data = {}
+
+    if not connection_file_exists:
+        with open(connections_file, "w") as _connections:
+            json.dump(connections_data, _connections, indent=4, sort_keys=True)
+
+        _safe_append_to_gitignore(
+            os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
+        )
+
+    return connections_data, docker_port
 
 
 def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
