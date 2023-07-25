@@ -124,11 +124,6 @@ class Connection:
 
 
 def _read_with_merge_prompt(local_config_file: str) -> tuple[dict[Any, Any], Any]:
-    """
-    Reads the localconfig file and
-    :param local_config_file:
-    :return:
-    """
     connections_data = {}
     connection_file_element_keys = [
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
@@ -151,25 +146,23 @@ def _read_with_merge_prompt(local_config_file: str) -> tuple[dict[Any, Any], Any
                 del json_config[element]
 
         if len(connections_data):
-            if selection_prompt(
-                f"Found connection related elements in '{local_config_file}', would you like to "
+            should_merge = selection_prompt(
+                f"Found connection related elements in '{CONNECTIONS_FILE_NAME}', would you like to "
                 f"migrate them?",
                 [(True, "Yes"), (False, "No")],
                 description="All elements related to connection configuration will be migrated into the"
-                f" {CONNECTIONS_FILE_NAME} file\n"
+                f" {CONNECTIONS_FILE_NAME} file.\n"
                 "To learn more about connection config file migration, visit\n"
                 f"https://vmware.github.io/vmware-aria-operations-integration-sdk"
                 f"/troubleshooting_and_faq/other"
                 f"/#why-am-i-seeing-deleting-connection-related-elements-from-configjson-message",
-            ):
-                _config.seek(0)
-                logger.info(
-                    f"Deleting connection-related elements from {CONFIG_FILE_NAME}"
-                )
-                json.dump(json_config, _config, indent=4, sort_keys=True)
-                _config.truncate()
-            else:
-                connections_data.clear()
+            )
+
+            logger.info(f"Deleting connection-related elements from {CONFIG_FILE_NAME}")
+            _config.seek(0)
+            json.dump(json_config, _config, indent=4, sort_keys=True)
+            _config.truncate()
+            connections_data = connections_data if should_merge else {}
 
     return connections_data, docker_port
 
@@ -215,40 +208,20 @@ class Project:
 
         connections_data, docker_port = _read_with_merge_prompt(local_config_file)
 
-        if not os.path.isfile(connections_file):
+        if not os.path.isfile(connections_file) or len(connections_data):
             with open(connections_file, "w") as _connections:
                 json.dump(connections_data, _connections, indent=4, sort_keys=True)
 
-        with open(connections_file, "r+") as _connections:
+        with open(connections_file, "r") as _connections:
             json_config = json.load(_connections)
+            connections = [
+                Connection.extract(connection)
+                for connection in json_config.get(
+                    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
+                )
+            ]
 
-            # Combine any connection_data found previously and remove duplicates
-            # if user chose not to merge connections, then connections_data should be empty
-            current_connections = json_config.get(
-                CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
-            )
-
-            # we use a set to remove duplicates, then convert it back to a list
-            all_connections = list(
-                {
-                    Connection.extract(connection)
-                    for connection in chain(
-                        current_connections,
-                        connections_data.get(
-                            CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
-                        ),
-                    )
-                }
-            )
-
-            # In cases where merge the connections' list, we have to update the connections
-            if current_connections != all_connections:
-                logger.error(f"current json object: {json_config}")
-                _connections.seek(0)
-                json_config[CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY] = all_connections
-                json.dump(json_config, _connections, indent=4, sort_keys=True)
-
-        return Project(path, all_connections, docker_port)
+        return Project(path, connections, docker_port)
 
 
 def get_project_name(path: str) -> str:
@@ -332,6 +305,7 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
         with open(gitignore_file_path, "a") as gitignore:
             gitignore.write(f"{token}\n")
 
+        # TODO: revise message
         logger.info(f"Appended '{token}' to .gitignore")
     except FileNotFoundError:
         logger.warning(
