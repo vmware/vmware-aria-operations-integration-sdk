@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-from itertools import chain
 from typing import Any
 from typing import Dict
 from typing import List
@@ -202,15 +201,15 @@ class Project:
             with open(local_config_file, "w") as _config:
                 json.dump({}, _config, indent=4, sort_keys=True)
 
-        _safe_append_to_gitignore(
-            os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
-        )
-
         connections_data, docker_port = _read_with_merge_prompt(local_config_file)
 
         if not os.path.isfile(connections_file) or len(connections_data):
             with open(connections_file, "w") as _connections:
                 json.dump(connections_data, _connections, indent=4, sort_keys=True)
+
+        _safe_append_to_gitignore(
+            os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
+        )
 
         with open(connections_file, "r") as _connections:
             json_config = json.load(_connections)
@@ -305,7 +304,6 @@ def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
         with open(gitignore_file_path, "a") as gitignore:
             gitignore.write(f"{token}\n")
 
-        # TODO: revise message
         logger.info(f"Appended '{token}' to .gitignore")
     except FileNotFoundError:
         logger.warning(
