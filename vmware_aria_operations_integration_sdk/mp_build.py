@@ -339,7 +339,7 @@ async def build_pak_file(
     try:
         await adapter_container.wait_for_container_startup()
         Describe.initialize(project.path, adapter_container)
-        describe, resources = await Describe.get(project.port)
+        describe, resources = await Describe.get(adapter_container.exposed_port)
         validate_describe(project.path, describe)
 
         try:
@@ -440,7 +440,7 @@ async def build_pak_file(
                 try:
                     async with httpx.AsyncClient(timeout=30) as client:
                         request, response, elapsed_time = await send_get_to_adapter(
-                            client, project.port, API_VERSION_ENDPOINT
+                            client, adapter_container.exposed_port, API_VERSION_ENDPOINT
                         )
                         if response.is_success:
                             api = json.loads(response.text)

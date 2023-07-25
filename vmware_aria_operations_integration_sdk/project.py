@@ -104,16 +104,43 @@ class Connection:
         return memory_limit  # type: ignore
 
     @classmethod
-    def extract(cls, json_connection: Dict) -> Connection:
+    def extract(cls, path: str, json_connection: Dict) -> Connection:
         name = json_connection[CONNECTIONS_CONFIG_CONNECTION_NAME_KEY]
         identifiers = json_connection[CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY]
         credential = json_connection[CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY]
         certificates = json_connection.get(
             CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY, None
         )
-        hostname = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY, None)
-        username = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY, None)
-        password = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY, None)
+
+        default_hostname = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+            "hostname",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+        default_username = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+            "username",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+        default_password = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+            "password",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+
+        hostname = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY)
+            or default_hostname
+        )
+        username = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY)
+            or default_username
+        )
+        password = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY)
+            or default_password
+        )
+
         return Connection(
             name, identifiers, credential, certificates, (hostname, username, password)
         )
@@ -168,7 +195,7 @@ class Project:
         with open(connections_file, "r") as _connections:
             json_config = json.load(_connections)
             connections = [
-                Connection.extract(connection)
+                Connection.extract(path, connection)
                 for connection in json_config.get(
                     CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
                 )
