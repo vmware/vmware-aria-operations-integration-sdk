@@ -202,7 +202,7 @@ async def run_collect(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, COLLECT_ENDPOINT
+                    client, adapter_container.exposed_port, connection, COLLECT_ENDPOINT
                 )
             return CollectionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -224,7 +224,7 @@ async def run_connect(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, CONNECT_ENDPOINT
+                    client, adapter_container.exposed_port, connection, CONNECT_ENDPOINT
                 )
             return ConnectBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -246,7 +246,10 @@ async def run_get_endpoint_urls(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, ENDPOINTS_URLS_ENDPOINT
+                    client,
+                    adapter_container.exposed_port,
+                    connection,
+                    ENDPOINTS_URLS_ENDPOINT,
                 )
             return EndpointURLsBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -487,7 +490,7 @@ async def get_connection(
         exit(1)
 
     # We should ensure the 'describe' file is valid before parsing through it.
-    describe, resources = await Describe.get(project.port)
+    describe, resources = await Describe.get(adapter_container.exposed_port)
     validate_describe(project.path, describe)
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:

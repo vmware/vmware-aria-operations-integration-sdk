@@ -10,17 +10,6 @@ from httpx import ReadTimeout
 from httpx import Response
 from requests import Request
 
-from vmware_aria_operations_integration_sdk.config import get_config_value
-from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
 from vmware_aria_operations_integration_sdk.project import Connection
@@ -50,13 +39,13 @@ async def post(
 
 
 async def send_post_to_adapter(
-    client: httpx.AsyncClient, project: Project, connection: Connection, endpoint: str
+    client: httpx.AsyncClient, port: int, connection: Connection, endpoint: str
 ) -> Tuple[Request, Response, float]:
     try:
         request, response, elapsed_time = await post(
             client,
-            url=f"http://localhost:{project.port}/{endpoint}",
-            json=await get_request_body(project, connection),
+            url=f"http://localhost:{port}/{endpoint}",
+            json=await get_request_body(port, connection),
             headers={"Accept": "application/json"},
         )
     except ReadTimeout as timeout:
@@ -94,8 +83,8 @@ async def send_get_to_adapter(
     return request, response, elapsed_time
 
 
-async def get_request_body(project: Project, connection: Connection) -> Dict:
-    describe, resources = await Describe.get(project.port)
+async def get_request_body(port: int, connection: Connection) -> Dict:
+    describe, resources = await Describe.get(port)
     adapter_instance = get_adapter_instance(describe)
     if adapter_instance is None:
         raise Exception(
@@ -103,22 +92,6 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
             "adapter instance resource kind (with attribute type=7) "
             "exists."
         )
-
-    default_hostname = get_config_value(
-        CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-        "hostname",
-        os.path.join(project.path, CONNECTIONS_FILE_NAME),
-    )
-    default_username = get_config_value(
-        CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-        "username",
-        os.path.join(project.path, CONNECTIONS_FILE_NAME),
-    )
-    default_password = get_config_value(
-        CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        "password",
-        os.path.join(project.path, CONNECTIONS_FILE_NAME),
-    )
 
     identifiers = []
     if connection.identifiers is not None:
@@ -159,9 +132,9 @@ async def get_request_body(project: Project, connection: Connection) -> Dict:
             "identifiers": identifiers,
         },
         "clusterConnectionInfo": {
-            "userName": connection.suite_api_username or default_username,
-            "password": connection.suite_api_password or default_password,
-            "hostName": connection.suite_api_hostname or default_hostname,
+            "userName": connection.suite_api_username,
+            "password": connection.suite_api_password,
+            "hostName": connection.suite_api_hostname,
         },
         "certificateConfig": {"certificates": connection.certificates or []},
     }
