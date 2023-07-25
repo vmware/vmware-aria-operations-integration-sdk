@@ -37,6 +37,6 @@ making using the same `container_repository` for the project easier.
 
 ???+ note
 
-    - If user decides to migrate elements and there already exist a `connections.json`, it will be overwritten.
     - `mp-build` and `mp-init` do not remove `config.json` from `.gitignore`, so users who want to share the project's
     `config.json` file must remove it manually.
+    - If `connections.json` exists, the user will not be prompoted.
