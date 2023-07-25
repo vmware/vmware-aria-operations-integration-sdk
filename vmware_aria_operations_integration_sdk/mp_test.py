@@ -43,6 +43,9 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    GLOBAL_CONFIG_CONTAINER_PORT_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -315,7 +318,8 @@ async def run(arguments: Any) -> None:
     # didn't specify all parameters on the command line and there are interactive
     # prompts, this can provide a noticeable speed increase.
     adapter_container = AdapterContainer(project.path)
-    adapter_container.exposed_port = project.port
+    adapter_container.exposed_port = arguments.port
+    logger.error(arguments.port)
     Describe.initialize(project.path, adapter_container)
 
     # Set up logger, which requires project
@@ -736,7 +740,7 @@ def main() -> None:
         "--port",
         help="Set the port number that the container exposes/uses",
         type=int,
-        default=DEFAULT_PORT,
+        default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
         choices=range(0, 2**16),
         metavar=f"[0, {2**16}]",
     )

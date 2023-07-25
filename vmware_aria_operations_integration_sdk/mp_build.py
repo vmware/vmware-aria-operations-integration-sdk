@@ -41,6 +41,9 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.constant import (
+    GLOBAL_CONFIG_CONTAINER_PORT_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -221,7 +224,7 @@ def _tag_and_push(
             container_registry
         )
 
-    return (components["domain"], components["port"], components["path"], digest)
+    return components["domain"], components["port"], components["path"], digest
 
 
 def registry_prompt(default: str) -> str:
@@ -315,6 +318,7 @@ def remove_sdk_prefix(name: str) -> str:
 
 async def build_pak_file(
     project: Project,
+    port: int,
     temp_dir: str,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
@@ -329,7 +333,7 @@ async def build_pak_file(
 
     config_file = os.path.join(project.path, CONFIG_FILE_NAME)
     adapter_container = AdapterContainer(project.path, docker_client)
-    adapter_container.exposed_port = project.port
+    adapter_container.exposed_port = port
     memory_limit = get_config_value(
         CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
         1024,
@@ -382,7 +386,7 @@ async def build_pak_file(
                 # The second item is a generator of the build logs as JSON-decoded objects.
                 image, _ = build_image(docker_client, path=project.path)
 
-            domain, port, path, digest = _tag_and_push(
+            domain, container_registry_port, path, digest = _tag_and_push(
                 image,
                 container_registry_arg,
                 config_file,
@@ -392,7 +396,11 @@ async def build_pak_file(
                 **kwargs,
             )
 
-            conf_registry_field = domain if not port else f"{domain}:{port}"
+            conf_registry_field = (
+                domain
+                if not container_registry_port
+                else f"{domain}:{container_registry_port}"
+            )
             conf_repo_field = path
 
         finally:
@@ -573,7 +581,7 @@ def main() -> None:
             "--port",
             help="Set the port number that the container exposes/uses",
             type=int,
-            default=DEFAULT_PORT,
+            default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
             choices=range(0, 2**16),
             metavar=f"[0, {2**16}]",
         )
@@ -658,6 +666,7 @@ def main() -> None:
             pak_file = asyncio.run(
                 build_pak_file(
                     project,
+                    parsed_args.port,
                     temp_dir,
                     insecure_communication,
                     container_registry,
