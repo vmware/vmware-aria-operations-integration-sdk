@@ -48,8 +48,6 @@ class AdapterContainer:
         self.stats: Optional[ContainerStats] = None
 
     def start(self) -> None:
-        self.memory_limit = self.memory_limit
-        self.exposed_port = self.exposed_port
         self._container_task = asyncio.create_task(self._threaded_start())
 
     async def _threaded_start(self) -> None:
