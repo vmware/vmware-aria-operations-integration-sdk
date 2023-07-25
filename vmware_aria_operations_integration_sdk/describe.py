@@ -24,7 +24,10 @@ if TYPE_CHECKING:
         AdapterContainer,
     )
 from vmware_aria_operations_integration_sdk.config import get_config_value
-from vmware_aria_operations_integration_sdk.constant import ADAPTER_DEFINITION_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    ADAPTER_DEFINITION_ENDPOINT,
+    CONFIG_FILE_NAME,
+)
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
 )

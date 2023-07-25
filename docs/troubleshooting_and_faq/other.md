@@ -21,3 +21,22 @@ If the pak file installs successfully but errors when creating an account (adapt
 - Check that the Cloud Proxy supports containerized adapters. Containerized adapter
   support is supported in VMware Aria Operations version 8.10.0 and later.
 
+### How do I migrate connection-related elements from config.json to connections.json?
+
+As of version 1.0.0,
+all connection-related elements from the [project config file](../references/project_config.md)
+have been migrated to a new
+[project connections JSON file](../references/project_connections_config.md)(`connections.json`).
+As part of this change, both `mp-test` and `mp-build` will offer to migrate connection-related
+elements to the `connections.json` file when present in the `config.json` file
+(The new `connections.json` file is automatically added to the project's `.gitignore`
+to prevent sensitive information from being committed).
+Moving all the connection-related information away from the `config.json` file allows users
+to include their project configuration file in version control,
+making using the same `container_repository` for the project easier.
+
+???+ note
+
+    - `mp-build` and `mp-init` do not remove `config.json` from `.gitignore`, so users who want to share the project's
+    `config.json` file must remove it manually.
+    - If `connections.json` exists, the user will not be prompted.

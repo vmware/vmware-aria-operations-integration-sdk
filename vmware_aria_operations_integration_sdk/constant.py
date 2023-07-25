@@ -29,17 +29,28 @@ except OSError as e:
     print(f"Error: {e}")
     exit(1)
 
-GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, "config.json")
-CONFIG_CONTAINER_REGISTRY_KEY = "container_registry"
+# Configuration files
+CONFIG_FILE_NAME = "config.json"
+GLOBAL_CONFIG_FILE = path.join(CONFIG_DIRECTORY, CONFIG_FILE_NAME)
+CONNECTIONS_FILE_NAME = "connections.json"
+CONFIG_CONTAINER_REPOSITORY_KEY = "container_repository"
 CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY = "docker_registry"
 CONFIG_DEFAULT_MEMORY_LIMIT_KEY = "default_memory_limit"
 CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY = "default_container_registry_path"
+CONFIG_DOCKER_PORT_KEY = "docker_port"
 CONFIG_PROJECTS_PATH_KEY = "projects"
-CONFIG_SUITE_API_HOSTNAME_KEY = "suite_api_hostname"
-CONFIG_SUITE_API_USERNAME_KEY = "suite_api_username"
-CONFIG_SUITE_API_PASSWORD_KEY = "suite_api_password"
+CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY = "suite_api_hostname"
+CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY = "suite_api_username"
+CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY = "suite_api_password"
+CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY = "connections"
+CONNECTIONS_CONFIG_CONNECTION_NAME_KEY = "name"
+CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY = "identifiers"
+CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY = "credential"
+CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY = "certificates"
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
+
+# Management pak
 REPO_NAME = "vmware-aria-operations-integration-sdk"
 REPOSITORY_LOCATION = "repository_location"
 COLLECT_ENDPOINT = "collect"

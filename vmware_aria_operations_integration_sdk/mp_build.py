@@ -28,7 +28,7 @@ from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_CONTAINER_REGISTRY_KEY,
+    CONFIG_CONTAINER_REPOSITORY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_CONTAINER_REGISTRY_PATH_KEY,
@@ -39,6 +39,7 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
 )
+from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -57,6 +58,7 @@ from vmware_aria_operations_integration_sdk.filesystem import rm
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
 from vmware_aria_operations_integration_sdk.filesystem import zip_dir
 from vmware_aria_operations_integration_sdk.filesystem import zip_file
+from vmware_aria_operations_integration_sdk.filesystem import zip_sub_dir
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import get_project
@@ -172,7 +174,7 @@ def _tag_and_push(
     container_registry = container_registry_arg
     if not container_registry:
         container_registry = get_config_value(
-            CONFIG_CONTAINER_REGISTRY_KEY, config_file=config_file
+            CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
         )
     if not container_registry:
         container_registry = get_config_value(
@@ -209,7 +211,7 @@ def _tag_and_push(
         # We only set the value if we are able to push the image
         if original_value != container_registry and digest:
             set_config_value(
-                key=CONFIG_CONTAINER_REGISTRY_KEY,
+                key=CONFIG_CONTAINER_REPOSITORY_KEY,
                 value=container_registry,
                 config_file=config_file,
             )
@@ -312,6 +314,7 @@ def remove_sdk_prefix(name: str) -> str:
 
 async def build_pak_file(
     project: Project,
+    temp_dir: str,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
     **kwargs: Any,
@@ -323,11 +326,13 @@ async def build_pak_file(
     with open(manifest_file) as manifest_fd:
         manifest = json.load(manifest_fd)
 
-    config_file = os.path.join(project.path, "config.json")
+    config_file = os.path.join(project.path, CONFIG_FILE_NAME)
     adapter_container = AdapterContainer(project.path, docker_client)
     adapter_container.exposed_port = project.port
     memory_limit = get_config_value(
-        CONFIG_DEFAULT_MEMORY_LIMIT_KEY, 1024, os.path.join(project.path, "config.json")
+        CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
+        1024,
+        os.path.join(project.path, CONFIG_FILE_NAME),
     )
     adapter_container.memory_limit = memory_limit
     adapter_container.start()
@@ -397,16 +402,35 @@ async def build_pak_file(
         with Spinner("Assembling Pak File"):
             adapter_dir = adapter_kind_key
             mkdir(adapter_dir)
-            shutil.copytree("conf", os.path.join(adapter_dir, "conf"))
-            if not os.path.exists(os.path.join(adapter_dir, "conf", "describe.xml")):
+
+            shutil.copytree(
+                os.path.join(project.path, "conf"),
+                os.path.join(temp_dir, adapter_dir, "conf"),
+            )
+            shutil.copytree(
+                os.path.join(project.path, "resources"),
+                os.path.join(temp_dir, "resources"),
+            )
+            shutil.copytree(
+                os.path.join(project.path, "content"), os.path.join(temp_dir, "content")
+            )
+
+            if not os.path.exists(
+                os.path.join(temp_dir, adapter_dir, "conf", "describe.xml")
+            ):
                 write_describe(
-                    describe, os.path.join(adapter_dir, "conf", "describe.xml")
+                    describe,
+                    os.path.join(temp_dir, adapter_dir, "conf", "describe.xml"),
                 )
-                mkdir(os.path.join(adapter_dir, "conf", "resources"))
+                mkdir(os.path.join(temp_dir, adapter_dir, "conf", "resources"))
                 write_properties(
                     resources,
                     os.path.join(
-                        adapter_dir, "conf", "resources", "resources.properties"
+                        temp_dir,
+                        adapter_dir,
+                        "conf",
+                        "resources",
+                        "resources.properties",
                     ),
                 )
 
@@ -446,14 +470,26 @@ async def build_pak_file(
 
             with zipfile.ZipFile("adapter.zip", "w") as adapter:
                 zip_file(adapter, adapter_conf.name)
+                shutil.copy(
+                    os.path.join(project.path, "manifest.txt"),
+                    os.path.join(temp_dir, "manifest.txt"),
+                )
                 zip_file(adapter, "manifest.txt")
                 if eula_file:
+                    shutil.copy(
+                        os.path.join(project.path, eula_file),
+                        os.path.join(temp_dir, eula_file),
+                    )
                     zip_file(adapter, eula_file)
                 if icon_file:
+                    shutil.copy(
+                        os.path.join(project.path, icon_file),
+                        os.path.join(temp_dir, icon_file),
+                    )
                     zip_file(adapter, icon_file)
 
-                zip_dir(adapter, "resources")
-                zip_dir(adapter, adapter_dir)
+                zip_sub_dir(adapter, project.path, "resources")
+                zip_sub_dir(adapter, temp_dir, adapter_dir)
 
             rm(adapter_conf.name)
             rmdir(adapter_dir)
@@ -470,14 +506,26 @@ async def build_pak_file(
 
                 pak_validation_script = manifest["pak_validation_script"]["script"]
                 if pak_validation_script:
+                    shutil.copy(
+                        os.path.join(project.path, pak_validation_script),
+                        os.path.join(temp_dir, pak_validation_script),
+                    )
                     zip_file(pak, pak_validation_script)
 
                 post_install_script = manifest["adapter_post_script"]["script"]
                 if post_install_script:
+                    shutil.copy(
+                        os.path.join(project.path, post_install_script),
+                        os.path.join(temp_dir, post_install_script),
+                    )
                     zip_file(pak, post_install_script)
 
                 pre_install_script = manifest["adapter_pre_script"]["script"]
                 if pre_install_script:
+                    shutil.copy(
+                        os.path.join(project.path, pre_install_script),
+                        os.path.join(temp_dir, pre_install_script),
+                    )
                     zip_file(pak, pre_install_script)
 
                 if icon_file:
@@ -599,6 +647,7 @@ def main() -> None:
             pak_file = asyncio.run(
                 build_pak_file(
                     project,
+                    temp_dir,
                     insecure_communication,
                     container_registry,
                     registry_username=registry_username,

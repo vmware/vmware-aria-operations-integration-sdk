@@ -52,6 +52,23 @@ def zip_dir(
         zip_file(_zip, file)
 
 
+def zip_sub_dir(
+    _zip: zipfile.ZipFile,
+    parent_dir: str,
+    directory: str,
+    include_empty_dirs: bool = True,
+) -> None:
+    current_dir = os.getcwd()
+    try:
+        os.chdir(parent_dir)
+        for file in files_in_directory(
+            directory, include_empty_dirs=include_empty_dirs
+        ):
+            zip_file(_zip, file)
+    finally:
+        os.chdir(current_dir)
+
+
 def files_in_directory(
     directory: str,
     dir_inclusion_func: Callable[[str], bool] = lambda file: True,

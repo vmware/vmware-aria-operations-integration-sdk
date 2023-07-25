@@ -14,7 +14,34 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
+from vmware_aria_operations_integration_sdk.constant import CONFIG_DOCKER_PORT_KEY
+from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTION_NAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
@@ -78,13 +105,15 @@ class Connection:
 
     @classmethod
     def extract(cls, json_connection: Dict) -> Connection:
-        name = json_connection["name"]
-        identifiers = json_connection["identifiers"]
-        credential = json_connection["credential"]
-        certificates = json_connection.get("certificates", None)
-        hostname = json_connection.get("suite_api_hostname", None)
-        username = json_connection.get("suite_api_username", None)
-        password = json_connection.get("suite_api_password", None)
+        name = json_connection[CONNECTIONS_CONFIG_CONNECTION_NAME_KEY]
+        identifiers = json_connection[CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY]
+        credential = json_connection[CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY]
+        certificates = json_connection.get(
+            CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY, None
+        )
+        hostname = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY, None)
+        username = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY, None)
+        password = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY, None)
         return Connection(
             name, identifiers, credential, certificates, (hostname, username, password)
         )
@@ -107,27 +136,45 @@ class Project:
         return get_project_name(self.path)
 
     def record(self) -> None:
-        config_file = os.path.join(self.path, "config.json")
+        config_file = os.path.join(self.path, CONFIG_FILE_NAME)
+        connections_file = os.path.join(self.path, CONNECTIONS_FILE_NAME)
         set_config_value(
-            "connections", [conn.__dict__ for conn in self.connections], config_file
+            CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
+            [conn.__dict__ for conn in self.connections],
+            connections_file,
         )
-        set_config_value("docker_port", self.port, config_file)
+        set_config_value(CONFIG_DOCKER_PORT_KEY, self.port, config_file)
 
     @classmethod
     def extract(cls, path: str) -> Project:
-        local_config_file = os.path.join(path, "config.json")
-        if not os.path.isfile(local_config_file):
-            with open(local_config_file, "w") as config:
-                json.dump({}, config, indent=4, sort_keys=True)
+        local_config_file = os.path.join(path, CONFIG_FILE_NAME)
+        connections_file = os.path.join(path, CONNECTIONS_FILE_NAME)
 
-        with open(local_config_file, "r") as config:
-            json_config = json.load(config)
+        if not os.path.isfile(local_config_file):
+            with open(local_config_file, "w") as _config:
+                json.dump({}, _config, indent=4, sort_keys=True)
+
+        # migration logic from 0.* to 1.0 release
+        _migrate_connection_file(path, local_config_file, connections_file)
+
+        with open(local_config_file, "r") as _config:
+            json_config = json.load(_config)
+            docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
+
+        if not os.path.isfile(connections_file):
+            with open(connections_file, "w") as _connections:
+                json.dump({}, _connections, indent=4, sort_keys=True)
+
+        with open(connections_file, "r") as _connections:
+            json_config = json.load(_connections)
             connections = [
                 Connection.extract(connection)
-                for connection in json_config.get("connections", [])
+                for connection in json_config.get(
+                    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
+                )
             ]
-            docker_port = json_config.get("docker_port", 8080)
-            return Project(path, connections, docker_port)
+
+        return Project(path, connections, docker_port)
 
 
 def get_project_name(path: str) -> str:
@@ -199,3 +246,74 @@ def _add_and_update_project_paths(path: str) -> None:
             )
         ),
     )
+
+
+def _migrate_connection_file(
+    path: str,
+    local_config_file: str,
+    connections_file: str,
+) -> None:
+    connections_data = {}
+    connection_file_exists = os.path.isfile(connections_file)
+    connection_file_element_keys = [
+        CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+        CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+        CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
+    ]
+
+    with open(local_config_file, "r+") as _config:
+        json_config = json.load(_config)
+
+        for element in connection_file_element_keys:
+            if element in json_config:
+                connections_data[element] = json_config.get(element)
+
+        if len(connections_data):
+            if not connection_file_exists and selection_prompt(
+                f"Found '{CONNECTIONS_FILE_NAME}' elements in '{CONFIG_FILE_NAME}', would you like to "
+                f"migrate them?",
+                [(True, "Yes"), (False, "No")],
+                description="If 'Yes' is selected, all elements will be migrated into"
+                f" {CONNECTIONS_FILE_NAME}.\n"
+                f"If 'No' is selected, then a new {CONNECTIONS_FILE_NAME} file will be created,"
+                " but the connection related "
+                f"elements will remain in the {CONFIG_FILE_NAME}.\n"
+                "To learn more about connection config file migration, visit\n"
+                f"https://vmware.github.io/vmware-aria-operations-integration-sdk"
+                f"/troubleshooting_and_faq/other"
+                f"/#how-do-i-migrate-connection-related-elements-from-configjson-to-connectionsjson",
+            ):
+                logger.info(
+                    f"Deleting connection-related elements from {CONFIG_FILE_NAME}"
+                )
+                for element in connections_data:
+                    del json_config[element]
+
+                _config.seek(0)
+                json.dump(json_config, _config, indent=4, sort_keys=True)
+                _config.truncate()
+
+                with open(connections_file, "w") as _connections:
+                    json.dump(connections_data, _connections, indent=4, sort_keys=True)
+
+                    _safe_append_to_gitignore(
+                        os.path.join(path, ".gitignore"), CONNECTIONS_FILE_NAME
+                    )
+
+
+def _safe_append_to_gitignore(gitignore_file_path: str, token: str) -> None:
+    try:
+        with open(gitignore_file_path, "r") as gitignore:
+            for line in gitignore.readlines():
+                if token == line.strip("\n"):
+                    return
+
+        with open(gitignore_file_path, "a") as gitignore:
+            gitignore.write(f"{token}\n")
+
+        logger.info(f"Appended '{token}' to .gitignore")
+    except FileNotFoundError:
+        logger.warning(
+            f"Could not automatically set the file '{token}' to be ignored in version control."
+        )
