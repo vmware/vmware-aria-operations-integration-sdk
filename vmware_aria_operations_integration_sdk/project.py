@@ -138,9 +138,6 @@ def _read_with_merge_prompt(local_config_file: str) -> tuple[dict[Any, Any], Any
 
         for element in connection_file_element_keys:
             if element in json_config:
-                logger.warning(
-                    f"{CONNECTIONS_FILE_NAME} element '{element}' found in {CONFIG_FILE_NAME}."
-                )
                 connections_data[element] = json_config.get(element)
                 del json_config[element]
 
