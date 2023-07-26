@@ -1,6 +1,9 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
-## 0.7.3 (05-10.2023)
+## 0.8.0 (07-26-2023)
+* Add py.typed files for typing support in compliance with PEP-561
+
+## 0.7.3 (05-10-2023)
 * Add labeled enum values support  
   
 ## 0.7.2 (04-18-2023)
