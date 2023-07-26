@@ -319,7 +319,6 @@ async def run(arguments: Any) -> None:
     # prompts, this can provide a noticeable speed increase.
     adapter_container = AdapterContainer(project.path)
     adapter_container.exposed_port = arguments.port
-    logger.error(arguments.port)
     Describe.initialize(project.path, adapter_container)
 
     # Set up logger, which requires project
