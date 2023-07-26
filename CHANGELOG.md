@@ -1,5 +1,14 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
+## 1.0.0 (07/26/2023)
+* Improved documentation site
+* Additional sample and template projects
+* Connections in the 'config.json' file are now in their own 'connections.json' file
+* 'mp-build' no longer hangs when at startup when a virtual environment is present
+* Adapter directories no longer have a 'adapter3' suffix
+* Improved registry handling, especially when using DockerHub
+* Option to create a new project with a template that does not include sample code
+
 ## 0.5.1 (05-10-2023) 
 * Update docker module version to fix urllib3 2.0.0 incompatibility.
 * Update adapter template with current best practices.
