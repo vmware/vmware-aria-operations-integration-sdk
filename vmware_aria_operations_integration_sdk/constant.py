@@ -49,9 +49,9 @@ CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY = "credential"
 CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY = "certificates"
 DEFAULT_MEMORY_LIMIT = 1024
 DEFAULT_PORT = 8080
-DEFAULT_SUITE_API_HOSTNAME = "placeholder_hostname"
-DEFAULT_SUITE_API_USERNAME = "placeholder_username"
-DEFAULT_SUITE_API_PASSWORD = "placeholder_password"
+DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME = "placeholder_hostname"
+DEFAULT_PLACEHOLDER_SUITE_API_USERNAME = "placeholder_username"
+DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD = "placeholder_password"
 
 # Management pak
 REPO_NAME = "vmware-aria-operations-integration-sdk"
