@@ -42,6 +42,9 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_HOSTNAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_PASSWORD
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_USERNAME
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
     GLOBAL_CONFIG_CONTAINER_PORT_KEY,
@@ -593,21 +596,21 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
     suiteapi_hostname = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-        "hostname",
+        DEFAULT_SUITE_API_HOSTNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
 
     suiteapi_username = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-        "username",
+        DEFAULT_SUITE_API_USERNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     suiteapi_password = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        "password",
+        DEFAULT_SUITE_API_PASSWORD,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
-    has_default = False if suiteapi_hostname == "hostname" else True
+    has_default = False if suiteapi_hostname == DEFAULT_SUITE_API_HOSTNAME else True
     suite_api_prompt = "Set connection information for SuiteAPI calls? "
     description = ""
     if has_default:
