@@ -7,9 +7,9 @@ exclude_dirs = ["tests", "lib/python/tests"]
 
 [tool.poetry]
 name = "vmware_aria_operations_integration_sdk"
-version = "0.5.1"
+version = "1.0.0"
 description = "A set of tools to help users create, test, and build containerized management packs for VMware Aria Operations"
-authors = ["Kyle Rokos <krokos@vmware.com>", "Santiago Quiroga Cubillos <squirogacubi@vmware.com>"]
+authors = ["VMware, Inc. <krokos@vmware.com", "Kyle Rokos <krokos@vmware.com>", "Santiago Quiroga Cubillos <squirogacubi@vmware.com>"]
 license = "APACHE-2.0"
 readme = "README.md"
 packages = [{include = "vmware_aria_operations_integration_sdk"}]
