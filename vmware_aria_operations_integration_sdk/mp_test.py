@@ -622,9 +622,17 @@ def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
         suite_api_prompt, [("yes", "Yes"), ("no", "No")], description
     )
     if suite_api_response == "yes":
-        suiteapi_hostname = prompt("Suite API Hostname: ")
-        suiteapi_username = prompt("Suite API User Name: ")
-        suiteapi_password = prompt("Suite API Password: ", is_password=True)
+        suiteapi_hostname = prompt(
+            "Suite API Hostname: ", validator=NotEmptyValidator("Suite API hostname")
+        )
+        suiteapi_username = prompt(
+            "Suite API Username: ", validator=NotEmptyValidator("Suite API username")
+        )
+        suiteapi_password = prompt(
+            "Suite API Password: ",
+            validator=NotEmptyValidator("Suite API password"),
+            is_password=True,
+        )
         if not has_default:
             description = "Default SuiteAPI host/user is not currently set."
         if (
