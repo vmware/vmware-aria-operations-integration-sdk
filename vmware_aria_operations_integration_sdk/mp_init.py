@@ -460,7 +460,7 @@ def build_project_structure(
         with open(requirements_file, "w") as requirements:
             if template_style == SAMPLE_ADAPTER_OPTION_KEY:
                 requirements.write("psutil==5.9.4\n")
-            requirements.write("vmware-aria-operations-integration-sdk-lib==0.7.*\n")
+            requirements.write("vmware-aria-operations-integration-sdk-lib==0.8.*\n")
 
         # create development requirements file
         requirements_file = os.path.join(path, "requirements.txt")
