@@ -58,7 +58,7 @@ class Describe:
         cls._resources = {}
 
     @classmethod
-    async def get(cls) -> Tuple[Element, Dict]:
+    async def get(cls, port: int) -> Tuple[Element, Dict]:
         if cls._describe is not None:
             return cls._describe, cls._resources
         describe_path = os.path.join(cls._path, "conf", "describe.xml")
@@ -75,28 +75,23 @@ class Describe:
                     "complete call to Describe.get()."
                 )
             if not cls._adapter_container.started:
-                memory_limit: int = get_config_value(
-                    CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
-                    1024,
-                    os.path.join(cls._path, CONFIG_FILE_NAME),
-                )
-                cls._adapter_container.start(memory_limit)
+                cls._adapter_container.start()
                 await cls._adapter_container.wait_for_container_startup()
-                await cls._get_adapter_definition()
+                await cls._get_adapter_definition(port)
                 await cls._adapter_container.stop()
             else:
-                await cls._get_adapter_definition()
+                await cls._get_adapter_definition(port)
         return cls._describe, cls._resources
 
     @classmethod
-    async def _get_adapter_definition(cls) -> None:
+    async def _get_adapter_definition(cls, port: int) -> None:
         async with httpx.AsyncClient(timeout=30) as client:
             from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
                 send_get_to_adapter,
             )
 
             request, response, elapsed_time = await send_get_to_adapter(
-                client, ADAPTER_DEFINITION_ENDPOINT
+                client, port, ADAPTER_DEFINITION_ENDPOINT
             )
             if not response.is_success:
                 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (

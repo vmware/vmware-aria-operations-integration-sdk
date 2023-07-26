@@ -23,6 +23,22 @@ key in the `manifest.txt` file.
 For example, if the adapter_kinds value is "AdapterName"
 the resulting tag would be `harbor.my-organization.com/my-project-registry/adaptername`.
 
+## `container_port` (int, optional. default: 8080)
+
+Specifies the port for the Adapter's REST server to bind on.
+This value should only need to be changed if there is another process already using
+port 8080. This will change the default for all projects. If you need to change the
+port for an individual project, pass in the port using the `-P` (or `--port`) flag on
+`mp-test` and `mp-build`.
+
+??? example
+
+    ```json
+    {
+        "container_port" : 8081,
+        ...
+     }
+    ```
 
 ### `projects` (array of strings)
 

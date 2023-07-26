@@ -14,7 +14,6 @@ from typing import Tuple
 
 from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
-from vmware_aria_operations_integration_sdk.constant import CONFIG_DOCKER_PORT_KEY
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
 from vmware_aria_operations_integration_sdk.constant import (
@@ -104,16 +103,43 @@ class Connection:
         return memory_limit  # type: ignore
 
     @classmethod
-    def extract(cls, json_connection: Dict) -> Connection:
+    def extract(cls, path: str, json_connection: Dict) -> Connection:
         name = json_connection[CONNECTIONS_CONFIG_CONNECTION_NAME_KEY]
         identifiers = json_connection[CONNECTIONS_CONFIG_CONNECTION_IDENTIFIERS_KEY]
         credential = json_connection[CONNECTIONS_CONFIG_CONNECTION_CREDENTIAL_KEY]
         certificates = json_connection.get(
             CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY, None
         )
-        hostname = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY, None)
-        username = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY, None)
-        password = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY, None)
+
+        default_hostname = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
+            "hostname",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+        default_username = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
+            "username",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+        default_password = get_config_value(
+            CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
+            "password",
+            os.path.join(path, CONNECTIONS_FILE_NAME),
+        )
+
+        hostname = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY)
+            or default_hostname
+        )
+        username = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY)
+            or default_username
+        )
+        password = (
+            json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY)
+            or default_password
+        )
+
         return Connection(
             name, identifiers, credential, certificates, (hostname, username, password)
         )
@@ -124,26 +150,22 @@ class Project:
         self,
         path: str,
         connections: Optional[List[Connection]] = None,
-        docker_port: int = 8080,
     ) -> None:
         if connections is None:
             connections = []
         self.path = os.path.abspath(path)
         self.connections = connections
-        self.docker_port = docker_port
 
     def name(self) -> str:
         return get_project_name(self.path)
 
     def record(self) -> None:
-        config_file = os.path.join(self.path, CONFIG_FILE_NAME)
         connections_file = os.path.join(self.path, CONNECTIONS_FILE_NAME)
         set_config_value(
             CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
             [conn.__dict__ for conn in self.connections],
             connections_file,
         )
-        set_config_value(CONFIG_DOCKER_PORT_KEY, self.docker_port, config_file)
 
     @classmethod
     def extract(cls, path: str) -> Project:
@@ -157,10 +179,6 @@ class Project:
         # migration logic from 0.* to 1.0 release
         _migrate_connection_file(path, local_config_file, connections_file)
 
-        with open(local_config_file, "r") as _config:
-            json_config = json.load(_config)
-            docker_port = json_config.get(CONFIG_DOCKER_PORT_KEY, 8080)
-
         if not os.path.isfile(connections_file):
             with open(connections_file, "w") as _connections:
                 json.dump({}, _connections, indent=4, sort_keys=True)
@@ -168,13 +186,13 @@ class Project:
         with open(connections_file, "r") as _connections:
             json_config = json.load(_connections)
             connections = [
-                Connection.extract(connection)
+                Connection.extract(path, connection)
                 for connection in json_config.get(
                     CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY, []
                 )
             ]
 
-        return Project(path, connections, docker_port)
+        return Project(path, connections)
 
 
 def get_project_name(path: str) -> str:

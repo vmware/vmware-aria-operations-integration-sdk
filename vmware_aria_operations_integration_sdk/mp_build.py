@@ -40,6 +40,10 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.constant import (
+    GLOBAL_CONFIG_CONTAINER_PORT_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -62,6 +66,7 @@ from vmware_aria_operations_integration_sdk.filesystem import zip_sub_dir
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.project import get_project
+from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.propertiesfile import write_properties
 from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 from vmware_aria_operations_integration_sdk.ui import prompt
@@ -219,7 +224,7 @@ def _tag_and_push(
             container_registry
         )
 
-    return (components["domain"], components["port"], components["path"], digest)
+    return components["domain"], components["port"], components["path"], digest
 
 
 def registry_prompt(default: str) -> str:
@@ -312,7 +317,8 @@ def remove_sdk_prefix(name: str) -> str:
 
 
 async def build_pak_file(
-    project_path: str,
+    project: Project,
+    port: int,
     temp_dir: str,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
@@ -320,24 +326,26 @@ async def build_pak_file(
 ) -> str:
     docker_client = init()
 
-    manifest_file = os.path.join(project_path, "manifest.txt")
+    manifest_file = os.path.join(project.path, "manifest.txt")
 
     with open(manifest_file) as manifest_fd:
         manifest = json.load(manifest_fd)
 
-    config_file = os.path.join(project_path, CONFIG_FILE_NAME)
-    adapter_container = AdapterContainer(project_path, docker_client)
+    config_file = os.path.join(project.path, CONFIG_FILE_NAME)
+    adapter_container = AdapterContainer(project.path, docker_client)
+    adapter_container.exposed_port = port
     memory_limit = get_config_value(
         CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
         1024,
-        os.path.join(project_path, CONFIG_FILE_NAME),
+        os.path.join(project.path, CONFIG_FILE_NAME),
     )
-    adapter_container.start(memory_limit)
+    adapter_container.memory_limit = memory_limit
+    adapter_container.start()
     try:
         await adapter_container.wait_for_container_startup()
-        Describe.initialize(project_path, adapter_container)
-        describe, resources = await Describe.get()
-        validate_describe(project_path, describe)
+        Describe.initialize(project.path, adapter_container)
+        describe, resources = await Describe.get(adapter_container.exposed_port)
+        validate_describe(project.path, describe)
 
         try:
             describe_adapter_kind_key = get_adapter_kind(describe)
@@ -376,9 +384,9 @@ async def build_pak_file(
             with Spinner("Creating Adapter Image"):
                 # The first item is the Image object for the image that was built.
                 # The second item is a generator of the build logs as JSON-decoded objects.
-                image, _ = build_image(docker_client, path=project_path)
+                image, _ = build_image(docker_client, path=project.path)
 
-            domain, port, path, digest = _tag_and_push(
+            domain, container_registry_port, path, digest = _tag_and_push(
                 image,
                 container_registry_arg,
                 config_file,
@@ -388,7 +396,11 @@ async def build_pak_file(
                 **kwargs,
             )
 
-            conf_registry_field = domain if not port else f"{domain}:{port}"
+            conf_registry_field = (
+                domain
+                if not container_registry_port
+                else f"{domain}:{container_registry_port}"
+            )
             conf_repo_field = path
 
         finally:
@@ -401,15 +413,15 @@ async def build_pak_file(
             mkdir(adapter_dir)
 
             shutil.copytree(
-                os.path.join(project_path, "conf"),
+                os.path.join(project.path, "conf"),
                 os.path.join(temp_dir, adapter_dir, "conf"),
             )
             shutil.copytree(
-                os.path.join(project_path, "resources"),
+                os.path.join(project.path, "resources"),
                 os.path.join(temp_dir, "resources"),
             )
             shutil.copytree(
-                os.path.join(project_path, "content"), os.path.join(temp_dir, "content")
+                os.path.join(project.path, "content"), os.path.join(temp_dir, "content")
             )
 
             if not os.path.exists(
@@ -437,7 +449,7 @@ async def build_pak_file(
                 try:
                     async with httpx.AsyncClient(timeout=30) as client:
                         request, response, elapsed_time = await send_get_to_adapter(
-                            client, API_VERSION_ENDPOINT
+                            client, adapter_container.exposed_port, API_VERSION_ENDPOINT
                         )
                         if response.is_success:
                             api = json.loads(response.text)
@@ -468,24 +480,24 @@ async def build_pak_file(
             with zipfile.ZipFile("adapter.zip", "w") as adapter:
                 zip_file(adapter, adapter_conf.name)
                 shutil.copy(
-                    os.path.join(project_path, "manifest.txt"),
+                    os.path.join(project.path, "manifest.txt"),
                     os.path.join(temp_dir, "manifest.txt"),
                 )
                 zip_file(adapter, "manifest.txt")
                 if eula_file:
                     shutil.copy(
-                        os.path.join(project_path, eula_file),
+                        os.path.join(project.path, eula_file),
                         os.path.join(temp_dir, eula_file),
                     )
                     zip_file(adapter, eula_file)
                 if icon_file:
                     shutil.copy(
-                        os.path.join(project_path, icon_file),
+                        os.path.join(project.path, icon_file),
                         os.path.join(temp_dir, icon_file),
                     )
                     zip_file(adapter, icon_file)
 
-                zip_sub_dir(adapter, project_path, "resources")
+                zip_sub_dir(adapter, project.path, "resources")
                 zip_sub_dir(adapter, temp_dir, adapter_dir)
 
             rm(adapter_conf.name)
@@ -504,7 +516,7 @@ async def build_pak_file(
                 pak_validation_script = manifest["pak_validation_script"]["script"]
                 if pak_validation_script:
                     shutil.copy(
-                        os.path.join(project_path, pak_validation_script),
+                        os.path.join(project.path, pak_validation_script),
                         os.path.join(temp_dir, pak_validation_script),
                     )
                     zip_file(pak, pak_validation_script)
@@ -512,7 +524,7 @@ async def build_pak_file(
                 post_install_script = manifest["adapter_post_script"]["script"]
                 if post_install_script:
                     shutil.copy(
-                        os.path.join(project_path, post_install_script),
+                        os.path.join(project.path, post_install_script),
                         os.path.join(temp_dir, post_install_script),
                     )
                     zip_file(pak, post_install_script)
@@ -520,7 +532,7 @@ async def build_pak_file(
                 pre_install_script = manifest["adapter_pre_script"]["script"]
                 if pre_install_script:
                     shutil.copy(
-                        os.path.join(project_path, pre_install_script),
+                        os.path.join(project.path, pre_install_script),
                         os.path.join(temp_dir, pre_install_script),
                     )
                     zip_file(pak, pre_install_script)
@@ -562,6 +574,16 @@ def main() -> None:
             "--path",
             help="Path to root directory of project. Defaults to the current directory, "
             "or prompts if current directory is not a project.",
+        )
+
+        parser.add_argument(
+            "-P",
+            "--port",
+            help="Set the port number that the container exposes/uses",
+            type=int,
+            default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
+            choices=range(0, 2**16),
+            metavar=f"[0, {2**16}]",
         )
 
         parser.add_argument(
@@ -626,9 +648,8 @@ def main() -> None:
         except Exception as e:
             logger.warning(f"Unable to save logs to {log_file_path}: {e}")
 
-        project_dir = project.path
         # We want to store pak files in the build dir
-        build_dir = os.path.join(project_dir, "build")
+        build_dir = os.path.join(project.path, "build")
         # Any artifacts for generating the pak file should be stored here
         temp_dir = os.path.join(build_dir, "tmp")
 
@@ -644,7 +665,8 @@ def main() -> None:
 
             pak_file = asyncio.run(
                 build_pak_file(
-                    project_dir,
+                    project,
+                    parsed_args.port,
                     temp_dir,
                     insecure_communication,
                     container_registry,
@@ -668,7 +690,7 @@ def main() -> None:
                 if os.getcwd() == temp_dir:
                     # Change working directory to the project directory, otherwise we
                     # won't be able to delete the directory in Windows-based systems
-                    os.chdir(project_dir)
+                    os.chdir(project.path)
                 rmdir(temp_dir)
     except DockerWrapperError as error:
         logger.error("Unable to build pak file")

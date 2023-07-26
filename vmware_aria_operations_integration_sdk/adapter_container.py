@@ -15,6 +15,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -36,6 +37,7 @@ class AdapterContainer:
             self.docker_client = docker_client
         self.path: str = path
         self.memory_limit: Optional[int] = None
+        self.exposed_port: int = DEFAULT_PORT
         self.started: bool = False
         self.image: Optional[Image] = None
         self._image_task: Optional[Future] = asyncio.wrap_future(
@@ -45,8 +47,7 @@ class AdapterContainer:
         self._container_task: Optional[Task] = None
         self.stats: Optional[ContainerStats] = None
 
-    def start(self, memory_limit: int) -> None:
-        self.memory_limit = memory_limit
+    def start(self) -> None:
         self._container_task = asyncio.create_task(self._threaded_start())
 
     async def _threaded_start(self) -> None:
@@ -54,7 +55,11 @@ class AdapterContainer:
             self.image = await self._image_task
             self._image_task = None
         self.container = run_image(
-            self.docker_client, self.image, self.path, self.memory_limit
+            self.docker_client,
+            self.image,
+            self.path,
+            self.memory_limit,
+            self.exposed_port,
         )
 
     async def stop(self) -> None:
@@ -92,7 +97,7 @@ class AdapterContainer:
                 try:
                     async with httpx.AsyncClient(timeout=5) as client:
                         request, response, elapsed_time = await send_get_to_adapter(
-                            client, API_VERSION_ENDPOINT
+                            client, self.exposed_port, API_VERSION_ENDPOINT
                         )
                     version = json.loads(response.text)
                     self.started = True

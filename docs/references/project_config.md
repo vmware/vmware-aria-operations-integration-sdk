@@ -11,11 +11,6 @@ addition to the memory required by the Adapter, this includes memory used by the
 OS layer and the Adapter's REST server. If this limit is exceeded, the container will
 immediately exit.
 
-## `docker_port` (int, default: 8080)
-
-Specifies the port for connecting to the Adapter's REST server.
-This value should only need to be changed if there is another process already using port 8080.
-
 ## `container_repository` (string)
 
 Specifies the container repository to be used by [mp-build](mp-build.md).

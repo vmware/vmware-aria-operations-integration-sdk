@@ -41,7 +41,14 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_HOSTNAME
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_PASSWORD
+from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_USERNAME
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
+from vmware_aria_operations_integration_sdk.constant import (
+    GLOBAL_CONFIG_CONTAINER_PORT_KEY,
+)
 from vmware_aria_operations_integration_sdk.containerized_adapter_rest_api import (
     send_get_to_adapter,
 )
@@ -67,7 +74,6 @@ from vmware_aria_operations_integration_sdk.serialization import CollectionBundl
 from vmware_aria_operations_integration_sdk.serialization import ConnectBundle
 from vmware_aria_operations_integration_sdk.serialization import EndpointURLsBundle
 from vmware_aria_operations_integration_sdk.serialization import LongCollectionBundle
-from vmware_aria_operations_integration_sdk.serialization import ResponseBundle
 from vmware_aria_operations_integration_sdk.serialization import VersionBundle
 from vmware_aria_operations_integration_sdk.serialization import WaitBundle
 from vmware_aria_operations_integration_sdk.ui import countdown
@@ -202,7 +208,7 @@ async def run_collect(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, COLLECT_ENDPOINT
+                    client, adapter_container.exposed_port, connection, COLLECT_ENDPOINT
                 )
             return CollectionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -224,7 +230,7 @@ async def run_connect(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, CONNECT_ENDPOINT
+                    client, adapter_container.exposed_port, connection, CONNECT_ENDPOINT
                 )
             return ConnectBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -246,7 +252,10 @@ async def run_get_endpoint_urls(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_post_to_adapter(
-                    client, project, connection, ENDPOINTS_URLS_ENDPOINT
+                    client,
+                    adapter_container.exposed_port,
+                    connection,
+                    ENDPOINTS_URLS_ENDPOINT,
                 )
             return EndpointURLsBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -268,7 +277,7 @@ async def run_get_adapter_definition(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_get_to_adapter(
-                    client, ADAPTER_DEFINITION_ENDPOINT
+                    client, adapter_container.exposed_port, ADAPTER_DEFINITION_ENDPOINT
                 )
             return AdapterDefinitionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -288,7 +297,7 @@ async def run_get_server_version(
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with await adapter_container.record_stats():
                 request, response, elapsed_time = await send_get_to_adapter(
-                    client, API_VERSION_ENDPOINT
+                    client, adapter_container.exposed_port, API_VERSION_ENDPOINT
                 )
             return VersionBundle(
                 request, response, elapsed_time, adapter_container.stats
@@ -308,9 +317,11 @@ async def run(arguments: Any) -> None:
     project = get_project(arguments)
 
     # start to get/build container image as soon as possible, which requires project
-    # get_container_image is threaded, so it can build in the background. If the user didn't specify all parameters on
-    # the command line and there are interactive prompts, this can provide a noticeable speed increase.
+    # get_container_image is threaded, so it can build in the background. If the user
+    # didn't specify all parameters on the command line and there are interactive
+    # prompts, this can provide a noticeable speed increase.
     adapter_container = AdapterContainer(project.path)
+    adapter_container.exposed_port = arguments.port
     Describe.initialize(project.path, adapter_container)
 
     # Set up logger, which requires project
@@ -338,7 +349,8 @@ async def run(arguments: Any) -> None:
     connection = await get_connection(project, adapter_container, arguments)
 
     try:
-        adapter_container.start(connection.get_memory_limit())
+        adapter_container.memory_limit = connection.get_memory_limit()
+        adapter_container.start()
         # Get the method to test
         method = get_method(arguments)
         verbosity = arguments.verbosity
@@ -484,7 +496,7 @@ async def get_connection(
         exit(1)
 
     # We should ensure the 'describe' file is valid before parsing through it.
-    describe, resources = await Describe.get()
+    describe, resources = await Describe.get(adapter_container.exposed_port)
     validate_describe(project.path, describe)
     adapter_instance_kind = get_adapter_instance(describe)
     if adapter_instance_kind is None:
@@ -584,21 +596,21 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
     suiteapi_hostname = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-        "hostname",
+        DEFAULT_SUITE_API_HOSTNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
 
     suiteapi_username = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-        "username",
+        DEFAULT_SUITE_API_USERNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     suiteapi_password = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        "password",
+        DEFAULT_SUITE_API_PASSWORD,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
-    has_default = False if suiteapi_hostname == "hostname" else True
+    has_default = False if suiteapi_hostname == DEFAULT_SUITE_API_HOSTNAME else True
     suite_api_prompt = "Set connection information for SuiteAPI calls? "
     description = ""
     if has_default:
@@ -723,6 +735,16 @@ def main() -> None:
         default=1,
         choices=range(0, 4),
         metavar="[0-3]",
+    )
+
+    parser.add_argument(
+        "-P",
+        "--port",
+        help="Set the port number that the container exposes/uses",
+        type=int,
+        default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
+        choices=range(0, 2**16),
+        metavar=f"[0, {2**16}]",
     )
 
     methods = parser.add_subparsers(required=False)
