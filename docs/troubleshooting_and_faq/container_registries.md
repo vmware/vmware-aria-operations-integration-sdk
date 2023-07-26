@@ -5,8 +5,8 @@
 
 Containerized adapters use container registries to store, distribute, and install adapters. During the development of an
 adapter, mp-build requires a container registry to upload the resulting container. After uploading the container to the
-given registry, `mp-build` saves the host, and the container digest in the `manifest.txt` file bundled inside the pak
-file. During installation, VMware Aria Operations uses the information inside the `manifest.txt` file to pull the
+given registry, `mp-build` saves the host, and the container digest in the `<ADAPTERNAME>.conf` file bundled inside the pak
+file. During installation, VMware Aria Operations uses the information inside the `<ADAPTERNAME>.conf` file to pull the
 container from the registry and run the container.
 
 !!! info
