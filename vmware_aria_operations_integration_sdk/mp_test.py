@@ -41,10 +41,16 @@ from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_USERNAME,
+)
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
-from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_HOSTNAME
-from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_PASSWORD
-from vmware_aria_operations_integration_sdk.constant import DEFAULT_SUITE_API_USERNAME
 from vmware_aria_operations_integration_sdk.constant import ENDPOINTS_URLS_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
     GLOBAL_CONFIG_CONTAINER_PORT_KEY,
@@ -596,21 +602,23 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
 def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
     suiteapi_hostname = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-        DEFAULT_SUITE_API_HOSTNAME,
+        DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
 
     suiteapi_username = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-        DEFAULT_SUITE_API_USERNAME,
+        DEFAULT_PLACEHOLDER_SUITE_API_USERNAME,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
     suiteapi_password = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-        DEFAULT_SUITE_API_PASSWORD,
+        DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD,
         os.path.join(project.path, CONNECTIONS_FILE_NAME),
     )
-    has_default = False if suiteapi_hostname == DEFAULT_SUITE_API_HOSTNAME else True
+    has_default = (
+        False if suiteapi_hostname == DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME else True
+    )
     suite_api_prompt = "Set connection information for SuiteAPI calls? "
     description = ""
     if has_default:
@@ -622,9 +630,17 @@ def get_suite_api_connection_info(project: Project) -> Tuple[str, str, str]:
         suite_api_prompt, [("yes", "Yes"), ("no", "No")], description
     )
     if suite_api_response == "yes":
-        suiteapi_hostname = prompt("Suite API Hostname: ")
-        suiteapi_username = prompt("Suite API User Name: ")
-        suiteapi_password = prompt("Suite API Password: ", is_password=True)
+        suiteapi_hostname = prompt(
+            "Suite API Hostname: ", validator=NotEmptyValidator("Suite API hostname")
+        )
+        suiteapi_username = prompt(
+            "Suite API Username: ", validator=NotEmptyValidator("Suite API username")
+        )
+        suiteapi_password = prompt(
+            "Suite API Password: ",
+            validator=NotEmptyValidator("Suite API password"),
+            is_password=True,
+        )
         if not has_default:
             description = "Default SuiteAPI host/user is not currently set."
         if (

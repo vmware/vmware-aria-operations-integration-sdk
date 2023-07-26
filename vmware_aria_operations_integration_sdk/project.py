@@ -42,6 +42,15 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_MEMORY_LIMIT
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    DEFAULT_PLACEHOLDER_SUITE_API_USERNAME,
+)
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
 from vmware_aria_operations_integration_sdk.propertiesfile import load_properties
@@ -113,17 +122,17 @@ class Connection:
 
         default_hostname = get_config_value(
             CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
-            "hostname",
+            DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME,
             os.path.join(path, CONNECTIONS_FILE_NAME),
         )
         default_username = get_config_value(
             CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY,
-            "username",
+            DEFAULT_PLACEHOLDER_SUITE_API_USERNAME,
             os.path.join(path, CONNECTIONS_FILE_NAME),
         )
         default_password = get_config_value(
             CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY,
-            "password",
+            DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD,
             os.path.join(path, CONNECTIONS_FILE_NAME),
         )
 
