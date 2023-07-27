@@ -87,6 +87,8 @@ from vmware_aria_operations_integration_sdk.ui import print_formatted as print_f
 from vmware_aria_operations_integration_sdk.ui import prompt
 from vmware_aria_operations_integration_sdk.ui import selection_prompt
 from vmware_aria_operations_integration_sdk.ui import Spinner
+from vmware_aria_operations_integration_sdk.util import port_range
+from vmware_aria_operations_integration_sdk.util import verbosity_range
 from vmware_aria_operations_integration_sdk.validation.describe_checks import (
     validate_describe,
 )
@@ -747,9 +749,8 @@ def main() -> None:
         "--verbosity",
         help="Determine the amount of console logging when performing validation. "
         "0: No console logging; 3: Max console logging.",
-        type=int,
+        type=verbosity_range,
         default=1,
-        choices=range(0, 4),
         metavar="[0-3]",
     )
 
@@ -757,9 +758,8 @@ def main() -> None:
         "-P",
         "--port",
         help="Set the port number that the container exposes/uses",
-        type=int,
+        type=port_range,
         default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
-        choices=range(0, 2**16),
         metavar=f"[0, {2**16}]",
     )
 
