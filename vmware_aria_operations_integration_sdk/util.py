@@ -24,6 +24,7 @@ class LazyAttribute(object):
 class RangeAction(argparse.Action):
     def __init__(
         self,
+        *args: Any,
         lower_bound: int = 0,
         upper_bound: int = 100,
         **kwargs: Any,
@@ -32,7 +33,7 @@ class RangeAction(argparse.Action):
         self.upper_bound = upper_bound
 
         kwargs.setdefault("metavar", f"[{lower_bound}-{upper_bound}]")
-        super(RangeAction, self).__init__(**kwargs)
+        super(RangeAction, self).__init__(*args, **kwargs)
 
     def __call__(
         self,
