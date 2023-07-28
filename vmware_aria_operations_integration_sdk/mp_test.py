@@ -753,7 +753,6 @@ def main() -> None:
         lower_bound=0,
         upper_bound=3,
         default=1,
-        metavar="[0-3]",
     )
 
     parser.add_argument(
@@ -765,7 +764,6 @@ def main() -> None:
         action=RangeAction,
         lower_bound=0,
         upper_bound=2**16 - 1,
-        metavar=f"[0-{2**16 - 1}]",
     )
 
     methods = parser.add_subparsers(required=False)
@@ -799,7 +797,6 @@ def main() -> None:
         action=RangeAction,
         lower_bound=0,
         upper_bound=999,
-        metavar="[0-999]",
     )
     collect_method.add_argument(
         "-w",

@@ -26,31 +26,18 @@ class RangeAction(argparse.Action):
         self,
         option_strings: list[str],
         dest: str,
-        nargs: Optional[int] = None,
-        const: Any = None,
-        default: Any = None,
-        type: Any = None,
-        choices: Any = None,
-        required: bool = False,
-        help: Optional[str] = None,
-        metavar: Union[str, None] = None,
         lower_bound: int = 0,
         upper_bound: int = 100,
+        **kwargs: Any,
     ):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
-        super(RangeAction, self).__init__(
-            option_strings,
-            dest,
-            nargs,
-            const,
-            default,
-            type,
-            choices,
-            required,
-            help,
-            metavar,
-        )
+        print(f"TYPE: {type(kwargs)}")
+
+        if "metavar" not in kwargs:
+            kwargs.setdefault("metavar", f"[{lower_bound}-{upper_bound}]")
+
+        super(RangeAction, self).__init__(option_strings, dest, **kwargs)
 
     def __call__(
         self,
