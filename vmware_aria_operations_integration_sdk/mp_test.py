@@ -765,7 +765,7 @@ def main() -> None:
         action=RangeAction,
         lower_bound=0,
         upper_bound=2**16 - 1,
-        metavar=f"[0, {2**16 - 1}]",
+        metavar=f"[0-{2**16 - 1}]",
     )
 
     methods = parser.add_subparsers(required=False)
