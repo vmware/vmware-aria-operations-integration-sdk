@@ -4,6 +4,7 @@ import argparse
 from typing import Any
 from typing import Callable
 from typing import Optional
+from typing import Union
 
 
 class LazyAttribute(object):
@@ -20,25 +21,53 @@ class LazyAttribute(object):
         return instance.__dict__[self.attribute_name]
 
 
-def port_range(port: str) -> int:
-    try:
-        val = int(port)
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"Invalid integer value: {port}")
+class RangeAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings: list[str],
+        dest: str,
+        nargs: Optional[int] = None,
+        const: Any = None,
+        default: Any = None,
+        type: Any = None,
+        choices: Any = None,
+        required: bool = False,
+        help: Optional[str] = None,
+        metavar: Union[str, None] = None,
+        lower_bound: int = 0,
+        upper_bound: int = 100,
+    ):
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        super(RangeAction, self).__init__(
+            option_strings,
+            dest,
+            nargs,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
 
-    if 0 > val or val > 2**16:
-        raise argparse.ArgumentTypeError(f"port should be between 0 and {2 ** 16}")
-    else:
-        return val
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None,
+    ) -> None:
+        try:
+            value = int(values)
+        except ValueError:
+            raise argparse.ArgumentError(self, f"Invalid integer value: {values}")
 
+        if not self.lower_bound <= value <= self.upper_bound:
+            raise argparse.ArgumentError(
+                self,
+                f"Value must be an integer between {self.lower_bound} and {self.upper_bound}.",
+            )
 
-def verbosity_range(verbosity_level: str) -> int:
-    try:
-        val = int(verbosity_level)
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"Invalid integer value: {verbosity_level}")
-
-    if 0 > val or val > 3:
-        raise argparse.ArgumentTypeError(f"Verbosity should be between 0 and 3")
-    else:
-        return val
+        setattr(namespace, self.dest, value)
