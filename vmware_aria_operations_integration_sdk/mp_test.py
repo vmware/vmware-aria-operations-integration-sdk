@@ -87,6 +87,7 @@ from vmware_aria_operations_integration_sdk.ui import print_formatted as print_f
 from vmware_aria_operations_integration_sdk.ui import prompt
 from vmware_aria_operations_integration_sdk.ui import selection_prompt
 from vmware_aria_operations_integration_sdk.ui import Spinner
+from vmware_aria_operations_integration_sdk.util import RangeAction
 from vmware_aria_operations_integration_sdk.validation.describe_checks import (
     validate_describe,
 )
@@ -748,9 +749,10 @@ def main() -> None:
         help="Determine the amount of console logging when performing validation. "
         "0: No console logging; 3: Max console logging.",
         type=int,
+        action=RangeAction,
+        lower_bound=0,
+        upper_bound=3,
         default=1,
-        choices=range(0, 4),
-        metavar="[0-3]",
     )
 
     parser.add_argument(
@@ -759,8 +761,9 @@ def main() -> None:
         help="Set the port number that the container exposes/uses",
         type=int,
         default=get_config_value(GLOBAL_CONFIG_CONTAINER_PORT_KEY, DEFAULT_PORT),
-        choices=range(0, 2**16),
-        metavar=f"[0, {2**16}]",
+        action=RangeAction,
+        lower_bound=0,
+        upper_bound=2**16 - 1,
     )
 
     methods = parser.add_subparsers(required=False)
@@ -791,8 +794,9 @@ def main() -> None:
         help="Start at a custom collection number instead of 0.",
         type=int,
         default=0,
-        choices=range(0, 1000),
-        metavar="[0-999]",
+        action=RangeAction,
+        lower_bound=0,
+        upper_bound=999,
     )
     collect_method.add_argument(
         "-w",
