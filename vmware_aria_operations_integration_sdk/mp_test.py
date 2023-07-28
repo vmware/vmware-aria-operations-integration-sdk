@@ -751,7 +751,7 @@ def main() -> None:
         type=int,
         action=RangeAction,
         lower_bound=0,
-        upper_bound=4,
+        upper_bound=3,
         default=1,
         metavar="[0-3]",
     )
