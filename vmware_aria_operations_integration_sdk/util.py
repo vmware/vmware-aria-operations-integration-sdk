@@ -24,20 +24,15 @@ class LazyAttribute(object):
 class RangeAction(argparse.Action):
     def __init__(
         self,
-        option_strings: list[str],
-        dest: str,
         lower_bound: int = 0,
         upper_bound: int = 100,
         **kwargs: Any,
     ):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
-        print(f"TYPE: {type(kwargs)}")
 
-        if "metavar" not in kwargs:
-            kwargs.setdefault("metavar", f"[{lower_bound}-{upper_bound}]")
-
-        super(RangeAction, self).__init__(option_strings, dest, **kwargs)
+        kwargs.setdefault("metavar", f"[{lower_bound}-{upper_bound}]")
+        super(RangeAction, self).__init__(**kwargs)
 
     def __call__(
         self,
