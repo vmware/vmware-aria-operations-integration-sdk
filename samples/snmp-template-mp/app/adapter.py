@@ -175,91 +175,52 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
 
             # Get some sample data from the SNMPv2-MIB. Most SNMP devices implement
             # this MIB.
-            iterator = client.get_command(
-                ObjectType(ObjectIdentity(SYSTEM_DESC)),
-                ObjectType(ObjectIdentity(SYSTEM_OBJECT_ID)),
-                ObjectType(ObjectIdentity(SYSTEM_UPTIME)),
-                ObjectType(ObjectIdentity(SYSTEM_CONTACT)),
-                ObjectType(ObjectIdentity(SYSTEM_NAME)),
-                ObjectType(ObjectIdentity(SYSTEM_LOCATION)),
-                # Looking up the MIB gets more metadata about the OID we are passing in
-                # (and allows querying by name instead of OID), but the number of
-                # built-in MIBS in PySNMP is limited. Since we don't need them, we'll
-                # disable this feature.
-                lookupMib=False,
-            )
-
-            # For a 'get' command, there should be only one item in the iterator.
-            for error_indication, error_status, error_index, var_binds in iterator:
-                if handle_errors(
-                    logger,
-                    result,
-                    error_indication,
-                    error_status,
-                    error_index,
-                    var_binds,
-                ):
-                    # If we got an error, log and continue
-                    continue
-
-                # Build a dictionary from the result for easier processing
-                data = {str(key): value for (key, value) in var_binds}
-
-                if SYSTEM_NAME in data:
-                    device = result.object(
-                        ADAPTER_KIND, DEVICE_OBJECT, str(data[SYSTEM_NAME])
-                    )
-                    device.with_property(DESCRIPTION_KEY, str(data[SYSTEM_DESC]))
-                    device.with_property(OID_KEY, str(data[SYSTEM_OBJECT_ID]))
-                    device.with_property(
-                        UPTIME_KEY, int(data[SYSTEM_UPTIME] / 8640000.0)
-                    )
-                    device.with_property(CONTACT_KEY, str(data[SYSTEM_CONTACT]))
-                    device.with_property(LOCATION_KEY, str(data[SYSTEM_LOCATION]))
+            for data, indices in client.get_OIDs(
+                [
+                    SYSTEM_DESC,
+                    SYSTEM_OBJECT_ID,
+                    SYSTEM_UPTIME,
+                    SYSTEM_CONTACT,
+                    SYSTEM_NAME,
+                    SYSTEM_LOCATION,
+                ],
+                logger=logger,
+                result=result,
+            ):
+                device = result.object(
+                    ADAPTER_KIND, DEVICE_OBJECT, str(data[SYSTEM_NAME])
+                )
+                device.with_property(DESCRIPTION_KEY, str(data[SYSTEM_DESC]))
+                device.with_property(OID_KEY, str(data[SYSTEM_OBJECT_ID]))
+                device.with_property(UPTIME_KEY, int(data[SYSTEM_UPTIME] / 8640000.0))
+                device.with_property(CONTACT_KEY, str(data[SYSTEM_CONTACT]))
+                device.with_property(LOCATION_KEY, str(data[SYSTEM_LOCATION]))
 
             # Get some sample data from the IF-MIB. Most SNMP devices implement
-            # this MIB. Use 'next_command' to get all interfaces for each OID
-            iterator = client.next_command(
-                ObjectType(ObjectIdentity(INTERFACE_DESCRIPTION)),
-                ObjectType(ObjectIdentity(INTERFACE_TYPE)),
-                ObjectType(ObjectIdentity(INTERFACE_MTU)),
-                ObjectType(ObjectIdentity(INTERFACE_SPEED)),
-                ObjectType(ObjectIdentity(INTERFACE_PHYSICAL_ADDRESS)),
-                ObjectType(ObjectIdentity(INTERFACE_ADMIN_STATUS)),
-                ObjectType(ObjectIdentity(INTERFACE_OPERATIONAL_STATUS)),
-                ObjectType(ObjectIdentity(INTERFACE_IN_DATA)),
-                ObjectType(ObjectIdentity(INTERFACE_IN_UNICAST)),
-                ObjectType(ObjectIdentity(INTERFACE_IN_DISCARDS)),
-                ObjectType(ObjectIdentity(INTERFACE_IN_ERRORS)),
-                ObjectType(ObjectIdentity(INTERFACE_OUT_DATA)),
-                ObjectType(ObjectIdentity(INTERFACE_OUT_UNICAST)),
-                ObjectType(ObjectIdentity(INTERFACE_OUT_DISCARDS)),
-                ObjectType(ObjectIdentity(INTERFACE_OUT_ERRORS)),
-                # Looking up the MIB gets more metadata about the OID we are passing in
-                # (and allows querying by name instead of OID), but the number of
-                # built-in MIBS in PySNMP is limited. Since we don't need them, we'll
-                # disable this feature.
-                lookupMib=False,
-                lexicographicMode=False,
-            )
-            for error_indication, error_status, error_index, var_binds in iterator:
-                if handle_errors(
-                    logger,
-                    result,
-                    error_indication,
-                    error_status,
-                    error_index,
-                    var_binds,
-                ):
-                    # If we got an error, log and continue
-                    continue
-
-                # Build a dictionary from the result for easier processing. The
-                # rsplit removes the table row identifier so that we can index into the
-                # data.
-                data = {str(key).rsplit(".", 1)[0]: value for (key, value) in var_binds}
-
-                if_id = f"IF-{str(var_binds[0][0]).rsplit('.', 1)[1]}"
+            # this MIB. Use 'index_count=1' to get tabular data with one index.
+            for data, indices in client.get_OIDs(
+                [
+                    INTERFACE_DESCRIPTION,
+                    INTERFACE_TYPE,
+                    INTERFACE_MTU,
+                    INTERFACE_SPEED,
+                    INTERFACE_PHYSICAL_ADDRESS,
+                    INTERFACE_ADMIN_STATUS,
+                    INTERFACE_OPERATIONAL_STATUS,
+                    INTERFACE_IN_DATA,
+                    INTERFACE_IN_UNICAST,
+                    INTERFACE_IN_DISCARDS,
+                    INTERFACE_IN_ERRORS,
+                    INTERFACE_OUT_DATA,
+                    INTERFACE_OUT_UNICAST,
+                    INTERFACE_OUT_DISCARDS,
+                    INTERFACE_OUT_ERRORS,
+                ],
+                index_count=1,
+                logger=logger,
+                result=result,
+            ):
+                if_id = f"IF-{str(indices[0])}"
 
                 interface = result.object(ADAPTER_KIND, INTERFACE_OBJECT, if_id)
                 device.add_child(interface)
