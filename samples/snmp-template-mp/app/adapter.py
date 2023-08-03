@@ -174,7 +174,7 @@ def collect(adapter_instance: AdapterInstance) -> CollectResult:
             client = SNMPClient(adapter_instance)
 
             # Get some sample data from the SNMPv2-MIB. Most SNMP devices implement
-            # this MIB.
+            # this MIB. Omit index_count (or use index_count=0) to retrieve scalar data.
             for data, indices in client.get_OIDs(
                 [
                     SYSTEM_DESC,
