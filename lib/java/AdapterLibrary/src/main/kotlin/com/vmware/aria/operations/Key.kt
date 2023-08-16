@@ -80,13 +80,7 @@ class Key @JvmOverloads constructor(
     /**
      * @return True if the keys will resolve to the same object, false otherwise.
      */
-    override fun equals(other: Any?): Boolean {
-        return if (other is Key) {
-            internalKey == other.internalKey
-        } else {
-            false
-        }
-    }
+    override fun equals(other: Any?) = other is Key && internalKey == other.internalKey
 
     /**
      * Return a hashcode of this Key, respecting the rules of key uniqueness
