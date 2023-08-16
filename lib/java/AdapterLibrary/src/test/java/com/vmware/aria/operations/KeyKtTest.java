@@ -132,8 +132,8 @@ public class KeyKtTest {
                 new Identifier("key1", "value1"),
                 new Identifier("key2", "value3")
         );
-        Key key1 = new Key("adapter_kind", "object_kind1", "name", identifiers1);
-        Key key2 = new Key("adapter_kind", "object_kind2", "name", identifiers2);
+        Key key1 = new Key("adapter_kind", "object_kind", "name", identifiers1);
+        Key key2 = new Key("adapter_kind", "object_kind", "name", identifiers2);
         assertNotEquals(key1, key2);
     }
 
