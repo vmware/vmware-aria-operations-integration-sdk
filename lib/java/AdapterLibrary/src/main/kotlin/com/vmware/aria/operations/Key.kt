@@ -5,7 +5,20 @@
 package com.vmware.aria.operations
 
 /**
- * Initializes a Key, which uniquely identifies a VMware Aria Operations [Object].
+ * Object's Key class, used for identifying VMware Aria Operation [Object]s.
+ *
+ * Objects are identified by the Adapter Type, Object Type, and one or more Identifiers.
+ *
+ * Identifiers can be either the Object's 'name', or one or more [Identifier] key-value pairs.
+ * In order for an 'Identifier' to be used for identification, it must have
+ * [Identifier.isPartOfUniqueness] set to true (this is the default).
+ *
+ * Two Objects with the same Key are not permitted in a [CollectResult].
+ *
+ * Objects must be created with the full key. Keys should not change after the Object has been created.
+ *
+ * All Objects with the same Adapter Type and Object Type must have the same set of Identifiers that have
+ * 'isPartOfUniqueness' set to true.
  *
  * @param adapterType The Adapter Type this Object is associated with.
  * @param objectType The Object Type (e.g., class) of this Object.
@@ -20,22 +33,6 @@ class Key @JvmOverloads constructor(
     name: String,
     identifiers: List<Identifier> = emptyList()
 ) {
-    /**
-     * Object's Key class, used for identifying [Object]s
-     *
-     * Objects are identified by the Adapter Type, Object Type, and one or more Identifiers.
-     *
-     * Identifiers can be either the Object's 'name', or one or more [Identifier] key-value pairs.
-     * In order for an 'Identifier' to be used for identification, it must have
-     * [Identifier.isPartOfUniqueness] set to true (this is the default).
-     *
-     * Two Objects with the same Key are not permitted in a [CollectResult].
-     *
-     * Objects must be created with the full key. Keys should not change after the Object has been created.
-     *
-     * All Objects with the same Adapter Type and Object Type must have the same set of Identifiers that have
-     * 'isPartOfUniqueness' set to true.
-     */
     val adapterType: String
     val objectType: String
     val name: String
