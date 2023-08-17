@@ -46,9 +46,8 @@ class DataTest {
     @ParameterizedTest
     @MethodSource("numericValues")
     public void metricGetValue(Number number) {
-        Double value = number.doubleValue();
-        Metric metric = new Metric("key", value, 1001L);
-        assertEquals(value, metric.getDoubleValue());
+        Metric metric = new Metric("key", number, 1001L);
+        assertEquals(number.doubleValue(), metric.getDoubleValue());
     }
 
     @ParameterizedTest
@@ -69,9 +68,8 @@ class DataTest {
     @ParameterizedTest
     @MethodSource("numericValues")
     public void propertyGetNumericValue(Number number) {
-        Double value = number.doubleValue();
-        Property property = new Property("key", value, 1001L);
-        assertEquals(value, property.getDoubleValue());
+        Property property = new Property("key", number, 1001L);
+        assertEquals(number.doubleValue(), property.getDoubleValue());
         assertNull(property.getStringValue());
     }
 

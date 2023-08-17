@@ -17,13 +17,14 @@ package com.vmware.aria.operations
  *    Cumulative Data Received
  *
  * @param key A string identifying metric.
- * @param value The value of the metric.
+ * @param value The value of the metric. Note: VMware Aria Operations treats
+ * all numeric values as a [Double].
  * @param timestamp Time in milliseconds since the Epoch when this metric value was
  * recorded. Defaults to the current time.
  */
 class Metric @JvmOverloads constructor(
     val key: String,
-    val value: Double,
+    val value: Number,
     val timestamp: Long = System.currentTimeMillis()
 ) {
 
@@ -34,7 +35,7 @@ class Metric @JvmOverloads constructor(
      * @return the value of the metric as a double.
      */
     val doubleValue
-        get() = value
+        get() = value.toDouble()
     /**
      * Get a JSON representation of this Metric.
      * This method returns a JSON representation of this Metric in the format required by VMware Aria Operations.
@@ -43,7 +44,7 @@ class Metric @JvmOverloads constructor(
     val json: Map<String, Any>
         get() = mapOf(
             "key" to key,
-            "numberValue" to value,
+            "numberValue" to doubleValue,
             "timestamp" to timestamp
         )
 }
