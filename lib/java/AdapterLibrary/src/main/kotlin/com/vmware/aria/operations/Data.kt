@@ -57,7 +57,6 @@ class DoubleValue(val double: Double) : PropertyValueType()
  * Class representing a Property value.
  *
  * A Property is a value, usually a string, that will change infrequently or not at all.
- * Only the current value is important (i.e., a graph doesn't make sense).
  *
  * Examples:
  *     IP Address
