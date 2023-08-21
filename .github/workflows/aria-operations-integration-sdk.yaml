@@ -97,4 +97,4 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         arguments: -p ./lib/java/AdapterLibrary/ test
-        gradle-executable: ./lib/java/AdapterLibrary/
+        gradle-executable: ./lib/java/AdapterLibrary/gradlew
