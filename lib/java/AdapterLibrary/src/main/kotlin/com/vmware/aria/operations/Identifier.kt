@@ -7,7 +7,6 @@ package com.vmware.aria.operations
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Objects
 
@@ -27,7 +26,7 @@ class Identifier @OptIn(ExperimentalSerializationApi::class)
 @JvmOverloads constructor(
     val key: String,
     val value: String,
-    @EncodeDefault(ALWAYS) @SerialName("is_part_of_uniqueness") val isPartOfUniqueness: Boolean = true
+    @EncodeDefault(ALWAYS) val isPartOfUniqueness: Boolean = true
 ) {
     override fun toString(): String {
         val uniqueness = if (isPartOfUniqueness) "*" else ""
