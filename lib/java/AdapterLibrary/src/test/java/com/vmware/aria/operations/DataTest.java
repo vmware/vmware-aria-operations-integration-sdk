@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.*;
 import java.util.stream.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DataTest {
     public static Stream<Arguments> stringValues() {
@@ -46,7 +45,7 @@ class DataTest {
     @ParameterizedTest
     @MethodSource("numericValues")
     public void metricGetValue(Number number) {
-        Metric metric = new Metric("key", number, 1001L);
+        Metric metric = new Metric("key", number.doubleValue(), 1001L);
         assertEquals(number.doubleValue(), metric.getDoubleValue());
     }
 
@@ -61,30 +60,28 @@ class DataTest {
     @ParameterizedTest
     @MethodSource("stringValues")
     public void propertyGetKey(String key) {
-        Property property = new Property(key, 9.0, 1001L);
+        Property property = new NumericProperty(key, 9.0, 1001L);
         assertEquals(key, property.getKey());
     }
 
     @ParameterizedTest
     @MethodSource("numericValues")
     public void propertyGetNumericValue(Number number) {
-        Property property = new Property("key", number, 1001L);
+        NumericProperty property = new NumericProperty("key", number, 1001L);
         assertEquals(number.doubleValue(), property.getDoubleValue());
-        assertNull(property.getStringValue());
     }
 
     @ParameterizedTest
     @MethodSource("stringValues")
     public void propertyGetStringValue(String string) {
-        Property property = new Property("key", string, 1001L);
+        StringProperty property = new StringProperty("key", string, 1001L);
         assertEquals(string, property.getStringValue());
-        assertNull(property.getDoubleValue());
     }
 
     @ParameterizedTest
     @MethodSource("timestampValues")
     public void propertyGetTimestamp(Long timestamp) {
-        Property property = new Property("key", 9.0, timestamp);
+        Property property = new NumericProperty("key", 9.0, timestamp);
         assertEquals(timestamp, property.getTimestamp());
     }
 }
