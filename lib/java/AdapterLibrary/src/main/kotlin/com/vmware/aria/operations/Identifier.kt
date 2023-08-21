@@ -4,6 +4,10 @@
  */
 package com.vmware.aria.operations
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
 import java.util.Objects
 
 /**
@@ -13,14 +17,16 @@ import java.util.Objects
  * can change over time without creating a new Object. This is primarily used for human-readable values that are
  * useful in identification purposes, but may change at times.
  *
- * @param key A key that determines which identifier the value corresponds to.
- * @param value The value of the identifier.
- * @param isPartOfUniqueness Determines if this key/value pair is used in the identification process.
+ * @property key A key that determines which identifier the value corresponds to.
+ * @property value The value of the identifier.
+ * @property isPartOfUniqueness Determines if this key/value pair is used in the identification process.
  */
-class Identifier @JvmOverloads constructor(
+@Serializable
+class Identifier @OptIn(ExperimentalSerializationApi::class)
+@JvmOverloads constructor(
     val key: String,
     val value: String,
-    val isPartOfUniqueness: Boolean = true
+    @EncodeDefault(ALWAYS) val isPartOfUniqueness: Boolean = true
 ) {
     override fun toString(): String {
         val uniqueness = if (isPartOfUniqueness) "*" else ""
@@ -54,16 +60,4 @@ class Identifier @JvmOverloads constructor(
             Objects.hash(key, false)
         }
     }
-
-    /**
-     * Get a JSON representation of this Identifier.
-     * This method returns a JSON representation of this Key in the format required by VMware Aria Operations.
-     * @return The JSON representation of this Identifier, as a Map
-     */
-    val json: Map<String, Any>
-        get() = mapOf(
-            "key" to key,
-            "value" to value,
-            "isPartOfUniqueness" to isPartOfUniqueness,
-        )
 }

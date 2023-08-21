@@ -4,49 +4,43 @@
  */
 package com.vmware.aria.operations
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
 /**
- * Object's Key class, used for identifying VMware Aria Operation [Object]s.
+ * Object's Key class, used for identifying VMware Aria Operation [Objects][Object].
  *
  * Objects are identified by the Adapter Type, Object Type, and one or more Identifiers.
  *
- * Identifiers can be either the Object's 'name', or one or more [Identifier] key-value pairs.
+ * Identifiers can be either the Object's [name], or one or more [Identifier] key-value pairs.
  * In order for an 'Identifier' to be used for identification, it must have
- * [Identifier.isPartOfUniqueness] set to true (this is the default).
+ * [isPartOfUniqueness][Identifier.isPartOfUniqueness] set to true (this is the default).
  *
  * Two Objects with the same Key are not permitted in a [CollectResult].
  *
- * Objects must be created with the full key. Keys should not change after the Object has been created.
+ * Objects must be created with the full key. Keys cannot change after the Object has been created.
  *
- * All Objects with the same Adapter Type and Object Type must have the same set of Identifiers that have
- * 'isPartOfUniqueness' set to true.
+ * All Objects with the same Adapter Type and Object Type must have the same set of Identifiers.
  *
- * @param adapterType The Adapter Type this Object is associated with.
- * @param objectType The Object Type (e.g., class) of this Object.
- * @param name A human-readable name for this Object. Should be unique if possible.
- * @param identifiers A list of [Identifier]s that uniquely identify the Object. If none are present than
+ * @property adapterType The Adapter Type this Object is associated with.
+ * @property objectType The Object Type (e.g., class) of this Object.
+ * @property name A human-readable name for this Object. Should be unique if possible.
+ * @property identifiers A list of [Identifiers][Identifier] that uniquely identify the Object. If none are present than
  * the name must be unique and is used for identification. All Objects with the same adapter type and Object
  * type must have the same set of identifiers.
  */
-class Key @JvmOverloads constructor(
-    adapterType: String,
-    objectType: String,
-    name: String,
-    identifiers: List<Identifier> = emptyList()
+@Serializable
+class Key @OptIn(ExperimentalSerializationApi::class)
+@JvmOverloads constructor(
+    @SerialName("adapter_kind") val adapterType: String,
+    @SerialName("object_kind") val objectType: String,
+    val name: String,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS) val identifiers: List<Identifier> = emptyList(),
 ) {
-    val adapterType: String
-    val objectType: String
-    val name: String
-    private val identifiers: Map<String, Identifier>
-
-    init {
-        this.adapterType = adapterType
-        this.objectType = objectType
-        this.name = name
-        this.identifiers = HashMap()
-        for (identifier in identifiers) {
-            this.identifiers[identifier.key] = identifier
-        }
-    }
+    @Transient private val identifierMap = identifiers.associateBy(Identifier::key)
 
     override fun toString(): String {
         return "$adapterType:$objectType:$identifiers"
@@ -59,7 +53,7 @@ class Key @JvmOverloads constructor(
         get() {
             // Sort all identifiers by 'key' that are part of uniqueness
             val uniqueIdentifiers =
-                identifiers.values.filter { identifier -> identifier.isPartOfUniqueness }
+                identifiers.filter { identifier -> identifier.isPartOfUniqueness }
             val key = mutableListOf<Any>()
             key.add(adapterType)
             key.add(objectType)
@@ -96,28 +90,14 @@ class Key @JvmOverloads constructor(
      * If the value associated with the identifier is empty and 'defaultValue' is
      * provided, returns 'defaultValue'.
      * If the identifier does not exist, returns defaultValue if provided, else 'null'.
-    */
+     */
     @JvmOverloads
     fun getIdentifier(key: String, defaultValue: String? = null): String? {
-        val value = identifiers[key]?.value
+        val value = identifierMap[key]?.value
         return if (value?.isBlank() != false) {
             defaultValue ?: value
         } else {
             value
         }
     }
-
-    /**
-     * Get a JSON representation of this Key.
-     * This method returns a JSON representation of this Key in the format required by VMware Aria Operations.
-     * @return The JSON representation of this Key, as a Map
-     */
-    val json: Map<String, Any>
-        get() =
-            mapOf(
-                "name" to name,
-                "adapterKind" to adapterType,
-                "objectKind" to objectType,
-                "identifiers" to identifiers.map { (_, identifier) -> identifier.json }
-            )
 }
