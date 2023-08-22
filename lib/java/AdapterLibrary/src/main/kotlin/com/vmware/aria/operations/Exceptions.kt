@@ -12,4 +12,16 @@ class IdentifierUniquenessException(message: String) : RuntimeException(message)
 /**
  * Exception when two objects with the same Key are added to the same CollectResult
  */
-class ObjectKeyAlreadyExistsException(message: String): Exception(message)
+class ObjectKeyAlreadyExistsException private constructor(message: String) : Exception(message) {
+    constructor(keys: Iterable<Key>) : this(constructMessage(keys))
+    constructor(key: Key) : this(constructMessage(listOf(key)))
+
+    companion object {
+        fun constructMessage(keys: Iterable<Key>): String =
+            if (keys.count() > 1) {
+                "Duplicate objects with keys $keys already exist in the CollectResult"
+            } else {
+                "A duplicate object with key ${keys.first()} already exist in the CollectResult."
+            }
+    }
+}
