@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 /**
- * Represents an Object (resource) in vROps.
+ * Represents an Object (resource) in VMware Aria Operations.
  *
  * Contains [Metrics][Metric], [Properties][Property], [Events][Event], and relationships
  * to other [Objects][Object]. Each [Object] is identified by a unique [Key].
@@ -17,6 +17,25 @@ import kotlinx.serialization.Transient
  */
 @Serializable
 open class Object(val key: Key) {
+    /**
+     * Represents an Object (resource) in VMware Aria Operations.
+     *
+     * Contains [Metrics][Metric], [Properties][Property], [Events][Event], and relationships
+     * to other [Objects][Object]. Each [Object] is identified by a unique [Key].
+     *
+     * @param adapterType The adapter type of the object
+     * @param objectType The type of the object
+     * @param name The name of the object
+     * @param identifiers An optional list of [Identifiers][Identifier] for the object
+     */
+    @JvmOverloads
+    constructor(
+        adapterType: String,
+        objectType: String,
+        name: String,
+        identifiers: List<Identifier> = emptyList(),
+    ) : this(Key(adapterType, objectType, name, identifiers))
+
     private val metrics: MutableSet<Metric> = mutableSetOf()
     private val properties: MutableSet<Property> = mutableSetOf()
     private val events: MutableSet<Event> = mutableSetOf()
@@ -372,6 +391,10 @@ open class Object(val key: Key) {
      * @param children A collection of child [Objects][Object].
      */
     fun addChildren(children: Iterable<Object>) {
+        // Set hasUpdatedChildren even if the 'children' collection is empty
+        // so that when CollectResult.updateRelationships is PER_OBJECT, there is a way
+        // to delete all child relationships.
+        hasUpdatedChildren = true
         for (child in children) {
             addChild(child)
         }
