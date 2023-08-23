@@ -19,9 +19,9 @@ class ObjectKeyAlreadyExistsException private constructor(message: String) : Exc
     companion object {
         fun constructMessage(keys: Iterable<Key>): String =
             if (keys.count() > 1) {
-                "Duplicate objects with keys $keys already exist in the CollectResult"
+                "Duplicate objects with keys $keys already exist in the CollectResult."
             } else {
-                "A duplicate object with key ${keys.first()} already exist in the CollectResult."
+                "A duplicate object with key ${keys.first()} already exists in the CollectResult."
             }
     }
 }
