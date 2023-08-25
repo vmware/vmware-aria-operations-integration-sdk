@@ -22,7 +22,8 @@ public class LoggerTest {
 
     static {
         try {
-            PATH = Files.createTempDirectory("tmpDirPrefix").toFile().getAbsolutePath();
+            PATH = Files.createTempDirectory("JavaAdapterLibraryLoggerTest").toFile().getAbsolutePath();
+            new File(PATH).deleteOnExit();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -47,11 +48,6 @@ public class LoggerTest {
         // incompletely) between tests
         Configurator.initialize(new DefaultConfiguration());
         Configurator.reconfigure();
-    }
-
-    @AfterAll
-    public static void removeTempDir() {
-        new File(PATH).delete();
     }
 
 

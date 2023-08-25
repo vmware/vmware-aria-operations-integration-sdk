@@ -61,7 +61,18 @@ internal fun setupLogging(
     filePath: String,
 ) {
 
-    val pattern = "%d [%t] %-5level: %msg%n%throwable"
+    // %d - date and time
+    // %t - thread name
+    // %-5level - logging level
+    // %c - logger name
+    // %msg - logger message
+    // %n - newline
+    // %throwable - stacktrace, if applicable
+    // More information:
+    //  https://logging.apache.org/log4j/log4j-2.1/manual/layouts.html#PatternLayout
+    // Example:
+    //  2023-08-25 14:22:39,952 [Test worker] INFO  com.vmware.aria.operations.AdapterLogger: message
+    val pattern = "%d [%t] %-5level %c: %msg%n%throwable"
 
     // Trigger a log rollover on startup and if the file exceeds 'maxSize' bytes
     val triggeringPolicy = CompositeTriggeringPolicy.createPolicy(
