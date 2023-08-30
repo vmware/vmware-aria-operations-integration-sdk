@@ -8,6 +8,7 @@ import subprocess
 import traceback
 import venv
 from importlib import resources
+from io import TextIOWrapper
 from shutil import copy
 from typing import Dict
 
@@ -211,15 +212,15 @@ def create_project(
         copy(src, dest)
 
     # create project structure
-    executable_directory_path = build_project_structure(
+    source_code_directory_path = build_project_structure(
         path, adapter_key, name, language, template_style
     )
 
     # create Dockerfile
-    create_dockerfile(language, path, executable_directory_path)
+    create_dockerfile(language, path, source_code_directory_path)
 
     # create Commands File
-    create_commands_file(language, path, executable_directory_path)
+    create_commands_file(language, path, source_code_directory_path)
 
     # initialize new project as a git repository
     repo = Repo.init(path)
@@ -377,7 +378,7 @@ def main() -> None:
 
 
 def create_dockerfile(
-    language: str, root_directory: str, executable_directory_path: str
+    language: str, root_directory: str, source_code_directory_path: str
 ) -> None:
     logger.debug("generating Dockerfile")
     images = []
@@ -389,29 +390,79 @@ def create_dockerfile(
         iter(filter(lambda image: image["language"].lower() == language, images))
     )["version"]
 
-    with open(os.path.join(root_directory, "Dockerfile"), "w") as dockerfile:
-        # NOTE: This host is only accessible internally, for future releases we have to provide a public host
-        dockerfile.write(
-            f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
-        )
-        dockerfile.write(
-            f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
-            f"images/build_images.py\n"
-        )
-        dockerfile.write(
-            f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
-        )
-        dockerfile.write(f"COPY commands.cfg .\n")
+    with open(os.path.join(root_directory, "Dockerfile"), "r+") as dockerfile:
+        _write_base_ecxecution_stage_image(dockerfile, language, version)
 
         if "python" in language:
-            dockerfile.write(f"COPY adapter_requirements.txt .\n")
-            dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
+            _write_python_execution_stage(dockerfile, source_code_directory_path)
 
-        # having the executable copied at the end allows the image to be built faster since previous
-        # the previous intermediate image is cached
-        dockerfile.write(
-            f"COPY {executable_directory_path} {executable_directory_path}\n"
-        )
+        elif "java" in language:
+            _wirte_java_build_stage(dockerfile, source_code_directory_path)
+            _write_java_execution_stage(dockerfile)
+
+
+def _write_base_ecxecution_stage_image(
+    dockerfile: TextIOWrapper, language: str, version: str
+) -> None:
+    dockerfile.write(
+        f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
+    )
+    dockerfile.write(
+        f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
+        f"images/build_images.py\n"
+    )
+    dockerfile.write(
+        f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
+    )
+    dockerfile.write(f"COPY commands.cfg .\n")
+
+
+def _write_python_execution_stage(
+    dockerfile: TextIOWrapper, source_code_directory_path: str
+) -> None:
+    dockerfile.write(f"COPY adapter_requirements.txt .\n")
+    dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
+
+    # having the executable copied at the end allows the image to be built faster since previous
+    # the previous intermediate image is cached
+    dockerfile.write(
+        f"COPY {source_code_directory_path} {source_code_directory_path}\n"
+    )
+
+
+def _wirte_java_build_stage(
+    dockerfile: TextIOWrapper, source_code_directory_path: str
+) -> None:
+    # since the build stage should happen before the excecution stage we have to write it before
+    dockerfile.seek(0)
+    content = dockerfile.readlines()
+    dockerfile.seek(0)
+
+    dockerfile.write("# First Stage: Build the Java project using Gradle\n")
+    dockerfile.write("FROM gradle:8.3.0-jdk17 AS build'\n\n")
+    dockerfile.write("# Set the working directory inside the Docker image\n")
+    dockerfile.write("WORKDIR /home/gradle/project\n\n")
+    dockerfile.write("# Copy the Gradle build file and the source code\n")
+    dockerfile.write("COPY build.gradle .\n")
+    dockerfile.write(
+        f"COPY {source_code_directory_path} {source_code_directory_path}\n\n"
+    )
+    dockerfile.write("# Run Gradle to compile the code\n")
+    dockerfile.write("RUN gradle build\n\n")
+    dockerfile.writelines(content)
+
+
+def _write_java_execution_stage(dockerfile: TextIOWrapper) -> None:
+    dockerfile.write(f"WORKDIR /home/aria-ops-adapter-user/src/app\n\n")
+    dockerfile.write(
+        f"# Copy the compiled jar from the build stage and its dependencies\n"
+    )
+    dockerfile.write(
+        f"COPY --from=build /home/gradle/project/build/libs/*.jar app.jar\n"
+    )
+    dockerfile.write(
+        f"COPY --from=build /home/gradle/project/dependencies dependencies\n"
+    )
 
 
 def create_commands_file(
