@@ -391,7 +391,7 @@ def create_dockerfile(
     )["version"]
 
     with open(os.path.join(root_directory, "Dockerfile"), "r+") as dockerfile:
-        _write_base_ecxecution_stage_image(dockerfile, language, version)
+        _write_base_execution_stage_image(dockerfile, language, version)
 
         if "python" in language:
             _write_python_execution_stage(dockerfile, source_code_directory_path)
@@ -401,7 +401,7 @@ def create_dockerfile(
             _write_java_execution_stage(dockerfile)
 
 
-def _write_base_ecxecution_stage_image(
+def _write_base_execution_stage_image(
     dockerfile: TextIOWrapper, language: str, version: str
 ) -> None:
     dockerfile.write(
