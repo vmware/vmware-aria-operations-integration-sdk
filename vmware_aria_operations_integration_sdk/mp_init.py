@@ -472,9 +472,7 @@ def create_commands_file(
     with open(os.path.join(path, "commands.cfg"), "w") as commands:
         command_and_executable = ""
         if "java" == language:
-            command_and_executable = (
-                f"/usr/bin/java -cp {executable_directory_path} Collector"
-            )
+            command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
         elif "python" == language:
             command_and_executable = (
                 f"/usr/local/bin/python {executable_directory_path}/adapter.py"
