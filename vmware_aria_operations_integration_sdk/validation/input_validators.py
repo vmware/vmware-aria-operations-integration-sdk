@@ -199,6 +199,16 @@ class ChainValidator(Validator):  # type: ignore
             validator.validate(document)
 
 
+class NoUppercaseValidator(Validator):  # type: ignore
+    def __init__(self, label: str) -> None:
+        self.label = label
+
+    def validate(self, document: Document) -> None:
+        for char in document.text:
+            if "".isupper():
+                raise ValidationError(message=f"{self.label} cannot contain uppercase")
+
+
 class ContainerRegistryValidator(NotEmptyValidator):
     valid_characters = "-_./:" + string.ascii_lowercase + string.digits
     domain_regex = "(?P<domain>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"

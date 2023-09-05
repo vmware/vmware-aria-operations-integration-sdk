@@ -45,6 +45,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
     AdapterKeyValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    ChainValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
     EulaValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
@@ -55,6 +58,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NotEmptyValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    NoUppercaseValidator,
 )
 
 logger = logging.getLogger(__name__)
@@ -173,6 +179,7 @@ def create_project(
     icon_file: str,
     language: str,
     template_style: str,
+    package_name: str,
 ) -> None:
     mkdir(path)
 
@@ -213,7 +220,7 @@ def create_project(
 
     # create project structure
     source_code_directory_path = build_project_structure(
-        path, adapter_key, name, language, template_style
+        path, adapter_key, name, language, template_style, package_name
     )
 
     # create Dockerfile
@@ -317,17 +324,17 @@ def main() -> None:
                 "class:information",
             )
 
-        language = "python"
-        # language = selection_prompt(
-        #     "Select a language for the adapter.",
-        #     items=[
-        #         ("python", "Python"),
-        #         ("java", "Java", "Unavailable for beta release"),
-        #         ("powershell", "PowerShell", "Unavailable for beta release"),
-        #     ],
-        #     description="The language for the Management Pack determines the language for the template\n"
-        #     "source and build files.",
-        # )
+        language = selection_prompt(
+            "Select a language for the adapter.",
+            items=[
+                ("python", "Python"),
+                ("java", "Java")
+                # ("powershell", "PowerShell", "Unavailable for beta release"),
+            ],
+            description="The language for the Management Pack determines the language for the template\n"
+            "source and build files.",
+        )
+
         template_style = selection_prompt(
             "Select a template for your project",
             items=[
@@ -345,6 +352,19 @@ def main() -> None:
             "For more information visit https://vmware.github.io/vmware-aria-operations-integration-sdk/get_started/#template-projects",
         )
 
+        if language == "java":
+            package_name = prompt(
+                "Enter package name: ",
+                default="com.mycompany",
+                validator=ChainValidator(
+                    [
+                        NotEmptyValidator("Java Package"),
+                        NoUppercaseValidator("Java Package"),
+                    ]
+                ),
+                description=" The package name will be used to setup the package used by the adapter and the directory structure of the project.",
+            )
+
         # create project_directory
         with Spinner("Creating Project"):
             create_project(
@@ -357,6 +377,7 @@ def main() -> None:
                 icon_file,
                 language,
                 template_style,
+                package_name,
             )
         print("")
         print("")
@@ -390,7 +411,7 @@ def create_dockerfile(
         iter(filter(lambda image: image["language"].lower() == language, images))
     )["version"]
 
-    with open(os.path.join(root_directory, "Dockerfile"), "r+") as dockerfile:
+    with open(os.path.join(root_directory, "Dockerfile"), "w+") as dockerfile:
         _write_base_execution_stage_image(dockerfile, language, version)
 
         if "python" in language:
@@ -439,7 +460,7 @@ def _wirte_java_build_stage(
     dockerfile.seek(0)
 
     dockerfile.write("# First Stage: Build the Java project using Gradle\n")
-    dockerfile.write("FROM gradle:8.3.0-jdk17 AS build'\n\n")
+    dockerfile.write("FROM gradle:8.3.0-jdk17 AS build\n\n")
     dockerfile.write("# Set the working directory inside the Docker image\n")
     dockerfile.write("WORKDIR /home/gradle/project\n\n")
     dockerfile.write("# Copy the Gradle build file and the source code\n")
@@ -495,7 +516,12 @@ def create_commands_file(
 
 
 def build_project_structure(
-    path: str, adapter_kind: str, name: str, language: str, template_style: str
+    path: str,
+    adapter_kind: str,
+    name: str,
+    language: str,
+    template_style: str,
+    package_name: str,
 ) -> str:
     logger.debug("generating project structure")
     project_directory = ""  # this is where all the source code will reside
@@ -567,18 +593,43 @@ def build_project_structure(
     if language == "java":
         # TODO: copy a java class instead of generate it
 
-        mkdir(path, "src")
-        java.build_template(path, "src")
+        project_directory = "src"
+        package_path = os.path.join(project_directory, *package_name.split("."))
+        mkdir(path, package_path)
+        java.build_template(path, package_path)
 
-        project_directory = "out"
-        mkdir(path, project_directory)
-        java.compile(
-            os.path.join(path, ""),
-            os.path.join(
-                path,
-                project_directory,
-            ),
-        )
+        # Add build.gradle file
+        with open(os.path.join(path, "build.gradle"), "w") as gradle_file:
+            gradle_file.write("apply plugin: 'java'\n")
+
+            gradle_file.write("tasks.register('generateDependencies', Copy) {\n")
+            gradle_file.write("    from configurations.runtimeClasspath\n")
+            gradle_file.write('    into "${rootProject.projectDir}/dependencies"\n')
+            gradle_file.write("}\n\n")
+
+            gradle_file.write("sourceSets {\n")
+            gradle_file.write("    main {\n")
+            gradle_file.write("        java { srcDirs = ['src']}\n")
+            gradle_file.write("      }\n")
+            gradle_file.write("  }\n\n")
+
+            gradle_file.write("jar {\n")
+            gradle_file.write("    dependsOn(generateDependencies)\n")
+            gradle_file.write("    manifest {\n")
+            gradle_file.write(
+                f"        attributes 'Adapter': '{package_name}.Adapter'\n"
+            )
+            gradle_file.write("    }\n")
+            gradle_file.write("}\n\n")
+
+            gradle_file.write("dependencies {\n")
+            gradle_file.write(
+                "    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'\n"
+            )
+            gradle_file.write("}\n\n")
+            gradle_file.write("repositories {\n")
+            gradle_file.write("    mavenCentral()\n")
+            gradle_file.write("}\n")
 
     if language == "powershell":
         # TODO: copy a powershell script  instead of generate it

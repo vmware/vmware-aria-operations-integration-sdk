@@ -20,7 +20,7 @@ logger.addHandler(consoleHandler)
 def mkdir(basepath: str, *paths: str) -> str:
     path = os.path.join(basepath, *paths)
     if not os.path.exists(path):
-        os.mkdir(path, 0o755)
+        os.makedirs(path, 0o755)
     return path
 
 
