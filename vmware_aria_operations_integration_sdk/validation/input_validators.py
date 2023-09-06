@@ -199,13 +199,14 @@ class ChainValidator(Validator):  # type: ignore
             validator.validate(document)
 
 
-class NoUppercaseValidator(Validator):  # type: ignore
-    def __init__(self, label: str) -> None:
-        self.label = label
+class JavaPackageValidator(NotEmptyValidator):
+    def __init__(self) -> None:
+        super().__init__("Java Package")
 
     def validate(self, document: Document) -> None:
+        super().validate(document)
         for char in document.text:
-            if "".isupper():
+            if char.isupper():
                 raise ValidationError(message=f"{self.label} cannot contain uppercase")
 
 

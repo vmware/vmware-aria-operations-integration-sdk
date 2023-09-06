@@ -45,22 +45,19 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
     AdapterKeyValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
-    ChainValidator,
-)
-from vmware_aria_operations_integration_sdk.validation.input_validators import (
     EulaValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     ImageValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    JavaPackageValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NewProjectDirectoryValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NotEmptyValidator,
-)
-from vmware_aria_operations_integration_sdk.validation.input_validators import (
-    NoUppercaseValidator,
 )
 
 logger = logging.getLogger(__name__)
@@ -356,12 +353,7 @@ def main() -> None:
             package_name = prompt(
                 "Enter package name: ",
                 default="com.mycompany",
-                validator=ChainValidator(
-                    [
-                        NotEmptyValidator("Java Package"),
-                        NoUppercaseValidator("Java Package"),
-                    ]
-                ),
+                validator=JavaPackageValidator(),
                 description=" The package name will be used to setup the package used by the adapter and the directory structure of the project.",
             )
 
