@@ -338,7 +338,7 @@ def test_container_registry_validator_fail_starts_with_special_character():
 
     assert (
         str(error.value)
-        == f"{LABEL} should start with lowercase alphanumeric character but _ was detected"
+        == f"{LABEL} should start with lowercase alphanumeric character but '_' was detected"
     )
 
 
@@ -350,7 +350,7 @@ def test_container_registry_validator_fail_ends_with_special_character():
 
     assert (
         str(error.value)
-        == f"{LABEL} should end with lowercase alphanumeric character but - was detected"
+        == f"{LABEL} should end with lowercase alphanumeric character but '-' was detected"
     )
 
 
@@ -371,10 +371,10 @@ def test_container_registry_validator_fail_invalid_port_with_special_character()
     cv = ContainerRegistryValidator(LABEL)
     with pytest.raises(ValidationError) as error:
         cv.validate(
-            Document("namespace/docker-hub-repository:80./namespace/repository")
+            Document("namespace.docker-hub-repository:80./namespace/repository")
         )
 
-    assert str(error.value) == f"Port should only use numbers, but . was detected"
+    assert str(error.value) == f"Port should only use numbers, but '.' was detected"
 
 
 def test_container_registry_validator_fail_invalid_port_6_digits():
@@ -382,10 +382,10 @@ def test_container_registry_validator_fail_invalid_port_6_digits():
     cv = ContainerRegistryValidator(LABEL)
     with pytest.raises(ValidationError) as error:
         cv.validate(
-            Document("namespace/docker-hub-repository:123456/namespace/repository")
+            Document("namespace.docker-hub-repository:123456/namespace/repository")
         )
 
-    assert str(error.value) == f"Port should not exceed 5 digits"
+    assert str(error.value) == f"Port must be between 0 and 65535"
 
 
 def test_container_registry_validator_fail_invalid_domain_format():
@@ -394,4 +394,34 @@ def test_container_registry_validator_fail_invalid_domain_format():
     with pytest.raises(ValidationError) as error:
         cv.validate(Document("example_com:443/namespace/path"))
 
-    assert str(error.value) == f"{LABEL} has invalid domain format"
+    assert (
+        str(error.value)
+        == f"{LABEL} should not include a tag, but ':443/namespace/path' was provided"
+    )
+
+
+def test_registry_parse():
+    registry = "integration-sdk.artifactory.com/artifactory/repository/test"
+    components = ContainerRegistryValidator.get_container_registry_components(registry)
+
+    assert components["domain"] == "integration-sdk.artifactory.com"
+    assert components["port"] == ""
+    assert components["path"] == "artifactory/repository/test"
+
+
+def test_registry_parse_with_port():
+    registry = "integration-sdk.artifactory.com:443/artifactory/repository/test"
+    components = ContainerRegistryValidator.get_container_registry_components(registry)
+
+    assert components["domain"] == "integration-sdk.artifactory.com"
+    assert components["port"] == "443"
+    assert components["path"] == "artifactory/repository/test"
+
+
+def test_registry_parse_dockerhub_io_format():
+    registry = "namespace/docker-hub-repository"
+    components = ContainerRegistryValidator.get_container_registry_components(registry)
+
+    assert components["domain"] == "dockerhub.io"
+    assert components["port"] == ""
+    assert components["path"] == "namespace/docker-hub-repository"

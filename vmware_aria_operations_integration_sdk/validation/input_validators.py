@@ -201,17 +201,6 @@ class ChainValidator(Validator):  # type: ignore
 
 class ContainerRegistryValidator(NotEmptyValidator):
     valid_characters = "-_./:" + string.ascii_lowercase + string.digits
-    domain_regex = "(?P<domain>[a-z0-9]+(?:[._-][a-z0-9]+)*\.[a-z]{2,})"
-    tag_regex = "(?P<tag>:{1}[a-zA-Z0-9.-]+$)"
-    port_regex = (
-        "(?::(?P<port>[0-9]{1,5})/)"  # port should alwas be surrounded by : and /
-    )
-
-    path_regex = (
-        "(?P<path>[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)"
-    )
-
-    regex = f"^(?:{domain_regex}{port_regex})?{path_regex}$"
 
     def __init__(self, label: str) -> None:
         super().__init__(label)
@@ -223,74 +212,62 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
         text = document.text
 
-        # Check the overall format first
-        if not bool(re.fullmatch(cls.regex, text)):
-            domain_match = re.search(f"^{cls.domain_regex}", text)
-            port_match = re.search(cls.port_regex, text)
-            path_match = re.search(f"/{cls.path_regex}$", text)
-            tag_match = re.search(cls.tag_regex, text)
+        components = self.get_container_registry_components(text)
+        domain_match = components["domain"]
+        port_match = components["port"]
+        path_match = components["path"]
+        tag_match = components["tag"]
 
-            remainder = "".join(
-                c if c not in cls.valid_characters else "" for c in text
+        remainder = "".join(c if c not in cls.valid_characters else "" for c in text)
+        if remainder:
+            if remainder.isalpha():
+                raise ValidationError(
+                    message=f"{self.label} cannot contain uppercase letters"
+                )
+            else:
+                raise ValidationError(
+                    message=f"{self.label} has invalid character{'s' if len(remainder) > 1 else ''}: {remainder}"
+                )
+
+        if not text[0].isalnum():
+            raise ValidationError(
+                message=f"{self.label} should start with lowercase alphanumeric character but '{text[0]}' was detected"
             )
-            if remainder:
-                if remainder.isalpha():
-                    raise ValidationError(
-                        message=f"{self.label} cannot contain uppercase letters"
-                    )
-                else:
-                    raise ValidationError(
-                        message=f"{self.label} has invalid character{'s' if len(remainder) > 1 else ''}: {remainder}"
-                    )
+        if not text[-1].isalnum():
+            raise ValidationError(
+                message=f"{self.label} should end with lowercase alphanumeric character but '{text[-1]}' was detected"
+            )
 
-            if not text[0].isalnum():
+        if tag_match:
+            raise ValidationError(
+                message=f"{self.label} should not include a tag, but ':{tag_match}' was provided"
+            )
+
+        if not path_match:
+            raise ValidationError(message=f"{self.label} has invalid path format")
+
+        elif port_match:
+            if not port_match.isnumeric():
+                illegal_characters = port_match.strip(string.digits)
                 raise ValidationError(
-                    message=f"{self.label} should start with lowercase alphanumeric character but {text[0]} was detected"
+                    message=f"Port should only use numbers, but '{illegal_characters}' was detected"
                 )
-            if not text[-1].isalnum():
-                raise ValidationError(
-                    message=f"{self.label} should end with lowercase alphanumeric character but {text[-1]} was detected"
-                )
-
-            if tag_match:
-                raise ValidationError(
-                    message=f"{self.label} should not include a tag, but '{tag_match.group('tag')}' was provided"
-                )
-
-            if not path_match:
-                raise ValidationError(message=f"{self.label} has invalid path format")
-
-            elif not port_match and ":" in text:
-                port = text.split(":")[1].split("/")[0]
-                if not port.isnumeric():
-                    illegal_characters = port.strip(string.digits)
-                    raise ValidationError(
-                        message=f"Port should only use numbers, but {illegal_characters} was detected"
-                    )
-                elif len(port) > 5:
-                    raise ValidationError(message=f"Port should not exceed 5 digits")
-                else:
-                    raise ValidationError(
-                        message=f"{self.label} has invalid port format"
-                    )
-
-            elif not domain_match:
-                raise ValidationError(message=f"{self.label} has invalid domain format")
-
-            # If non of the previous check helped us find the spesifics of the error, provide a more generic error message
-            raise ValidationError(message=f"{self.label} has invalid format")
+            elif int(port_match) < 0 or int(port_match) > 65535:
+                raise ValidationError(message=f"Port must be between 0 and 65535")
 
     @classmethod
     def get_container_registry_components(cls, container_registry: str) -> dict:
-        if match := re.fullmatch(cls.regex, container_registry):
-            # the regex group can't distinguis between host and path when no port is specified
-            groups = match.groupdict()
-            if not groups["domain"]:
-                groups["domain"], groups["path"] = (
-                    groups["path"].split("/")[0],
-                    groups["path"][1:],
-                )
-
-            return groups
-        else:
-            return {}
+        domain = "dockerhub.io"
+        port = ""
+        path = container_registry
+        tag = ""
+        if "/" in container_registry:
+            (domain, path) = container_registry.split("/", 1)
+            if "." not in domain:
+                path = f"{domain}/{path}"
+                domain = "dockerhub.io"
+            if ":" in domain:
+                (domain, port) = domain.split(":", 1)
+            if ":" in path:
+                (path, tag) = path.split(":", 1)
+        return {"domain": domain, "port": port, "path": path, "tag": tag}
