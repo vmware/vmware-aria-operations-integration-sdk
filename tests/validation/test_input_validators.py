@@ -27,6 +27,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
     IntegerValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
+    JavaPackageValidator,
+)
+from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NewProjectDirectoryValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
@@ -395,3 +398,22 @@ def test_container_registry_validator_fail_invalid_domain_format():
         cv.validate(Document("example_com:443/namespace/path"))
 
     assert str(error.value) == f"{LABEL} has invalid domain format"
+
+
+def test_java_package_validator_valid_format():
+    jv = JavaPackageValidator()
+    jv.validate(Document("com.example"))
+
+
+def test_java_package_validator_empty_value():
+    jv = JavaPackageValidator()
+    with pytest.raises(ValidationError):
+        jv.validate(Document(""))
+
+
+def test_java_package_validator_invalid_format():
+    jv = JavaPackageValidator()
+    with pytest.raises(ValidationError) as error:
+        jv.validate(Document("com.Example"))
+
+    assert str(error.value) == "Java Package cannot contain uppercase"
