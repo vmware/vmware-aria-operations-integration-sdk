@@ -422,6 +422,6 @@ def test_registry_parse_dockerhub_io_format():
     registry = "namespace/docker-hub-repository"
     components = ContainerRegistryValidator.get_container_registry_components(registry)
 
-    assert components["domain"] == "dockerhub.io"
+    assert components["domain"] == ContainerRegistryValidator.default_domain
     assert components["port"] == ""
     assert components["path"] == "namespace/docker-hub-repository"

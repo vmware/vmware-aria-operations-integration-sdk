@@ -201,6 +201,7 @@ class ChainValidator(Validator):  # type: ignore
 
 class ContainerRegistryValidator(NotEmptyValidator):
     valid_characters = "-_./:" + string.ascii_lowercase + string.digits
+    default_domain = "registry.hub.docker.com"
 
     def __init__(self, label: str) -> None:
         super().__init__(label)
@@ -257,7 +258,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
     @classmethod
     def get_container_registry_components(cls, container_registry: str) -> dict:
-        domain = "dockerhub.io"
+        domain = cls.default_domain
         port = ""
         path = container_registry
         tag = ""
@@ -265,7 +266,7 @@ class ContainerRegistryValidator(NotEmptyValidator):
             (domain, path) = container_registry.split("/", 1)
             if "." not in domain:
                 path = f"{domain}/{path}"
-                domain = "dockerhub.io"
+                domain = cls.default_domain
             if ":" in domain:
                 (domain, port) = domain.split(":", 1)
             if ":" in path:
