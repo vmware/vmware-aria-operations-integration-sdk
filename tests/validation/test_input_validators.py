@@ -362,7 +362,8 @@ def test_container_registry_validator_fail_include_tag():
 
     assert (
         str(error.value)
-        == f"{LABEL} should not include a tag, but ':latest' was provided"
+        == f"{LABEL} should not include a tag, but ':latest' was provided. If ':latest' "
+        f"is not a tag, check that the domain is valid."
     )
 
 
@@ -396,7 +397,8 @@ def test_container_registry_validator_fail_invalid_domain_format():
 
     assert (
         str(error.value)
-        == f"{LABEL} should not include a tag, but ':443/namespace/path' was provided"
+        == f"{LABEL} should not include a tag, but ':443/namespace/path' was provided. "
+        f"If ':443/namespace/path' is not a tag, check that the domain is valid."
     )
 
 

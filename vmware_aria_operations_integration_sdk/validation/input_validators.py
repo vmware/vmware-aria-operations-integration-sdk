@@ -200,7 +200,7 @@ class ChainValidator(Validator):  # type: ignore
 
 
 class ContainerRegistryValidator(NotEmptyValidator):
-    valid_characters = "-_./:" + string.ascii_lowercase + string.digits
+    valid_characters = "-_./" + string.ascii_lowercase + string.digits
     default_domain = "registry.hub.docker.com"
 
     def __init__(self, label: str) -> None:
@@ -219,7 +219,10 @@ class ContainerRegistryValidator(NotEmptyValidator):
         path_match = components["path"]
         tag_match = components["tag"]
 
-        remainder = "".join(c if c not in cls.valid_characters else "" for c in text)
+        remainder = "".join(
+            c if c not in cls.valid_characters else ""
+            for c in domain_match + port_match + path_match + tag_match
+        )
         if remainder:
             if remainder.isalpha():
                 raise ValidationError(
@@ -241,13 +244,14 @@ class ContainerRegistryValidator(NotEmptyValidator):
 
         if tag_match:
             raise ValidationError(
-                message=f"{self.label} should not include a tag, but ':{tag_match}' was provided"
+                message=f"{self.label} should not include a tag, but ':{tag_match}' was provided. If ':{tag_match}' is "
+                f"not a tag, check that the domain is valid."
             )
 
         if not path_match:
             raise ValidationError(message=f"{self.label} has invalid path format")
 
-        elif port_match:
+        if port_match:
             if not port_match.isnumeric():
                 illegal_characters = port_match.strip(string.digits)
                 raise ValidationError(
