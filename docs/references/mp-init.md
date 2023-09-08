@@ -11,6 +11,9 @@ an initial project structure and create classifiers that other tools and VMware 
 ## Prerequisites
 * The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with the virtual environment active.
 
+???+ note
+    Running `mp-init` as root is not recommended, as this requires some directories to have escalated permissions.
+
 ## Input
 
 ### Command-line Arguments
