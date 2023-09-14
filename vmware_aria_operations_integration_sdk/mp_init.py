@@ -264,7 +264,7 @@ def main() -> None:
             validator=NewProjectDirectoryValidator(),
         )
 
-        name = prompt(
+        display_name = prompt(
             "Management pack display name: ",
             validator=NotEmptyValidator("Display name"),
             description="VMware Aria Operations uses the display name as the name of the Management \n"
@@ -274,7 +274,7 @@ def main() -> None:
         adapter_key = prompt(
             "Management pack adapter key: ",
             validator=AdapterKeyValidator(),
-            default=AdapterKeyValidator.default(name),
+            default=AdapterKeyValidator.default(display_name),
             description="The adapter key is used internally to identify the Management Pack and Adapter. It\n"
             "should be unique and cannot contain spaces or other special characters. It also \n"
             "cannot start with a number. By default, it is set to the Display Name with special\n"
@@ -371,7 +371,7 @@ def main() -> None:
         with Spinner("Creating Project"):
             create_project(
                 path,
-                name,
+                display_name,
                 adapter_key,
                 description,
                 vendor,
