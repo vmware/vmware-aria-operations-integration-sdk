@@ -177,6 +177,12 @@ def create_project(
 
     project = Project(path)
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        # Log directory must be writable by non-root users so that the adapter container
+        # is able to create and write log files.
+        log_dir = mkdir(path, "logs")
+        os.chmod(log_dir, 0o755)
+
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
     conf_resources_dir = mkdir(conf_dir, "resources")
