@@ -1,0 +1,2 @@
+vmware-aria-operations-integration-sdk-lib==0.8.*\n
+psutil==5.9.4

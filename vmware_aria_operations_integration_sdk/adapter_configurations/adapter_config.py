@@ -7,13 +7,19 @@ from shutil import copy
 from typing import Any
 from typing import Callable
 from typing import Dict
+from typing import Generator
 from typing import List
+from typing import Union
 
 from docker.tls import os
 from git import Repo
 
 from vmware_aria_operations_integration_sdk import adapter_configurations
 from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
+from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
+from vmware_aria_operations_integration_sdk.constant import REPO_NAME
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.mp_init import add_git_keep_file
 from vmware_aria_operations_integration_sdk.project import Project
@@ -41,8 +47,11 @@ class AdapterConfig(ABC):
         vendor: str,
         eula_file_path: str,
         icon_file_path: str,
-        questions: List[Question] = [],
+        questions: Union[None, List[Question]] = None,
     ) -> None:
+
+        if questions is None:
+            questions = []
         self.project = Project(project_path)
         self.display_name = display_name
         self.adapter_key = adapter_key
@@ -51,30 +60,31 @@ class AdapterConfig(ABC):
         self.eula_file_path = eula_file_path
         self.icon_file_path = icon_file_path
         self.questions = questions
+        self.adapter_template_path = None
 
         self.conf_dir_path = os.path.join(project_path, "conf")
         self.conf_resources_dir_path = os.path.join(project_path, "resources")
         self.conf_images_dir_path = os.path.join(project_path, "images")
 
-        self.values: Dict[str, Any] = dict()
+        self.response_values: Dict[str, Any] = dict()
 
     def prompt_config_values(self) -> None:
         """
         This function will propt users for all the config values
         """
         for question in self.questions:
-            self.values[question.key] = question.ask()
+            self.response_values[question.key] = question.ask()
 
     @abstractmethod
     def build_string_from_template(self, path: str) -> str:
         """
-        This function take a path to a file template and returns the resulting file as a string
+        This function takes a path to a file template and returns the resulting file as a string
         """
 
     @abstractmethod
     def build_project_structure(
         self,
-    ) -> str:
+    ) -> None:
         """
         This method is called after generating the vanilla project structure
         this method should be used to generate any directory structure that is specific to
@@ -201,6 +211,13 @@ class AdapterConfig(ABC):
         with open(self.manifest_file_path, "w") as manifest_fd:
             json.dump(manifest, manifest_fd, indent=4)
 
+    def _list_adapter_template_files(self) -> Generator:
+        for root, dirs, files in os.walk(self.adapter_template_path):
+            for _file in files:
+                full_path = os.path.join(root, _file)
+
+                yield full_path
+
     def _build_integration_sdk_project_structure(self) -> None:
         mkdir(self.project.path)
 
@@ -253,6 +270,19 @@ class AdapterConfig(ABC):
         # create Commands File
         self.build_commands_file()
 
+        # Iterate through all files in the selected template
+        for file in self._list_adapter_template_files():
+            file_path, extension = os.path.splitext(
+                file.replace(self.adapter_template_path, ".")
+            )
+            destination = os.path.join(self.project.path, file_path)
+            if extension == ".template":
+                with open(destination) as new_file:
+                    new_file.write(self.build_string_from_template(file))
+            else:
+                destination = destination + extension
+                copy(file, destination)
+
         # initialize new project as a git repository
         repo = Repo.init(self.project.path)
         git_ignore = os.path.join(self.project.path, ".gitignore")
@@ -271,6 +301,21 @@ class AdapterConfig(ABC):
         # TODO: Prompt to create remote, once we know what the default remote should be.
         # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
         # remote.push(refspec='main:main')
+
+    def write_base_execution_stage_image(
+        self, dockerfile: TextIOWrapper, language: str, version: str
+    ) -> None:
+        dockerfile.write(
+            f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
+        )
+        dockerfile.write(
+            f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
+            f"images/build_images.py\n"
+        )
+        dockerfile.write(
+            f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
+        )
+        dockerfile.write(f"COPY commands.cfg .\n")
 
 
 class FileTemplate:
