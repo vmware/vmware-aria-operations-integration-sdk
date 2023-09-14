@@ -250,6 +250,20 @@ def main() -> None:
     )
     parser.parse_args()
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        if (
+            selection_prompt(
+                "Detected that 'mp-init' is being run as root or using sudo. This is not "
+                "recommended. Continue?",
+                [("no", "No"), ("yes", "Yes")],
+                "If 'mp-init' proceeds as root:\n"
+                " * Some directories will need write permissions by non-root users.\n"
+                " * Elevated permissions will also be required when running 'mp-test' and 'mp-build'\n"
+                " * There may be other unexpected behavior",
+            )
+            == "no"
+        ):
+            exit(0)
     path = ""
     try:
         path = path_prompt(
