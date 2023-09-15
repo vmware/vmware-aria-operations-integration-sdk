@@ -1,5 +1,11 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
+## 1.0.1 (09-16-2023)
+* Fix issue where server would repeatedly crash if logging directory was not writable
+  * If user runs mp-init using root, the logs directory's permissions are set to world-wriable
+  * If user runs mp-init as root, mp-init warns that the above will happen
+  * Improves error handling when logs directory is not writable to prevent server crashes
+
 ## 1.0.0 (07/26/2023)
 * Improved documentation site
 * Additional sample and template projects
