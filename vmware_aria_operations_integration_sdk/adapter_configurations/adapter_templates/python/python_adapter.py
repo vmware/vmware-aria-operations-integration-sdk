@@ -42,7 +42,7 @@ class PythonAdapter(AdapterConfig):
             icon_file_path,
         )
         self.language = "python"
-        self.source_code_directory_path = os.path.join(project_path, "app")
+        self.source_code_directory_path = "app"
 
         items = list()
         adapter_templates_dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -94,7 +94,7 @@ class PythonAdapter(AdapterConfig):
         return string_from_template
 
     def build_project_structure(self) -> None:
-        mkdir(self.source_code_directory_path)
+        mkdir(self.project.path, self.source_code_directory_path)
 
         # create development requirements file
         requirements_file = os.path.join(self.project.path, "requirements.txt")
