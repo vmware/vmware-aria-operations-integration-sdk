@@ -282,6 +282,8 @@ class AdapterConfig(ABC):
                 file.replace(self.response_values["adapter_template_path"] + "/", "")
             )
             destination = os.path.join(self.project.path, file_path)
+            print(f"current file: {file}")
+            print(f"file destination: {destination}")
             if extension == ".template":
                 with open(destination, "w") as new_file:
                     new_file.write(self.build_string_from_template(file))

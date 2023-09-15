@@ -10,6 +10,9 @@ import pkg_resources
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
     AdapterConfig,
 )
+from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_templates.java.java_adapter import (
+    JavaAdapter,
+)
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_templates.python.python_adapter import (
     PythonAdapter,
 )
@@ -304,24 +307,19 @@ def main() -> None:
                         icon_file_path=icon_file,
                     ),
                     "Python",
-                )
-                # (
-                #     AdapterConfig(
-                #         "java",
-                #         [
-                #             Question(
-                #                 "package_name",
-                #                 prompt,
-                #                 message="Enter package name: ",
-                #                 default="com.mycompany",
-                #                 validator=JavaPackageValidator(),
-                #                 description=" The package name will be used to setup the package used by the adapter and the directory structure of the project.",
-                #             )
-                #         ],
-                #     ),
-                #     "Java",
-                # )
-                # ("powershell", "PowerShell", "Unavailable for beta release"),
+                ),
+                (
+                    JavaAdapter(
+                        project_path=path,
+                        display_name=display_name,
+                        adapter_key=adapter_key,
+                        adapter_description=description,
+                        vendor=vendor,
+                        eula_file_path=eula_file,
+                        icon_file_path=icon_file,
+                    ),
+                    "Java",
+                ),
             ],
             description="The language for the Management Pack determines the language for the template\n"
             "source and build files.",
@@ -349,249 +347,6 @@ def main() -> None:
             print("Unexpected error")
             logger.error(error)
             traceback.print_tb(error.__traceback__)
-
-
-# def create_dockerfile(
-#     language: str, root_directory: str, source_code_directory_path: str
-# ) -> None:
-#     logger.debug("generating Dockerfile")
-#     images = []
-#     with resources.path(__package__, VERSION_FILE) as config_file:
-#         with open(config_file, "r") as config:
-#             config_json = json.load(config)
-#             images = [config_json["base_image"]] + config_json["secondary_images"]
-#     version = next(
-#         iter(filter(lambda image: image["language"].lower() == language, images))
-#     )["version"]
-#
-#     with open(os.path.join(root_directory, "Dockerfile"), "w+") as dockerfile:
-#         _write_base_execution_stage_image(dockerfile, language, version)
-#
-#         if "python" == language:
-#             _write_python_execution_stage(dockerfile, source_code_directory_path)
-#
-#         elif "java" == language:
-#             _wirte_java_build_stage(dockerfile, source_code_directory_path)
-#             _write_java_execution_stage(dockerfile)
-
-
-# def _write_base_execution_stage_image(
-#     dockerfile: TextIOWrapper, language: str, version: str
-# ) -> None:
-#     dockerfile.write(
-#         f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
-#     )
-#     dockerfile.write(
-#         f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
-#         f"images/build_images.py\n"
-#     )
-#     dockerfile.write(
-#         f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
-#     )
-#     dockerfile.write(f"COPY commands.cfg .\n")
-#
-#
-# def _write_python_execution_stage(
-#     dockerfile: TextIOWrapper, source_code_directory_path: str
-# ) -> None:
-#     dockerfile.write(f"COPY adapter_requirements.txt .\n")
-#     dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
-#
-#     # having the executable copied at the end allows the image to be built faster since previous
-#     # the previous intermediate image is cached
-#     dockerfile.write(
-#         f"COPY {source_code_directory_path} {source_code_directory_path}\n"
-#     )
-
-
-# def _wirte_java_build_stage(
-#     dockerfile: TextIOWrapper, source_code_directory_path: str
-# ) -> None:
-#     # since the build stage should happen before the excecution stage we have to write it before
-#     dockerfile.seek(0)
-#     content = dockerfile.readlines()
-#     dockerfile.seek(0)
-#
-#     dockerfile.write("# First Stage: Build the Java project using Gradle\n")
-#     dockerfile.write("FROM gradle:8.3.0-jdk17 AS build\n\n")
-#     dockerfile.write("# Set the working directory inside the Docker image\n")
-#     dockerfile.write("WORKDIR /home/gradle/project\n\n")
-#     dockerfile.write("# Copy the Gradle build file and the source code\n")
-#     dockerfile.write("COPY build.gradle .\n")
-#     dockerfile.write(
-#         f"COPY {source_code_directory_path} {source_code_directory_path}\n\n"
-#     )
-#     dockerfile.write("# Run Gradle to compile the code\n")
-#     dockerfile.write("RUN gradle build\n\n")
-#     dockerfile.writelines(content)
-#
-#
-# def _write_java_execution_stage(dockerfile: TextIOWrapper) -> None:
-#     dockerfile.write(f"WORKDIR /home/aria-ops-adapter-user/src/app\n\n")
-#     dockerfile.write(
-#         f"# Copy the compiled jar from the build stage and its dependencies\n"
-#     )
-#     dockerfile.write(
-#         f"COPY --from=build /home/gradle/project/build/libs/*.jar app.jar\n"
-#     )
-#     dockerfile.write(
-#         f"COPY --from=build /home/gradle/project/dependencies dependencies\n"
-#     )
-#
-#
-# def create_commands_file(
-#     language: str, path: str, executable_directory_path: str
-# ) -> None:
-#     logger.debug("generating commands file")
-#     with open(os.path.join(path, "commands.cfg"), "w") as commands:
-#         command_and_executable = ""
-#         if "java" == language:
-#             command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
-#         elif "python" == language:
-#             command_and_executable = (
-#                 f"/usr/local/bin/python {executable_directory_path}/adapter.py"
-#             )
-#         elif "powershell" == language:
-#             command_and_executable = (
-#                 f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
-#             )
-#         else:
-#             logger.error(f"language {language} is not supported")
-#             exit(1)
-#
-#         commands.write("[Commands]\n")
-#         commands.write(f"test={command_and_executable} test\n")
-#         commands.write(f"collect={command_and_executable} collect\n")
-#         commands.write(
-#             f"adapter_definition={command_and_executable} adapter_definition\n"
-#         )
-#         commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
-#
-#
-# def build_project_structure(
-#     path: str,
-#     adapter_kind: str,
-#     name: str,
-#     adapter_config: AdapterConfig,
-#     template_style: str,
-# ) -> str:
-#     logger.debug("generating project structure")
-#     project_directory = ""  # this is where all the source code will reside
-#
-#     if adapter_config.language == "python":
-#         project_directory = "app"
-#         mkdir(path, project_directory)
-#
-#         # create template requirements.txt
-#         requirements_file = os.path.join(path, "adapter_requirements.txt")
-#         with open(requirements_file, "w") as requirements:
-#             if template_style == SAMPLE_ADAPTER_OPTION_KEY:
-#                 requirements.write("psutil==5.9.4\n")
-#             requirements.write("vmware-aria-operations-integration-sdk-lib==0.8.*\n")
-#
-#         # create development requirements file
-#         requirements_file = os.path.join(path, "requirements.txt")
-#         with open(requirements_file, "w") as requirements:
-#             package = "vmware-aria-operations-integration-sdk"
-#             version = pkg_resources.get_distribution(package).version
-#             requirements.write(f"{package}=={version}\n")
-#
-#         env_dir = os.path.join(path, f"venv-{name}")
-#         venv.create(env_dir, with_pip=True)
-#
-#         # install requirements.txt into virtual environment
-#         v_env = os.environ.copy()
-#         v_env["VIRTUAL_ENV"] = env_dir
-#         v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
-#         result = subprocess.run(
-#             ["pip", "install", "-r", f"{requirements_file}"],
-#             env=v_env,
-#             stdout=subprocess.PIPE,
-#             stderr=subprocess.PIPE,
-#         )
-#         for line in result.stdout.decode("utf-8").splitlines():
-#             logger.debug(line)
-#         for line in result.stderr.decode("utf-8").splitlines():
-#             logger.warning(line)
-#         if result.returncode != 0:
-#             logger.error(
-#                 "Could not install sdk tools into the development virtual environment."
-#             )
-#
-#         namespace_package_indicator_file = os.path.join(
-#             path, project_directory, "__init__.py"
-#         )
-#         with open(namespace_package_indicator_file, "w"):
-#             os.utime(namespace_package_indicator_file)
-#
-#         # copy the template code into app/adapter.py file
-#         template = (
-#             "adapter.py"
-#             if template_style == SAMPLE_ADAPTER_OPTION_KEY
-#             else "new_adapter_template.py"
-#         )
-#         with resources.as_file(
-#             resources.files(adapter_template).joinpath(template)
-#         ) as src:
-#             dest = os.path.join(path, project_directory, "adapter.py")
-#             copy(src, dest)
-#
-#         with open(
-#             os.path.join(path, project_directory, "constants.py"), "w"
-#         ) as constants:
-#             constants.write(f'ADAPTER_KIND = "{adapter_kind}"\n')
-#             constants.write(f'ADAPTER_NAME = "{name}"\n')
-#
-#     if adapter_config.language == "java":
-#         # TODO: copy a java class instead of generate it
-#
-#         project_directory = "src"
-#         package_name = adapter_config.values["package_name"]
-#         package_path = os.path.join(project_directory, *package_name.split("."))
-#         mkdir(path, package_path)
-#         java.build_template(path, package_path)
-#
-#         # Add build.gradle file
-#         with open(os.path.join(path, "build.gradle"), "w") as gradle_file:
-#             gradle_file.write("apply plugin: 'java'\n")
-#
-#             gradle_file.write("tasks.register('generateDependencies', Copy) {\n")
-#             gradle_file.write("    from configurations.runtimeClasspath\n")
-#             gradle_file.write('    into "${rootProject.projectDir}/dependencies"\n')
-#             gradle_file.write("}\n\n")
-#
-#             gradle_file.write("sourceSets {\n")
-#             gradle_file.write("    main {\n")
-#             gradle_file.write("        java { srcDirs = ['src']}\n")
-#             gradle_file.write("      }\n")
-#             gradle_file.write("  }\n\n")
-#
-#             gradle_file.write("jar {\n")
-#             gradle_file.write("    dependsOn(generateDependencies)\n")
-#             gradle_file.write("    manifest {\n")
-#             gradle_file.write(
-#                 f"        attributes 'Adapter': '{package_name}.Adapter'\n"
-#             )
-#             gradle_file.write("    }\n")
-#             gradle_file.write("}\n\n")
-#
-#             gradle_file.write("dependencies {\n")
-#             gradle_file.write(
-#                 "    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'\n"
-#             )
-#             gradle_file.write("}\n\n")
-#             gradle_file.write("repositories {\n")
-#             gradle_file.write("    mavenCentral()\n")
-#             gradle_file.write("}\n")
-#
-#     if adapter_config.language == "powershell":
-#         # TODO: copy a powershell script  instead of generate it
-#
-#         project_directory = "scripts"
-#         mkdir(path, project_directory)
-#         powershell.build_template(path, project_directory)
-#
-#     return project_directory
 
 
 if __name__ == "__main__":
