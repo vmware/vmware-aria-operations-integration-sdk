@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import subprocess
 import venv
 from importlib import resources
 from io import TextIOWrapper
@@ -48,7 +47,7 @@ class PythonAdapter(AdapterConfig):
         items = list()
         adapter_templates_dir_path = os.path.dirname(os.path.realpath(__file__))
         templates = [
-            d
+            os.path.join(adapter_templates_dir_path, d)
             for d in os.listdir(adapter_templates_dir_path)
             if os.path.isdir(os.path.join(adapter_templates_dir_path, d))
             and not d.startswith(".")
@@ -81,11 +80,13 @@ class PythonAdapter(AdapterConfig):
         )
 
     def build_string_from_template(self, path: str) -> str:
-        template = Template(path)
+        with open(path, "r") as template_file:
+            template = Template(template_file.read())
+
         filename = os.path.basename(os.path.splitext(path)[0])
 
         string_from_template = ""
-        if filename == "constants.py":
+        if os.path.basename(path) == "constants.py.template":
             string_from_template = template.substitute(
                 {"adapter_name": self.display_name, "adapter_kind": self.adapter_key}
             )

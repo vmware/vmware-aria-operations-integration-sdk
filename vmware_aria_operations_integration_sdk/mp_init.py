@@ -1,45 +1,21 @@
 #  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 import argparse
-import json
 import logging
 import os
-import subprocess
 import traceback
-import venv
-from importlib import resources
-from io import TextIOWrapper
-from shutil import copy
-from typing import Dict
 
 import pkg_resources
-from git import Repo
 
-from vmware_aria_operations_integration_sdk import adapter_template
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
     AdapterConfig,
 )
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_templates.python.python_adapter import (
     PythonAdapter,
 )
-from vmware_aria_operations_integration_sdk.constant import CONNECTIONS_FILE_NAME
-from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
-from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
-from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
-from vmware_aria_operations_integration_sdk.constant import (
-    NEW_ADAPTER_OPTION_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import REPO_NAME
-from vmware_aria_operations_integration_sdk.constant import (
-    SAMPLE_ADAPTER_OPTION_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
-from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.filesystem import rmdir
 from vmware_aria_operations_integration_sdk.logging_format import CustomFormatter
 from vmware_aria_operations_integration_sdk.logging_format import PTKHandler
-from vmware_aria_operations_integration_sdk.project import Project
-from vmware_aria_operations_integration_sdk.project import record_project
 from vmware_aria_operations_integration_sdk.ui import path_prompt
 from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 from vmware_aria_operations_integration_sdk.ui import prompt
@@ -53,9 +29,6 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     ImageValidator,
-)
-from vmware_aria_operations_integration_sdk.validation.input_validators import (
-    JavaPackageValidator,
 )
 from vmware_aria_operations_integration_sdk.validation.input_validators import (
     NewProjectDirectoryValidator,
@@ -359,17 +332,6 @@ def main() -> None:
         # create project_directory
         with Spinner("Creating Project"):
             adapter_config.create_project()
-            # create_project(
-            #     path,
-            #     display_name,
-            #     adapter_key,
-            #     description,
-            #     vendor,
-            #     eula_file,
-            #     icon_file,
-            #     adapter_config,
-            #     template_style,
-            # )
         print("")
         print("")
         print("project generation completed", "class:success")
@@ -389,123 +351,123 @@ def main() -> None:
             traceback.print_tb(error.__traceback__)
 
 
-def create_dockerfile(
-    language: str, root_directory: str, source_code_directory_path: str
-) -> None:
-    logger.debug("generating Dockerfile")
-    images = []
-    with resources.path(__package__, VERSION_FILE) as config_file:
-        with open(config_file, "r") as config:
-            config_json = json.load(config)
-            images = [config_json["base_image"]] + config_json["secondary_images"]
-    version = next(
-        iter(filter(lambda image: image["language"].lower() == language, images))
-    )["version"]
-
-    with open(os.path.join(root_directory, "Dockerfile"), "w+") as dockerfile:
-        _write_base_execution_stage_image(dockerfile, language, version)
-
-        if "python" == language:
-            _write_python_execution_stage(dockerfile, source_code_directory_path)
-
-        elif "java" == language:
-            _wirte_java_build_stage(dockerfile, source_code_directory_path)
-            _write_java_execution_stage(dockerfile)
-
-
-def _write_base_execution_stage_image(
-    dockerfile: TextIOWrapper, language: str, version: str
-) -> None:
-    dockerfile.write(
-        f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
-    )
-    dockerfile.write(
-        f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
-        f"images/build_images.py\n"
-    )
-    dockerfile.write(
-        f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
-    )
-    dockerfile.write(f"COPY commands.cfg .\n")
+# def create_dockerfile(
+#     language: str, root_directory: str, source_code_directory_path: str
+# ) -> None:
+#     logger.debug("generating Dockerfile")
+#     images = []
+#     with resources.path(__package__, VERSION_FILE) as config_file:
+#         with open(config_file, "r") as config:
+#             config_json = json.load(config)
+#             images = [config_json["base_image"]] + config_json["secondary_images"]
+#     version = next(
+#         iter(filter(lambda image: image["language"].lower() == language, images))
+#     )["version"]
+#
+#     with open(os.path.join(root_directory, "Dockerfile"), "w+") as dockerfile:
+#         _write_base_execution_stage_image(dockerfile, language, version)
+#
+#         if "python" == language:
+#             _write_python_execution_stage(dockerfile, source_code_directory_path)
+#
+#         elif "java" == language:
+#             _wirte_java_build_stage(dockerfile, source_code_directory_path)
+#             _write_java_execution_stage(dockerfile)
 
 
-def _write_python_execution_stage(
-    dockerfile: TextIOWrapper, source_code_directory_path: str
-) -> None:
-    dockerfile.write(f"COPY adapter_requirements.txt .\n")
-    dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
-
-    # having the executable copied at the end allows the image to be built faster since previous
-    # the previous intermediate image is cached
-    dockerfile.write(
-        f"COPY {source_code_directory_path} {source_code_directory_path}\n"
-    )
-
-
-def _wirte_java_build_stage(
-    dockerfile: TextIOWrapper, source_code_directory_path: str
-) -> None:
-    # since the build stage should happen before the excecution stage we have to write it before
-    dockerfile.seek(0)
-    content = dockerfile.readlines()
-    dockerfile.seek(0)
-
-    dockerfile.write("# First Stage: Build the Java project using Gradle\n")
-    dockerfile.write("FROM gradle:8.3.0-jdk17 AS build\n\n")
-    dockerfile.write("# Set the working directory inside the Docker image\n")
-    dockerfile.write("WORKDIR /home/gradle/project\n\n")
-    dockerfile.write("# Copy the Gradle build file and the source code\n")
-    dockerfile.write("COPY build.gradle .\n")
-    dockerfile.write(
-        f"COPY {source_code_directory_path} {source_code_directory_path}\n\n"
-    )
-    dockerfile.write("# Run Gradle to compile the code\n")
-    dockerfile.write("RUN gradle build\n\n")
-    dockerfile.writelines(content)
+# def _write_base_execution_stage_image(
+#     dockerfile: TextIOWrapper, language: str, version: str
+# ) -> None:
+#     dockerfile.write(
+#         f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
+#     )
+#     dockerfile.write(
+#         f"# Go to the {REPO_NAME} repository, and run the build_images.py script located at "
+#         f"images/build_images.py\n"
+#     )
+#     dockerfile.write(
+#         f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
+#     )
+#     dockerfile.write(f"COPY commands.cfg .\n")
+#
+#
+# def _write_python_execution_stage(
+#     dockerfile: TextIOWrapper, source_code_directory_path: str
+# ) -> None:
+#     dockerfile.write(f"COPY adapter_requirements.txt .\n")
+#     dockerfile.write("RUN pip3 install -r adapter_requirements.txt --upgrade\n")
+#
+#     # having the executable copied at the end allows the image to be built faster since previous
+#     # the previous intermediate image is cached
+#     dockerfile.write(
+#         f"COPY {source_code_directory_path} {source_code_directory_path}\n"
+#     )
 
 
-def _write_java_execution_stage(dockerfile: TextIOWrapper) -> None:
-    dockerfile.write(f"WORKDIR /home/aria-ops-adapter-user/src/app\n\n")
-    dockerfile.write(
-        f"# Copy the compiled jar from the build stage and its dependencies\n"
-    )
-    dockerfile.write(
-        f"COPY --from=build /home/gradle/project/build/libs/*.jar app.jar\n"
-    )
-    dockerfile.write(
-        f"COPY --from=build /home/gradle/project/dependencies dependencies\n"
-    )
-
-
-def create_commands_file(
-    language: str, path: str, executable_directory_path: str
-) -> None:
-    logger.debug("generating commands file")
-    with open(os.path.join(path, "commands.cfg"), "w") as commands:
-        command_and_executable = ""
-        if "java" == language:
-            command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
-        elif "python" == language:
-            command_and_executable = (
-                f"/usr/local/bin/python {executable_directory_path}/adapter.py"
-            )
-        elif "powershell" == language:
-            command_and_executable = (
-                f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
-            )
-        else:
-            logger.error(f"language {language} is not supported")
-            exit(1)
-
-        commands.write("[Commands]\n")
-        commands.write(f"test={command_and_executable} test\n")
-        commands.write(f"collect={command_and_executable} collect\n")
-        commands.write(
-            f"adapter_definition={command_and_executable} adapter_definition\n"
-        )
-        commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
-
-
+# def _wirte_java_build_stage(
+#     dockerfile: TextIOWrapper, source_code_directory_path: str
+# ) -> None:
+#     # since the build stage should happen before the excecution stage we have to write it before
+#     dockerfile.seek(0)
+#     content = dockerfile.readlines()
+#     dockerfile.seek(0)
+#
+#     dockerfile.write("# First Stage: Build the Java project using Gradle\n")
+#     dockerfile.write("FROM gradle:8.3.0-jdk17 AS build\n\n")
+#     dockerfile.write("# Set the working directory inside the Docker image\n")
+#     dockerfile.write("WORKDIR /home/gradle/project\n\n")
+#     dockerfile.write("# Copy the Gradle build file and the source code\n")
+#     dockerfile.write("COPY build.gradle .\n")
+#     dockerfile.write(
+#         f"COPY {source_code_directory_path} {source_code_directory_path}\n\n"
+#     )
+#     dockerfile.write("# Run Gradle to compile the code\n")
+#     dockerfile.write("RUN gradle build\n\n")
+#     dockerfile.writelines(content)
+#
+#
+# def _write_java_execution_stage(dockerfile: TextIOWrapper) -> None:
+#     dockerfile.write(f"WORKDIR /home/aria-ops-adapter-user/src/app\n\n")
+#     dockerfile.write(
+#         f"# Copy the compiled jar from the build stage and its dependencies\n"
+#     )
+#     dockerfile.write(
+#         f"COPY --from=build /home/gradle/project/build/libs/*.jar app.jar\n"
+#     )
+#     dockerfile.write(
+#         f"COPY --from=build /home/gradle/project/dependencies dependencies\n"
+#     )
+#
+#
+# def create_commands_file(
+#     language: str, path: str, executable_directory_path: str
+# ) -> None:
+#     logger.debug("generating commands file")
+#     with open(os.path.join(path, "commands.cfg"), "w") as commands:
+#         command_and_executable = ""
+#         if "java" == language:
+#             command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
+#         elif "python" == language:
+#             command_and_executable = (
+#                 f"/usr/local/bin/python {executable_directory_path}/adapter.py"
+#             )
+#         elif "powershell" == language:
+#             command_and_executable = (
+#                 f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
+#             )
+#         else:
+#             logger.error(f"language {language} is not supported")
+#             exit(1)
+#
+#         commands.write("[Commands]\n")
+#         commands.write(f"test={command_and_executable} test\n")
+#         commands.write(f"collect={command_and_executable} collect\n")
+#         commands.write(
+#             f"adapter_definition={command_and_executable} adapter_definition\n"
+#         )
+#         commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
+#
+#
 # def build_project_structure(
 #     path: str,
 #     adapter_kind: str,

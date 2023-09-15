@@ -1,4 +1,5 @@
 import json
+import logging
 from abc import ABC
 from abc import abstractmethod
 from importlib import resources
@@ -23,6 +24,8 @@ from vmware_aria_operations_integration_sdk.constant import REPO_NAME
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.project import record_project
+
+logger = logging.getLogger(__name__)
 
 
 class Question:
@@ -276,11 +279,11 @@ class AdapterConfig(ABC):
         # Iterate through all files in the selected template
         for file in self._list_adapter_template_files():
             file_path, extension = os.path.splitext(
-                file.replace(self.response_values["adapter_template_path"], ".")
+                file.replace(self.response_values["adapter_template_path"] + "/", "")
             )
             destination = os.path.join(self.project.path, file_path)
             if extension == ".template":
-                with open(destination) as new_file:
+                with open(destination, "w") as new_file:
                     new_file.write(self.build_string_from_template(file))
             else:
                 destination = destination + extension

@@ -1,1 +1,1 @@
-vmware-aria-operations-integration-sdk-lib==0.8.*\n
+vmware-aria-operations-integration-sdk-lib==0.8.*
