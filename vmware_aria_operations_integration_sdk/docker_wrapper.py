@@ -285,6 +285,9 @@ def run_image(
     if exposed_port:
         port = exposed_port
 
+    if not os.access(f"{path}/logs", os.W_OK):
+        logger.warn(f"{path}/logs directory is not writable.")
+
     # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
     # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory
     # setting is a combination of memory and swap, so this will limit swap space to a max of 512MB regardless

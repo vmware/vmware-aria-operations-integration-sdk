@@ -177,6 +177,12 @@ def create_project(
 
     project = Project(path)
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        # Log directory must be writable by non-root users so that the adapter container
+        # is able to create and write log files.
+        log_dir = mkdir(path, "logs")
+        os.chmod(log_dir, 0o755)
+
     build_content_directory(path)
     conf_dir = mkdir(path, "conf")
     conf_resources_dir = mkdir(conf_dir, "resources")
@@ -250,6 +256,20 @@ def main() -> None:
     )
     parser.parse_args()
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        if (
+            selection_prompt(
+                "Detected that 'mp-init' is being run as root or using sudo. This is not "
+                "recommended. Continue?",
+                [("no", "No"), ("yes", "Yes")],
+                "If 'mp-init' proceeds as root:\n"
+                " * Some directories will need write permissions by non-root users.\n"
+                " * Elevated permissions will also be required when running 'mp-test' and 'mp-build'\n"
+                " * There may be other unexpected behavior",
+            )
+            == "no"
+        ):
+            exit(0)
     path = ""
     try:
         path = path_prompt(
