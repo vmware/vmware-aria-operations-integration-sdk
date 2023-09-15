@@ -46,9 +46,16 @@ class PythonAdapter(AdapterConfig):
         self.source_code_directory_path = os.path.join(project_path, "app")
 
         items = list()
-        for template_directory_path in os.listdir(
-            os.path.dirname(os.path.realpath(__file__))
-        ):
+        adapter_templates_dir_path = os.path.dirname(os.path.realpath(__file__))
+        templates = [
+            d
+            for d in os.listdir(adapter_templates_dir_path)
+            if os.path.isdir(os.path.join(adapter_templates_dir_path, d))
+            and not d.startswith(".")
+            and not d.startswith("__")
+        ]
+
+        for template_directory_path in templates:
             template_display_name = " ".join(
                 [
                     segment.capitalize()
@@ -60,17 +67,16 @@ class PythonAdapter(AdapterConfig):
         self.questions.append(
             Question(
                 "adapter_template_path",
-                selection_prompt(
-                    "Select a template for your project",
-                    items=items,
-                    description="- Sample Adapter: Generates a working adapter with comments "
-                    "throughout its code\n"
-                    "- New Adapter: The minimum necessary code to start developing "
-                    "an adapter\n\n"
-                    "For more information visit "
-                    "https://vmware.github.io/vmware-aria-operations-integration"
-                    "-sdk/get_started/#template-projects",
-                ),
+                selection_prompt,
+                "Select a template for your project",
+                items=items,
+                description="- Sample Adapter: Generates a working adapter with comments "
+                "throughout its code\n"
+                "- New Adapter: The minimum necessary code to start developing "
+                "an adapter\n\n"
+                "For more information visit "
+                "https://vmware.github.io/vmware-aria-operations-integration"
+                "-sdk/get_started/#template-projects",
             )
         )
 
@@ -99,24 +105,24 @@ class PythonAdapter(AdapterConfig):
         env_dir = os.path.join(self.project.path, f"venv-{self.display_name}")
         venv.create(env_dir, with_pip=True)
 
-        # install requirements.txt into virtual environment
-        v_env = os.environ.copy()
-        v_env["VIRTUAL_ENV"] = env_dir
-        v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
-        result = subprocess.run(
-            ["pip", "install", "-r", f"{requirements_file}"],
-            env=v_env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        for line in result.stdout.decode("utf-8").splitlines():
-            logger.debug(line)
-        for line in result.stderr.decode("utf-8").splitlines():
-            logger.warning(line)
-        if result.returncode != 0:
-            logger.error(
-                "Could not install sdk tools into the development virtual environment."
-            )
+        # # install requirements.txt into virtual environment
+        # v_env = os.environ.copy()
+        # v_env["VIRTUAL_ENV"] = env_dir
+        # v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
+        # result = subprocess.run(
+        #     ["pip", "install", "-r", f"{requirements_file}"],
+        #     env=v_env,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        # )
+        # for line in result.stdout.decode("utf-8").splitlines():
+        #     logger.debug(line)
+        # for line in result.stderr.decode("utf-8").splitlines():
+        #     logger.warning(line)
+        # if result.returncode != 0:
+        #     logger.error(
+        #         "Could not install sdk tools into the development virtual environment."
+        #     )
 
         namespace_package_indicator_file = os.path.join(
             self.project.path, self.source_code_directory_path, "__init__.py"
@@ -142,7 +148,9 @@ class PythonAdapter(AdapterConfig):
     def build_docker_file(self) -> None:
         logger.debug("generating Dockerfile")
         images = []
-        with resources.path(__package__, VERSION_FILE) as config_file:
+        with resources.path(
+            "vmware_aria_operations_integration_sdk", VERSION_FILE
+        ) as config_file:
             with open(config_file, "r") as config:
                 config_json = json.load(config)
                 images = [config_json["base_image"]] + config_json["secondary_images"]

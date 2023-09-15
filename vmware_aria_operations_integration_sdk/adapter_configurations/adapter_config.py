@@ -21,7 +21,6 @@ from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_H
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
 from vmware_aria_operations_integration_sdk.constant import REPO_NAME
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
-from vmware_aria_operations_integration_sdk.mp_init import add_git_keep_file
 from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.project import record_project
 
@@ -60,7 +59,6 @@ class AdapterConfig(ABC):
         self.eula_file_path = eula_file_path
         self.icon_file_path = icon_file_path
         self.questions = questions
-        self.adapter_template_path = None
 
         self.conf_dir_path = os.path.join(project_path, "conf")
         self.conf_resources_dir_path = os.path.join(project_path, "resources")
@@ -70,7 +68,7 @@ class AdapterConfig(ABC):
 
     def prompt_config_values(self) -> None:
         """
-        This function will propt users for all the config values
+        This function will prompt users for all the config values
         """
         for question in self.questions:
             self.response_values[question.key] = question.ask()
@@ -133,25 +131,30 @@ class AdapterConfig(ABC):
 
     def _build_content_directory(self) -> str:
         content_dir = mkdir(self.project.path, "content")
-        add_git_keep_file(mkdir(content_dir, "policies"))
-        add_git_keep_file(mkdir(content_dir, "traversalspecs"))
-        add_git_keep_file(mkdir(content_dir, "resources"))
-        add_git_keep_file(mkdir(content_dir, "customgroups"))
-        add_git_keep_file(mkdir(content_dir, "reports"))
-        add_git_keep_file(mkdir(content_dir, "recommendations"))
-        add_git_keep_file(mkdir(content_dir, "dashboards"))
+        self._add_git_keep_file(mkdir(content_dir, "policies"))
+        self._add_git_keep_file(mkdir(content_dir, "traversalspecs"))
+        self._add_git_keep_file(mkdir(content_dir, "resources"))
+        self._add_git_keep_file(mkdir(content_dir, "customgroups"))
+        self._add_git_keep_file(mkdir(content_dir, "reports"))
+        self._add_git_keep_file(mkdir(content_dir, "recommendations"))
+        self._add_git_keep_file(mkdir(content_dir, "dashboards"))
 
         files_dir = mkdir(content_dir, "files")
-        add_git_keep_file(mkdir(files_dir, "topowidget"))
-        add_git_keep_file(mkdir(files_dir, "txtwidget"))
-        add_git_keep_file(mkdir(files_dir, "solutionconfig"))
-        add_git_keep_file(mkdir(files_dir, "reskndmetric"))
+        self._add_git_keep_file(mkdir(files_dir, "topowidget"))
+        self._add_git_keep_file(mkdir(files_dir, "txtwidget"))
+        self._add_git_keep_file(mkdir(files_dir, "solutionconfig"))
+        self._add_git_keep_file(mkdir(files_dir, "reskndmetric"))
 
-        add_git_keep_file(mkdir(content_dir, "alertdefs"))
-        add_git_keep_file(mkdir(content_dir, "supermetrics"))
-        add_git_keep_file(mkdir(content_dir, "symptomdefs"))
+        self._add_git_keep_file(mkdir(content_dir, "alertdefs"))
+        self._add_git_keep_file(mkdir(content_dir, "supermetrics"))
+        self._add_git_keep_file(mkdir(content_dir, "symptomdefs"))
 
         return content_dir
+
+    def _add_git_keep_file(self, path: str) -> None:
+        with open(os.path.join(path, ".gitkeep"), "w") as gitkeep:
+            # Create empty .gitkeep file
+            pass
 
     def _create_manifest_localization_file(self) -> None:
         mkdir(self.conf_resources_dir_path)
@@ -212,7 +215,7 @@ class AdapterConfig(ABC):
             json.dump(manifest, manifest_fd, indent=4)
 
     def _list_adapter_template_files(self) -> Generator:
-        for root, dirs, files in os.walk(self.adapter_template_path):
+        for root, dirs, files in os.walk(self.response_values["adapter_template_path"]):
             for _file in files:
                 full_path = os.path.join(root, _file)
 
@@ -227,9 +230,9 @@ class AdapterConfig(ABC):
         mkdir(self.conf_resources_dir_path)
         mkdir(self.conf_images_dir_path)
 
-        add_git_keep_file(mkdir(self.conf_images_dir_path, "AdapterKind"))
-        add_git_keep_file(mkdir(self.conf_images_dir_path, "ResourceKind"))
-        add_git_keep_file(mkdir(self.conf_images_dir_path, "TraversalSpec"))
+        self._add_git_keep_file(mkdir(self.conf_images_dir_path, "AdapterKind"))
+        self._add_git_keep_file(mkdir(self.conf_images_dir_path, "ResourceKind"))
+        self._add_git_keep_file(mkdir(self.conf_images_dir_path, "TraversalSpec"))
 
         self._create_manifest_localization_file()
         self._create_eula_file()
@@ -273,7 +276,7 @@ class AdapterConfig(ABC):
         # Iterate through all files in the selected template
         for file in self._list_adapter_template_files():
             file_path, extension = os.path.splitext(
-                file.replace(self.adapter_template_path, ".")
+                file.replace(self.response_values["adapter_template_path"], ".")
             )
             destination = os.path.join(self.project.path, file_path)
             if extension == ".template":
