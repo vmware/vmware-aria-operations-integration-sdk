@@ -1,6 +1,8 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
-## 1.0.1 (09-16-2023)
+## 1.0.1 (09-15-2023)
+* Update dependencies to resolve a security vulnerability in GitPython
+* Fix issue where registry URL would not parse correctly if a port was not present
 * Fix issue where server would repeatedly crash if logging directory was not writable
   * If user runs mp-init using root, the logs directory's permissions are set to world-wriable
   * If user runs mp-init as root, mp-init warns that the above will happen
