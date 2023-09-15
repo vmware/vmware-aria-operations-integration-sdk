@@ -49,6 +49,9 @@ pipx install vmware-aria-operations-integration-sdk
 After the SDK is installed, create a new project, by running `mp-init`. This tool asks a series of questions that guide
 the creation of a new management pack project.
 
+???+ warning
+    Running `mp-init` as root is not recommended, as this requires some directories to have escalated permissions.
+
 
 1. `Enter a directory to create the project in. This is the directory where adapter code, metadata, and content will reside. If the directory doesn't already exist, it will be created. Path:`
 

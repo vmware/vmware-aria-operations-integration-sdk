@@ -2,7 +2,7 @@
     "base_image": {
         "language": "Python",
         "path": "base-python-adapter",
-        "version": "0.12.0"
+        "version": "0.12.1"
     },
     "registry_url": "projects.registry.vmware.com/vmware_aria_operations_integration_sdk",
     "secondary_images": [

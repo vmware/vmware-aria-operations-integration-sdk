@@ -271,6 +271,12 @@ class AdapterConfig(ABC):
         """
         This method calls the different methods inside this class to build an adapter
         """
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            # Log directory must be writable by non-root users so that the adapter container
+            # is able to create and write log files.
+            log_dir = mkdir(self.project.path, "logs")
+            os.chmod(log_dir, 0o755)
+
         self._build_integration_sdk_project_structure()
 
         # create project structure

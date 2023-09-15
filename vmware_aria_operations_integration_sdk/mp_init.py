@@ -47,173 +47,6 @@ consoleHandler.setFormatter(CustomFormatter())
 logger.addHandler(consoleHandler)
 
 
-# def create_manifest_localization_file(
-#     path: str, name: str, vendor: str, description: str
-# ) -> None:
-#     resources_dir = mkdir(path, "resources")
-#     resources_file = os.path.join(resources_dir, "resources.properties")
-#     with open(resources_file, "w") as resources_fd:
-#         resources_fd.write("#This is the default localization file.\n")
-#         resources_fd.write("\n")
-#         resources_fd.write("#The solution's localized name displayed in UI\n")
-#         resources_fd.write(f"DISPLAY_NAME={name}\n")
-#         resources_fd.write("\n")
-#         resources_fd.write("#The solution's localized description\n")
-#         resources_fd.write(f"DESCRIPTION={description}\n")
-#         resources_fd.write("\n")
-#         resources_fd.write("#The vendor's localized name\n")
-#         resources_fd.write(f"VENDOR={vendor}\n")
-#
-#
-# def create_eula_file(path: str, eula_file: str) -> str:
-#     if not eula_file:
-#         eula_file = "eula.txt"
-#         with open(os.path.join(path, eula_file), "w") as eula_fd:
-#             # Note: VMware Aria Operations requires a EULA file, and it must not be blank.
-#             eula_fd.write("There is no EULA associated with this Management Pack.")
-#     else:
-#         copy(eula_file, path)
-#         eula_file = os.path.basename(eula_file)
-#
-#     return eula_file
-#
-#
-# def create_icon_file(path: str, icon_file: str) -> str:
-#     if not icon_file:
-#         icon_file = ""
-#     else:
-#         copy(icon_file, path)
-#         icon_file = os.path.basename(icon_file)
-#
-#     return icon_file
-#
-#
-# def create_manifest_file(
-#     path: str, adapter_key: str, eula_file: str, icon_file: str
-# ) -> Dict:
-#     manifest_file = os.path.join(path, "manifest.txt")
-#     manifest = {
-#         "display_name": "DISPLAY_NAME",
-#         "name": f"iSDK_{adapter_key}",
-#         "description": "DESCRIPTION",
-#         "version": "1.0.0",
-#         "vcops_minimum_version": "8.10.0",
-#         "disk_space_required": 500,
-#         "run_scripts_on_all_nodes": "true",
-#         "eula_file": eula_file,
-#         "platform": ["Linux Non-VA", "Linux VA"],
-#         "vendor": "VENDOR",
-#         "pak_icon": icon_file,
-#         "pak_validation_script": {"script": ""},
-#         "adapter_pre_script": {"script": ""},
-#         "adapter_post_script": {"script": ""},
-#         "adapters": ["adapter.zip"],
-#         "adapter_kinds": [adapter_key],
-#         "license_type": "",
-#     }
-#     with open(manifest_file, "w") as manifest_fd:
-#         json.dump(manifest, manifest_fd, indent=4)
-#
-#     return manifest
-
-
-# def build_content_directory(path: str) -> str:
-#     content_dir = mkdir(path, "content")
-#     add_git_keep_file(mkdir(content_dir, "policies"))
-#     add_git_keep_file(mkdir(content_dir, "traversalspecs"))
-#     add_git_keep_file(mkdir(content_dir, "resources"))
-#     add_git_keep_file(mkdir(content_dir, "customgroups"))
-#     add_git_keep_file(mkdir(content_dir, "reports"))
-#     add_git_keep_file(mkdir(content_dir, "recommendations"))
-#     add_git_keep_file(mkdir(content_dir, "dashboards"))
-#
-#     files_dir = mkdir(content_dir, "files")
-#     add_git_keep_file(mkdir(files_dir, "topowidget"))
-#     add_git_keep_file(mkdir(files_dir, "txtwidget"))
-#     add_git_keep_file(mkdir(files_dir, "solutionconfig"))
-#     add_git_keep_file(mkdir(files_dir, "reskndmetric"))
-#
-#     add_git_keep_file(mkdir(content_dir, "alertdefs"))
-#     add_git_keep_file(mkdir(content_dir, "supermetrics"))
-#     add_git_keep_file(mkdir(content_dir, "symptomdefs"))
-#
-#     return content_dir
-
-# def create_project(
-#     path: str,
-#     name: str,
-#     adapter_key: str,
-#     description: str,
-#     vendor: str,
-#     eula_file: str,
-#     icon_file: str,
-#     adapter_config: AdapterConfig,
-#     template_style: str,
-# ) -> None:
-#     mkdir(path)
-#
-#     project = Project(path)
-#
-#     build_content_directory(path)
-#     conf_dir = mkdir(path, "conf")
-#     conf_resources_dir = mkdir(conf_dir, "resources")
-#     conf_images_dir = mkdir(conf_dir, "images")
-#     add_git_keep_file(mkdir(conf_images_dir, "AdapterKind"))
-#     add_git_keep_file(mkdir(conf_images_dir, "ResourceKind"))
-#     add_git_keep_file(mkdir(conf_images_dir, "TraversalSpec"))
-#
-#     create_manifest_localization_file(path, name, vendor, description)
-#     eula_file = create_eula_file(path, eula_file)
-#     icon_file = create_icon_file(path, icon_file)
-#     manifest = create_manifest_file(path, adapter_key, eula_file, icon_file)
-#
-#     # This has to happen after the manifest.txt file is created, because this function only records a project if
-#     # it is an Integration SDK project. Currently, the method for determining this is to look for the manifest.txt
-#     # file. See `common/validation/input_validators.py`, class `ProjectValidator`
-#     record_project(project)
-#
-#     # copy describe.xsd into conf directory
-#     with resources.path(adapter_template, "describeSchema.xsd") as src:
-#         dest = os.path.join(path, "conf")
-#         copy(src, dest)
-#
-#     # copy alert definition specs xml schema into conf directory
-#     with resources.path(adapter_template, "alertDefinitionSchema.xsd") as src:
-#         dest = os.path.join(path, "content", "alertdefs")
-#         copy(src, dest)
-#
-#     # copy traversal specs xml schema into conf directory
-#     with resources.path(adapter_template, "traversalSpecsSchema.xsd") as src:
-#         dest = os.path.join(path, "content", "traversalspecs")
-#         copy(src, dest)
-#
-#     # create project structure
-#     source_code_directory_path = build_project_structure(
-#         path, adapter_key, name, adapter_config, template_style
-#     )
-#
-#     # create Dockerfile
-#     create_dockerfile(adapter_config.language, path, source_code_directory_path)
-#
-#     # create Commands File
-#     create_commands_file(adapter_config.language, path, source_code_directory_path)
-#
-#     # initialize new project as a git repository
-#     repo = Repo.init(path)
-#     git_ignore = os.path.join(path, ".gitignore")
-#     with open(git_ignore, "w") as git_ignore_fd:
-#         git_ignore_fd.write("logs\n")
-#         git_ignore_fd.write("build\n")
-#         git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
-#         git_ignore_fd.write(f"venv-{name}\n")
-#         git_ignore_fd.write("\n")
-#     repo.git.add(all=True)
-#     repo.index.commit("Initial commit.")
-#     # TODO: Prompt to create remote, once we know what the default remote should be.
-#     # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
-#     # remote.push(refspec='main:main')
-
-
 def main() -> None:
     description = "Tool for creating a new Management Pack for VMware Aria Operations."
     parser = argparse.ArgumentParser(description=description)
@@ -227,6 +60,20 @@ def main() -> None:
     )
     parser.parse_args()
 
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        if (
+            selection_prompt(
+                "Detected that 'mp-init' is being run as root or using sudo. This is not "
+                "recommended. Continue?",
+                [("no", "No"), ("yes", "Yes")],
+                "If 'mp-init' proceeds as root:\n"
+                " * Some directories will need write permissions by non-root users.\n"
+                " * Elevated permissions will also be required when running 'mp-test' and 'mp-build'\n"
+                " * There may be other unexpected behavior",
+            )
+            == "no"
+        ):
+            exit(0)
     path = ""
     try:
         path = path_prompt(
@@ -327,9 +174,9 @@ def main() -> None:
 
         adapter_config.prompt_config_values()
 
-        # create project_directory
         with Spinner("Creating Project"):
             adapter_config.create_project()
+
         print("")
         print("")
         print("project generation completed", "class:success")
