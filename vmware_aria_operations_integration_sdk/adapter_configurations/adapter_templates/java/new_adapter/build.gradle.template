@@ -5,6 +5,12 @@ tasks.register('generateDependencies', Copy) {
     into "$${rootProject.projectDir}/dependencies"
 }
 
+sourceSets {
+    main {
+        java { srcDirs = ['src']}
+      }
+  }
+
 jar {
     dependsOn(generateDependencies)
     manifest {

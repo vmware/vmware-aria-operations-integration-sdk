@@ -4,11 +4,16 @@ tasks.register('generateDependencies', Copy) {
     from configurations.runtimeClasspath
     into "$${rootProject.projectDir}/dependencies"
 }
+sourceSets {
+    main {
+        java { srcDirs = ['src']}
+      }
+  }
 
 jar {
     dependsOn(generateDependencies)
     manifest {
-        attributes 'Main-Class': '${package_name}.Adapter'
+        attributes 'Adapter': '${package_name}.Adapter'
     }
 }
 

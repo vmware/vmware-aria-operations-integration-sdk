@@ -107,15 +107,11 @@ class JavaAdapter(AdapterConfig):
         return destination
 
     def build_string_from_template(self, path: str) -> str:
-        print(f"BUILDING TEMPLATE FROM {path}")
         with open(path, "r") as template_file:
             output = template_file.read()
-            print(output)
             template = Template(output)
 
         string_from_template = template.substitute({"package_name": self.package_name})
-        print("RESULT")
-        print(string_from_template)
 
         return string_from_template
 
@@ -129,7 +125,9 @@ class JavaAdapter(AdapterConfig):
     def build_commands_file(self) -> None:
         logger.debug("generating commands file")
         with open(os.path.join(self.project.path, "commands.cfg"), "w") as commands:
-            command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
+            command_and_executable = (
+                f"/usr/bin/java -cp app.jar:dependencies/* {self.package_name}.Adapter"
+            )
 
             commands.write("[Commands]\n")
             commands.write(f"test={command_and_executable} test\n")
