@@ -18,22 +18,30 @@ def setup_logging(
     :param max_size The maximum size in bytes of each file before the file
                 automatically rotates to a new one. Defaults to '10_485_760' (10 MiB).
     """
-    try:
-        global log_handler
-        log_handler = RotatingFileHandler(
-            os.path.join(os.sep, "var", "log", filename),
-            maxBytes=max_size,
-            backupCount=file_count,
+    logdir = os.path.join(os.sep, "var", "log")
+    if os.access(logdir, os.W_OK):
+        try:
+            global log_handler
+            log_handler = RotatingFileHandler(
+                os.path.join(logdir, filename),
+                maxBytes=max_size,
+                backupCount=file_count,
+            )
+            logging.basicConfig(
+                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+                level=_get_default_log_level(),
+                handlers=[log_handler],
+            )
+            update_log_levels()
+        except Exception as e:
+            logging.basicConfig(level=logging.INFO)
+            logging.exception(e)
+    else:
+        logging.basicConfig(level=logging.INFO)
+        logging.exception(
+            f"Cannot write to log file '{os.path.join(logdir, filename)}'"
         )
-        logging.basicConfig(
-            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            level=_get_default_log_level(),
-            handlers=[log_handler],
-        )
-        update_log_levels()
-    except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
 
 
 def _get_default_log_level(default_level: int = logging.INFO) -> int:
@@ -52,8 +60,11 @@ def _get_default_log_level(default_level: int = logging.INFO) -> int:
             "main": logging.getLevelName(default_level),
         }
     if modified:
-        with open(log_config_file, "w") as config_file:
-            config.write(config_file)
+        try:
+            with open(log_config_file, "w") as config_file:
+                config.write(config_file)
+        except Exception as e:
+            logging.exception(e)
     try:
         return int(
             logging.getLevelName(config["DEFAULT"].get("server", default_level_name))
@@ -76,9 +87,10 @@ def update_log_levels() -> None:
     # Set each logger in the config file to the level specified
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
-    config.read(log_config_file)
-    for logger_name in config["server"]:
-        logging.getLogger(logger_name).setLevel(config["server"][logger_name])
+    if os.path.isfile(log_config_file):
+        config.read(log_config_file)
+        for logger_name in config["server"]:
+            logging.getLogger(logger_name).setLevel(config["server"][logger_name])
 
 
 def getLogger(name: str) -> logging.Logger:
