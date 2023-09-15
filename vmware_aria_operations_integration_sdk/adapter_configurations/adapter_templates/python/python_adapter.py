@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import subprocess
 import venv
 from importlib import resources
 from io import TextIOWrapper
@@ -106,24 +107,24 @@ class PythonAdapter(AdapterConfig):
         env_dir = os.path.join(self.project.path, f"venv-{self.display_name}")
         venv.create(env_dir, with_pip=True)
 
-        # # install requirements.txt into virtual environment
-        # v_env = os.environ.copy()
-        # v_env["VIRTUAL_ENV"] = env_dir
-        # v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
-        # result = subprocess.run(
-        #     ["pip", "install", "-r", f"{requirements_file}"],
-        #     env=v_env,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        # )
-        # for line in result.stdout.decode("utf-8").splitlines():
-        #     logger.debug(line)
-        # for line in result.stderr.decode("utf-8").splitlines():
-        #     logger.warning(line)
-        # if result.returncode != 0:
-        #     logger.error(
-        #         "Could not install sdk tools into the development virtual environment."
-        #     )
+        # install requirements.txt into virtual environment
+        v_env = os.environ.copy()
+        v_env["VIRTUAL_ENV"] = env_dir
+        v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
+        result = subprocess.run(
+            ["pip", "install", "-r", f"{requirements_file}"],
+            env=v_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        for line in result.stdout.decode("utf-8").splitlines():
+            logger.debug(line)
+        for line in result.stderr.decode("utf-8").splitlines():
+            logger.warning(line)
+        if result.returncode != 0:
+            logger.error(
+                "Could not install sdk tools into the development virtual environment."
+            )
 
         namespace_package_indicator_file = os.path.join(
             self.project.path, self.source_code_directory_path, "__init__.py"
@@ -174,6 +175,4 @@ class PythonAdapter(AdapterConfig):
 
         # having the executable copied at the end allows the image to be built faster since previous
         # the previous intermediate image is cached
-        dockerfile.write(
-            f"COPY {self.source_code_directory_path} {self.source_code_directory_path}\n"
-        )
+        dockerfile.write(f"COPY app app\n")

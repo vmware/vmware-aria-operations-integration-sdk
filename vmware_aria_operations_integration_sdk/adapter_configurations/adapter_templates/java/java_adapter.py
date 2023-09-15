@@ -97,18 +97,32 @@ class JavaAdapter(AdapterConfig):
             )
         )
 
+    def get_file_destination(self, file: str) -> str:
+        destination = super().get_file_destination(file)
+        if "src" in file:
+            destination = destination.replace(
+                "src/main/java", self.source_code_directory_path
+            )
+
+        return destination
+
     def build_string_from_template(self, path: str) -> str:
+        print(f"BUILDING TEMPLATE FROM {path}")
         with open(path, "r") as template_file:
-            template = Template(template_file.read())
+            output = template_file.read()
+            print(output)
+            template = Template(output)
 
         string_from_template = template.substitute({"package_name": self.package_name})
+        print("RESULT")
+        print(string_from_template)
 
         return string_from_template
 
     def build_project_structure(self) -> None:
         self.package_name = self.response_values["package_name"]
         self.source_code_directory_path = os.path.join(
-            self.project.path, *self.package_name.split(".")
+            "src", *self.package_name.split(".")
         )
         mkdir(self.project.path, self.source_code_directory_path)
 
@@ -163,9 +177,7 @@ class JavaAdapter(AdapterConfig):
         dockerfile.write("WORKDIR /home/gradle/project\n\n")
         dockerfile.write("# Copy the Gradle build file and the source code\n")
         dockerfile.write("COPY build.gradle .\n")
-        dockerfile.write(
-            f"COPY {self.source_code_directory_path} {self.source_code_directory_path}\n\n"
-        )
+        dockerfile.write(f"COPY src src\n\n")
         dockerfile.write("# Run Gradle to compile the code\n")
         dockerfile.write("RUN gradle build\n\n")
         dockerfile.writelines(content)

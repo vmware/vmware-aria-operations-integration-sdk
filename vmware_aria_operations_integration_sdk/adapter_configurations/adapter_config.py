@@ -152,6 +152,9 @@ class AdapterConfig(ABC):
         self._add_git_keep_file(mkdir(content_dir, "supermetrics"))
         self._add_git_keep_file(mkdir(content_dir, "symptomdefs"))
 
+        # These files are often created by the OS, and might cause errors if interacted with
+        self.ignore_files = {".DS_Store", "Thumbs.db", "desktop.ini"}
+
         return content_dir
 
     def _add_git_keep_file(self, path: str) -> None:
@@ -220,6 +223,9 @@ class AdapterConfig(ABC):
     def _list_adapter_template_files(self) -> Generator:
         for root, dirs, files in os.walk(self.response_values["adapter_template_path"]):
             for _file in files:
+                if _file in self.ignore_files:
+                    continue
+
                 full_path = os.path.join(root, _file)
 
                 yield full_path
@@ -281,9 +287,7 @@ class AdapterConfig(ABC):
             file_path, extension = os.path.splitext(
                 file.replace(self.response_values["adapter_template_path"] + "/", "")
             )
-            destination = os.path.join(self.project.path, file_path)
-            print(f"current file: {file}")
-            print(f"file destination: {destination}")
+            destination = self.get_file_destination(file_path)
             if extension == ".template":
                 with open(destination, "w") as new_file:
                     new_file.write(self.build_string_from_template(file))
@@ -324,6 +328,9 @@ class AdapterConfig(ABC):
             f"FROM {CONTAINER_REGISTRY_HOST}/{CONTAINER_REGISTRY_PATH}/{CONTAINER_BASE_NAME}:{language}-{version}\n"
         )
         dockerfile.write(f"COPY commands.cfg .\n")
+
+    def get_file_destination(self, file: str) -> str:
+        return str(os.path.join(self.project.path, file))
 
 
 class FileTemplate:

@@ -8,7 +8,7 @@ tasks.register('generateDependencies', Copy) {
 jar {
     dependsOn(generateDependencies)
     manifest {
-        attributes 'Main-Class': '${package_name}Adapter'
+        attributes 'Main-Class': '${package_name}.Adapter'
     }
 }
 
@@ -18,4 +18,3 @@ dependencies {
 repositories {
     mavenCentral()
 }
-
