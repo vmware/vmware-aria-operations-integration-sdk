@@ -51,7 +51,6 @@ class AdapterConfig(ABC):
         icon_file_path: str,
         questions: Union[None, List[Question]] = None,
     ) -> None:
-
         if questions is None:
             questions = []
         self.project = Project(project_path)
@@ -68,6 +67,26 @@ class AdapterConfig(ABC):
         self.conf_images_dir_path = os.path.join(project_path, "images")
 
         self.response_values: Dict[str, Any] = dict()
+
+        self.templates = list()
+        adapter_templates_dir_path = self.get_templates_directory()
+
+        templates = [
+            os.path.join(adapter_templates_dir_path, d)
+            for d in os.listdir(adapter_templates_dir_path)
+            if os.path.isdir(os.path.join(adapter_templates_dir_path, d))
+            and not d.startswith(".")
+            and not d.startswith("__")
+        ]
+
+        for template_directory_path in templates:
+            template_display_name = " ".join(
+                [
+                    segment.capitalize()
+                    for segment in os.path.basename(template_directory_path).split("_")
+                ]
+            )
+            self.templates.append((template_directory_path, template_display_name))
 
     def prompt_config_values(self) -> None:
         """
@@ -97,40 +116,14 @@ class AdapterConfig(ABC):
         """
         this file returns the contents of the commands.cfg
         """
-        # logger.debug("generating commands file")
-        # with open(os.path.join(path, "commands.cfg"), "w") as commands:
-        #     command_and_executable = ""
-        #     if "java" == language:
-        #         command_and_executable = f"/usr/bin/java -cp app.jar:dependencies/* Adapter"
-        #     elif "python" == language:
-        #         command_and_executable = (
-        #             f"/usr/local/bin/python {executable_directory_path}/adapter.py"
-        #         )
-        #     elif "powershell" == language:
-        #         command_and_executable = (
-        #             f"/usr/bin/pwsh {executable_directory_path}/collector.ps1"
-        #         )
-        #     else:
-        #         logger.error(f"language {language} is not supported")
-        #         exit(1)
-        #
-        #     commands.write("[Commands]\n")
-        #     commands.write(f"test={command_and_executable} test\n")
-        #     commands.write(f"collect={command_and_executable} collect\n")
-        #     commands.write(
-        #         f"adapter_definition={command_and_executable} adapter_definition\n"
-        #     )
-        #     commands.write(f"endpoint_urls={command_and_executable} endpoint_urls\n")
 
     @abstractmethod
     def build_docker_file(self) -> None:
         """this method is reserved is for building the docker file"""
 
     @abstractmethod
-    def add_gitignore_configuration(self, gitignore: TextIOWrapper) -> None:
-        """
-        This method uses the given file and writes any files to gitignore
-        """
+    def get_templates_directory(self) -> str:
+        pass
 
     def _build_content_directory(self) -> str:
         content_dir = mkdir(self.project.path, "content")
@@ -186,7 +179,6 @@ class AdapterConfig(ABC):
                 # Note: VMware Aria Operations requires a EULA file, and it must not be blank.
                 eula_fd.write("There is no EULA associated with this Management Pack.")
         else:
-
             copy(self.eula_file_path, self.project.path)
 
     def _create_icon_file(self) -> None:
@@ -279,46 +271,13 @@ class AdapterConfig(ABC):
 
         self._build_integration_sdk_project_structure()
 
-        # create project structure
         self.build_project_structure()
-
-        # create Dockerfile
         self.build_docker_file()
-
-        # create Commands File
         self.build_commands_file()
 
-        # Iterate through all files in the selected template
-        for file in self._list_adapter_template_files():
-            file_path, extension = os.path.splitext(
-                file.replace(self.response_values["adapter_template_path"] + "/", "")
-            )
-            destination = self.get_file_destination(file_path)
-            if extension == ".template":
-                with open(destination, "w") as new_file:
-                    new_file.write(self.build_string_from_template(file))
-            else:
-                destination = destination + extension
-                copy(file, destination)
+        self._build_adapter_template()
 
-        # initialize new project as a git repository
-        repo = Repo.init(self.project.path)
-        git_ignore = os.path.join(self.project.path, ".gitignore")
-        with open(git_ignore, "w") as git_ignore_fd:
-            git_ignore_fd.write("logs\n")
-            git_ignore_fd.write("build\n")
-            git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
-            git_ignore_fd.write(f"venv-{self.display_name}\n")
-            git_ignore_fd.write("\n")
-
-            # Here we allow users to add any file they want to the gitignore
-            self.add_gitignore_configuration(git_ignore_fd)
-        repo.git.add(all=True)
-        repo.index.commit("Initial commit.")
-
-        # TODO: Prompt to create remote, once we know what the default remote should be.
-        # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
-        # remote.push(refspec='main:main')
+        self._build_vcs_configuration()
 
     def write_base_execution_stage_image(
         self, dockerfile: TextIOWrapper, language: str, version: str
@@ -338,20 +297,34 @@ class AdapterConfig(ABC):
     def get_file_destination(self, file: str) -> str:
         return str(os.path.join(self.project.path, file))
 
+    def _build_adapter_template(self) -> None:
+        # Iterate through all files in the selected template
+        for file in self._list_adapter_template_files():
+            file_path, extension = os.path.splitext(
+                file.replace(self.response_values["adapter_template_path"] + "/", "")
+            )
+            destination = self.get_file_destination(file_path)
+            if extension == ".template":
+                with open(destination, "w") as new_file:
+                    new_file.write(self.build_string_from_template(file))
+            else:
+                destination = destination + extension
+                copy(file, destination)
 
-class FileTemplate:
-    """
-    a file template is any file with the .template extention The file should have the values
-    of the
-    """
+    def _build_vcs_configuration(self) -> None:
+        # initialize new project as a git repository
+        repo = Repo.init(self.project.path)
+        git_ignore = os.path.join(self.project.path, ".gitignore")
+        with open(git_ignore, "w") as git_ignore_fd:
+            git_ignore_fd.write("logs\n")
+            git_ignore_fd.write("build\n")
+            git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
+            git_ignore_fd.write(f"venv-{self.display_name}\n")
+            git_ignore_fd.write("\n")
 
-    def __init__(self) -> None:
-        pass
+        repo.git.add(all=True)
+        repo.index.commit("Initial commit.")
 
-
-"""
-templates will be stored in the global config folder
-by reading the global config templates file we will be able to offer which templates the user can choose from
-to add a template simply add it to the templates.config file or add the whole project to the templates folder
-
-"""
+        # TODO: Prompt to create remote, once we know what the default remote should be.
+        # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
+        # remote.push(refspec='main:main')

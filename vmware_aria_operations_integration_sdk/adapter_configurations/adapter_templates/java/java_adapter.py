@@ -62,31 +62,12 @@ class JavaAdapter(AdapterConfig):
             )
         )
 
-        items = list()
-        adapter_templates_dir_path = os.path.dirname(os.path.realpath(__file__))
-        templates = [
-            os.path.join(adapter_templates_dir_path, d)
-            for d in os.listdir(adapter_templates_dir_path)
-            if os.path.isdir(os.path.join(adapter_templates_dir_path, d))
-            and not d.startswith(".")
-            and not d.startswith("__")
-        ]
-
-        for template_directory_path in templates:
-            template_display_name = " ".join(
-                [
-                    segment.capitalize()
-                    for segment in os.path.basename(template_directory_path).split("_")
-                ]
-            )
-            items.append((template_directory_path, template_display_name))
-
         self.questions.append(
             Question(
                 "adapter_template_path",
                 selection_prompt,
                 "Select a template for your project",
-                items=items,
+                items=self.templates,
                 description="- Sample Adapter: Generates a working adapter with comments "
                 "throughout its code\n"
                 "- New Adapter: The minimum necessary code to start developing "
@@ -96,6 +77,9 @@ class JavaAdapter(AdapterConfig):
                 "-sdk/get_started/#template-projects",
             )
         )
+
+    def get_templates_directory(self) -> str:
+        return os.path.dirname(os.path.realpath(__file__))
 
     def get_file_destination(self, file: str) -> str:
         destination = super().get_file_destination(file)
@@ -156,9 +140,6 @@ class JavaAdapter(AdapterConfig):
             self.write_base_execution_stage_image(dockerfile, self.language, version)
             self._write_java_build_stage(dockerfile)
             self._write_java_execution_stage(dockerfile)
-
-    def add_gitignore_configuration(self, gitignore: TextIOWrapper) -> None:
-        pass
 
     def _write_java_build_stage(
         self,
