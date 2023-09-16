@@ -3,13 +3,13 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 from importlib import resources
-from io import TextIOWrapper
 from shutil import copy
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Generator
 from typing import List
+from typing import TextIO
 from typing import Union
 
 from docker.tls import os
@@ -21,6 +21,7 @@ from vmware_aria_operations_integration_sdk.constant import CONTAINER_BASE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_HOST
 from vmware_aria_operations_integration_sdk.constant import CONTAINER_REGISTRY_PATH
 from vmware_aria_operations_integration_sdk.constant import REPO_NAME
+from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.project import Project
 from vmware_aria_operations_integration_sdk.project import record_project
@@ -68,6 +69,7 @@ class AdapterConfig(ABC):
 
         self.response_values: Dict[str, Any] = dict()
 
+        self.language = ""
         self.templates = list()
         adapter_templates_dir_path = self.get_templates_directory()
 
@@ -280,8 +282,20 @@ class AdapterConfig(ABC):
         self._build_vcs_configuration()
 
     def write_base_execution_stage_image(
-        self, dockerfile: TextIOWrapper, language: str, version: str
+        self, dockerfile: TextIO, language: str
     ) -> None:
+
+        with resources.path(
+            "vmware_aria_operations_integration_sdk", VERSION_FILE
+        ) as config_file:
+            with open(config_file, "r") as config:
+                config_json = json.load(config)
+                images = [config_json["base_image"]] + config_json["secondary_images"]
+        version = next(
+            iter(
+                filter(lambda image: image["language"].lower() == self.language, images)
+            )
+        )["version"]
         dockerfile.write(
             f"# If the harbor repo isn't accessible, the {CONTAINER_BASE_NAME} image can be built locally.\n"
         )

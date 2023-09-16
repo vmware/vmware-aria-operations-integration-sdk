@@ -1,10 +1,8 @@
-import json
 import logging
 import os
-from importlib import resources
-from io import TextIOWrapper
 from string import Template
 from typing import List
+from typing import TextIO
 from typing import Union
 
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
@@ -13,7 +11,6 @@ from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_confi
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
     Question,
 )
-from vmware_aria_operations_integration_sdk.constant import VERSION_FILE
 from vmware_aria_operations_integration_sdk.filesystem import mkdir
 from vmware_aria_operations_integration_sdk.ui import prompt
 from vmware_aria_operations_integration_sdk.ui import selection_prompt
@@ -123,27 +120,14 @@ class JavaAdapter(AdapterConfig):
 
     def build_docker_file(self) -> None:
         logger.debug("generating Dockerfile")
-        images = []
-        with resources.path(
-            "vmware_aria_operations_integration_sdk", VERSION_FILE
-        ) as config_file:
-            with open(config_file, "r") as config:
-                config_json = json.load(config)
-                images = [config_json["base_image"]] + config_json["secondary_images"]
-        version = next(
-            iter(
-                filter(lambda image: image["language"].lower() == self.language, images)
-            )
-        )["version"]
-
         with open(os.path.join(self.project.path, "Dockerfile"), "w+") as dockerfile:
-            self.write_base_execution_stage_image(dockerfile, self.language, version)
+            self.write_base_execution_stage_image(dockerfile, self.language)
             self._write_java_build_stage(dockerfile)
             self._write_java_execution_stage(dockerfile)
 
     def _write_java_build_stage(
         self,
-        dockerfile: TextIOWrapper,
+        dockerfile: TextIO,
     ) -> None:
         # since the build stage should happen before the execution stage, we have to write it before
         dockerfile.seek(0)
@@ -161,7 +145,7 @@ class JavaAdapter(AdapterConfig):
         dockerfile.write("RUN gradle build\n\n")
         dockerfile.writelines(content)
 
-    def _write_java_execution_stage(self, dockerfile: TextIOWrapper) -> None:
+    def _write_java_execution_stage(self, dockerfile: TextIO) -> None:
         dockerfile.write(f"WORKDIR /home/aria-ops-adapter-user/src/app\n\n")
         dockerfile.write(
             f"# Copy the compiled jar from the build stage and its dependencies\n"
