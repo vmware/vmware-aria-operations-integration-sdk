@@ -284,7 +284,6 @@ class AdapterConfig(ABC):
     def write_base_execution_stage_image(
         self, dockerfile: TextIO, language: str
     ) -> None:
-
         with resources.path(
             "vmware_aria_operations_integration_sdk", VERSION_FILE
         ) as config_file:
