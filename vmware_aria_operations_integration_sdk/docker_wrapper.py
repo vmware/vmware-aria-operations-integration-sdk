@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import platform
+import re
 import stat
 import subprocess
 import sys
@@ -185,9 +186,21 @@ def build_image(
             **kwargs,
         )
     except docker.errors.BuildError as error:
+        error_message = f"{error}"
+        for log in error.build_log:
+            if "stream" in log:
+                line = remove_ansi_escape_sequences(log["stream"])
+                if line.strip() != "":
+                    error_message += "\n" + line
+
         raise BuildError(
-            message=f"ERROR: Unable to build Docker file at {path}:\n {error}"
+            message=f"ERROR: Unable to build Docker file at {path}:\n {error_message}"
         )
+
+
+def remove_ansi_escape_sequences(text: str) -> str:
+    ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", text)
 
 
 def _get_docker_context(directory: str) -> io.BytesIO:
