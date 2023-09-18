@@ -87,15 +87,6 @@ class JavaAdapter(AdapterConfig):
 
         return destination
 
-    def build_string_from_template(self, path: str) -> str:
-        with open(path, "r") as template_file:
-            output = template_file.read()
-            template = Template(output)
-
-        string_from_template = template.substitute({"package_name": self.package_name})
-
-        return string_from_template
-
     def build_project_structure(self) -> None:
         self.package_name = self.response_values["package_name"]
         self.source_code_directory_path = os.path.join(

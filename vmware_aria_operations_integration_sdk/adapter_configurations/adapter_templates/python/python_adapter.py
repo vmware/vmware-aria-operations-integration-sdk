@@ -61,16 +61,6 @@ class PythonAdapter(AdapterConfig):
     def get_templates_directory(self) -> str:
         return os.path.dirname(os.path.realpath(__file__))
 
-    def build_string_from_template(self, path: str) -> str:
-        with open(path, "r") as template_file:
-            template = Template(template_file.read())
-
-        string_from_template = template.substitute(
-            {"adapter_name": self.display_name, "adapter_kind": self.adapter_key}
-        )
-
-        return string_from_template
-
     def build_project_structure(self) -> None:
         mkdir(self.project.path, self.source_code_directory_path)
         namespace_package_indicator_file = os.path.join(

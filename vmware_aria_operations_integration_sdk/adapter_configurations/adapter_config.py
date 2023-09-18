@@ -4,11 +4,14 @@ from abc import ABC
 from abc import abstractmethod
 from importlib import resources
 from shutil import copy
+from string import Template
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Generator
 from typing import List
+from typing import Optional
+from typing import Set
 from typing import TextIO
 from typing import Union
 
@@ -50,7 +53,7 @@ class AdapterConfig(ABC):
         vendor: str,
         eula_file_path: str,
         icon_file_path: str,
-        questions: Union[None, List[Question]] = None,
+        questions: Optional[List[Question]] = None,
     ) -> None:
         if questions is None:
             questions = []
@@ -67,7 +70,11 @@ class AdapterConfig(ABC):
         self.conf_resources_dir_path = os.path.join(project_path, "resources")
         self.conf_images_dir_path = os.path.join(project_path, "images")
 
-        self.response_values: Dict[str, Any] = dict()
+        self.response_values: Dict[str, Any] = {
+            "display_name": display_name,
+            "adapter_key": adapter_key,
+            "vendor": vendor,
+        }
 
         self.language = ""
         self.templates = list()
@@ -97,11 +104,14 @@ class AdapterConfig(ABC):
         for question in self.questions:
             self.response_values[question.key] = question.ask()
 
-    @abstractmethod
     def build_string_from_template(self, path: str) -> str:
-        """
-        This function takes a path to a file template and returns the resulting file as a string
-        """
+        with open(path, "r") as template_file:
+            output = template_file.read()
+            template = Template(output)
+
+        string_from_template = template.substitute(self.response_values)
+
+        return string_from_template
 
     @abstractmethod
     def build_project_structure(
@@ -121,11 +131,20 @@ class AdapterConfig(ABC):
 
     @abstractmethod
     def build_docker_file(self) -> None:
-        """this method is reserved is for building the docker file"""
+        """
+        This method is reserved is for building the docker file associated with the adapter configuration
+        """
 
     @abstractmethod
     def get_templates_directory(self) -> str:
         pass
+
+    def get_template_ignorefiles(self) -> Set[str]:
+        """
+        :return: Return a set that contains any file that should be ignored while reading a template directory
+        """
+        # These files are often created by the OS, and might cause errors if interacted with
+        return {".DS_Store", "Thumbs.db", "desktop.ini"}
 
     def _build_content_directory(self) -> str:
         content_dir = mkdir(self.project.path, "content")
@@ -147,10 +166,28 @@ class AdapterConfig(ABC):
         self._add_git_keep_file(mkdir(content_dir, "supermetrics"))
         self._add_git_keep_file(mkdir(content_dir, "symptomdefs"))
 
-        # These files are often created by the OS, and might cause errors if interacted with
-        self.ignore_files = {".DS_Store", "Thumbs.db", "desktop.ini"}
-
         return content_dir
+
+    def get_file_destination(self, file: str) -> str:
+        return str(os.path.join(self.project.path, file))
+
+    def build_vcs_configuration(self) -> None:
+        # initialize new project as a git repository
+        repo = Repo.init(self.project.path)
+        git_ignore = os.path.join(self.project.path, ".gitignore")
+        with open(git_ignore, "w") as git_ignore_fd:
+            git_ignore_fd.write("logs\n")
+            git_ignore_fd.write("build\n")
+            git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
+            git_ignore_fd.write(f"venv-{self.display_name}\n")
+            git_ignore_fd.write("\n")
+
+        repo.git.add(all=True)
+        repo.index.commit("Initial commit.")
+
+        # TODO: Prompt to create remote, once we know what the default remote should be.
+        # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
+        # remote.push(refspec='main:main')
 
     def _add_git_keep_file(self, path: str) -> None:
         with open(os.path.join(path, ".gitkeep"), "w") as gitkeep:
@@ -217,7 +254,7 @@ class AdapterConfig(ABC):
     def _list_adapter_template_files(self) -> Generator:
         for root, dirs, files in os.walk(self.response_values["adapter_template_path"]):
             for _file in files:
-                if _file in self.ignore_files:
+                if _file in self.get_template_ignorefiles():
                     continue
 
                 full_path = os.path.join(root, _file)
@@ -279,7 +316,7 @@ class AdapterConfig(ABC):
 
         self._build_adapter_template()
 
-        self._build_vcs_configuration()
+        self.build_vcs_configuration()
 
     def write_base_execution_stage_image(
         self, dockerfile: TextIO, language: str
@@ -307,9 +344,6 @@ class AdapterConfig(ABC):
         )
         dockerfile.write(f"COPY commands.cfg .\n")
 
-    def get_file_destination(self, file: str) -> str:
-        return str(os.path.join(self.project.path, file))
-
     def _build_adapter_template(self) -> None:
         # Iterate through all files in the selected template
         for file in self._list_adapter_template_files():
@@ -323,21 +357,3 @@ class AdapterConfig(ABC):
             else:
                 destination = destination + extension
                 copy(file, destination)
-
-    def _build_vcs_configuration(self) -> None:
-        # initialize new project as a git repository
-        repo = Repo.init(self.project.path)
-        git_ignore = os.path.join(self.project.path, ".gitignore")
-        with open(git_ignore, "w") as git_ignore_fd:
-            git_ignore_fd.write("logs\n")
-            git_ignore_fd.write("build\n")
-            git_ignore_fd.write(f"{CONNECTIONS_FILE_NAME}\n")
-            git_ignore_fd.write(f"venv-{self.display_name}\n")
-            git_ignore_fd.write("\n")
-
-        repo.git.add(all=True)
-        repo.index.commit("Initial commit.")
-
-        # TODO: Prompt to create remote, once we know what the default remote should be.
-        # remote = repo.create_remote("origin", url="https://gitlab.vmware.com/[...]")
-        # remote.push(refspec='main:main')
