@@ -204,7 +204,9 @@ def _tag_and_push(
         image.tag(container_registry, tag)
 
         try:
-            with Spinner(f"Pushing Adapter Image to {container_registry}"):
+            with Spinner(
+                f"Pushing Adapter Image to {container_registry} with tag {tag}"
+            ):
                 digest = push_image(docker_client, container_registry, tag)
         except PushError as push_error:
             if should_prompt:
