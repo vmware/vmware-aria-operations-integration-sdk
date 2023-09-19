@@ -10,7 +10,6 @@ import sys
 import time
 from types import TracebackType
 from typing import Any
-from typing import Generic
 from typing import List
 from typing import Optional
 from typing import Sequence
@@ -25,6 +24,7 @@ from prompt_toolkit.application import application
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.filters import IsDone
+from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding import KeyPressEvent
@@ -62,6 +62,7 @@ style = Style.from_dict(
         "warning": "fg:ansiyellow",
         "error": "fg:ansired",
         "critical": "fg:ansired bold",
+        "ansi_escaped": "",
         # Misc messages in UI
         "information": "bg:ansiblue fg:ansiblack",
         "important": "bg:ansidarkred fg:ansiblack",
@@ -83,6 +84,8 @@ def print_formatted(
         print_container(
             Frame(TextArea(text=text, wrap_lines=True), style=style_class), style=style
         )
+    elif style_class == "class:ansi_escaped":
+        print_formatted_text(ANSI(text))
     else:
         print_formatted_text(FormattedText([(style_class, text)]), style=style)
 

@@ -5,6 +5,8 @@ from logging import Handler
 from typing import Optional
 from typing import Tuple
 
+import prompt_toolkit
+
 from vmware_aria_operations_integration_sdk.ui import print_formatted as print
 
 
@@ -23,8 +25,12 @@ class CustomFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> Tuple[str, Optional[str]]:  # type: ignore
         style = self.FORMATS.get(record.levelno)
-        if "style" in record.__dict__:
+
+        if "\x1b" in record.msg:
+            style = "class:ansi_escaped"
+        elif "style" in record.__dict__:
             style = record.__dict__["style"]
+
         formatter = logging.Formatter(self.format_message)
         return formatter.format(record), style
 
