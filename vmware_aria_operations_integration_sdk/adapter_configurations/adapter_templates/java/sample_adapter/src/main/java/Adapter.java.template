@@ -1,12 +1,5 @@
-#  Copyright 2022 VMware, Inc.
-#  SPDX-License-Identifier: Apache-2.0
-import os
+package ${package_name};
 
-
-def build_template(path: str, root_directory: str) -> None:
-    with open(os.path.join(path, root_directory, "Adapter.java"), "w") as collector:
-        collector.write(
-            """
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -50,12 +43,14 @@ public class Adapter {
             case "endpoint":
                 System.out.println("gathering endpoints");
                 break;
-            case "adapter_definition":
+            case "adapter_definitions":
                 System.out.println("gathering adapter definitions");
                 break;
             default:
                 System.out.println("Invalid command. Allowed values: test, endpoint, collect, adapter.");
                 System.out.println(Arrays.toString(args));
+                System.out.println("Hi Kyle, I'm alive :)");
+
         }
 
 
@@ -103,11 +98,3 @@ public class Adapter {
         return rootNode.toString();
     }
 }
-
-"""
-        )
-
-
-def compile(source_directory: str, output_directory: str) -> None:
-    # compile class
-    os.system(f"javac -d {output_directory} {source_directory}/Adapter.java")
