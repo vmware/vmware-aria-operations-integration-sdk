@@ -1,8 +1,8 @@
 import logging
 import os
 from typing import List
+from typing import Optional
 from typing import TextIO
-from typing import Union
 
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
     AdapterConfig,
@@ -30,7 +30,7 @@ class JavaAdapter(AdapterConfig):
         vendor: str,
         eula_file_path: str,
         icon_file_path: str,
-        questions: Union[None, List[Question]] = None,
+        questions: Optional[List[Question]] = None,
     ):
         super().__init__(
             project_path,
