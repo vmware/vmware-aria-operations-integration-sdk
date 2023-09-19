@@ -1,6 +1,5 @@
 import logging
 import os
-from string import Template
 from typing import List
 from typing import TextIO
 from typing import Union

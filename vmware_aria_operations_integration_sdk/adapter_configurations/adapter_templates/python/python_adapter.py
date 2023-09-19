@@ -2,7 +2,8 @@ import logging
 import os
 import subprocess
 import venv
-from string import Template
+from typing import List
+from typing import Optional
 from typing import TextIO
 
 import pkg_resources
@@ -29,6 +30,7 @@ class PythonAdapter(AdapterConfig):
         vendor: str,
         eula_file_path: str,
         icon_file_path: str,
+        questions: Optional[List[Question]] = None,
     ):
         super().__init__(
             project_path,
@@ -38,6 +40,7 @@ class PythonAdapter(AdapterConfig):
             vendor,
             eula_file_path,
             icon_file_path,
+            questions,
         )
         self.language = "python"
         self.source_code_directory_path = "app"

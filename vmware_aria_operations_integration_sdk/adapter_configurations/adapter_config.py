@@ -13,7 +13,6 @@ from typing import List
 from typing import Optional
 from typing import Set
 from typing import TextIO
-from typing import Union
 
 from docker.tls import os
 from git import Repo
