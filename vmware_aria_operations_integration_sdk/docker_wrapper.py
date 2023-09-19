@@ -190,7 +190,9 @@ def build_image(
         for log in error.build_log:
             if "stream" in log:
                 line = log["stream"]
-                if line.strip() != "":
+                if "* Try:" in line:
+                    break
+                elif line.strip() != "":
                     error_message += "\n" + line
 
         raise BuildError(

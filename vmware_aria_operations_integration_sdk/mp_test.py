@@ -911,7 +911,7 @@ def main() -> None:
         exit(1)
     except DockerWrapperError as docker_error:
         logger.error("Unable to build container")
-        logger.error(f"{docker_error.message}")
+        logger.error(f"{docker_error.message}", extra={"style": "class:ansi_escaped"})
         logger.error(f"{docker_error.recommendation}")
         exit(1)
     except (ContainerError, APIError) as skd_error:

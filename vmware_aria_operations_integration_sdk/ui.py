@@ -62,7 +62,6 @@ style = Style.from_dict(
         "warning": "fg:ansiyellow",
         "error": "fg:ansired",
         "critical": "fg:ansired bold",
-        "ansi_escaped": "",
         # Misc messages in UI
         "information": "bg:ansiblue fg:ansiblack",
         "important": "bg:ansidarkred fg:ansiblack",
