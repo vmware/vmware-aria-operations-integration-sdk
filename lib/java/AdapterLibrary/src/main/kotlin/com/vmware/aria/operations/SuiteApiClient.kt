@@ -40,6 +40,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.apache.logging.log4j.Logger
+import java.security.cert.X509Certificate
+import javax.net.ssl.X509TrustManager
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.reflect.KProperty
@@ -49,27 +51,32 @@ import kotlin.reflect.KProperty
  * @property hostname The hostname or IP address of the SuiteAPI
  * @property username The username to connect with
  * @property password The username's password
+ * @property port Determines the port to connect to the server with. Used for testing.
+ * @property verify Determines if the SSL Certificate from the server should be verified. Used for testing.
  */
 @Serializable
-data class SuiteApiConnectionInfo(
+data class SuiteApiConnectionInfo @JvmOverloads constructor(
     @SerialName("host_name") val hostname: String,
     @SerialName("user_name") val username: String,
-    internal val password: String,
+    val password: String,
+    val port: Int = 443,
+    val verify: Boolean = true,
 ) {
     @Transient
     private val baseUrl: String = getBaseUrl()
 
     @Transient
-    internal val authenticationSource = "Local"
+    internal val authenticationSource = "LOCAL"
 
     private fun getBaseUrl(): String {
         var url = hostname
         if (!url.startsWith("https://")) {
             url = "https://$url"
         }
-        if (!url.endsWith(URL_PATH_SEPARATOR)) {
-            url = "$url$URL_PATH_SEPARATOR"
+        if (url.endsWith(URL_PATH_SEPARATOR)) {
+            url = url.substringBefore(URL_PATH_SEPARATOR)
         }
+        url = "$url:$port$URL_PATH_SEPARATOR"
         return url
     }
 
@@ -134,6 +141,8 @@ private class TokenDelegate(
     private data class TokenInfo(
         val validity: Long,
         val token: String,
+        val expiresAt: String,
+        val roles: List<String>,
     )
 
     private var tokenInfo: TokenInfo? = null
@@ -167,7 +176,7 @@ private class TokenDelegate(
                             accept(ContentType.Application.Json)
                             contentType(ContentType.Application.Json)
                             setBody(requestBody)
-                        }.body()
+                        }.throwOnErrorStatus().body()
                 }
                 return@runBlocking tokenInfo?.token ?: ""
             }
@@ -197,9 +206,9 @@ private class TokenDelegate(
  * @property connectionInfo Connection and credential information for connecting to the SuiteAPI
  * @property maxConnections The maximum number of concurrent connections allowed. Defaults to 10
  */
-class SuiteApiClient(
+class SuiteApiClient @JvmOverloads constructor(
     val connectionInfo: SuiteApiConnectionInfo,
-    var maxConnections: Int = 10,
+    maxConnections: Int = 10,
 ) : AutoCloseable {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -207,6 +216,27 @@ class SuiteApiClient(
                 prettyPrint = true
                 isLenient = true
             })
+        }
+        if (!connectionInfo.verify) {
+            engine {
+                https {
+                    trustManager = object : X509TrustManager {
+                        override fun checkClientTrusted(
+                            chain: Array<out X509Certificate>?,
+                            authType: String?,
+                        ) = Unit
+
+                        override fun checkServerTrusted(
+                            chain: Array<out X509Certificate>?,
+                            authType: String?,
+                        ) = Unit
+
+                        override fun getAcceptedIssuers(): Array<X509Certificate> =
+                            emptyArray()
+
+                    }
+                }
+            }
         }
     }
     private val tokenDelegate = TokenDelegate(getLogger(), client, connectionInfo)
@@ -220,20 +250,44 @@ class SuiteApiClient(
      * by the new limit.
      * @param maxConnections The maximum number of concurrent connections allowed.
      */
-    fun setMaxConnections(maxConnections: Int) {
-        if(this.maxConnections != maxConnections) {
-            this.maxConnections = maxConnections
-            this.throttler = Semaphore(maxConnections)
+    var maxConnections: Int = maxConnections
+        set(maxConnections: Int) {
+            if (field != maxConnections) {
+                field = maxConnections
+                this.throttler = Semaphore(field)
+            }
         }
+
+    /**
+     * Performs a GET operation on the given endpoint.
+     * @param endpoint The API endpoint to call
+     * @return A [JsonObject] containing the content as a json object. Throws if the
+     * response code is not 2xx.
+     */
+    @Throws(SuiteApiClientException::class)
+    fun get(endpoint: String): JsonObject =
+        runBlocking {
+            getAsync(endpoint)
+        }
+
+    /**
+     * A Kotlin [suspend] method that performs a GET operation on the given endpoint.
+     * @param endpoint The API endpoint to call
+     * @return A [JsonObject] containing the content as a json object. Throws if the
+     * response code is not 2xx.
+     */
+    @Throws(SuiteApiClientException::class)
+    suspend fun getAsync(endpoint: String): JsonObject {
+        return getRawResponseAsync(endpoint).throwOnErrorStatus().toJson()
     }
 
     /**
-     * Performs a
+     * Performs a GET operation on the given endpoint.
      * @param endpoint The API endpoint to perform a get request on
      */
-    fun get(endpoint: String): HttpResponse =
+    fun getRawResponse(endpoint: String): HttpResponse =
         runBlocking {
-            asyncGet(endpoint)
+            getRawResponseAsync(endpoint)
         }
 
     /**
@@ -241,7 +295,7 @@ class SuiteApiClient(
      * @param endpoint The API endpoint to call
      * @return An [HttpResponse] containing the return code and content
      */
-    suspend fun asyncGet(endpoint: String): HttpResponse {
+    suspend fun getRawResponseAsync(endpoint: String): HttpResponse {
         return throttler.throttleCall {
             client.get(connectionInfo.getUrl(endpoint)) {
                 accept(ContentType.Application.Json)
@@ -252,27 +306,6 @@ class SuiteApiClient(
                 }
             }
         }
-    }
-
-    /**
-     * A Kotlin [suspend] method that performs a GET operation on the given endpoint.
-     * @param endpoint The API endpoint to call
-     * @return A [JsonObject] containing the content as a json object. Throws if the
-     * response code is not 2xx.
-     */
-    fun getJsonObject(endpoint: String): JsonObject =
-        runBlocking {
-            asyncGet(endpoint).toJson()
-        }
-
-    /**
-     * A Kotlin [suspend] method that performs a GET operation on the given endpoint.
-     * @param endpoint The API endpoint to call
-     * @return A [JsonObject] containing the content as a json object. Throws if the
-     * response code is not 2xx.
-     */
-    suspend fun getJsonObjectAsync(endpoint: String): JsonObject {
-        return asyncGet(endpoint).toJson()
     }
 
     /**
@@ -288,13 +321,15 @@ class SuiteApiClient(
      * contain the key [pagedArrayKey] that contains all the paged data combined into
      * a single array.
      */
-    fun getPagedJsonObject(
+    @Throws(SuiteApiClientException::class)
+    @JvmOverloads
+    fun getPaged(
         endpoint: String,
         pagedArrayKey: String,
         pageSize: Int = 1000,
     ): JsonObject =
         runBlocking {
-            getPagedJsonObjectAsync(endpoint, pagedArrayKey, pageSize)
+            getPagedAsync(endpoint, pagedArrayKey, pageSize)
         }
 
     /**
@@ -310,12 +345,14 @@ class SuiteApiClient(
      * contain the key [pagedArrayKey] that contains all the paged data combined into
      * a single array.
      */
-    suspend fun getPagedJsonObjectAsync(
+    @Throws(SuiteApiClientException::class)
+    @JvmOverloads
+    suspend fun getPagedAsync(
         endpoint: String,
         pagedArrayKey: String,
         pageSize: Int = 1000,
     ): JsonObject {
-        val page0 = getJsonObjectAsync(endpoint.addPaging(0, pageSize))
+        val page0 = getAsync(endpoint.addPaging(0, pageSize))
         val total =
             page0["pageInfo"]?.jsonObject?.get("totalCount")?.jsonPrimitive?.int ?: 1
         val remainingPages =
@@ -324,9 +361,9 @@ class SuiteApiClient(
         val elements =
             (listOf(page0) + (
                     (1..remainingPages).asyncMap("Get Paged $endpoint") { page ->
-                        getJsonObjectAsync(endpoint.addPaging(page, pageSize))
+                        getAsync(endpoint.addPaging(page, pageSize))
                     }))
-                .flatMap { it[pagedArrayKey]?.jsonArray ?: JsonArray(emptyList())}
+                .flatMap { it[pagedArrayKey]?.jsonArray ?: JsonArray(emptyList()) }
 
         return JsonObject(
             mapOf(
@@ -340,9 +377,11 @@ class SuiteApiClient(
      * A method that performs a POST operation on the given endpoint.
      * @param endpoint The API endpoint to call
      * @param jsonBody A json object containing the payload of the POST request.
-     * @return An [HttpResponse] containing the return code and content
+     * @return A [JsonObject] containing the content as a json object. Throws if the
+     * response code is not 2xx.
      */
-    fun post(endpoint: String, jsonBody: JsonObject): HttpResponse =
+    @Throws(SuiteApiClientException::class)
+    fun post(endpoint: String, jsonBody: JsonObject): JsonObject =
         runBlocking {
             postAsync(endpoint, jsonBody)
         }
@@ -351,9 +390,38 @@ class SuiteApiClient(
      * A Kotlin [suspend] method that performs a POST operation on the given endpoint.
      * @param endpoint The API endpoint to call
      * @param jsonBody A json object containing the payload of the POST request.
+     * @return A [JsonObject] containing the content as a json object. Throws if the
+     * response code is not 2xx.
+     */
+    @Throws(SuiteApiClientException::class)
+    suspend fun postAsync(
+        endpoint: String,
+        jsonBody: JsonObject,
+    ): JsonObject {
+        return postRawResponseAsync(endpoint, jsonBody).throwOnErrorStatus().toJson()
+    }
+
+    /**
+     * A method that performs a POST operation on the given endpoint.
+     * @param endpoint The API endpoint to call
+     * @param jsonBody A json object containing the payload of the POST request.
      * @return An [HttpResponse] containing the return code and content
      */
-    suspend fun postAsync(endpoint: String, jsonBody: JsonObject): HttpResponse {
+    fun postRawResponse(endpoint: String, jsonBody: JsonObject): HttpResponse =
+        runBlocking {
+            postRawResponseAsync(endpoint, jsonBody)
+        }
+
+    /**
+     * A Kotlin [suspend] method that performs a POST operation on the given endpoint.
+     * @param endpoint The API endpoint to call
+     * @param jsonBody A json object containing the payload of the POST request.
+     * @return An [HttpResponse] containing the return code and content
+     */
+    suspend fun postRawResponseAsync(
+        endpoint: String,
+        jsonBody: JsonObject,
+    ): HttpResponse {
         return throttler.throttleCall {
             client.post(connectionInfo.getUrl(endpoint)) {
                 accept(ContentType.Application.Json)
@@ -369,29 +437,6 @@ class SuiteApiClient(
     }
 
     /**
-     * A method that performs a POST operation on the given endpoint.
-     * @param endpoint The API endpoint to call
-     * @param jsonBody A json object containing the payload of the POST request.
-     * @return A [JsonObject] containing the content as a json object. Throws if the
-     * response code is not 2xx.
-     */
-    fun postJsonObject(endpoint: String, jsonBody: JsonObject): JsonObject =
-        runBlocking {
-            postAsync(endpoint, jsonBody).toJson()
-        }
-
-    /**
-     * A Kotlin [suspend] method that performs a POST operation on the given endpoint.
-     * @param endpoint The API endpoint to call
-     * @param jsonBody A json object containing the payload of the POST request.
-     * @return A [JsonObject] containing the content as a json object. Throws if the
-     * response code is not 2xx.
-     */
-    suspend fun postJsonObjectAsync(endpoint: String, jsonBody: JsonObject): JsonObject {
-        return postAsync(endpoint, jsonBody).toJson()
-    }
-
-    /**
      * A method that performs a paged POST operation on the given endpoint.
      * After the first GET operation succeeds, subsequent GET requests will be done
      * concurrently (with a max of [maxConnections] concurrent requests) until all the
@@ -404,14 +449,16 @@ class SuiteApiClient(
      * contain the key [pagedArrayKey] that contains all the paged data combined into
      * a single array.
      */
-    fun postPagedJsonObject(
+    @Throws(SuiteApiClientException::class)
+    @JvmOverloads
+    fun postPaged(
         endpoint: String,
         jsonBody: JsonObject,
         pagedArrayKey: String,
         pageSize: Int = 1000,
     ): JsonObject =
         runBlocking {
-            postPagedJsonObjectAsync(endpoint, jsonBody, pagedArrayKey, pageSize)
+            postPagedAsync(endpoint, jsonBody, pagedArrayKey, pageSize)
         }
 
     /**
@@ -427,13 +474,15 @@ class SuiteApiClient(
      * contain the key [pagedArrayKey] that contains all the paged data combined into
      * a single array.
      */
-    suspend fun postPagedJsonObjectAsync(
+    @Throws(SuiteApiClientException::class)
+    @JvmOverloads
+    suspend fun postPagedAsync(
         endpoint: String,
         jsonBody: JsonObject,
         pagedArrayKey: String,
         pageSize: Int = 1000,
     ): JsonObject {
-        val page0 = postJsonObjectAsync(endpoint.addPaging(0, pageSize), jsonBody)
+        val page0 = postAsync(endpoint.addPaging(0, pageSize), jsonBody)
         val total =
             page0["pageInfo"]?.jsonObject?.get("totalCount")?.jsonPrimitive?.int ?: 1
         val remainingPages =
@@ -442,22 +491,27 @@ class SuiteApiClient(
         val elements =
             (listOf(page0) + (
                     (1..remainingPages).asyncMap("Post Paged $endpoint") { page ->
-                        postJsonObjectAsync(endpoint.addPaging(page, pageSize), jsonBody)
+                        postAsync(
+                            endpoint.addPaging(page, pageSize),
+                            jsonBody
+                        )
                     }))
-                .flatMap { it[pagedArrayKey]?.jsonArray ?: JsonArray(emptyList())}
+                .flatMap { it[pagedArrayKey]?.jsonArray ?: JsonArray(emptyList()) }
 
-        return JsonObject(mapOf(
-            "count" to JsonPrimitive(elements.size),
-            pagedArrayKey to JsonArray(elements)
-        ))
+        return JsonObject(
+            mapOf(
+                "count" to JsonPrimitive(elements.size),
+                pagedArrayKey to JsonArray(elements)
+            )
+        )
     }
 
     /**
      * A method that performs a DELETE operation on the given endpoint.
      * @param endpoint The API endpoint to call
-     * @return An [HttpResponse] containing the return code and content
      */
-    fun delete(endpoint: String): HttpResponse =
+    @Throws(SuiteApiClientException::class)
+    fun delete(endpoint: String) =
         runBlocking {
             deleteAsync(endpoint)
         }
@@ -465,9 +519,9 @@ class SuiteApiClient(
     /**
      * A Kotlin [suspend] method that performs a DELETE operation on the given endpoint.
      * @param endpoint The API endpoint to call
-     * @return An [HttpResponse] containing the return code and content
      */
-    suspend fun deleteAsync(endpoint: String): HttpResponse {
+    @Throws(SuiteApiClientException::class)
+    suspend fun deleteAsync(endpoint: String) {
         return throttler.throttleCall {
             client.delete(connectionInfo.getUrl(endpoint)) {
                 accept(ContentType.Application.Json)
@@ -476,7 +530,7 @@ class SuiteApiClient(
                     logger.debug("Using unsupported API: $endpoint")
                     header("X-vRealizeOps-API-use-unsupported", true)
                 }
-            }
+            }.throwOnErrorStatus()
         }
     }
 
@@ -511,16 +565,25 @@ class SuiteApiClient(
             this.release()
         }
     }
+}
 
-    private suspend fun HttpResponse.toJson() =
-        Json.parseToJsonElement(this.bodyAsText()).jsonObject
+private suspend fun HttpResponse.toJson() =
+    Json.parseToJsonElement(this.bodyAsText()).jsonObject
 
-    private suspend inline fun <T, R> Iterable<T>.asyncMap(
-        scopeName: String,
-        crossinline transform: suspend CoroutineScope.(T) -> R,
-    ): List<R> {
-        val currentScope = CoroutineScope(currentCoroutineContext())
-        val context = CoroutineName(scopeName)
-        return map { currentScope.async(context) { transform(it) } }.awaitAll()
+private suspend fun HttpResponse.throwOnErrorStatus(): HttpResponse {
+    if (this.status.value >= 300) {
+        throw SuiteApiClientException("${this.call.request.method.value} request to " +
+                "${this.call.request.url} returned ${this.status.description} " +
+                "(${this.status.value})", this.status.value)
     }
+    return this
+}
+
+private suspend inline fun <T, R> Iterable<T>.asyncMap(
+    scopeName: String,
+    crossinline transform: suspend CoroutineScope.(T) -> R,
+): List<R> {
+    val currentScope = CoroutineScope(currentCoroutineContext())
+    val context = CoroutineName(scopeName)
+    return map { currentScope.async(context) { transform(it) } }.awaitAll()
 }
