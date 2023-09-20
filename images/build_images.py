@@ -112,17 +112,30 @@ def main() -> None:
         login(container_registry=registry_url)
 
     for image in images_to_build:
+        language = image["language"].lower()
+        version = image["version"]
+
+        tags = [
+            f"{language}-{version}",
+            f"{language}-{version.split('.')[0]}.{version.split('.')[1]}",
+            f"{language}-{version.split('.')[0]}",
+            f"{language}-latest",
+        ]
+
         try:
             new_image = build_image(
                 client=client,
-                registry_url=registry_url,
-                language=image["language"].lower(),
-                version=image["version"],
+                language=language,
                 path=image["path"],
             )
 
+            add_tags(new_image, CONTAINER_BASE_NAME, tags)
+
             if push_to_registry:
-                push_image_to_registry(client, new_image)
+                external_registry_name = f"{registry_url}/{CONTAINER_BASE_NAME}"
+                add_tags(new_image, external_registry_name, tags)
+                push_image_to_registry(client, external_registry_name, tags)
+                remove_tags(client, external_registry_name, tags)
         except BuildError as build_error:
             print(f"Failed to build {image['language']} image")
             print(build_error.message)
@@ -142,48 +155,44 @@ def get_latest_aria_ops_container_versions() -> Tuple[Dict, List[Dict]]:
     return base_image, secondary_images
 
 
-def build_image(
-    client: docker.client, registry_url: str, language: str, version: str, path: str
-) -> Image:
+def build_image(client: docker.client, language: str, path: str) -> Image:
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     build_path = os.path.join(os.path.realpath("."), path)
 
     # TODO use Low level API to show user build progress
-    print(f"building {language} image: '{registry_url}:{language}-{version}'...")
-    image, _ = docker_wrapper.build_image(client, path=build_path)
+    print(f"building {language} image...")
+    image, _ = docker_wrapper.build_image(
+        client, path=build_path, tag={CONTAINER_BASE_NAME}
+    )
     # TODO try pulling/building base image
-
-    add_tags(image, registry_url, language, version)
-    image.reload()  # Update all image attributes
 
     return image
 
 
-def add_tags(image: Image, registry_url: str, language: str, version: str) -> None:
-    tags = [
-        f"{language}-{version}",
-        f"{language}-{version.split('.')[0]}.{version.split('.')[1]}",
-        f"{language}-{version.split('.')[0]}",
-        f"{language}-latest",
-    ]
-
+def add_tags(image: Image, name: str, tags: List[str]) -> None:
     for tag in tags:
-        print(f"tagging '{language}' image with tag: '{tag}'")
-        image.tag(f"{registry_url}/{CONTAINER_BASE_NAME}", tag)
+        print(f"tagging '{name}' image with tag: '{tag}'")
+        image.tag(name, tag)
+
+    image.reload()  # Update all image attributes
 
 
-def push_image_to_registry(client: DockerClient, image: Image) -> None:
-    for tag in image.tags:
-        #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
-        print(f"Tag: {tag}")
-        (registry_tag, tag) = tag.split(":")
+def remove_tags(client: docker.client, image_name: str, tags: List[str]) -> None:
+    for tag in tags:
+        print(f"removing {image_name}:{tag}")
+        client.images.remove(image=f"{image_name}:{tag}")
+
+
+def push_image_to_registry(
+    client: DockerClient, registry_tag: str, tags: List[str]
+) -> None:
+    for tag in tags:
         try:
             print(f"Pushing to '{registry_tag}:{tag}'...")
             push_image(client, registry_tag, tag)
         except PushError:
             print(f"ERROR: Failed to push {registry_tag}:{tag}")
-    image.remove(force=True)
 
 
 if __name__ == "__main__":
