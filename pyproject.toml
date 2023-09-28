@@ -17,6 +17,11 @@ include = [
     "vmware_aria_operations_integration_sdk/adapter_template/describeSchema.xsd",
     "vmware_aria_operations_integration_sdk/adapter_template/traversalwSpecSchema.xsd",
     "vmware_aria_operations_integration_sdk/adapter_template/alertDefinitionSchema.xsd",
+
+    # Include all files in the adapter_templates directory excluding hiden files (to prevent including system specific files)
+    "vmware_aria_operations_integration_sdk/adapter_configurations/adapter_templates/**/*",
+    "!vmware_aria_operations_integration_sdk/adapter_configurations/adapter_templates/**/.*",
+
     "vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json",
     "vmware_aria_operations_integration_sdk/api/integration-sdk-definition-endpoint.json",
     "vmware_aria_operations_integration_sdk/container_versions.json",
