@@ -13,7 +13,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
 
 
 class AdapterDefinition
@@ -161,6 +160,7 @@ class AdapterDefinition
     *
     * @return The created credential type.
     */
+    @JvmOverloads
     @Throws(DuplicateKeyException::class)
     fun defineCredentialType(key: String = "default_credential", label: String = key): CredentialType {
         val credential = CredentialType(key, label)
@@ -187,6 +187,7 @@ class AdapterDefinition
     *
     * @param credentialType The credential type to add.
     */
+    @Throws(DuplicateKeyException::class)
     fun addCredentialType(credentialType: CredentialType) {
         val key = credentialType.key
         if(credentials.containsKey(key)) {
@@ -205,6 +206,7 @@ class AdapterDefinition
     *
     * @return The created object type definition
     */
+    @Throws(DuplicateKeyException::class)
     fun defineObjectType(key: String, label: String = key): ObjectType
     {
         val objectType = ObjectType(key, label)
@@ -217,6 +219,7 @@ class AdapterDefinition
      *
     * @param objectTypes A list of object type definitions.
     */
+    @Throws(DuplicateKeyException::class)
     fun addObjectTypes(objectTypes: List<ObjectType>) {
         objectTypes.forEach { objectType ->
             addObjectType(objectType)
@@ -228,6 +231,7 @@ class AdapterDefinition
      *
     * @param objectType An object type definition.
     */
+    @Throws(DuplicateKeyException::class)
     fun addObjectType(objectType: ObjectType) {
         val key = objectType.key
         if (objectTypes.containsKey(key)) {
@@ -244,7 +248,7 @@ class AdapterDefinition
             put("adapter_label", adapterLabel)
             put("describe_version", version)
             put("schema_version", 1)
-            putJsonObject("adapter_instance") {
+            put("adapter_instance", extendJsonObject(super.json) {
                 put("key", adapterInstanceType)
                 put("label", adapterInstanceLabel)
                 putJsonArray("identifiers") {
@@ -252,15 +256,15 @@ class AdapterDefinition
                         add(parameter.json)
                     }
                 }
-                putJsonArray("credential_types") {
-                    credentials.values.forEach {credential ->
-                        add(credential.json)
-                    }
+            })
+            putJsonArray("credential_types") {
+                credentials.values.forEach {credential ->
+                    add(credential.json)
                 }
-                putJsonArray("object_types") {
-                    objectTypes.values.forEach {objectType ->
-                        add(objectType.json)
-                    }
+            }
+            putJsonArray("object_types") {
+                objectTypes.values.forEach {objectType ->
+                    add(objectType.json)
                 }
             }
         }
