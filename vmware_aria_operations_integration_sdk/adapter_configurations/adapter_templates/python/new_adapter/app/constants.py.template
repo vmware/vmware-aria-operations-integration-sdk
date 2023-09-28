@@ -1,2 +1,2 @@
 ADAPTER_KIND = "$adapter_key"
-ADAPTER_NAME = "$adapter_name"
+ADAPTER_NAME = "$display_name"
