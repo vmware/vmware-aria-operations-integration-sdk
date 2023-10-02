@@ -120,9 +120,9 @@ class AdapterInstanceTest {
     public void getSuiteApiClient() {
         AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE1);
         assertNotNull(ai.getSuiteApiClient());
-        assertEquals(HOSTNAME, ai.getSuiteApiClient().getHostname());
-        assertEquals(USERNAME, ai.getSuiteApiClient().getUsername());
-        // Password is private
+        assertEquals(HOSTNAME, ai.getSuiteApiClient().getConnectionInfo().getHostname());
+        assertEquals(USERNAME, ai.getSuiteApiClient().getConnectionInfo().getUsername());
+        assertEquals(PASSWORD, ai.getSuiteApiClient().getConnectionInfo().getPassword());
     }
 
     @Test

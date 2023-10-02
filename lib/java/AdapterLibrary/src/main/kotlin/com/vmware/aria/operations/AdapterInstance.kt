@@ -29,7 +29,7 @@ class Credential(
      */
     @SerialName("credential_key") val type: String?,
     @SerialName("credential_fields") private val fields: List<CredentialField>,
-): Map<String, String> by fields.associate({ field -> Pair(field.key, field.value) })
+) : Map<String, String> by fields.associate({ field -> Pair(field.key, field.value) })
 
 /**
  * Class that represents a list of validated SSL certificates that have been verified
@@ -92,9 +92,11 @@ class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
             Json.decodeFromJsonElement(it)
         } ?: Credential(null, emptyList())
 
-        suiteApiClient = json["cluster_connection_info"]?.let {
-            Json.decodeFromJsonElement(it)
-        } ?: SuiteApiClient("", "", "")
+        suiteApiClient = SuiteApiClient(
+            json["cluster_connection_info"]?.let {
+                Json.decodeFromJsonElement<SuiteApiConnectionInfo>(it)
+            } ?: SuiteApiConnectionInfo("", "", "")
+        )
 
         certificates = json["certificate_config"]?.let {
             Json.decodeFromJsonElement(it)
