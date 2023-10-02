@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.int
+import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -53,11 +53,11 @@ data class CollectionWindow(
     /**
      * The start of the window. On the first collection, this will be set to `0`.
      */
-    @SerialName("start_time") val startTime: Long,
+    @SerialName("start_time") val startTime: Double,
     /**
      * The end of the window
      */
-    @SerialName("end_time") val endTime: Long,
+    @SerialName("end_time") val endTime: Double,
 )
 
 class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
@@ -100,10 +100,10 @@ class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
             Json.decodeFromJsonElement(it)
         } ?: Certificates(emptyList())
 
-        collectionNumber = json["collection_number"]?.jsonPrimitive?.int ?: 0
+        collectionNumber = json["collection_number"]?.jsonPrimitive?.intOrNull ?: 0
         collectionWindow = json["collection_window"]?.let {
             Json.decodeFromJsonElement(it)
-        } ?: CollectionWindow(0, System.currentTimeMillis())
+        } ?: CollectionWindow(0.0, System.currentTimeMillis().toDouble())
     }
 
     /**
