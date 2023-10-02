@@ -35,8 +35,8 @@ import kotlinx.serialization.Transient
 @Serializable
 class Key @OptIn(ExperimentalSerializationApi::class)
 @JvmOverloads constructor(
-    @SerialName("adapter_kind") val adapterType: String,
-    @SerialName("object_kind") val objectType: String,
+    @SerialName("adapterKind") val adapterType: String,
+    @SerialName("objectKind") val objectType: String,
     val name: String,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS) val identifiers: List<Identifier> = emptyList(),
 ) {
