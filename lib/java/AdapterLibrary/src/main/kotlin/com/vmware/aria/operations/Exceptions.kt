@@ -25,3 +25,9 @@ class ObjectKeyAlreadyExistsException private constructor(message: String) : Exc
             }
     }
 }
+
+class SuiteApiClientException(message: String, val responseCode: Int? = null) : Exception(message)
+
+open class KeyException(message: String) : Exception(message)
+
+class DuplicateKeyException(message: String) : KeyException(message)
