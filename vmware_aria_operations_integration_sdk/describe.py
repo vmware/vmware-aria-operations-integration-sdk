@@ -196,6 +196,9 @@ class Describe:
                 named_element.attrib.pop("nameKey")
 
 
+ns_map = {None: "http://schemas.vmware.com/vcops/schema"}
+
+
 def ns(kind: str) -> str:
     return "{http://schemas.vmware.com/vcops/schema}" + kind
 
@@ -241,6 +244,7 @@ def is_true(element: Element, attr: str, default: str = "false") -> bool:
 
 def json_to_xml(json: Dict) -> Element:
     names = _Names()
+    ET.register_namespace("", "http://schemas.vmware.com/vcops/schema")
     schema_version = int(json.get("schema_version", 0))
 
     describe = Element(
@@ -255,7 +259,7 @@ def json_to_xml(json: Dict) -> Element:
     # CredentialKinds
     credential_kinds = SubElement(
         describe,
-        ns("CredentialKinds"),
+        "CredentialKinds",
     )
     for credential_kind in json["credential_types"]:
         add_credential_kind(credential_kinds, credential_kind, names, schema_version)
@@ -263,7 +267,7 @@ def json_to_xml(json: Dict) -> Element:
     # ResourceKinds
     resource_kinds = SubElement(
         describe,
-        ns("ResourceKinds"),
+        "ResourceKinds",
     )
     credential_types: Iterable[str] = map(
         lambda cred_type: str(cred_type["key"]), json["credential_types"]
@@ -308,7 +312,7 @@ def add_credential_kind(
 ) -> Element:
     xml = SubElement(
         parent,
-        ns("CredentialKind"),
+        "CredentialKind",
         attrib={
             "key": credential_kind_json["key"],
             "nameKey": names.get_key(credential_kind_json["label"]),
@@ -317,7 +321,7 @@ def add_credential_kind(
     for field in credential_kind_json["fields"]:
         field_xml = SubElement(
             xml,
-            ns("CredentialField"),
+            "CredentialField",
             attrib={
                 "key": field["key"],
                 "nameKey": names.get_key(field["label"]),
@@ -350,7 +354,7 @@ def add_resource_kind(
 
     resourcekind_xml = SubElement(
         parent,
-        ns("ResourceKind"),
+        "ResourceKind",
         attrib=attributes,
     )
     for identifier in resource_kind_json["identifiers"]:
