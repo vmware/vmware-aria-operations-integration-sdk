@@ -197,10 +197,7 @@ class Describe:
 
 
 def ns(kind: str) -> str:
-    return "{*}" + kind
-
-
-ns_map = {None: "http://schemas.vmware.com/vcops/schema"}
+    return "{http://schemas.vmware.com/vcops/schema}" + kind
 
 
 def get_adapter_kind(describe: Element) -> Optional[str]:
@@ -247,7 +244,7 @@ def json_to_xml(json: Dict) -> Element:
     schema_version = int(json.get("schema_version", 0))
 
     describe = Element(
-        "{http://schemas.vmware.com/vcops/schema}AdapterKind",
+        ns("AdapterKind"),
         attrib={
             "key": json["adapter_key"],
             "nameKey": names.get_key(json["adapter_label"]),
@@ -258,7 +255,7 @@ def json_to_xml(json: Dict) -> Element:
     # CredentialKinds
     credential_kinds = SubElement(
         describe,
-        "{http://schemas.vmware.com/vcops/schema}CredentialKinds",
+        ns("CredentialKinds"),
     )
     for credential_kind in json["credential_types"]:
         add_credential_kind(credential_kinds, credential_kind, names, schema_version)
@@ -266,7 +263,7 @@ def json_to_xml(json: Dict) -> Element:
     # ResourceKinds
     resource_kinds = SubElement(
         describe,
-        "{http://schemas.vmware.com/vcops/schema}ResourceKinds",
+        ns("ResourceKinds"),
     )
     credential_types: Iterable[str] = map(
         lambda cred_type: str(cred_type["key"]), json["credential_types"]
@@ -311,7 +308,7 @@ def add_credential_kind(
 ) -> Element:
     xml = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}CredentialKind",
+        ns("CredentialKind"),
         attrib={
             "key": credential_kind_json["key"],
             "nameKey": names.get_key(credential_kind_json["label"]),
@@ -320,7 +317,7 @@ def add_credential_kind(
     for field in credential_kind_json["fields"]:
         field_xml = SubElement(
             xml,
-            "{http://schemas.vmware.com/vcops/schema}CredentialField",
+            ns("CredentialField"),
             attrib={
                 "key": field["key"],
                 "nameKey": names.get_key(field["label"]),
@@ -353,7 +350,7 @@ def add_resource_kind(
 
     resourcekind_xml = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}ResourceKind",
+        ns("ResourceKind"),
         attrib=attributes,
     )
     for identifier in resource_kind_json["identifiers"]:
@@ -376,7 +373,7 @@ def add_identifier(
         default = ""
     identifier_xml = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}ResourceIdentifier",
+        ns("ResourceIdentifier"),
         attrib={
             "default": str(default),
             "key": identifier_json["key"],
@@ -408,7 +405,7 @@ def _add_enum_values_v0(parent: Element, identifier_json: Dict, names: _Names) -
     for value in identifier_json["enum_values"]:
         SubElement(
             parent,
-            "{http://schemas.vmware.com/vcops/schema}enum",
+            ns("enum"),
             attrib={
                 "value": str(value),
                 "default": str(value == identifier_json.get("default", False)).lower(),
@@ -423,7 +420,7 @@ def _add_enum_values_v1(parent: Element, identifier_json: Dict, names: _Names) -
     for value in enum_values:
         SubElement(
             parent,
-            "{http://schemas.vmware.com/vcops/schema}enum",
+            ns("enum"),
             attrib={
                 "value": str(value["key"]),
                 "nameKey": names.get_key(str(value["label"])),
@@ -435,7 +432,7 @@ def _add_enum_values_v1(parent: Element, identifier_json: Dict, names: _Names) -
 def add_attribute(parent: Element, attribute_json: Dict, names: _Names) -> Element:
     attribute_xml = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}ResourceAttribute",
+        ns("ResourceAttribute"),
         attrib={
             "key": attribute_json["key"],
             "nameKey": names.get_key(attribute_json["label"]),
@@ -456,7 +453,7 @@ def add_attribute(parent: Element, attribute_json: Dict, names: _Names) -> Eleme
 def add_group(parent: Element, group_json: Dict, names: _Names) -> Element:
     group_xml = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}ResourceGroup",
+        ns("ResourceGroup"),
         attrib={
             "key": group_json["key"],
             "nameKey": names.get_key(group_json["label"]),
@@ -474,7 +471,7 @@ def add_group(parent: Element, group_json: Dict, names: _Names) -> Element:
 def add_units(parent: Element, names: _Names) -> None:
     unit_definitions = SubElement(
         parent,
-        "{http://schemas.vmware.com/vcops/schema}UnitDefinitions",
+        ns("UnitDefinitions"),
     )
     add_unit_group(Units.RATIO, unit_definitions, names)
     add_unit_group(Units.TIME, unit_definitions, names)
@@ -499,14 +496,14 @@ def add_unit_group(cls: UnitGroup, root: Element, names: _Names) -> None:
     for subtype in subtypes:
         unit_type = SubElement(
             root,
-            "{http://schemas.vmware.com/vcops/schema}UnitType",
+            ns("UnitType"),
             key=cls.__name__ + subtype,
         )
         for unit in cls:
             if unit.value._subtype == subtype:
                 SubElement(
                     unit_type,
-                    "{http://schemas.vmware.com/vcops/schema}Unit",
+                    ns("Unit"),
                     key=unit.value.key,
                     nameKey=names.get_key(unit.value.label),
                     order=str(unit.value._order),

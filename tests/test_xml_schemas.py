@@ -8,7 +8,6 @@ from lxml import etree
 
 from vmware_aria_operations_integration_sdk import adapter_template
 from vmware_aria_operations_integration_sdk.describe import ns
-from vmware_aria_operations_integration_sdk.describe import ns_map
 
 
 class TestDescribe:
@@ -20,19 +19,18 @@ class TestDescribe:
     @pytest.fixture
     def base_describe_xml(self):
         root = xml.Element(
-            "{http://schemas.vmware.com/vcops/schema}AdapterKind",
+            ns("AdapterKind"),
             attrib={"key": "TestAdapter", "nameKey": "1", "version": "1"},
-            nsmap=ns_map,
         )
-        resource_kinds = xml.SubElement(root, "ResourceKinds", nsmap=ns_map)
+
+        resource_kinds = xml.SubElement(root, ns("ResourceKinds"))
         xml.SubElement(
             resource_kinds,
-            "ResourceKind",
+            ns("ResourceKind"),
             attrib={
                 "key": "test_resource",
                 "nameKey": "3",
             },
-            nsmap=ns_map,
         )
         yield root
 
@@ -41,16 +39,16 @@ class TestDescribe:
 
     def test_invalid_element(self, xml_schema, base_describe_xml):
         with pytest.raises(xmlschema.validators.exceptions.XMLSchemaValidatorError):
-            base_describe_xml.append(xml.Element("NotGood", nsmap=ns_map))
+            base_describe_xml.append(xml.Element(ns("NotGood")))
             xml_schema.validate(base_describe_xml)
 
     def test_duplicate_resource_kind_key(self, xml_schema, base_describe_xml):
         resource_kinds = base_describe_xml.find(ns("ResourceKinds"))
         first = xml.Element(
-            "ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map
+            ns("ResourceKind"), attrib={"key": "duplicate", "nameKey": "0"}
         )
         duplicate = xml.Element(
-            "ResourceKind", attrib={"key": "duplicate", "nameKey": "0"}, nsmap=ns_map
+            ns("ResourceKind"), attrib={"key": "duplicate", "nameKey": "0"}
         )
         resource_kinds.insert(0, first)
         resource_kinds.insert(0, duplicate)
@@ -66,17 +64,15 @@ class TestDescribe:
         resource_kind.insert(
             0,
             xml.Element(
-                "ResourceAttribute",
+                ns("ResourceAttribute"),
                 attrib={"key": "test_attribute", "nameKey": "0"},
-                nsmap=ns_map,
             ),
         )
         resource_kind.insert(
             0,
             xml.Element(
-                "ResourceAttribute",
+                ns("ResourceAttribute"),
                 attrib={"key": "test_attribute", "nameKey": "1"},
-                nsmap=ns_map,
             ),
         )
 
@@ -91,15 +87,15 @@ class TestDescribe:
             ns("ResourceKind")
         )
         resource_group = xml.Element(
-            "ResourceGroup", attrib={"key": "test_group", "nameKey": "4"}, nsmap=ns_map
+            ns("ResourceGroup"), attrib={"key": "test_group", "nameKey": "4"}
         )
         resource_kind.append(resource_group)
 
         attribute = xml.Element(
-            "ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map
+            ns("ResourceAttribute"), attrib={"key": "twin", "nameKey": "0"}
         )
         duplicate = xml.Element(
-            "ResourceAttribute", attrib={"key": "twin", "nameKey": "0"}, nsmap=ns_map
+            ns("ResourceAttribute"), attrib={"key": "twin", "nameKey": "0"}
         )
 
         resource_kind.insert(0, attribute)
@@ -113,14 +109,13 @@ class TestDescribe:
         )
         xml.SubElement(
             resource_kind,
-            "ResourceAttribute",
+            ns("ResourceAttribute"),
             attrib={
                 "key": "attribute",
                 "nameKey": "0",
                 "dataType": "string",
                 "isProperty": "true",
             },
-            nsmap=ns_map,
         )
 
         assert xml_schema.is_valid(base_describe_xml)
@@ -130,9 +125,8 @@ class TestDescribe:
             ns("ResourceKind")
         )
         _property = xml.Element(
-            "ResourceAttribute",
+            ns("ResourceAttribute"),
             attrib={"key": "attribute", "nameKey": "0", "dataType": "string"},
-            nsmap=ns_map,
         )
         resource_kind.insert(0, _property)
 
@@ -166,7 +160,7 @@ class TestAlertsRecommendationsAndSymptoms:
     def test_invalid_element_on_content_xml(
         self, content_xml_schema, generated_content, modified_content
     ):
-        invalid_element = etree.Element("NotGood")
+        invalid_element = etree.Element(ns("NotGood"))
         with pytest.raises(xmlschema.validators.XMLSchemaValidatorError):
             generated_content.getroot().append(invalid_element)
             content_xml_schema.validate(generated_content)
@@ -201,7 +195,7 @@ class TestAlertsRecommendationsAndSymptoms:
         self, content_xml_schema, generated_content
     ):
         alert_definition = etree.Element(
-            "AlertDefinition",
+            ns("AlertDefinition"),
             attrib=dict(
                 adapterKind="TestAdapterKind",
                 description="120",
@@ -240,7 +234,7 @@ class TestAlertsRecommendationsAndSymptoms:
         self, content_xml_schema, generated_content
     ):
         symptom_definition: xml.Element = generated_content.find(
-            "SymptomDefinitions"
+            ns("SymptomDefinitions")
         ).find("SymptomDefinition")
         symptom_definition.clear()
 
@@ -274,7 +268,7 @@ class TestTraversals:
     def test_add_valid_traversal(self, traversal_schema, base_traversal_xml):
         traversal_spec_kinds = base_traversal_xml.find("TraversalSpecKinds")
         new_traversal = etree.Element(
-            "TraversalSpecKind",
+            ns("TraversalSpecKind"),
             attrib=dict(name="New Traversal"),
             rootAdapterKind="ContentTestMP",
             rootResourceKind="System",
@@ -284,9 +278,8 @@ class TestTraversals:
         new_traversal.insert(
             0,
             etree.Element(
-                "ResourcePath",
+                ns("ResourcePath"),
                 attrib={"path": "ContentTestMP::System||ContentTestMP::CPU::child"},
-                nsmap=ns_map,
             ),
         )
         traversal_spec_kinds.insert(0, new_traversal)
