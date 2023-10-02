@@ -5,14 +5,18 @@
 
 package com.vmware.aria.operations
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Metric private constructor(
+data class Metric @OptIn(ExperimentalSerializationApi::class)
+private constructor(
     val key: String,
     @SerialName("numberValue") val doubleValue: Double,
-    val timestamp: Long = System.currentTimeMillis(),
+    @EncodeDefault(ALWAYS) val timestamp: Long = System.currentTimeMillis(),
 ) {
     /**
      * Class representing a Metric Data Point.
@@ -60,17 +64,19 @@ sealed class Property {
  * recorded. Defaults to the current time.
  */
 @Serializable
-data class StringProperty @JvmOverloads constructor(
+data class StringProperty @OptIn(ExperimentalSerializationApi::class)
+@JvmOverloads constructor(
     override val key: String,
     val stringValue: String,
-    override val timestamp: Long = System.currentTimeMillis(),
+    @EncodeDefault(ALWAYS) override val timestamp: Long = System.currentTimeMillis(),
 ) : Property()
 
 @Serializable
-data class NumericProperty private constructor(
+data class NumericProperty @OptIn(ExperimentalSerializationApi::class)
+private constructor(
     override val key: String,
     @SerialName("numberValue") val doubleValue: Double,
-    override val timestamp: Long = System.currentTimeMillis(),
+    @EncodeDefault(ALWAYS) override val timestamp: Long = System.currentTimeMillis(),
 ) : Property() {
     /**
      * Class representing a Numeric Property value.

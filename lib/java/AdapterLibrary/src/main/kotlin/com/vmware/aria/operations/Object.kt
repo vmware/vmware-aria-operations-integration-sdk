@@ -4,6 +4,9 @@
  */
 package com.vmware.aria.operations
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -16,6 +19,7 @@ import kotlinx.serialization.Transient
  * @property key A [Key] that uniquely identifies this Object.
  */
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 open class Object(val key: Key) {
     /**
      * Represents an Object (resource) in VMware Aria Operations.
@@ -36,8 +40,11 @@ open class Object(val key: Key) {
         identifiers: List<Identifier> = emptyList(),
     ) : this(Key(adapterType, objectType, name, identifiers))
 
+    @EncodeDefault(ALWAYS)
     private val metrics: MutableSet<Metric> = mutableSetOf()
+    @EncodeDefault(ALWAYS)
     private val properties: MutableSet<Property> = mutableSetOf()
+    @EncodeDefault(ALWAYS)
     private val events: MutableSet<Event> = mutableSetOf()
 
     @Transient
