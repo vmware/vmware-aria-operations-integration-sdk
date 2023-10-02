@@ -7,6 +7,7 @@ from json import JSONDecodeError
 from typing import Dict
 
 import xmlschema
+from elementpath.etree import ElementTree as ET
 from httpx import Response
 from lxml.etree import Element
 from requests import Request
@@ -277,4 +278,8 @@ def cross_check_collection_with_describe(
 def validate_describe(path: str, describe: Element) -> None:
     logger.info("Validating describe.xml")
     schema = xmlschema.XMLSchema11(os.path.join(path, "conf", "describeSchema.xsd"))
-    schema.validate(describe)
+
+    if not xmlschema.is_valid(describe, schema):
+        root = ET.ElementTree(describe)
+        ET.indent(root)
+        schema.validate(root)

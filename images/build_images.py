@@ -109,19 +109,33 @@ def main() -> None:
     )
 
     if push_to_registry:
-        login(registry_url)
+        login(container_registry=registry_url)
 
     for image in images_to_build:
+        language = image["language"].lower()
+        version = image["version"]
+
+        tags = [
+            f"{language}-{version}",
+            f"{language}-{version.split('.')[0]}.{version.split('.')[1]}",
+            f"{language}-{version.split('.')[0]}",
+            f"{language}-latest",
+        ]
+
         try:
             new_image = build_image(
                 client=client,
-                language=image["language"].lower(),
-                version=image["version"],
+                language=language,
                 path=image["path"],
             )
 
+            add_tags(new_image, CONTAINER_BASE_NAME, tags)
+
             if push_to_registry:
-                push_image_to_registry(client, new_image, registry_url)
+                external_registry_name = f"{registry_url}/{CONTAINER_BASE_NAME}"
+                add_tags(new_image, external_registry_name, tags)
+                push_image_to_registry(client, external_registry_name, tags)
+                remove_tags(client, external_registry_name, tags)
         except BuildError as build_error:
             print(f"Failed to build {image['language']} image")
             print(build_error.message)
@@ -141,51 +155,44 @@ def get_latest_aria_ops_container_versions() -> Tuple[Dict, List[Dict]]:
     return base_image, secondary_images
 
 
-def build_image(client: docker.client, language: str, version: str, path: str) -> Image:
+def build_image(client: docker.client, language: str, path: str) -> Image:
     # Note: This tool is not included in the SDK. It is intended to be run only from the git repository;
     # as such we assume relative paths will work
     build_path = os.path.join(os.path.realpath("."), path)
 
     # TODO use Low level API to show user build progress
-    print(f"building {language} image:{CONTAINER_BASE_NAME}:{language}-{version}...")
+    print(f"building {language} image...")
     image, _ = docker_wrapper.build_image(
-        client, path=build_path, tag=f"{CONTAINER_BASE_NAME}:{language}-{version}"
+        client, path=build_path, tag={CONTAINER_BASE_NAME}
     )
     # TODO try pulling/building base image
-
-    add_stable_tags(image, language, version)
-    image.reload()  # Update all image attributes
 
     return image
 
 
-def add_stable_tags(image: Image, language: str, version: str) -> None:
-    tags = [
-        f"{CONTAINER_BASE_NAME}:{language}-{version.split('.')[0]}",
-        f"{CONTAINER_BASE_NAME}:{language}-latest",
-    ]
-
+def add_tags(image: Image, name: str, tags: List[str]) -> None:
     for tag in tags:
-        print(f"tagging {language} image with tag: {tag}")
-        image.tag(tag)
+        print(f"tagging '{name}' image with tag: '{tag}'")
+        image.tag(name, tag)
+
+    image.reload()  # Update all image attributes
+
+
+def remove_tags(client: docker.client, image_name: str, tags: List[str]) -> None:
+    for tag in tags:
+        print(f"removing {image_name}:{tag}")
+        client.images.remove(image=f"{image_name}:{tag}")
 
 
 def push_image_to_registry(
-    client: DockerClient, image: Image, registry_url: str
+    client: DockerClient, registry_tag: str, tags: List[str]
 ) -> None:
-    registry_tag = f"{registry_url}"
-    print(f"pushing image to {registry_tag}")
-    for tag in image.tags:
-        #       See Jira: https://jira.eng.vmware.com/browse/VOPERATION-29771
-        reference_tag = f"{registry_tag}/{tag}"
-        image.tag(reference_tag)
+    for tag in tags:
         try:
-            push_image(client, reference_tag)
+            print(f"Pushing to '{registry_tag}:{tag}'...")
+            push_image(client, registry_tag, tag)
         except PushError:
-            print(f"ERROR: Failed to push {reference_tag}")
-        finally:
-            print(f"Removing {reference_tag} from local client")
-            client.images.remove(reference_tag)
+            print(f"ERROR: Failed to push {registry_tag}:{tag}")
 
 
 if __name__ == "__main__":
