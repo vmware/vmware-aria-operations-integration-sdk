@@ -1,0 +1,2 @@
+ADAPTER_KIND = "$adapter_kind"
+ADAPTER_NAME = "$adapter_name"

@@ -7,7 +7,7 @@ exclude_dirs = ["tests", "lib/python/tests"]
 
 [tool.poetry]
 name = "vmware_aria_operations_integration_sdk"
-version = "1.0.0"
+version = "1.0.1"
 description = "A set of tools to help users create, test, and build containerized management packs for VMware Aria Operations"
 authors = ["VMware, Inc. <krokos@vmware.com>", "Kyle Rokos <krokos@vmware.com>", "Santiago Quiroga Cubillos <squirogacubi@vmware.com>"]
 license = "APACHE-2.0"
@@ -34,7 +34,7 @@ prompt-toolkit = "^3.0.29"
 vmware-aria-operations-integration-sdk-lib = "^0.8.0"
 docker = "^6.1.1"
 httpx = "^0.23.0"
-xmlschema = "^2.1.1"
+xmlschema = "<2.5.0"
 pillow = "^9.3.0"
 importlib-resources = "^5.10.0"
 openapi-core = "^0.15.0"

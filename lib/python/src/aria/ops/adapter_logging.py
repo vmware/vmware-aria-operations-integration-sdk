@@ -21,22 +21,30 @@ def setup_logging(filename: str, file_count: int = 5, max_size: int = 0) -> None
                                   do no automatic rotation. Requires calling the 'rotate()' function
                                   manually to ensure logs do not become too large.
     """
-    try:
-        global log_handler
-        log_handler = RotatingFileHandler(
-            os.path.join(os.sep, "var", "log", filename),
-            maxBytes=max_size,
-            backupCount=file_count,
+    logdir = os.path.join(os.sep, "var", "log")
+    if os.access(logdir, os.W_OK):
+        try:
+            global log_handler
+            log_handler = RotatingFileHandler(
+                os.path.join(os.sep, "var", "log", filename),
+                maxBytes=max_size,
+                backupCount=file_count,
+            )
+            logging.basicConfig(
+                format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+                level=_get_default_log_level(),
+                handlers=[log_handler],
+            )
+            _set_log_levels()
+        except Exception as e:
+            logging.basicConfig(level=logging.INFO)
+            logging.exception(e)
+    else:
+        logging.basicConfig(level=logging.INFO)
+        logging.exception(
+            f"Cannot write to log file '{os.path.join(logdir, filename)}'"
         )
-        logging.basicConfig(
-            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            level=_get_default_log_level(),
-            handlers=[log_handler],
-        )
-        _set_log_levels()
-    except Exception:
-        logging.basicConfig(level=logging.CRITICAL + 1)
 
 
 def _get_default_log_level(default_level: int = logging.INFO) -> int:
@@ -65,8 +73,11 @@ def _get_default_log_level(default_level: int = logging.INFO) -> int:
             "__main__": default_level_name,
         }
     if modified:
-        with open(log_config_file, "w") as config_file:
-            config.write(config_file)
+        try:
+            with open(log_config_file, "w") as config_file:
+                config.write(config_file)
+        except Exception as e:
+            logging.exception(e)
     try:
         return int(
             logging.getLevelName(config["DEFAULT"].get("adapter", default_level_name))
@@ -81,9 +92,10 @@ def _set_log_levels() -> None:
     """
     log_config_file = os.path.join(os.sep, "var", "log", "loglevels.cfg")
     config = ConfigParser()
-    config.read(log_config_file)
-    for logger in config["adapter"]:
-        logging.getLogger(logger).setLevel(config["adapter"][logger])
+    if os.path.isfile(log_config_file):
+        config.read(log_config_file)
+        for logger in config["adapter"]:
+            logging.getLogger(logger).setLevel(config["adapter"][logger])
 
 
 def getLogger(name: str) -> logging.Logger:

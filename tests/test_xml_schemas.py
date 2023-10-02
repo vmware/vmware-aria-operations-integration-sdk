@@ -6,7 +6,7 @@ import pytest
 import xmlschema
 from lxml import etree
 
-from vmware_aria_operations_integration_sdk import adapter_template
+import vmware_aria_operations_integration_sdk.adapter_configurations as adapter_configurations
 from vmware_aria_operations_integration_sdk.describe import ns
 from vmware_aria_operations_integration_sdk.describe import ns_map
 
@@ -14,7 +14,7 @@ from vmware_aria_operations_integration_sdk.describe import ns_map
 class TestDescribe:
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def xml_schema(self):
-        with resources.path(adapter_template, "describeSchema.xsd") as schema:
+        with resources.path(adapter_configurations, "describeSchema.xsd") as schema:
             return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture
@@ -142,7 +142,9 @@ class TestDescribe:
 class TestAlertsRecommendationsAndSymptoms:
     @pytest.fixture(scope="session")
     def content_xml_schema(self):
-        with resources.path(adapter_template, "alertDefinitionSchema.xsd") as schema:
+        with resources.path(
+            adapter_configurations, "alertDefinitionSchema.xsd"
+        ) as schema:
             return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture
@@ -252,7 +254,9 @@ class TestAlertsRecommendationsAndSymptoms:
 class TestTraversals:
     @pytest.fixture(scope="session")  # the same XSD for all tests
     def traversal_schema(self):
-        with resources.path(adapter_template, "traversalSpecsSchema.xsd") as schema:
+        with resources.path(
+            adapter_configurations, "traversalSpecsSchema.xsd"
+        ) as schema:
             return xmlschema.XMLSchema11(schema)
 
     @pytest.fixture

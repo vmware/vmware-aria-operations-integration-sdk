@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## 0.8.1 (09-15-2023)
+* Improve error handling when log directory is not writable
+
 ## 0.8.0 (07-26-2023)
 * Add py.typed files for typing support in compliance with PEP-561
 

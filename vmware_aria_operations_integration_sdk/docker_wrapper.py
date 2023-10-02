@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import platform
+import re
 import stat
 import subprocess
 import sys
@@ -185,8 +186,17 @@ def build_image(
             **kwargs,
         )
     except docker.errors.BuildError as error:
+        error_message = f"{error}"
+        for log in error.build_log:
+            if "stream" in log:
+                line = log["stream"]
+                if "* Try:" in line:
+                    break
+                elif line.strip() != "":
+                    error_message += "\n" + line
+
         raise BuildError(
-            message=f"ERROR: Unable to build Docker file at {path}:\n {error}"
+            message=f"ERROR: Unable to build Docker file at {path}:\n {error_message}"
         )
 
 
@@ -284,6 +294,9 @@ def run_image(
     port = DEFAULT_PORT
     if exposed_port:
         port = exposed_port
+
+    if not os.access(f"{path}/logs", os.W_OK):
+        logger.warn(f"{path}/logs directory is not writable.")
 
     # Docker memory parameters expect a unit ('m' is 'MB'), or the number will be interpreted as bytes
     # vROps sets the swap memory limit to the memory limit + 512MB, so we will also. The swap memory

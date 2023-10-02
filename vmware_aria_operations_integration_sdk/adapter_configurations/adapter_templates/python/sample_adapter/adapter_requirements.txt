@@ -1,3 +1,2 @@
 vmware-aria-operations-integration-sdk-lib==0.8.*
-pysnmp==4.4.12
-pyasn1==0.4.8
+psutil==5.9.4
