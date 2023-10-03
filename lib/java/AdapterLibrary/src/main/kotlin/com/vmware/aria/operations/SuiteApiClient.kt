@@ -60,7 +60,7 @@ data class SuiteApiConnectionInfo @JvmOverloads constructor(
     @SerialName("user_name") val username: String,
     val password: String,
     val port: Int = 443,
-    val verify: Boolean = true,
+    val verify: Boolean = false,
 ) {
     @Transient
     private val baseUrl: String = getBaseUrl()
