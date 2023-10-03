@@ -1,0 +1,31 @@
+plugins {
+    java
+}
+
+tasks.register<Copy>("generateDependencies") {
+    from(configurations.runtimeClasspath.get())
+    into("$${rootProject.projectDir}/dependencies")
+}
+
+sourceSets {
+    main {
+        java.setSrcDirs(listOf("src"))
+    }
+}
+
+tasks.named<Jar>("jar") {
+    dependsOn("generateDependencies")
+    manifest {
+        attributes["Adapter"] = "${package_name}.Adapter"
+    }
+}
+
+dependencies {
+    implementation("com.vmware.aria.operations.integration.sdk:1.0.0")
+}
+
+repositories {
+    mavenCentral()
+}
+
+
