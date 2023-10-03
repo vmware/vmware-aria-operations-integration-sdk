@@ -107,6 +107,13 @@ class AdapterInstanceTest {
     ));
 
     @Test
+    public void getIdentifierValue() {
+        AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE1);
+        System.out.println(ai.getKey());
+        assertEquals("value1", ai.getIdentifierValue("id1"));
+    }
+
+    @Test
     public void getCredential() {
         AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE1);
         assertNotNull(ai.getCredential());

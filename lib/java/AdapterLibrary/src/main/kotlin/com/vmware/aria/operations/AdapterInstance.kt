@@ -138,13 +138,13 @@ class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
         private fun getKey(json: JsonObject): Key {
             return json["adapter_key"]?.jsonObject?.let { adapterKey ->
                 Key(
-                    adapterType = adapterKey["adapter_kind"].toString(),
-                    objectType = adapterKey["object_kind"].toString(),
-                    name = adapterKey["name"].toString(),
+                    adapterType = adapterKey["adapter_kind"]?.jsonPrimitive?.content ?: "",
+                    objectType = adapterKey["object_kind"]?.jsonPrimitive?.content ?: "",
+                    name = adapterKey["name"]?.jsonPrimitive?.content ?: "",
                     identifiers = adapterKey["identifiers"]?.jsonArray?.map { identifier ->
                         Identifier(
-                            identifier.jsonObject["key"].toString(),
-                            identifier.jsonObject["value"].toString(),
+                            identifier.jsonObject["key"]?.jsonPrimitive?.content ?: "",
+                            identifier.jsonObject["value"]?.jsonPrimitive?.content ?: "",
                             identifier.jsonObject["is_part_of_uniqueness"]?.jsonPrimitive?.boolean
                                 ?: true
                         )
