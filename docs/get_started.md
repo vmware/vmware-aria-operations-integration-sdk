@@ -123,13 +123,18 @@ the creation of a new management pack project.
 ???+ info
 
      For complete documentation of the `mp-init` tool, including an overview of its output,
-     see the [MP Initialization Tool Documentation](references/mp-init.md).
+     see the [MP Initialization Tool Documentation](references/mp-init.md). 
+     For Java projects documentation consult [Java project](references/python_project/index.md) section   
+     For Python projects documentation consult [Python project](references/java_project/index.md) section   
 
 ### Project Templates
 All the project templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation.
+To learn more about the specifics of each language: 
+    - Python 
+    - Java 
 
-The methods the adapter source code are required, and should be modified to generate a custom
+The methods in the adapter source code are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
 `mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
 
