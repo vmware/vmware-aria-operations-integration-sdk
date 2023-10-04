@@ -177,6 +177,9 @@ def main() -> None:
         with Spinner("Creating Project"):
             adapter_config.create_project()
 
+        with Spinner("Creating Virtual Environment"):
+            adapter_config.create_virtual_environment()
+
         print("")
         print("")
         print("project generation completed", "class:success")
