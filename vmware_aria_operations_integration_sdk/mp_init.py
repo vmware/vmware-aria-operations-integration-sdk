@@ -141,7 +141,7 @@ def main() -> None:
             )
 
         adapter_config: AdapterConfig = selection_prompt(
-            "Select a language for the adapter.",
+            "Select a language for the adapter:",
             items=[
                 (
                     PythonAdapter(

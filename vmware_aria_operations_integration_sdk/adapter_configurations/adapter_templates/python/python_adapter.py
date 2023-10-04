@@ -49,7 +49,7 @@ class PythonAdapter(AdapterConfig):
             Question(
                 "adapter_template_path",
                 selection_prompt,
-                "Select a template for your project",
+                "Select a template for your project:",
                 items=self.templates,
                 description="- Sample Adapter: Generates a working adapter with comments "
                 "throughout its code\n"
