@@ -1,5 +1,7 @@
 import json
 import logging
+import subprocess
+import venv
 from abc import ABC
 from abc import abstractmethod
 from importlib import resources
@@ -14,6 +16,7 @@ from typing import Optional
 from typing import Set
 from typing import TextIO
 
+import pkg_resources
 from docker.tls import os
 from git import Repo
 
@@ -317,6 +320,10 @@ class AdapterConfig(ABC):
 
         self.build_vcs_configuration()
 
+    def create_virtual_environment(self) -> None:
+        requirements_file = self._build_requirements_file()
+        self._build_virtual_environment_and_install_requirements(requirements_file)
+
     def write_base_execution_stage_image(
         self, dockerfile: TextIO, language: str
     ) -> None:
@@ -356,3 +363,36 @@ class AdapterConfig(ABC):
             else:
                 destination = destination + extension
                 copy(file, destination)
+
+    def _build_requirements_file(self) -> str:
+        requirements_file = os.path.join(self.project.path, "requirements.txt")
+        with open(requirements_file, "w") as requirements:
+            package = "vmware-aria-operations-integration-sdk"
+            version = pkg_resources.get_distribution(package).version
+            requirements.write(f"{package}=={version}\n")
+        return str(requirements_file)
+
+    def _build_virtual_environment_and_install_requirements(
+        self, requirements_file: str
+    ) -> None:
+        env_dir = os.path.join(self.project.path, f"venv-{self.display_name}")
+        venv.create(env_dir, with_pip=True)
+
+        # install requirements.txt into virtual environment
+        v_env = os.environ.copy()
+        v_env["VIRTUAL_ENV"] = env_dir
+        v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
+        result = subprocess.run(
+            ["pip", "install", "-r", f"{requirements_file}"],
+            env=v_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        for line in result.stdout.decode("utf-8").splitlines():
+            logger.debug(line)
+        for line in result.stderr.decode("utf-8").splitlines():
+            logger.warning(line)
+        if result.returncode != 0:
+            logger.error(
+                "Could not install sdk tools into the development virtual environment."
+            )

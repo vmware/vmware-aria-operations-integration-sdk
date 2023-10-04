@@ -20,6 +20,9 @@ from vmware_aria_operations_integration_sdk.validation.input_validators import (
 logger = logging.getLogger(__name__)
 
 
+from vmware_aria_operations_integration_sdk.ui import print_formatted as print
+
+
 class JavaAdapter(AdapterConfig):
     def __init__(
         self,
