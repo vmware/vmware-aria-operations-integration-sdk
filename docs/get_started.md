@@ -130,9 +130,6 @@ the creation of a new management pack project.
 ### Project Templates
 All the project templates create a file system that has the basic project structure required to develop and build a Management Pack.
 Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation.
-To learn more about the specifics of each language: 
-    - Python 
-    - Java 
 
 The methods in the adapter source code are required, and should be modified to generate a custom
 adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
