@@ -1,11 +1,5 @@
 name: documentation
-on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - develop
+on: [pull_request]
 permissions:
   contents: write
 jobs:
