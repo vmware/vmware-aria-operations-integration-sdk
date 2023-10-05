@@ -37,6 +37,12 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Git 2.35.0 or later. Updating to the latest stable version is recommended.
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   and follow the instructions provided for your operating system.
+* Azul Zulu JDK 17 (Only for Java Adapters).
+  Java Adapters compile and run within a container,
+  so a JDK is not strictly necessary, but it is generally useful for development.
+  The container is built with Zulu JDK 17, so ideally this version should be used for maximum compatibility.
+  To access the most recent Zulu JDK 17 release,
+  visit [azul.com](https://www.azul.com/downloads/?version=java-17-lts&package=jdk#zulu).
 
 ### Installation
 
@@ -98,81 +104,49 @@ the creation of a new management pack project.
      PNG format and 256x256 pixels. An icon file can be added later by copying the icon to the root project directory and
      setting the value of the `"pak_icon"` key to the icon's file name in the `manifest.txt` file.
 
-8. `Select a template for your project`
+8. `Select a language for the adapter:`
 
-     Both of the available options will generate a project structure that can be modified into an adapter:
+    The language the adapter uses determines the initial project structure.
+    Along with additional language-specific configuration.
+    Currently, `mp-init` offers the following languages:
 
-     `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-      The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+    `Python`
+ 
+    `Java` 
 
-     `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-      connection, collection, adapter definition, and endpoints logic.
+9. `(For Java projects only) Enter package name: `
 
-     For the purposes of this *Get Started* guide, select **Sample Adapter**.
+    The package name will be used to set up the package used by the adapter and the directory structure of the project.
+   
+    ???+ example 
+ 
+        ``` java
+        package com.mycompany;
+        ```
+
+10. `Select a template for your project`
+
+    Both of the available options will generate a project structure that can be modified into an adapter:
+
+    `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+    The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+
+    `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+    connection, collection, adapter definition, and endpoints logic.
+
+    For the purposes of this *Get Started* guide, select **Sample Adapter**.
 
 ???+ info
 
      For complete documentation of the `mp-init` tool, including an overview of its output,
-     see the [MP Initialization Tool Documentation](references/mp-init.md).
+     see the [MP Initialization Tool Documentation](references/mp-init.md). 
 
-### Project Templates
-Both templates create a file system that has the basic project structure required to develop and build a Management Pack.
-Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation. `app/adapter.py` is the adapter's
-entry point and the best starting point.
-
-The methods inside `adapter.py` are required, and should be modified to generate a custom
-adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
-`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
-
-The adapter is stateless. This means the adapter cannot store any data for use in later method calls.
-
-Each method is described below:
-
-- test(adapter_instance):
-  Performs a test connection using the information given to the adapter_instance to verify the adapter instance has been configured properly.
-  A typical test connection will generally consist of:
-
-    1. Read identifier values from adapter_instance that are required to connect to the target(s)
-    2. Connect to the target(s), and retrieve some sample data
-    3. If any of the above failed, return an error, otherwise pass.
-    4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
-
-- get_endpoints(adapter_instance):
-  This method is run before the 'test' method, and VMware Aria Operations will use
-  the results to extract a certificate from each URL. If the certificate is not trusted by
-  the VMware Aria Operations Trust Store, the user will be prompted to either accept or reject
-  the certificate. If it is accepted, the certificate will be added to the AdapterInstance
-  object that is passed to the 'test' and 'collect' methods. Any certificate that is
-  encountered in those methods should then be validated against the certificate(s)
-  in the AdapterInstance. This method will only work against HTTPS endpoints, different types
-  of endpoint will not work (e.g., database connections).
-
-- collect(adapter_instance):
-  Performs a collection against the target host. A typical collection will generally consist of:
-    1. Read identifier values from adapter_instance that are required to connect to the target(s)
-    2. Connect to the target(s), and retrieve data
-    3. Add the data into the CollectResult as objects, properties, metrics, etc
-    4. Disconnect cleanly from the target (ensure this happens even if an error occurs)
-    5. Return the CollectResult.
-
-- get_adapter_definition():
-  Optional method that defines the Adapter Instance configuration. The Adapter Instance
-  configuration is the set of parameters and credentials used to connect to the target and
-  configure the adapter. It also defines the object types and attribute types present in a
-  collection. Setting these helps VMware Aria Operations to validate, process, and display
-  the data correctly. If this method is omitted, a `describe.xml` file should be manually
-  created inside the `conf` directory with the same data. Generally, this is only necessary
-  when using advanced features of the `describe.xml` file that are not present in this method.
-
-
-For further guidance on using the sample adapter, consult the `Guides` section.
 
 ### Testing a Management Pack
 
 In the Management Pack directory, the installation script writes a `requirements.txt` file containing the version of the
 SDK used to generate the project, and installs the SDK into a virtual environment named `venv`. Note that the packages
-in `requirements.txt` are _not_ installed into the adapter. To add a package to the adapter, specify it in the file
-`adapter_requirements.txt`.
+in `requirements.txt` are _not_ installed into the adapter.
 
 To use the SDK, navigate to the newly-generated project directory and activate the virtual environment:
 
@@ -231,7 +205,13 @@ build the selected project. If the tool is run from a project directory, the too
 project.
 
 Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be
-installed on VMware Aria Operations. The `pak` file will be located in `<project root>/build/` .
+installed on VMware Aria Operations. 
+The `pak` file will be located in `<project root>/build/`.
+
+???+ note
+
+    Upon the initial use of mp-build in a given project, the tool will request the input of a container registry to push 
+    the container image.
 
 To install the `pak` file, in VMware Aria Operations navigate to **Data Sources &rarr; Integrations &rarr;
 Repository** and click `ADD`. Select and upload the generated `pak` file, accept the README, and install the management pack.
@@ -251,3 +231,13 @@ minutes later, the objects' metrics, properties, and events should appear. These
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](references/mp-build.md).
 
+## Next Steps
+
+Now that you have an overview of setting up and using the SDK tools,
+you can delve deeper into the structure of each project: 
+
+- To understand the basic project structure required to develop and build a Management Pack, go to the [mp-init](references/mp-init.md) documentation.
+- To understand the specific project structure of Python Adapters, go to the [Java Project](references/java_project/index.md) documentation.
+- To understand the specific project structure of Java Adapters, go to the [Python Project](references/python_project/index.md) documentation.
+- For more documentation about Project Templates, including the Sample Adapter, consult the `Guides` section.
+ 
