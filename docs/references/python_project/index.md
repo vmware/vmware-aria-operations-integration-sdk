@@ -1,5 +1,9 @@
 ### Adapter methods (required)
 
+The methods in the adapter source code are required, and should be modified to generate a custom
+adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
+`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
+
 - `test(adapter_instance)`:
   Performs a test connection using the information given to the adapter_instance to verify the adapter instance has been configured properly.
   A typical test connection will generally consist of:
@@ -35,3 +39,7 @@
   the data correctly. If this method is omitted, a `describe.xml` file should be manually
   created inside the `conf` directory with the same data. Generally, this is only necessary
   when using advanced features of the `describe.xml` file that are not present in this method.
+ 
+!!! note
+
+    The adapter is stateless. This means the adapter cannot store any data for use in later method calls.

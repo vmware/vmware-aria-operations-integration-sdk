@@ -8,6 +8,8 @@ containerized adapter for VMware Aria Operations. To build a Management Pack, us
 calling `mp-init`, the user will be prompted with a series of questions. The script will use these questions to generate
 an initial project structure and create classifiers that other tools and VMware Aria Operations will use.
 
+
+
 ## Prerequisites
 * The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with the virtual environment active.
 

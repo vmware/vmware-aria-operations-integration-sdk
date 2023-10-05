@@ -37,8 +37,13 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Git 2.35.0 or later. Updating to the latest stable version is recommended.
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   and follow the instructions provided for your operating system.
-* Java 17 or later (Only for Java Adapters).
-  For the latest release of Java visit [Java Downloads](https://www.oracle.com/java/technologies/downloads/)
+* Java JDK 17 (Only for Java Adapters).
+  As the Adapter operates within a container, developers don't need Java in their local environment.
+  Nevertheless, incorporating Java into your local development environment can facilitate the development process.
+  We suggest using JDK 17 when creating Java adapters, as combining JDK 21 or Other JDK versions may result in features 
+  incompatible with the container environment in which the Adapter operates and may have some compatibility issues.
+  To access the most recent JDK 17 release,
+  please visit [Java Downloads](https://www.oracle.com/java/technologies/downloads/#java17).
 
 ### Installation
 
@@ -136,21 +141,6 @@ the creation of a new management pack project.
 
      For complete documentation of the `mp-init` tool, including an overview of its output,
      see the [MP Initialization Tool Documentation](references/mp-init.md). 
-     For Java projects documentation consult [Java project](references/python_project/index.md) section   
-     For Python projects documentation consult [Python project](references/java_project/index.md) section   
-
-### Project Templates
-All the project templates create a file system that has the basic project structure required to develop and build a Management Pack.
-Each file and directory is discussed in depth in the [mp-init](references/mp-init.md) documentation.
-
-The methods in the adapter source code are required, and should be modified to generate a custom
-adapter. Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
-`mp-test` (covered in [Testing a Management Pack](#testing-a-management-pack)).
-
-The adapter is stateless. This means the adapter cannot store any data for use in later method calls.
-
-For more documentation about Project Templates, consult the 
-For further guidance on using the sample adapter, consult the `Guides` section.
 
 
 ### Testing a Management Pack
@@ -216,7 +206,13 @@ build the selected project. If the tool is run from a project directory, the too
 project.
 
 Once the project is selected (if necessary), the tool will build the management pack and emit a `pak` file which can be
-installed on VMware Aria Operations. The `pak` file will be located in `<project root>/build/` .
+installed on VMware Aria Operations. 
+The `pak` file will be located in `<project root>/build/`.
+
+???+ note
+
+    Upon the initial use of mp-build in a given project, the tool will request the input of a container registry to push 
+    the container image.
 
 To install the `pak` file, in VMware Aria Operations navigate to **Data Sources &rarr; Integrations &rarr;
 Repository** and click `ADD`. Select and upload the generated `pak` file, accept the README, and install the management pack.
@@ -236,3 +232,13 @@ minutes later, the objects' metrics, properties, and events should appear. These
 
 For complete documentation of the `mp-build` tool see the [MP Build Tool Documentation](references/mp-build.md).
 
+## Next Steps
+
+Now that you have an overview of setting up and using the SDK tools,
+you can delve deeper into the structure of each project: 
+
+- To understand the basic project structure required to develop and build a Management Pack, go to the [mp-init](references/mp-init.md) documentation.
+- To understand the specific project structure of Python Adapters, go to the [Java Project](references/java_project/index.md) documentation.
+- To understand the specific project structure of Java Adapters, go to the [Python Project](references/python_project/index.md) documentation.
+- For more documentation about Project Templates, including the Sample Adapter, consult the `Guides` section.
+ 
