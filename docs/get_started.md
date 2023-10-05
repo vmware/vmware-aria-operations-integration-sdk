@@ -37,13 +37,12 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
 * Git 2.35.0 or later. Updating to the latest stable version is recommended.
   For instructions in installing git, go to [Git's installation documentation](https://git-scm.com/downloads),
   and follow the instructions provided for your operating system.
-* Java JDK 17 (Only for Java Adapters).
-  As the Adapter operates within a container, developers don't need Java in their local environment.
-  Nevertheless, incorporating Java into your local development environment can facilitate the development process.
-  We suggest using JDK 17 when creating Java adapters, as combining JDK 21 or Other JDK versions may result in features 
-  incompatible with the container environment in which the Adapter operates and may have some compatibility issues.
-  To access the most recent JDK 17 release,
-  please visit [Java Downloads](https://www.oracle.com/java/technologies/downloads/#java17).
+* Azul Zulu JDK 17 (Only for Java Adapters).
+  Java Adapters compile and run within a container,
+  so a JDK is not strictly necessary, but it is generally useful for development.
+  The container is built with Zulu JDK 17, so ideally this version should be used for maximum compatibility.
+  To access the most recent Zulu JDK 17 release,
+  visit [azul.com](https://www.azul.com/downloads/?version=java-17-lts&package=jdk#zulu).
 
 ### Installation
 
