@@ -1,5 +1,8 @@
 name: documentation
-on: [pull_request]
+on:
+  push:
+    branches:
+    - main
 permissions:
   contents: write
 jobs:
@@ -33,5 +36,5 @@ jobs:
         mkdir -p docs/references/java-lib/
         cp -r lib/java/AdapterLibrary/build/dokka/html/* docs/references/java-lib/
     - name: Deploy MKDocs Site
-      run: mkdocs gh-deploy --force --remote-branch github-pages-documentation-test
+      run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
 
