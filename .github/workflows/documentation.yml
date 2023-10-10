@@ -30,7 +30,7 @@ jobs:
     - name: Generate Java Adapter Library Documentation
       run: |
         ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaHtml
-        rm -r docs/references/java-lib/*
+        mkdir -p docs/references/java-lib/
         cp -r lib/java/AdapterLibrary/build/dokka/html/* docs/references/java-lib/
     - name: Deploy MKDocs Site
       run: mkdocs gh-deploy --force --remote-branch github-pages-documentation-test
