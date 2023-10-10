@@ -28,8 +28,10 @@ jobs:
     - name: Install Python Adapter Library
       run: pip install -e lib/python/
     - name: Generate Java Adapter Library Documentation
-      run: ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaGfm
-    - run: cp -r lib/java/AdapterLibrary/build/dokka/gfm/* docs/references/java-lib/
+      run: |
+        ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaHtml
+        rm -r docs/references/java-lib/*
+        cp -r lib/java/AdapterLibrary/build/dokka/html/* docs/references/java-lib/
     - name: Deploy MKDocs Site
       run: mkdocs gh-deploy --force --remote-branch github-pages-documentation-test
 
