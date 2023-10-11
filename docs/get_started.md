@@ -110,31 +110,50 @@ the creation of a new management pack project.
     Along with additional language-specific configuration.
     Currently, `mp-init` offers the following languages:
 
-    `Python`
+    - `Python`
  
-    `Java` 
-
-9. `(For Java projects only) Enter package name: `
-
-    The package name will be used to set up the package used by the adapter and the directory structure of the project.
-   
-    ???+ example 
+    - `Java` 
  
-        ``` java
-        package com.mycompany;
-        ```
+9.  === "Python"
+ 
+        a. `Select a template for your project`
 
-10. `Select a template for your project`
+           Both of the available options will generate a project structure that can be modified into an adapter:
 
-    Both of the available options will generate a project structure that can be modified into an adapter:
+           `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+           The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
 
-    `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-    The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+           `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+           connection, collection, adapter definition, and endpoints logic.
 
-    `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-    connection, collection, adapter definition, and endpoints logic.
+
+    === "Java"
+
+        a. `Enter package name: `
+
+           The package name will be used to set up the package used by the adapter and the directory structure of the project.
+           
+        ???+ example 
+     
+            ``` java
+            package com.mycompany;
+            ```
+
+        b. `Select a template for your project`
+
+           Both of the available options will generate a project structure that can be modified into an adapter:
+
+           `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+           The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+
+           `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+           connection, collection, adapter definition, and endpoints logic.
+
+!!! warning "" 
 
     For the purposes of this *Get Started* guide, select **Sample Adapter**.
+
+---
 
 ???+ info
 

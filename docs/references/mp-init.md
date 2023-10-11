@@ -11,7 +11,7 @@ an initial project structure and create classifiers that other tools and VMware 
 
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with the virtual environment active.
+* The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with `pipx` (recommended).
 
 ???+ warning
     Running `mp-init` as root is not recommended, as this requires some directories to have escalated permissions.
@@ -78,20 +78,25 @@ An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to th
 [//]: # ( ❯ Python)
 [//]: # (```)
 
-##  Output
+### Language 
+
+Every project has the same inner server infrastructure; however, adapters can be written in other languages.
+Currently, we support the following languages:
+
+- Java
+- Python
+
+##  Output (Base Project)
+
 The init script creates a project in the given path with the following structure:
+
 ```
 .
 ├── Dockerfile
-├── adapter_requirements.txt
-├── commands.cfg
 ├── eula.txt
 ├── manifest.txt
 ├── requirements.txt
 ├── venv-ADAPTER NAME
-├── app
-│   ├── adapter.py
-│   └── constants.py
 ├── conf
 │   ├── describeSchema.xsd
 │   └── resources
@@ -121,22 +126,8 @@ The init script creates a project in the given path with the following structure
 Contains all necessary instructions to build a container with an HTTP server, the user's executable adapter
 code, and any additional dependencies specified by the user.
 
-### adapter_requirements.txt (file)
-This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where the adapter runs and used by the default Dockerfile to install dependencies into the container image.
-
 ### requirements.txt (file)
 This file defines all the dependencies needed for development of the adapter. This file does not get copied into the container image.
-
-### commands.cfg (file)
-This files contains a list of the commands the HTTP server can run, along with the path to the executable related to the
-command. By default, all commands are run by executing the `adapter.py` file along with a parameter that defines a command.
-For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
-and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
-
-### app (directory)
-By default, this directory contains a template adapter. The template adapter collects several objects and metrics from the container that the adapter
-is running in, and can be used as a starting point for creating a new adapter. The template adapter uses [vmware-aria-operations-integration-sdk-lib](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/) to streamline the process of building adapter.
-The template adapter has comments throughout the code to help new users understand the process of creating their own adapter using the existing code. For additional guidance creating adapters see our `Guides` section.
 
 ### eula.txt (file)
 This file defines the End User License Agreement (EULA); If no EULA was provided then `mp-init` generates a template EULA.
