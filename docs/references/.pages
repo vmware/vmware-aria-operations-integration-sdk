@@ -1,5 +1,7 @@
 nav:
   - Python Adapter Library: python-lib
+  - python_project
+  - java_project
   - ...
   - project_config.md
   - project_connections_config.md
