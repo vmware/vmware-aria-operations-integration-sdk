@@ -9,39 +9,42 @@ an object model that provides object types, object properties, and semantic defi
 metric data's meaning. The object model can be defined by using a `describe.xml` file, which should be defined in the
 `conf` directory,
 or it can be defined using the Integration SDK Library
-by defining the `AdapterDefinition` object returned by the **Get Adapter Definition** method.
+by returning an `AdapterDefinition` object from the **Get Adapter Definition** method.
 
 
-!!! info "references"
+???+ info "references"t
 
-    - [Java Integration SDK Library](../references/java-lib/index.html).
     - [Python Integration SDK Library](../references/python-lib/adapter_instance.md).
+    - [Java Integration SDK Library](../references/java-lib/index.html).
 
 ### describe.xml vs. AdapterDefinition
-When running `mp-build`, `mp-test collect `, or `mp-test test` they call the `adapter_definition` command 
+When running `mp-build`, `mp-test collect `, or `mp-test test` they call the **Get Adapter Definition** method 
 and then generate `describe.xml` file with the `AdapterDefinition` object.
-If a `describe.xml` file is present in the `conf` directory, then the object returned by the **Get Adapter Definition**
-method will be ignored.
+If a `describe.xml` file is present in the `conf` directory, the **Get Adapter Definition** method is not called.
 
 ## Defining an Adapter and Adapter Instance in the Object Model
-To define an adapter in the `conf/describe.xml` file use the top-level `AdapterKind` element. Only one adapter can be
+To define an adapter in the `conf/describe.xml` file use the top-level `AdapterKind` XML element. Only one adapter can be
 defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used
 when creating objects (See [Creating an object](#creating-an-object)), and must also be present in the `manifest.txt`
 file in the `"adapter_kinds"` array. When defining an adapter, we also have to define an adapter instance type. An adapter
 instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter
-must have exactly one adapter instance type. The Adapter instance type is set by defining a `ResourceKind` element with
-attribute `type=7`. In both Python and Java, we can use the `AdapterDefinition` object.
+must have exactly one adapter instance type.
+The Adapter instance type is set by defining a `ResourceKind` XML element with
+attribute `type=7`.
+When using an Integration SDK Library, we can use the `AdapterDefinition` object.
 
-!!! info "references"
+???+ info "references"
 
-    - Java [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html) object.
     - Python [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object.
+    - Java [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html) object.
+    - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 === "Python Adapter Library"
 
     ``` python linenums="1"
     def get_adapter_definition() -> AdapterDefinition:
        definition = AdapterDefinition("MyAdapter", "My Adapter")
+       return definition
     ```
 
 === "Java Adapter Library"
@@ -49,9 +52,9 @@ attribute `type=7`. In both Python and Java, we can use the `AdapterDefinition` 
     ``` java linenums="1"
     public AdapterDefinition getAdapterDefinition(){
        AdapterDefinition definition = new AdapterDefinition("MyAdapter", "My Adapter");
+       return definition;
     }
     ```
-
 
 === "describe.xml"
 
@@ -63,13 +66,7 @@ attribute `type=7`. In both Python and Java, we can use the `AdapterDefinition` 
         </ResourceKinds>
     </AdapterKind>
     ```
-??? info
-
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     
-    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
-    
-    For more information about the Java library visit [Java Adapter Library](../references/java-lib/index.html).
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) and credentials (`CredentialKind` element)
 will be prompted to the user when creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations`
@@ -82,6 +79,16 @@ available in the input to the **Collect**, **Test**, and **Get Endpoint** method
 
 ## Adding a Configuration Field to an Adapter Instance in the Object Model
 Adapter instance _identifiers_ distinguish between adapter instances from the same adapter. They also allow for user configuration.
+In the `describe.xml` adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the
+identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
+is `2`, the identifier is _non-identifying_, and will show up under the 'advanced' section of the configuration page.
+The `Parameter`object has an `advanced` property that determines identType.
+
+???+ info "references"
+
+    - Python [Parameter](../references/python-lib/definition/parameter.md) object.
+    - Java [Parameter](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-parameter/index.html) object.
+    - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 === "Python Adapter Library"
 
@@ -106,6 +113,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
               label="Max Events",
               advanced=True,
           )
+          return definition
     ```
 
 === "Java Adapter Library"
@@ -119,7 +127,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
               "Instance",
               null, 
               null, 
-              Integer.MAX_VALUE,
+              512,
               True,
           );
 
@@ -144,6 +152,7 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
               true,
               true
           );
+          return definition;
     }
     ```
 
@@ -164,24 +173,6 @@ Adapter instance _identifiers_ distinguish between adapter instances from the sa
         <!-- ... -->
       </AdapterKind>
       ```
-
-??? info
-
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    
-    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
-    
-    For more information about the Java library visit [Java Adapter Library](../references/java-lib/index.html).
-
-In the `describe.xml` adapter instance identifiers can have an `identType` of `1` or `2`. A type of `1` means the
-identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
-is `2`, the identifier is _non-identifying_, and will show up under the 'advanced' section of the configuration page.
-The `Parameter`object has an `advanced` property that determines identType. 
-
-!!! info "references"
-
-    - Java [Parameter](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-parameter/index.html) object.
-    - Python [Parameter](../references/python-lib/definition/parameter.md) object.
 
 > ![Account creation with above settings, plus a credential](../images/adding_configuration_fields.png)
 >
@@ -204,14 +195,15 @@ We can use the **Define Credential Type** method
 to define a new credential type and add it to the `AdapterDefinition` object; then we can specify each credential
 field using the returned `CredentialType` object.
 
-!!! info "references"
-    
-    - Java:
-        - [Define Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/define-credential-type.html) method.
-        - [CredentialType](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-credential-type/index.html) object.
+???+ info "references"
+
     - Python:
-        - [Define Credential Type](../references/python-lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_credential_type) method.
         - [CredentialType](../references/python-lib/definition/credential_type.md) object. 
+        - [Define Credential Type](../references/python-lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_credential_type) method.
+    - Java:
+        - [CredentialType](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-credential-type/index.html) object.
+        - [Define Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html#1815045111%2FFunctions%2F769193423) method.
+    - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 A typical credential that requires a username and password might look like this:
 
@@ -224,17 +216,19 @@ A typical credential that requires a username and password might look like this:
         credential = definition.define_credential_type("my_credential_type", "Credential")
         credential.define_string_parameter("user_name", "User Name")
         credential.define_password_parameter("user_password", "Password", required=False)
+        return definition
     ```
 
 === "Java Adapter Library"
 
     ```java linenums="1"
-    public AdapterDefinition getAdapterDefinition(){ 
+    public AdapterDefinition getAdapterDefinition() { 
         AdapterDefinition definition = AdapterDefinition("MyAdapter", "My Adapter");
 
         CredentialType credential = definition.defineCredentialType("my_credential_type", "Credential");
         credential.defineStringParameter("user_name", "User Name");
         credential.definePasswordParameter("user_password", "Password", false);
+        return definition;
     }
     ```
 
@@ -252,13 +246,7 @@ A typical credential that requires a username and password might look like this:
     </AdapterKind>
     ```
 
-??? info
-
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
     
-    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
-    
-    For more information about the Java library visit [Java Adapter Library](../references/java-lib/index.html).
 
 When defining a credential in `conf/describe.xml` file, it must be added to the Adapter Instance. The adapter
 instance is a special `ResourceKind` that is used to configure an adapter. It is marked with the xml attribute/value
@@ -300,12 +288,14 @@ Both `describe.xml` and `AdapterDefinition` object allow for the use of multiple
          # Token
          token_credential = definition.define_credential_type("token_credential", "Token")
          token_credential.define_password_parameter("token", "Token")
+
+         return definition
     ```
 
 === "Java Adapter Library"
 
     ``` java linenums="1"
-    public AdapterDefinition getAdapterDefinition(){
+    public AdapterDefinition getAdapterDefinition() {
         AdapterDefinition definition = AdapterDefinition("MyAdapter", "My Adapter");
 
         // Basic Auth
@@ -316,6 +306,9 @@ Both `describe.xml` and `AdapterDefinition` object allow for the use of multiple
         // Token
         tokenCredential = definition.defineCredentialType("token_credential", "Token");
         tokenCredential.definePasswordParameter("token", "Token");
+
+        return definition;
+    }
     ```
     
 === "describe.xml"
@@ -358,10 +351,10 @@ the **Collect**, **Test**, and **Get Endpoints** methods (See [Creating an Adapt
 If an adapter supports multiple credential types, the **Get Credential Type** method can be used to determine the type of the
 credential used by the adapter instance.
 
-!!! info "references"
+???+ info "references"
 
-    - Java [Get Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/get-credential-type.html) method.
     - Python [Get Credential Type](../references/python-lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_type) method.
+    - Java [Get Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#1544093356%2FFunctions%2F769193423) method.
 
 ## Creating an Adapter Instance
 Using any of the Integration SDK Library,
@@ -369,14 +362,14 @@ the canonical method for creating an adapter instance is using the `AdapterInsta
 Configuration fields and credentials can be accessed using **Get Identifier Value** and **Get Credential Value**,
 respectively. 
 
-!!! info "references"
+???+ info "references"
 
-    - Java 
-        -  [Get Identifier Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/get-identifier-value.html) method.
-        -  [Get Credential Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/get-credential-value.html) method.
     - Python 
         - [Get Identifier Value](../references/python-lib/object.md#aria.ops.object.Object.get_identifier_value) method.
         - [Get Credential Value](../references/python-lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_value) method.
+    - Java 
+        -  [Get Identifier Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#1966011520%2FFunctions%2F769193423) method.
+        -  [Get Credential Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#-1607662015%2FFunctions%2F769193423) method.
 
 
 === "Python Adapter Library"
@@ -420,16 +413,17 @@ example an adapter might have a 'Database' object kind, and when an adapter inst
 application, several 'database' objects are created representing distinct databases in the application.
 To create a new object type in the `conf/describe.xml` file, add a `ResourceKind` element inside `AdapterKind/ResourceKinds`.
 A `key` attribute is required, and must be unique among other object types within the `describe.xml` file.
-To create a new object type use the **Define Object Type** method of `AdapterDefinition` object.
+To create a new object type use the **Define Object Type** method of the `AdapterDefinition` object.
 
-!!! info "references"
+???+ info "references"
 
-    - Java
-        - [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html).
-        - [Define Object Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/define-object-type.html) method.
     - Python 
-        - [AdaterDefinition](../references/python-lib/definition/adapter_definition.md).
+        - [AdaterDefinition](../references/python-lib/definition/adapter_definition.md) object.
         - [Define Object Type](../references/python-lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_object_type) method.
+    - Java
+        - [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html) object.
+        - [Define Object Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html#1246753759%2FFunctions%2F769193423) method.
+    - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 === "Python Adapter Library"
 
@@ -438,15 +432,17 @@ To create a new object type use the **Define Object Type** method of `AdapterDef
         definition = AdapterDefinition("MyAdapter", "My Adapter")
 
         definition.define_object_type("my_database_resource_kind", "Database")
+        return definition
     ```
 
 === "Java Adapter Library"
 
     ```java linenums="1"
-    public AdapterDefinition getAdapterDefinition(){
+    public AdapterDefinition getAdapterDefinition() {
         AdapterDefinition definition = AdapterDefinition("MyAdapter", "My Adapter");
 
         definition.defineObjectType("my_database_resource_kind", "Database");
+        return definition;
     }
     ```
 === "describe.xml"
@@ -475,6 +471,7 @@ not used for this purpose.
         data_base = definition.define_object_type("my_database_resource_kind", "Database")
         data_base.define_string_identifier("server_ip", "IP")
         data_base.define_string_identifier("server_port", "Port")
+        return definition
     ```
 === "Java Adapter Library"
 
@@ -485,6 +482,7 @@ not used for this purpose.
             ObjectType dataBase = definition.defineObjectType("my_database_resource_kind","Database");
             dataBase.defineStringIdentifier("server_ip","IP", true, true, null);
             dataBase.defineStringIdentifier("server_port","Port", true, true, null);
+            return definition;
     }
     ```
 
@@ -510,15 +508,8 @@ not used for this purpose.
     identifier will be used for determining uniqueness. If the type is `2`, the identifier is _non-identifying_, and will
     show up in the identifiers of an object but will not cause a new object to be created if it changes. If _all_
     identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. When using
-    the Integration SDK Library, the **Define String Identifier**  methods accepts parameter for uniqueness.
+    the Integration SDK Library, the **Define String Identifier**  methods accepts a parameter for uniqueness.
 
-??? info
-
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    
-    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
-    
-    For more information about the Java library visit [Java Adapter Library](../references/java-lib/index.html).
 
 Once the object type is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model),
 it can be used in the adapter code. See [Creating an object](#creating-an-object).
@@ -526,13 +517,13 @@ it can be used in the adapter code. See [Creating an object](#creating-an-object
 ## Creating an Object
 Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type-to-the-object-model).
 
-Using the [Python Adapter Library](../references/python-lib/adapter_instance.md),
-the canonical method for creating a new object is to use the `CollectionResult` object.
+Using an Integration SDK Library,
+the canonical method for creating a new object is to use the `CollectResult` object.
 
-!!! info "references" 
+???+ info "references" 
 
-    - Java [CollectResult](../references/java-lib/-adapter-library/com.vmware.aria.operations/-collect-result/index.html) object.
     - Python [CollectResult](../references/python-lib/result.md) object.
+    - Java [CollectResult](../references/java-lib/-adapter-library/com.vmware.aria.operations/-collect-result/index.html) object.
    
 === "Python Adapter Library"
 
@@ -578,6 +569,7 @@ the [VMware Aria Operations Collector Framework OpenAPI Document](https://github
 ## Defining an Attribute in the Object Model
 An attribute is a class of metrics or properties similar to how an object type is a class of objects. Attributes can be
 either a metric or property.
+
 * A metric is numeric data that is useful to track over time. Examples: CPU Utilization (%), Used Disk Space (GB)
 * A property is numeric or string data that rarely changes and only the current (last) value is relevant. Examples:
   Operating System Name, CPU Count
@@ -589,8 +581,7 @@ either a metric or property.
     to a numeric metric such as `hours_since_last_operation`, rather than using a string property with a human-readable
     timestamp, as large numbers of distinct string values can degrade the performance of VMware Aria Operations.
 
-in the `conf/describe.xml` file, attributes can be grouped together in `ResourceGroup` elements, which can be nested.
-`ResourceGroups` can also be instanced.
+In the `conf/describe.xml` file, attributes can be grouped together in `ResourceGroup` elements, which can be nested.
 
 === "Python Adapter Library"
 
@@ -607,6 +598,7 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
         table_space_group.define_metric("reads", "Reads")
 
         data_base.define_metric("session_count", "Sessions")
+        return definition
     ```
 
 === "Java Adapter Library"
@@ -624,6 +616,8 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
         tableSpaceGroup.defineMetric("reads", "Reads");
     
         dataBase.defineMetric("session_count", "Sessions");
+        return definition;
+    }
     ```
 
 === "describe.xml"
@@ -646,18 +640,19 @@ in the `conf/describe.xml` file, attributes can be grouped together in `Resource
     </AdapterKind>
     ```
 
-??? info
+???+ info "references"
 
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
-    
-    For more information about the Python module visit [Python Adapter Library](../references/python-lib/adapter_instance.md).
-    
-    For more information about the Java library visit [Java Adapter Library](../references/java-lib/index.html).
+    - Python [Define Group](../references/python-lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
+    - Java [Define Group](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-object-type/index.html#1337075176%2FFunctions%2F769193423) method.
+    - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
-Once an attribute is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
+
+Once an attribute is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model), 
+it can be used in the adapter code. See [Creating a metric or property](#creating-a-metric-or-property).
 
 ## Creating a Metric or Property
-Before creating a metric or property, ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
+Before creating a metric or property, 
+ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
 
 When using an Integration SDK Library, metrics and properties can be added using the attribute key and a value.
 In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and
@@ -713,6 +708,11 @@ Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
         "Database read latency is above threshold", Criticality.IMMEDIATE);
     ```
 
+???+ info "references"
+   
+    - Python [With Event](../references/python-lib/object.md#aria.ops.object.Object.with_event) method.
+    - Java [With Event](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#1007866879%2FFunctions%2F769193423) method.
+
 > ![Result of the above code](../images/adding_an_event.png)
 >
 > Result of the above code. Note that the criticality is affecting the health of the db1 object it is attached to.
@@ -723,11 +723,11 @@ returned as JSON inside of objects, described in the
 .
 
 ## Creating a Relationship
-Relationships do not need to be declared in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model) file, and can simply be added between objects at runtime.
+Relationships do not need
+to be declared in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model) file,
+and can simply be added between objects at runtime.
 Relationships are always between a _parent_ and _child_, and if object1 is a parent of object2, that implies object2
 is a child of object1.
-
-Using any of the Integration SDK Libraries , relationships are added to resources.
 
 === "Python Adapter Library"
 
@@ -752,15 +752,33 @@ Using any of the Integration SDK Libraries , relationships are added to resource
     // database2 and database1 both have the same relationship with respect to the instance object after these calls
     ```
 
-> Important: Relationships must not have cycles. A cycle happens when an object's relationships are structured in such a
-> way that it is its own descendant (or ancestor). For example, object1 `parentOf` object2, object2 `parentOf` object3,
-> object3 `parentOf` object1 creates a cycle. Care should be taken to avoid these, as they can adversely affect
-> VMware Aria Operations' analytics calculations.
 
 > ![Result of the above code](../images/adding_relationships.png)
 >
 > Result of the above code. The db1 and db2 objects are both children of the 'instance' object. The health of a child
 > object can impact the health of a parent object.
+  
+???+ warning
+
+     Relationships must not have cycles. A cycle happens when an object's relationships are structured in such a
+     way that it is its own descendant (or ancestor).
+     For example, the following creates a cycle: 
+     
+      - object1 parent of object2
+      - object2 parent of object3
+      - object3 parent of object1  
+
+     Care should be taken to avoid these, as they can adversely affect
+     VMware Aria Operations' analytics calculations.
+
+???+ info "references"
+
+    - Python 
+        - [Add Child](../references/python-lib/object.md#aria.ops.object.Object.add_child) method.
+        - [Add Parent](../references/python-lib/object.md#aria.ops.object.Object.add_parent) method.
+    - Java 
+        - [Add Child](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1969626532%2FFunctions%2F769193423) method.
+        - [Add Parent](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1436819358%2FFunctions%2F769193423) method.
 
 For other languages, or writing an adapter without an Integration SDK Library, relationships are returned as JSON inside a
 collect result object, described in
