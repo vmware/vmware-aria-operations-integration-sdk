@@ -12,7 +12,7 @@ or it can be defined using the Integration SDK Library
 by returning an `AdapterDefinition` object from the **Get Adapter Definition** method.
 
 
-???+ info "references"t
+???+ info "references"
 
     - [Python Integration SDK Library](../references/python-lib/adapter_instance.md).
     - [Java Integration SDK Library](../references/java-lib/index.html).
