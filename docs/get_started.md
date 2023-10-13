@@ -143,14 +143,9 @@ the creation of a new management pack project.
        The package name will be used to set up the package used by the adapter and the directory structure of the project.</li>
        
     ???+ example 
-        If your company name is `mycompany.com`, and you want to monitor `mytechnology`, you could enter `com.mycompany.mytechnology` as a package name.
-        This will produce Java files with the following package directive:
+        If your company name is `mycompany.com`, and you want to monitor `mytechnology`, you could enter `com.mycompany.mytechnology` as the package name.
 
-        ``` java
-        package com.mycompany.mytechnology;
-        ```
-
-        This will generate the file structure bellow:
+        This will generate the file structure below:
 
         ```shell
         src
@@ -160,13 +155,13 @@ the creation of a new management pack project.
                     └── Adapter.java
         ```
 
-        and it will also add the package to the `Adapter.java` file:
+        and it will also set the package in the `Adapter.java` file:
 
         ```java
         package com.mycompany.mytechnology;
         ```
 
-        More information about [naming Java packages](https://www.baeldung.com/java-packages#1-naming-conventions) 
+        Baeldung has more information about [naming Java packages](https://www.baeldung.com/java-packages#1-naming-conventions).
 
        <li> `Select a template for your project:`<br>
  
