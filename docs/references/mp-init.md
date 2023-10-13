@@ -85,7 +85,7 @@ Adapters can be written in the following languages:
 - Java
 - Python
 
-##  Output (Base Project)
+##  Base Project Structure
 
 The init script creates a project in the given path with the following structure:
 
