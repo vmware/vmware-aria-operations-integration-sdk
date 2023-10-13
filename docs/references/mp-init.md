@@ -78,7 +78,7 @@ An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to th
 [//]: # ( ❯ Python)
 [//]: # (```)
 
-### Language 
+#### Language 
 
 Adapters can be written in the following languages:
 
