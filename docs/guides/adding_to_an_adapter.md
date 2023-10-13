@@ -14,8 +14,8 @@ by defining the `AdapterDefinition` object returned by the **Get Adapter Definit
 
 !!! info "references"
 
-    -[Java Integration SDK Library](../references/java-lib/index.html).
-    -[Python Integration SDK Library](../references/python-lib/adapter_instance.md).
+    - [Java Integration SDK Library](../references/java-lib/index.html).
+    - [Python Integration SDK Library](../references/python-lib/adapter_instance.md).
 
 ### describe.xml vs. AdapterDefinition
 When running `mp-build`, `mp-test collect `, or `mp-test test` they call the `adapter_definition` command 
