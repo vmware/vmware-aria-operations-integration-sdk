@@ -1,5 +1,19 @@
 # Java Project 
 
+When you choose Java as the language for your project,
+[mp-init](../mp-init.md) will generate a project structure tailored for writing Adapters using Java.
+A Java-based project structure uses Gradle for dependency management and the [Java Integration SDK Library](java_lib/index.html)
+to streamline the Adapter development process. 
+
+## Dependencies:
+
+- Azul Zulu JDK 17.
+  Java Adapters compile and run within a container,
+  so a JDK is not strictly necessary, but it is generally useful for development.
+  The container is built with Zulu JDK 17, so ideally this version should be used for maximum compatibility.
+  To access the most recent Zulu JDK 17 release,
+  visit [azul.com](https://www.azul.com/downloads/?version=java-17-lts&package=jdk#zulu).
+
 
 ## Project Structure 
 

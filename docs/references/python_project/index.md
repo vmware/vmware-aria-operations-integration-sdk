@@ -1,5 +1,18 @@
 # Python Project 
 
+When you choose Python as the language for your project,
+[mp-init](../mp-init.md) will generate a project structure tailored for writing Adapters using Python.
+A Python-based project structure uses pip for dependency management and the [Python Integration SDK Library](python_lib/adapter_instance.md)
+to streamline the Adapter development process.
+
+# Dependencies:
+
+- Python3 3.9.0 or later.
+  Updating to the latest stable version is recommended.
+  Python 3.8 and earlier (including Python2) are not supported.
+  For instructions on installing Python, go
+  to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
+  and follow the instructions provided for your operating system.
 
 ## Project Structure 
 
