@@ -66,7 +66,10 @@ src (directory)
   Inside the package, there is an `Adapter.java` file that serves as the main class for the project. 
 
 build.gradle.kts (file)
-: This files contains all the project dependencies along with some building specifications used by the Dockerfile. 
+: This file tells the Java Compiler how to build the project, including all of the dependencies and where to find them.
+  Additionally, there is a custom `generateDependencies` task that is used by the multi-stage Dockerfile for
+  creating the final Adpater Conatainer Image. This task should not be modified, and it should not be removed as a dependency
+  of the `jar` task.
 
 commands.cfg (file)
 : This file contains a list of the commands the HTTP server can run, along with the path to the executable related to the
