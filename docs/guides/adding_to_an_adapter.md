@@ -14,7 +14,7 @@ by returning an `AdapterDefinition` object from the **Get Adapter Definition** m
 
 ???+ info "references"
 
-    - [Python Integration SDK Library](../references/python-lib/adapter_instance.md).
+    - [Python Integration SDK Library](../references/python_project/python_lib/adapter_instance.md).
     - [Java Integration SDK Library](../references/java-lib/index.html).
 
 ### describe.xml vs. AdapterDefinition
@@ -35,7 +35,7 @@ When using an Integration SDK Library, we can use the `AdapterDefinition` object
 
 ???+ info "references"
 
-    - Python [AdapterDefinition](../references/python-lib/definition/adapter_definition.md) object.
+    - Python [AdapterDefinition](../references/python_project/python_lib/definition/adapter_definition.md) object.
     - Java [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html) object.
     - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
@@ -86,7 +86,7 @@ The `Parameter`object has an `advanced` property that determines identType.
 
 ???+ info "references"
 
-    - Python [Parameter](../references/python-lib/definition/parameter.md) object.
+    - Python [Parameter](../references/python_project/python_lib/definition/parameter.md) object.
     - Java [Parameter](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-parameter/index.html) object.
     - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
@@ -198,8 +198,8 @@ field using the returned `CredentialType` object.
 ???+ info "references"
 
     - Python:
-        - [CredentialType](../references/python-lib/definition/credential_type.md) object. 
-        - [Define Credential Type](../references/python-lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_credential_type) method.
+        - [CredentialType](../references/python_project/python_lib/definition/credential_type.md) object. 
+        - [Define Credential Type](../references/python_project/python_lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_credential_type) method.
     - Java:
         - [CredentialType](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-credential-type/index.html) object.
         - [Define Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html#1815045111%2FFunctions%2F769193423) method.
@@ -353,7 +353,7 @@ credential used by the adapter instance.
 
 ???+ info "references"
 
-    - Python [Get Credential Type](../references/python-lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_type) method.
+    - Python [Get Credential Type](../references/python_project/python_lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_type) method.
     - Java [Get Credential Type](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#1544093356%2FFunctions%2F769193423) method.
 
 ## Creating an Adapter Instance
@@ -365,8 +365,8 @@ respectively.
 ???+ info "references"
 
     - Python 
-        - [Get Identifier Value](../references/python-lib/object.md#aria.ops.object.Object.get_identifier_value) method.
-        - [Get Credential Value](../references/python-lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_value) method.
+        - [Get Identifier Value](../references/python_project/python_lib/object.md#aria.ops.object.Object.get_identifier_value) method.
+        - [Get Credential Value](../references/python_project/python_lib/adapter_instance.md#aria.ops.adapter_instance.AdapterInstance.get_credential_value) method.
     - Java 
         -  [Get Identifier Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#1966011520%2FFunctions%2F769193423) method.
         -  [Get Credential Value](../references/java-lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#-1607662015%2FFunctions%2F769193423) method.
@@ -418,8 +418,8 @@ To create a new object type use the **Define Object Type** method of the `Adapte
 ???+ info "references"
 
     - Python 
-        - [AdaterDefinition](../references/python-lib/definition/adapter_definition.md) object.
-        - [Define Object Type](../references/python-lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_object_type) method.
+        - [AdaterDefinition](../references/python_project/python_lib/definition/adapter_definition.md) object.
+        - [Define Object Type](../references/python_project/python_lib/definition/adapter_definition.md#aria.ops.definition.adapter_definition.AdapterDefinition.define_object_type) method.
     - Java
         - [AdapterDefinition](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html) object.
         - [Define Object Type](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-adapter-definition/index.html#1246753759%2FFunctions%2F769193423) method.
@@ -522,7 +522,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
 
 ???+ info "references" 
 
-    - Python [CollectResult](../references/python-lib/result.md) object.
+    - Python [CollectResult](../references/python_project/python_lib/result.md) object.
     - Java [CollectResult](../references/java-lib/-adapter-library/com.vmware.aria.operations/-collect-result/index.html) object.
    
 === "Python Adapter Library"
@@ -642,7 +642,7 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
 
 ???+ info "references"
 
-    - Python [Define Group](../references/python-lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
+    - Python [Define Group](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
     - Java [Define Group](../references/java-lib/-adapter-library/com.vmware.aria.operations.definition/-object-type/index.html#1337075176%2FFunctions%2F769193423) method.
     - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
@@ -690,7 +690,7 @@ are returned as JSON inside of objects, described in the
 ## Creating an Event
 Events do not need to be declared in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model) file, and can simply be added to an object at runtime.
 
-Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
+Using the [Python Adapter Library](../references/python_project/python_lib/adapter_instance.md)
 , events are added to resources. The only required parameter is the message, which describes and uniquely identifies the event.
 
 === "Python Adapter Library"
@@ -710,7 +710,7 @@ Using the [Python Adapter Library](../references/python-lib/adapter_instance.md)
 
 ???+ info "references"
    
-    - Python [With Event](../references/python-lib/object.md#aria.ops.object.Object.with_event) method.
+    - Python [With Event](../references/python_project/python_lib/object.md#aria.ops.object.Object.with_event) method.
     - Java [With Event](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#1007866879%2FFunctions%2F769193423) method.
 
 > ![Result of the above code](../images/adding_an_event.png)
@@ -774,8 +774,8 @@ is a child of object1.
 ???+ info "references"
 
     - Python 
-        - [Add Child](../references/python-lib/object.md#aria.ops.object.Object.add_child) method.
-        - [Add Parent](../references/python-lib/object.md#aria.ops.object.Object.add_parent) method.
+        - [Add Child](../references/python_project/python_lib/object.md#aria.ops.object.Object.add_child) method.
+        - [Add Parent](../references/python_project/python_lib/object.md#aria.ops.object.Object.add_parent) method.
     - Java 
         - [Add Child](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1969626532%2FFunctions%2F769193423) method.
         - [Add Parent](../references/java-lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1436819358%2FFunctions%2F769193423) method.
