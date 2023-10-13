@@ -1,6 +1,6 @@
 nav:
-  - Java Support: java_project
-  - Python Support: python_project
+  - Java Adapters: java_project
+  - Python Adapters: python_project
   - ...
   - project_config.md
   - project_connections_config.md

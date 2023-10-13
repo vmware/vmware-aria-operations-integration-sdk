@@ -8,14 +8,14 @@ At runtime, Aria Operations Manager creates objects representing data sources in
 an object model that provides object types, object properties, and semantic definitions describing resources and the
 metric data's meaning. The object model can be defined by using a `describe.xml` file, which should be defined in the
 `conf` directory,
-or it can be defined using the Integration SDK Library
+or it can be defined using the Adapter Library
 by returning an `AdapterDefinition` object from the **Get Adapter Definition** method.
 
 
 ???+ info "references"
 
-    - [Python Integration SDK Library](../references/python_project/python_lib/adapter_instance.md).
-    - [Java Integration SDK Library](../references/java_project/java_lib/index.html).
+    - [Python Adapter Library](../references/python_project/python_lib/adapter_instance.md).
+    - [Java Adapter Library](../references/java_project/java_lib/index.html).
 
 ### describe.xml vs. AdapterDefinition
 When running `mp-build`, `mp-test collect `, or `mp-test test` they call the **Get Adapter Definition** method 
@@ -31,7 +31,7 @@ instance is a special object in VMware Aria Operations that stores user configur
 must have exactly one adapter instance type.
 The Adapter instance type is set by defining a `ResourceKind` XML element with
 attribute `type=7`.
-When using an Integration SDK Library, we can use the `AdapterDefinition` object.
+When using an Adapter Library, we can use the `AdapterDefinition` object.
 
 ???+ info "references"
 
@@ -357,7 +357,7 @@ credential used by the adapter instance.
     - Java [Get Credential Type](../references/java_project/java_lib/-adapter-library/com.vmware.aria.operations/-adapter-instance/index.html#1544093356%2FFunctions%2F769193423) method.
 
 ## Creating an Adapter Instance
-Using any of the Integration SDK Library,
+Using an Adapter Library,
 the canonical method for creating an adapter instance is using the `AdapterInstance` object.
 Configuration fields and credentials can be accessed using **Get Identifier Value** and **Get Credential Value**,
 respectively. 
@@ -402,7 +402,7 @@ respectively.
 
     the AdapterInstance From Input fuction can only be called once per collection, test connection, or getEndpointURL invocation.
 
-For other languages, or writing an adapter without an Integration SDK Library, JSON representing
+For other languages, or writing an adapter without an Adapter Library, JSON representing
 the adapter instance is sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the
 filename of the named pipe. The adapter instance JSON is described in the
 [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
@@ -508,7 +508,7 @@ not used for this purpose.
     identifier will be used for determining uniqueness. If the type is `2`, the identifier is _non-identifying_, and will
     show up in the identifiers of an object but will not cause a new object to be created if it changes. If _all_
     identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. When using
-    the Integration SDK Library, the **Define String Identifier**  methods accepts a parameter for uniqueness.
+    an Adapter Library, the **Define String Identifier**  methods accepts a parameter for uniqueness.
 
 
 Once the object type is defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model),
@@ -517,7 +517,7 @@ it can be used in the adapter code. See [Creating an object](#creating-an-object
 ## Creating an Object
 Before creating an object, ensure that the object type is [present in the object model](#adding-an-object-type-to-the-object-model).
 
-Using an Integration SDK Library,
+Using an Adapter Library,
 the canonical method for creating a new object is to use the `CollectResult` object.
 
 ???+ info "references" 
@@ -561,7 +561,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
 >
 > Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.-
 
-For other languages, or writing an adapter without an Integration SDK Library, objects must be returned as JSON, described
+For other languages, or writing an adapter without an Adapter Library, objects must be returned as JSON, described
 in
 the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
@@ -654,7 +654,7 @@ it can be used in the adapter code. See [Creating a metric or property](#creatin
 Before creating a metric or property, 
 ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
 
-When using an Integration SDK Library, metrics and properties can be added using the attribute key and a value.
+When using an Adapter Library, metrics and properties can be added using the attribute key and a value.
 In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and
 form the metric or property key.
 
@@ -683,7 +683,7 @@ form the metric or property key.
 > 'VMware Aria Operations Generated', and 'VMware Aria Operations Manager Generated Properties' (and the metrics
 > and properties inside) are present on every object.
 
-For other languages, or writing an adapter without an Integration SDK Library, metrics and properties
+For other languages, or writing an adapter without an Adapter Library, metrics and properties
 are returned as JSON inside of objects, described in the
 [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
@@ -717,7 +717,7 @@ Using the [Python Adapter Library](../references/python_project/python_lib/adapt
 >
 > Result of the above code. Note that the criticality is affecting the health of the db1 object it is attached to.
 
-For other languages, or writing an adapter without an Integration SDK Library, events are
+For other languages, or writing an adapter without an Adapter Library, events are
 returned as JSON inside of objects, described in the
 [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
@@ -780,7 +780,7 @@ is a child of object1.
         - [Add Child](../references/java_project/java_lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1969626532%2FFunctions%2F769193423) method.
         - [Add Parent](../references/java_project/java_lib/-adapter-library/com.vmware.aria.operations/-object/index.html#-1436819358%2FFunctions%2F769193423) method.
 
-For other languages, or writing an adapter without an Integration SDK Library, relationships are returned as JSON inside a
+For other languages, or writing an adapter without an Adapter Library, relationships are returned as JSON inside a
 collect result object, described in
 the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
