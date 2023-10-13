@@ -11,7 +11,7 @@ an initial project structure and create classifiers that other tools and VMware 
 
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../get_started.md#installation) is installed, with `pipx` (recommended).
+* The VMware Aria Operations Integration SDK is [installed](../get_started.md#installation).
 
 ???+ warning
     Running `mp-init` as root is not recommended, as this requires some directories to have escalated permissions.
