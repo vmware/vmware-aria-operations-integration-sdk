@@ -1,7 +1,7 @@
 # Python Project 
 
 
-### Templates
+## Project Structure 
 
 All templates generate the [base project structure](../mp-init.md#base-project-structure) along with some additional 
 files and directories specific to Python (highlighted below): 
@@ -48,25 +48,26 @@ files and directories specific to Python (highlighted below):
     └── resources.properties
 ```
 
-### app (directory)
-By default, this directory contains a template adapter. The template adapter collects several objects and metrics from
-the container that the adapter is running in, and can be used as a starting point for creating a new adapter. 
-The template adapter uses
-[vmware-aria-operations-integration-sdk-lib](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/) to
-streamline the process of building adapter.
-The template adapter has comments throughout the code to help new users understand the process of creating their own
-adapter using the existing code. For additional guidance creating adapters see our `Guides` section.
+app (directory)
+: By default, this directory contains a template adapter. The template adapter collects several objects and metrics from
+  the container that the adapter is running in, and can be used as a starting point for creating a new adapter. 
+  The template adapter uses
+  [vmware-aria-operations-integration-sdk-lib](https://pypi.org/project/vmware-aria-operations-integration-sdk-lib/) to
+  streamline the process of building adapter.
+  The template adapter has comments throughout the code to help new users understand the process of creating their own
+  adapter using the existing code. For additional guidance creating adapters see our `Guides` section.
 
-### adapter_requirements.txt (file)
-This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where
-the adapter runs and used by the default Dockerfile to install dependencies into the container image.
+adapter_requirements.txt (file)
+: This file defines all the dependencies needed by the adapter at run time. This file is copied onto the container where
+  the adapter runs and used by the default Dockerfile to install dependencies into the container image.
 
-### commands.cfg (file)
-This file contains a list of the commands the HTTP server can run, along with the path to the executable related to the
-command. By default, all commands are run by executing the `adapter.py` file along with a parameter that defines a command.
-For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
-and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
-
+commands.cfg (file)
+: This file contains a list of the commands the HTTP server can run, along with the path to the executable related to the
+  command. By default, all commands are run by executing the `adapter.py` file along with a parameter that defines a command.
+  For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
+  and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
+---
+## Templates
 #### Sample Adapter:
 
 The template adapter collects several objects and metrics from the JVM that the adapter is running in,
@@ -80,7 +81,7 @@ For additional guidance creating adapters see our `Guides` section.
 
 The new adapter comes with the minimum required code to develop your own adapter. 
 
-### Adapter methods (required)
+## Adapter methods (required)
 
 The methods in the adapter.py source code are required, and should be modified to generate a custom adapter.
 Each method fulfills a request from the VMware Aria Operations collector, and can be tested individually using
