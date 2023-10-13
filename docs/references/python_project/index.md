@@ -3,8 +3,8 @@
 
 ### Templates
 
-All templates generate the base project structure along with some additional files and directories specific to 
-Python (highlighted below): 
+All templates generate the [base project structure](../mp-init.md#base-project-structure) along with some additional 
+files and directories specific to Python (highlighted below): 
 
 ``` hl_lines="3 4 10-13"
 .

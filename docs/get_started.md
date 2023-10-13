@@ -126,7 +126,12 @@ the creation of a new management pack project.
 
        `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
        connection, collection, adapter definition, and endpoints logic.
+
+    !!! tip ""
+
+        For the purposes of this *Get Started* guide, select **Sample Adapter**.
     </ol >
+
 
 
 === "Java"
@@ -152,9 +157,11 @@ the creation of a new management pack project.
        `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
        connection, collection, adapter definition, and endpoints logic.
 
-!!! warning "" 
+    !!! tip ""
 
-    For the purposes of this *Get Started* guide, select **Sample Adapter**.
+        For the purposes of this *Get Started* guide, select **Sample Adapter**.
+
+    </ol>
 
 ---
 
