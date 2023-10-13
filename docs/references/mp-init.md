@@ -80,8 +80,7 @@ An icon can be added later by setting the 'pak_icon' key in 'manifest.txt' to th
 
 ### Language 
 
-Every project has the same inner server infrastructure; however, adapters can be written in other languages.
-Currently, we support the following languages:
+Adapters can be written in the following languages:
 
 - Java
 - Python
