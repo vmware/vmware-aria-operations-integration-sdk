@@ -117,15 +117,16 @@ the creation of a new management pack project.
 === "Python"
  
     <ol start="9">
-        <li> `Select a template for your project` </li>
+        <li> `Select a template for your project:`<br>
+ 
+       <p>Both of the available options will generate a project structure that can be modified into an adapter:</p>
 
-       Both of the available options will generate a project structure that can be modified into an adapter:
+       <p>`Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.</p>
 
-       `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
-
-       `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-       connection, collection, adapter definition, and endpoints logic.
+       <p>`New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.</p>
+        </li>
 
     !!! tip ""
 
@@ -137,25 +138,28 @@ the creation of a new management pack project.
 === "Java"
 
     <ol start="9">
-    <li>`Enter package name: `</li>
+    <li>`Enter package name: `<br>
 
-       The package name will be used to set up the package used by the adapter and the directory structure of the project.
+       The package name will be used to set up the package used by the adapter and the directory structure of the project.</li>
        
     ???+ example 
- 
+        If your company name is `mycompany.com`, and you want to monitor `mytechnology`, you could enter `com.mycompany.mytechnology` as a package name.
+        This will produce Java files with the following package directive:
         ``` java
-        package com.mycompany;
+        package com.mycompany.mytechnology;
         ```
+        More information about [naming Java packages](https://www.baeldung.com/java-packages#1-naming-conventions) 
 
-    <li>`Select a template for your project`</li>
+       <li> `Select a template for your project:`<br>
+ 
+      <p>Both of the available options will generate a project structure that can be modified into an adapter:</p>
 
-       Both of the available options will generate a project structure that can be modified into an adapter:
+      <p>`Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.</p>
 
-       `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
-
-       `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-       connection, collection, adapter definition, and endpoints logic.
+      <p>`New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.</p>
+       </li>
 
     !!! tip ""
 
