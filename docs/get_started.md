@@ -145,9 +145,27 @@ the creation of a new management pack project.
     ???+ example 
         If your company name is `mycompany.com`, and you want to monitor `mytechnology`, you could enter `com.mycompany.mytechnology` as a package name.
         This will produce Java files with the following package directive:
+
         ``` java
         package com.mycompany.mytechnology;
         ```
+
+        This will generate the file structure bellow:
+
+        ```shell
+        src
+        └── com 
+            └── mycompany 
+                └── mytechnology 
+                    └── Adapter.java
+        ```
+
+        and it will also add the package to the `Adapter.java` file:
+
+        ```java
+        package com.mycompany.mytechnology;
+        ```
+
         More information about [naming Java packages](https://www.baeldung.com/java-packages#1-naming-conventions) 
 
        <li> `Select a template for your project:`<br>

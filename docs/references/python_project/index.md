@@ -80,7 +80,9 @@ commands.cfg (file)
   For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
   and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
 ---
+
 ## Templates
+
 #### Sample Adapter
 
 The template adapter collects several objects and metrics from the JVM that the adapter is running in,
