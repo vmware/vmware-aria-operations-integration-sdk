@@ -6,10 +6,11 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0"
     id("org.jetbrains.dokka") version "1.9.0"
     `java-library`
+    `maven-publish`
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0-SNAPSHOT"
+version = "1.0.0-rc.1"
 
 repositories {
     mavenCentral()
@@ -44,4 +45,29 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "17"
+}
+
+tasks.register<Jar>("dokkaJavadocJar") {
+    dependsOn(tasks.dokkaJavadoc)
+    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+    archiveClassifier.set("javadoc")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("library") {
+            from(components["kotlin"])
+        }
+        create<MavenPublication>("allArtifacts") {
+            from(components["kotlin"])
+//            artifact(tasks["sourcesJar"])
+            artifact(tasks["dokkaJavadocJar"])
+        }
+    }
+    repositories {
+//        mavenCentral()
+        maven {
+            url = uri(layout.buildDirectory.dir("publishing-repository"))
+        }
+    }
 }
