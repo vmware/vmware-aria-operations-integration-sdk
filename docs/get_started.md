@@ -114,40 +114,43 @@ the creation of a new management pack project.
  
     - `Java` 
  
-9.  === "Python"
+=== "Python"
  
-        a. `Select a template for your project`
+    <ol start="9">
+        <li> `Select a template for your project` </li>
 
-           Both of the available options will generate a project structure that can be modified into an adapter:
+       Both of the available options will generate a project structure that can be modified into an adapter:
 
-           `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-           The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+       `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
 
-           `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-           connection, collection, adapter definition, and endpoints logic.
+       `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.
+    </ol >
 
 
-    === "Java"
+=== "Java"
 
-        a. `Enter package name: `
+    <ol start="9">
+    <li>`Enter package name: `</li>
 
-           The package name will be used to set up the package used by the adapter and the directory structure of the project.
-           
-        ???+ example 
-     
-            ``` java
-            package com.mycompany;
-            ```
+       The package name will be used to set up the package used by the adapter and the directory structure of the project.
+       
+    ???+ example 
+ 
+        ``` java
+        package com.mycompany;
+        ```
 
-        b. `Select a template for your project`
+    <li>`Select a template for your project`</li>
 
-           Both of the available options will generate a project structure that can be modified into an adapter:
+       Both of the available options will generate a project structure that can be modified into an adapter:
 
-           `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-           The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+       `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
 
-           `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-           connection, collection, adapter definition, and endpoints logic.
+       `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.
 
 !!! warning "" 
 
