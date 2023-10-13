@@ -70,9 +70,10 @@ build.gradle.kts (file)
 
 commands.cfg (file)
 : This file contains a list of the commands the HTTP server can run, along with the path to the executable related to the
-  command. By default, all commands are run by executing the `adapter.py` file along with a parameter that defines a command.
-  For example, when the HTTP server receives a request to run a test connection, it reads the commands.cfg key for `test`
-  and runs the process defined by the key value, `/usr/local/bin/python app/adapter.py test`.
+  command. By default, all commands are run by executing the compiled jar (with dependencies) file along with a parameter 
+  that defines a command.  For example, when the HTTP server receives a request to run a test connection, it reads the 
+  commands.cfg key for `test` and runs the process defined by the key value, 
+  `/usr/bin/java -cp app.jar:dependencies/* {package_name}.Adapter test`.
 
 ---
 ## Templates
