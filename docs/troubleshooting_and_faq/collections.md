@@ -7,29 +7,36 @@ Internal server errors can happen for various reasons; however, the most common 
 the adapter's code. Check the server logs for clues about the issue. Sometimes, the problem may be detected using `mp-test` and
 going over the terminal output.
 
+---
 ### Collection returns 'No collection result was found'
 
 `mp-test` runs a series of validations test after collection; if the collection has no results, then each validation step will report the result as missing.
 When a collection result is missing, it usually means an error occurred during collection, but the Adapter handled the error. When the Adapter handles an error,
 the response contains an error message; The console displays the error message. For example:
 
-  ```python
-  def collect(adapter_instance: AdapterInstance) -> CollectResult:
-    result = CollectResult()
-    try:
-      raise Exception("oops")
+=== "Python Integration SDK"
 
-      #...
-    except Exception as e:
-      logger.error("Unexpected collection error")
-      logger.exception(e)
-      result.with_error("Unexpected collection error: " + repr(e))
-      return result
-  ```
+      ```python linenums="1"
+      def collect(adapter_instance: AdapterInstance) -> CollectResult:
+        result = CollectResult()
+        try:
+          raise Exception("oops")
 
-This code will output
+          #...
+        except Exception as e:
+          logger.error("Unexpected collection error")
+          logger.exception(e)
+          result.with_error("Unexpected collection error: " + repr(e))
+          return result
+      ```
 
-  ```
+=== "Java Integration SDK"
+
+    TODO: Add java code equivalent
+
+will output
+
+  ``` hl_lines="4"
   Building adapter [Finished]
   Waiting for adapter to start [Finished]
   Running Collect [Finished]
@@ -48,10 +55,12 @@ This code will output
 As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
 Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
 
+---
 ### Is there a way to cache data for subsequent collections?
 
 The containerized adapter does not support caching data between collections.
 
+---
 ### Can I implement on-demand collections?
 
 The containerized adapter does not support on-demand collections.
@@ -59,4 +68,3 @@ The containerized adapter does not support on-demand collections.
 ???+ info
 
     For issues regarding mp-test and docker, see [Docker's](docker.md) page.
-

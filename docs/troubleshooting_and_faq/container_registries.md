@@ -17,11 +17,13 @@ container from the registry and run the container.
     - [How can I set up an AWS container registry for my project](#how-can-i-set-up-an-aws-container-registry-for-my-project)
     - [How can I set up a Docker Hub container registry for my project](#how-can-i-set-up-a-docker-hub-container-registry-for-my-project)
 
+---
 ### How are registry credentials managed?
 
 The Docker daemon manages docker credentials. To learn more about how the docker daemon manages credentials,
 visit the docker [credential store page](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
 
+---
 ### How can I set up an AWS container registry for my project?
 
 !!! todo
@@ -34,6 +36,7 @@ running `mp-build`.
 2. [Create a repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html#cli-create-repository:~:text=your%20default%20registry-,Step%203%3A%20Create%20a%20repository,-Step%204%3A%20Push)
 3. Run `mp-build` and use the registry tag when prompted about it (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/hello-repository`)
 
+---
 ### How can I set up a Docker Hub container registry for my project?
 
 !!! warning
@@ -62,6 +65,7 @@ After entering the tag, you will be prompted to enter your credentials to log in
     If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
 
 
+---
 ### How can I set up a private container registry for my project?
 
 VMware Aria Operations only supports anonymous pulling of images, however, cloud proxies lookup images locally before attempting to pull.
@@ -70,6 +74,7 @@ VMware Aria Operations only supports anonymous pulling of images, however, cloud
 2. pull the same image used by the management pack (usually using the docker CLI inside the adapter)
 3. Install Management Pack in VMware Aria operations
 
+---
 ### How can I change the container registry for my project?
 
 Open the `config.json` file located in the project's root directory, then replace the key-value for `container_repository` with the tag of the
