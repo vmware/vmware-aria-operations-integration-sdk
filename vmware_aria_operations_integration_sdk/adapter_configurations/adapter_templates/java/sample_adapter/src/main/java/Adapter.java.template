@@ -198,7 +198,7 @@ public class Adapter {
                     // Adding metrics to disk
                     disk.withMetric("total_space",totalSpace);
                     disk.withMetric("free_space", freeSpace);
-                    disk.withMetric("used_space", freeSpace);
+                    disk.withMetric("used_space", usedSpace);
                     disk.withMetric("disk_utilization",utilization);
 
                     if (utilization >= 90 ){
