@@ -89,8 +89,8 @@ class AdapterInstanceTest {
             "host_name", str(HOSTNAME)
     ));
 
-    Long START_TIME = 123L;
-    Long END_TIME = 456L;
+    Double START_TIME = 123.456;
+    Double END_TIME = 456.789;
     JsonElement WINDOW = obj(Map.of(
             "start_time", n(START_TIME),
             "end_time", n(END_TIME)
@@ -105,6 +105,13 @@ class AdapterInstanceTest {
             "collection_number", n(COLLECTION_NUMBER),
             "collection_window", WINDOW
     ));
+
+    @Test
+    public void getIdentifierValue() {
+        AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE1);
+        System.out.println(ai.getKey());
+        assertEquals("value1", ai.getIdentifierValue("id1"));
+    }
 
     @Test
     public void getCredential() {
