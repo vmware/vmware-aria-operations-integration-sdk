@@ -94,6 +94,7 @@ class TestResult {
      *
      * @param outputPipe The path to the output pipe.
      */
+    @JvmOverloads
     fun sendResults(outputPipe: String = Pipes.output) {
         writeToPipe(json, outputPipe)
     }
@@ -135,6 +136,7 @@ class EndpointResult {
      * This method can only be called once per collection.
      * @param outputPipe The path to the output pipe.
      */
+    @JvmOverloads
     fun sendResults(outputPipe: String = Pipes.output) {
         writeToPipe(json, outputPipe)
     }
@@ -406,6 +408,7 @@ class CollectResult(
      * This method can only be called once per collection.
      * @param outputPipe The path to the output pipe.
      */
+    @JvmOverloads
     fun sendResults(outputPipe: String = Pipes.output) {
         writeToPipe(json, outputPipe)
     }

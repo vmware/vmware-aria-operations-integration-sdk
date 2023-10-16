@@ -110,31 +110,77 @@ the creation of a new management pack project.
     Along with additional language-specific configuration.
     Currently, `mp-init` offers the following languages:
 
-    `Python`
+    - `Python`
  
-    `Java` 
+    - `Java` 
+ 
+=== "Python"
+ 
+    <ol start="9">
+        <li> `Select a template for your project:`<br>
+ 
+       <p>Both of the available options will generate a project structure that can be modified into an adapter:</p>
 
-9. `(For Java projects only) Enter package name: `
+       <p>`Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.</p>
 
-    The package name will be used to set up the package used by the adapter and the directory structure of the project.
-   
+       <p>`New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.</p>
+        </li>
+
+    !!! tip ""
+
+        For the purposes of this *Get Started* guide, select **Sample Adapter**.
+    </ol >
+
+
+
+=== "Java"
+
+    <ol start="9">
+    <li>`Enter package name: `<br>
+
+       The package name will be used to set up the package used by the adapter and the directory structure of the project.</li>
+       
     ???+ example 
- 
-        ``` java
-        package com.mycompany;
+        If your company name is `mycompany.com`, and you want to monitor `mytechnology`, you could enter `com.mycompany.mytechnology` as the package name.
+
+        This will generate the file structure below:
+
+        ```shell
+        src
+        └── com 
+            └── mycompany 
+                └── mytechnology 
+                    └── Adapter.java
         ```
 
-10. `Select a template for your project`
+        and it will also set the package in the `Adapter.java` file:
 
-    Both of the available options will generate a project structure that can be modified into an adapter:
+        ```java
+        package com.mycompany.mytechnology;
+        ```
 
-    `Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
-    The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.
+        Baeldung has more information about [naming Java packages](https://www.baeldung.com/java-packages#1-naming-conventions).
 
-    `New Adapter`: Creates methods, minimal comments, and code necessary to implement test
-    connection, collection, adapter definition, and endpoints logic.
+       <li> `Select a template for your project:`<br>
+ 
+      <p>Both of the available options will generate a project structure that can be modified into an adapter:</p>
 
-    For the purposes of this *Get Started* guide, select **Sample Adapter**.
+      <p>`Sample Adapter`: Creates a template adapter that collects several objects and metrics from the container the adapter is running.
+       The template adapter has comments throughout its code that explain what the code does and how to customize it for your adapter.</p>
+
+      <p>`New Adapter`: Creates methods, minimal comments, and code necessary to implement test
+       connection, collection, adapter definition, and endpoints logic.</p>
+       </li>
+
+    !!! tip ""
+
+        For the purposes of this *Get Started* guide, select **Sample Adapter**.
+
+    </ol>
+
+---
 
 ???+ info
 

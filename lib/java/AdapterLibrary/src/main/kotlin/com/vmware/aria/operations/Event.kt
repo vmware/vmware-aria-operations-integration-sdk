@@ -4,6 +4,9 @@
  */
 package com.vmware.aria.operations
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 /**
@@ -19,16 +22,17 @@ enum class Criticality(val id: Int) {
 }
 
 @Serializable
-data class Event private constructor(
+data class Event @OptIn(ExperimentalSerializationApi::class)
+private constructor(
     val message: String,
-    val criticality: Int = Criticality.NONE.id,
+    @EncodeDefault(ALWAYS) val criticality: Int = Criticality.NONE.id,
     val faultKey: String? = null,
-    val autoCancel: Boolean = true,
+    @EncodeDefault(ALWAYS) val autoCancel: Boolean = true,
     val startDate: Long? = null,
     val updateDate: Long? = null,
     val cancelDate: Long? = null,
-    val watchWaitCycle: Int = 1,
-    val cancelWaitCycle: Int = 3,
+    @EncodeDefault(ALWAYS) val watchWaitCycle: Int = 1,
+    @EncodeDefault(ALWAYS) val cancelWaitCycle: Int = 3,
 ) {
     /**
      * Represents a VMware Aria Operations Event
