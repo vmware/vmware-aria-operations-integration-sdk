@@ -82,7 +82,8 @@ public class Adapter {
                     true
             );
 
-            definition.defineObjectType("system", "System");
+            ObjectType system = definition.defineObjectType("system", "System");
+            system.defineStringProperty("id", "ID");
 
             logger.debug("Returning adapter definition:" + definition.getJson());
             return definition;
@@ -213,7 +214,9 @@ public class Adapter {
             }
 
             // Add System Object
-            Object system = result.getOrCreateObject(ADAPTER_KIND, "system", "System" + );
+            Object system = result.getOrCreateObject(ADAPTER_KIND, "system", "System");
+            String id = adapterInstance.getIdentifierValue("ID");
+            system.withProperty("id", id);
             system.addChild(cpu);
             system.addChildren(disks);
 
