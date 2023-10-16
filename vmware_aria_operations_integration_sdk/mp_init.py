@@ -141,7 +141,7 @@ def main() -> None:
             )
 
         adapter_config: AdapterConfig = selection_prompt(
-            "Select a language for the adapter.",
+            "Select a language for the adapter:",
             items=[
                 (
                     PythonAdapter(
@@ -176,6 +176,9 @@ def main() -> None:
 
         with Spinner("Creating Project"):
             adapter_config.create_project()
+
+        with Spinner("Creating Virtual Environment"):
+            adapter_config.create_virtual_environment()
 
         print("")
         print("")

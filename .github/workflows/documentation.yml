@@ -10,9 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - name: Setup Python
+      uses: actions/setup-python@v4
       with:
         python-version: 3.x
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: zulu
+        java-version: '17'
     - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
     - uses: actions/cache@v3
       with:
@@ -20,7 +26,15 @@ jobs:
         path: .cache
         restore-keys: |
           mkdocs-material-
-    - run: pip install \ mkdocs-material \ mkdocs-autorefs \ mkdocs-material-extensions \ mkdocstrings \ mkdocstrings-python \ mkdocs-awesome-pages-plugin \ mkdocs-open-in-new-tab
-    - run: pip install -e lib/python/
-    - run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
+    - name: Install mkdocs and associated plugins
+      run: pip install \ mkdocs-material \ mkdocs-autorefs \ mkdocs-material-extensions \ mkdocstrings \ mkdocstrings-python \ mkdocs-awesome-pages-plugin \ mkdocs-open-in-new-tab
+    - name: Install Python Adapter Library
+      run: pip install -e lib/python/
+    - name: Generate Java Adapter Library Documentation
+      run: |
+        ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaHtml
+        mkdir -p docs/references/java_project/java_lib/
+        cp -r lib/java/AdapterLibrary/build/dokka/html/* docs/references/java_project/java_lib/
+    - name: Deploy MKDocs Site
+      run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
 

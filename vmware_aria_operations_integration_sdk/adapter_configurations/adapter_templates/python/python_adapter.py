@@ -1,12 +1,8 @@
 import logging
 import os
-import subprocess
-import venv
 from typing import List
 from typing import Optional
 from typing import TextIO
-
-import pkg_resources
 
 from vmware_aria_operations_integration_sdk.adapter_configurations.adapter_config import (
     AdapterConfig,
@@ -49,7 +45,7 @@ class PythonAdapter(AdapterConfig):
             Question(
                 "adapter_template_path",
                 selection_prompt,
-                "Select a template for your project",
+                "Select a template for your project:",
                 items=self.templates,
                 description="- Sample Adapter: Generates a working adapter with comments "
                 "throughout its code\n"
@@ -71,9 +67,6 @@ class PythonAdapter(AdapterConfig):
         )
         with open(namespace_package_indicator_file, "w"):
             os.utime(namespace_package_indicator_file)
-
-        requirements_file = self.build_requirements_file()
-        self.build_virtual_environment_and_install_requirements(requirements_file)
 
     def build_commands_file(self) -> None:
         logger.debug("generating commands file")
@@ -104,36 +97,3 @@ class PythonAdapter(AdapterConfig):
         # having the executable copied at the end allows the image to be built faster since previous
         # the previous intermediate image is cached
         dockerfile.write(f"COPY app app\n")
-
-    def build_requirements_file(self) -> str:
-        requirements_file = os.path.join(self.project.path, "requirements.txt")
-        with open(requirements_file, "w") as requirements:
-            package = "vmware-aria-operations-integration-sdk"
-            version = pkg_resources.get_distribution(package).version
-            requirements.write(f"{package}=={version}\n")
-        return requirements_file
-
-    def build_virtual_environment_and_install_requirements(
-        self, requirements_file: str
-    ) -> None:
-        env_dir = os.path.join(self.project.path, f"venv-{self.display_name}")
-        venv.create(env_dir, with_pip=True)
-
-        # install requirements.txt into virtual environment
-        v_env = os.environ.copy()
-        v_env["VIRTUAL_ENV"] = env_dir
-        v_env["PATH"] = f"{env_dir}/bin:{v_env['PATH']}"
-        result = subprocess.run(
-            ["pip", "install", "-r", f"{requirements_file}"],
-            env=v_env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        for line in result.stdout.decode("utf-8").splitlines():
-            logger.debug(line)
-        for line in result.stderr.decode("utf-8").splitlines():
-            logger.warning(line)
-        if result.returncode != 0:
-            logger.error(
-                "Could not install sdk tools into the development virtual environment."
-            )

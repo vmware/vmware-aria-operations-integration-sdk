@@ -20,11 +20,11 @@ public final class ObjectTest {
         Object object = new Object(simpleKey);
         Object child = new Object(simpleKey2);
         Object parent = new Object(identifierKey);
-        assertFalse(object.getHasUpdatedChildren$AdapterLibrary());
+        assertFalse(object.getHasUpdatedChildren$IntegrationSDKAdapterLibrary());
         object.addParent(parent);
-        assertFalse(object.getHasUpdatedChildren$AdapterLibrary());
+        assertFalse(object.getHasUpdatedChildren$IntegrationSDKAdapterLibrary());
         object.addChild(child);
-        assertTrue(object.getHasUpdatedChildren$AdapterLibrary());
+        assertTrue(object.getHasUpdatedChildren$IntegrationSDKAdapterLibrary());
     }
 
     @Test
