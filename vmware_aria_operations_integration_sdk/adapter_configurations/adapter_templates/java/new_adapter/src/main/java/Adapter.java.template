@@ -1,17 +1,206 @@
+
 package ${package_name};
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vmware.aria.operations.*;
+import com.vmware.aria.operations.definition.AdapterDefinition;
+import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.FileNotFoundException;
 
 public class Adapter {
+    private static final String ADAPTER_KIND = "${adapter_key}";
+    private static final String ADAPTER_NAME = "${display_name}" ;
 
-    public static void main(String[] args) {
-        System.out.println("Hello Integration SDK!")
+    public AdapterDefinition getAdapterDefinition() {
+        Timer timer = new Timer("Get Adapter Definition");
+        Logger logger = AdapterLogger.getLogger();
+        AdapterDefinition definition = null;
+        try {
+            definition = new AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME);
+
+            // TODO: Add parameters and credentials
+
+            // The key 'container_memory_limit' is a special key read by the VMware Aria Operations
+            // collector to determine how much memory to allocate to the docker container running
+            // this adapter. It does not need to be read inside the adapter code. However, removing
+            // the definition from the object model will remove the ability to change the container
+            // memory limit during the adapter's configuration, and the VMware Aria Operations collector
+            // will give 1024 MB of memory to the container running the adapter instance.
+            definition.defineIntegerParameter(
+                    "container_memory_limit",
+                    "Adapter Memory Limit (MB)",
+                    "Sets the maximum amount of memory VMware Aria Operations can " +
+                            "allocate to the container running this adapter instance.",
+                    1024,
+                    true,
+                    true
+            );
+
+            // TODO: Add object types, including identifiers, metrics, and properties
+
+            logger.debug("Returning adapter definition:" + definition.getJson());
+            return definition;
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            timer.stop();
+        }
+
+        return definition;
+    }
+
+    public TestResult test(AdapterInstance adapterInstance) {
+        Timer timer = new Timer("Test");
+        Logger logger = AdapterLogger.getLogger();
+        TestResult result = new TestResult();
+        try {
+
+            // A typical test connection will generally consist of:
+            // 1. Read identifier values from adapter_instance that are required to
+            //    connect to the target(s)
+            // 2. Connect to the target(s), and retrieve some sample data
+            // 3. Disconnect cleanly from the target (ensure this happens even if an
+            //    error occurs)
+            // 4. If any of the above failed, return an error, otherwise pass.
+
+            // TODO: Add connection testing logic
+
+        } catch (Exception e){
+            logger.error("Unexpected connection test error");
+            logger.error(e);
+            result.withError("Unexpected connection test error: " + e.getMessage());
+        }
+        finally {
+            // TODO: If any connections are still open, make sure they are closed before returning
+            logger.debug("Returning test result:" + result.getJson());
+            timer.stop();
+        }
+
+        return result;
+    }
+
+    public CollectResult collect(AdapterInstance adapterInstance) {
+        Timer timer = new Timer("Collection");
+        Logger logger = AdapterLogger.getLogger();
+        CollectResult result = new CollectResult();
+
+        try{
+            // Sample collection code follows. Replace this with your own collection
+            // code. A typical collection will generally consist of:
+            // 1. Read identifier values from adapter_instance that are required to
+            //    connect to the target(s)
+            // 2. Connect to the target(s), and retrieve data
+            // 3. Add the data into a CollectResult's objects, properties, metrics, etc
+            // 4. Disconnect cleanly from the target (ensure this happens even if an
+            //    error occurs)
+            // 5. Return the CollectResult.
+
+            // TODO: Add collection logic
+
+            return result;
+        } catch (Exception e){
+            logger.error("Unexpected collection error");
+            logger.error(e);
+            result.withError("Unexpected collection error: " + e.getMessage());
+        }
+        finally {
+            logger.debug("Returning collection result" +  result.getJson());
+            timer.stop();
+        }
+
+        return result;
+    }
+
+    public EndpointResult getEndpoints(AdapterInstance adapterInstance) {
+        Logger logger = AdapterLogger.getLogger();
+        Timer timer = new Timer("Get Endpoints");
+        EndpointResult result = new EndpointResult();
+        try {
+            // In the case that an SSL Certificate is needed to communicate to the target,
+            // add each URL that the adapter uses here. Often this will be derived from a
+            // 'host' parameter in the adapter instance. In this Adapter we don't use any
+            // HTTPS connections, so we won't add any. If we did, we might do something like
+            // this:
+            // result.with_endpoint(adapter_instance.get_identifier_value("host"))
+            //
+            // Multiple endpoints can be returned, like this:
+            // result.with_endpoint(adapter_instance.get_identifier_value("primary_host"))
+            // result.with_endpoint(adapter_instance.get_identifier_value("secondary_host"))
+            //
+            // This 'get_endpoints' method will be run before the 'test' method,
+            // and VMware Aria Operations will use the results to extract a certificate from
+            // each URL. If the certificate is not trusted by the VMware Aria Operations
+            // Trust Store, the user will be prompted to either accept or reject the
+            // certificate. If it is accepted, the certificate will be added to the
+            // AdapterInstance object that is passed to the 'test' and 'collect' methods.
+            // Any certificate that is encountered in those methods should then be validated
+            // against the certificate(s) in the AdapterInstance.
+
+            // TODO: Add any additional endpoints if any
+
+        } catch (Exception e){
+            logger.info(e.getMessage());
+        }
+        finally {
+            logger.debug("Returning endpoints: " + result.getJson());
+            timer.stop();
+        }
+        return result;
+    }
+
+    // Main entry point of the adapter. You should not need to modify anything below this line.
+    public static void main(String[] args) throws FileNotFoundException {
+        // For log rotation and other logging setups, consider using a Java logging library or framework.
+        AdapterLogger.setupLogging("Adapter");
+        Logger logger = AdapterLogger.getLogger();
+
+        // Start a new log file by calling 'rotate'. By default, the last five calls will be
+        // retained. If the logs are not manually rotated, the 'setup_logging' call should be
+        // invoked with the 'max_size' parameter set to a reasonable value, e.g.,
+        // 10_489_760 (10MB).
+        AdapterLogger.rotate();
+        logger.info("Running adapter code with arguments: " + String.join(", ", args));
+        if (args.length != 3) {
+            // `inputfile` and `outputfile` are always automatically appended to the
+            // argument list by the server
+            logger.error("Arguments must be <method> <inputfile> <outputfile>");
+            System.exit(1);
+        }
+
+        String method = args[0];
+        try {
+            Pipes.input = args[1];
+            Pipes.output = args[2];
+
+            Adapter adapter = new Adapter();
+
+            switch (method) {
+                case "test":
+                    adapter.test(AdapterInstance.fromInput()).sendResults(args[2]);
+                    break;
+                case "endpoint_urls":
+                    adapter.getEndpoints(AdapterInstance.fromInput()).sendResults(args[2]);
+                    break;
+                case "collect":
+                    adapter.collect(AdapterInstance.fromInput()).sendResults(args[2]);
+                    break;
+                case "adapter_definition":
+                    AdapterDefinition result = adapter.getAdapterDefinition();
+                    if (result != null) {
+                        result.sendResults();
+                    } else {
+                        logger.info("getAdapterDefinition method did not return an AdapterDefinition");
+                        System.exit(1);
+                    }
+                        break;
+                default:
+                    logger.error("Command " + method + " not found");
+                    System.exit(1);
+            }
+        } finally {
+            logger.info(Timing.graph());
+        }
     }
 }
+
