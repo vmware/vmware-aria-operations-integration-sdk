@@ -74,8 +74,8 @@ Each log file is prepended with the type of log file followed by a number that r
 
 === "Java Integration SDK"
 
-    Adapter logging is setup bia the `AdapterLogger` class available to the Java Integrations SDK.
-    The logger only needs to be retrieved once per method:
+    Adapter logging is setup bia the [Get Logger](../references/java_project/java_lib/-integration-s-d-k-adapter-library/com.vmware.aria.operations/get-logger.html) method
+    available through the `AdapterLogger` class of the Java Integrations SDK. The **Get Logger** method returns a Log4j Logger:
 
     ```java linenums="1" hl_lines="3"
     import org.apache.logging.log4j.Logger;

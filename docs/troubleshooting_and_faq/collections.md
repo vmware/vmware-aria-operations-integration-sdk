@@ -10,9 +10,12 @@ going over the terminal output.
 ---
 ### Collection returns 'No collection result was found'
 
-`mp-test` runs a series of validations test after collection; if the collection has no results, then each validation step will report the result as missing.
-When a collection result is missing, it usually means an error occurred during collection, but the Adapter handled the error. When the Adapter handles an error,
-the response contains an error message; The console displays the error message. For example:
+`mp-test` runs a series of validations test after a collection; if the collection has no results, then each validation
+step will report the result as missing.
+When a collection result is missing, it usually means an error occurred during a collection,
+but the Adapter handled the error.
+When the Adapter handles an error, the response contains an error message; The console displays the error message.
+For example:
 
 === "Python Integration SDK"
 
@@ -20,13 +23,13 @@ the response contains an error message; The console displays the error message. 
       def collect(adapter_instance: AdapterInstance) -> CollectResult:
         result = CollectResult()
         try:
-          raise Exception("oops")
+          raise Exception("oops!")
 
           #...
         except Exception as e:
           logger.error("Unexpected collection error")
           logger.exception(e)
-          result.with_error("Unexpected collection error: " + repr(e))
+          result.with_error(f"Unexpected collection error: '{e}'")
           return result
       ```
 
@@ -40,10 +43,11 @@ the response contains an error message; The console displays the error message. 
 
           //...
         } catch ( Exception  e) {
-          result.with_error("Unexpected collection error: " + e.getMessage());
+          result.with_error("Unexpected collection error: " + "'" + e.getMessage() + "'");
         }
 
         return result
+      }
       ```
 
 will output
@@ -52,7 +56,7 @@ will output
   Building adapter [Finished]
   Waiting for adapter to start [Finished]
   Running Collect [Finished]
-  Collection Failed: Unexpected collection error: Exception('oops')
+  Collection Failed: Unexpected collection error: 'oops!'
 
   Avg CPU %                     | Avg Memory Usage %         | Memory Limit | Network I/O         | Block I/O
   ------------------------------+----------------------------+--------------+---------------------+--------------
@@ -64,7 +68,9 @@ will output
   No collection result was found.
   All validation logs written to '/Users/user/management-pack/test-management-pack/logs/validation.log'
   ```
-As seen above, the Exception is mentioned as the reason for the collection error, and the `No collection result was found` message is also shown.
+
+As seen above, the Exception is mentioned as the reason for the collection error, and
+the `No collection result was found` message is also shown.
 Using the collection error message along with the `adapter.log` can help trace the cause of the issue.
 
 ---
