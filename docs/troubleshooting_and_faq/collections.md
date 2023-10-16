@@ -32,7 +32,19 @@ the response contains an error message; The console displays the error message. 
 
 === "Java Integration SDK"
 
-    TODO: Add java code equivalent
+      ```python linenums="1"
+      public CollectRestuls collect(AdapterInstance adapterInstance) {
+        CollectResult result = new CollectResult();
+        try{
+          throw new Exception("oops!");
+
+          //...
+        } catch ( Exception  e) {
+          result.with_error("Unexpected collection error: " + e.getMessage());
+        }
+
+        return result
+      ```
 
 will output
 

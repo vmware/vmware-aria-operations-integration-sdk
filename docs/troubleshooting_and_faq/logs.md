@@ -74,7 +74,29 @@ Each log file is prepended with the type of log file followed by a number that r
 
 === "Java Integration SDK"
 
-    TODO: Add the logic for how logging works in Java
+    Adapter logging is setup bia the `AdapterLogger` class available to the Java Integrations SDK.
+    The logger only needs to be retrieved once per method:
+
+    ```java linenums="1" hl_lines="3"
+    import org.apache.logging.log4j.Logger;
+    import com.vmware.aria.operations.AdapterLogger;
+
+    public void myMethod() {
+      Logger logger = AdapterLogger.getLogger();
+      logger.info("info log");
+      logger.warning("warning log");
+      logger.error("error log");
+      logger.debug("debug log");
+    }
+
+    public void myOtherMethod() {
+      Logger logger = AdapterLogger.getLogger();
+      logger.info("other info log");
+      logger.warning("other warning log");
+      logger.error("other error log");
+      logger.debug("other debug log");
+    }
+    ```
 
 ---
 ###  How do I change the server and/or adapter log level?

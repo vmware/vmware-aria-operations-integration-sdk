@@ -26,8 +26,10 @@ visit the docker [credential store page](https://docs.docker.com/engine/referenc
 ---
 ### How can I set up an AWS container registry for my project?
 
-!!! todo
-    Add a note about registries being public
+??? note 
+    
+    When setting up a registry, make sure the registry is accessible to the Aria Operations environment where the 
+    container is going to run (Aria Operations will pull the image anonimously from the target registry).
 
 AWS container registries use `aws` CLI to authenticate, so users should authenticate to their AWS container registry and create a repository before
 running `mp-build`.
