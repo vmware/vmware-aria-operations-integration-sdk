@@ -5,12 +5,20 @@ plugins {
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.serialization") version "1.9.0"
     id("org.jetbrains.dokka") version "1.9.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-1"
     `java-library`
+    `signing`
     `maven-publish`
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0.0-rc.1"
+version = "1.0.0-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 repositories {
     mavenCentral()
@@ -26,11 +34,11 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     api("org.apache.logging.log4j:log4j-core:2.20.0")
     api("org.apache.logging.log4j:log4j-api:2.20.0")
 }
@@ -38,36 +46,57 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "17"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "17"
+
+val javadocJar by tasks.creating(Jar::class) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Assembles Javadoc JAR"
+    archiveClassifier.set("javadoc")
+    from(tasks.named("dokkaHtml"))
 }
 
-tasks.register<Jar>("dokkaJavadocJar") {
-    dependsOn(tasks.dokkaJavadoc)
-    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
-    archiveClassifier.set("javadoc")
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
 }
 
 publishing {
     publications {
-        create<MavenPublication>("library") {
-            from(components["kotlin"])
-        }
-        create<MavenPublication>("allArtifacts") {
-            from(components["kotlin"])
-//            artifact(tasks["sourcesJar"])
-            artifact(tasks["dokkaJavadocJar"])
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            artifact(tasks.kotlinSourcesJar.get())
+            artifact(javadocJar)
+            pom {
+                description.set("A library for facilitating the development of Adapters using the VMware Aria Operations Integration SDK")
+                url.set("https://github.com/vmware/vmware-aria-operations-integration-sdk")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("kjrokos")
+                        name.set("Kyle Rokos")
+                        email.set("krokos@vmware.com")
+                    }
+                    developer {
+                        id.set("quirogas")
+                        name.set("Santiago Quiroga Cubillos")
+                        email.set("squirogacubi@vmware.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/vmware/vmware-aria-operations-integration-sdk.git")
+                    developerConnection.set("scm:git:ssh://github.com/vmware/vmware-aria-operations-integration-sdk.git")
+                    url.set("https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main")
+                }
+            }
         }
     }
-    repositories {
-//        mavenCentral()
-        maven {
-            url = uri(layout.buildDirectory.dir("publishing-repository"))
-        }
-    }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
