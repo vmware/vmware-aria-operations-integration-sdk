@@ -33,7 +33,7 @@ public class Adapter {
             definition = new AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME);
 
             definition.defineStringParameter(
-                    "ID",
+                    "id",
                     "ID",
                     "Example identifier. Using a value of 'bad' will cause " +
                             "test connection to fail; any other value will pass.",
@@ -126,8 +126,7 @@ public class Adapter {
 
             // otherwise, the test has passed
         } catch (Exception e){
-            logger.error("Unexpected connection test error");
-            logger.error(e);
+            logger.error("Unexpected connection test error",  e);
             result.withError("Unexpected connection test error: " + e.getMessage());
         }
         finally {
@@ -186,7 +185,7 @@ public class Adapter {
             for (Path root : FileSystems.getDefault().getRootDirectories()) {
                 try {
                     FileStore store = Files.getFileStore(root);
-                    Object disk = result.getOrCreateObject(ADAPTER_KIND, "disk", "Disk");
+                    Object disk = result.getOrCreateObject(ADAPTER_KIND, "disk", "Disk" + root.toString());
                     disk.withProperty("partition", root.toString());
 
                     // Disk stats
@@ -214,7 +213,7 @@ public class Adapter {
             }
 
             // Add System Object
-            Object system = result.getOrCreateObject(ADAPTER_KIND, "system", "System");
+            Object system = result.getOrCreateObject(ADAPTER_KIND, "system", "System" + );
             system.addChild(cpu);
             system.addChildren(disks);
 
@@ -296,13 +295,13 @@ public class Adapter {
 
             switch (method) {
                 case "test":
-                    adapter.test(AdapterInstance.fromInput()).sendResults(args[2]);
+                    adapter.test(AdapterInstance.fromInput()).sendResults();
                     break;
                 case "endpoint_urls":
-                    adapter.getEndpoints(AdapterInstance.fromInput()).sendResults(args[2]);
+                    adapter.getEndpoints(AdapterInstance.fromInput()).sendResults();
                     break;
                 case "collect":
-                    adapter.collect(AdapterInstance.fromInput()).sendResults(args[2]);
+                    adapter.collect(AdapterInstance.fromInput()).sendResults();
                     break;
                 case "adapter_definition":
                     AdapterDefinition result = adapter.getAdapterDefinition();
