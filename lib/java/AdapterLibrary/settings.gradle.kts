@@ -1,2 +1,2 @@
-rootProject.name = "AdapterLibrary"
+rootProject.name = "IntegrationSDKAdapterLibrary"
 
