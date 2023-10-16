@@ -13,6 +13,10 @@ ERROR: Unable to build Docker file at /Users/user/code/aria_ops/management-packs
 
 ```
 
+In cases where build is unable to complete the building process due to a docker error, 
+the best approach is to look at the stack trace from docker by directly running `docker build .` 
+command.
+
 ???+ info
 
     For issues regarding mp-build and docker, see [Docker's](docker.md) page.

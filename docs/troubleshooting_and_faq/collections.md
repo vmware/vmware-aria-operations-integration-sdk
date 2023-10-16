@@ -17,7 +17,7 @@ but the Adapter handled the error.
 When the Adapter handles an error, the response contains an error message; The console displays the error message.
 For example:
 
-=== "Python Integration SDK"
+=== "Python Adapter Library"
 
       ```python linenums="1"
       def collect(adapter_instance: AdapterInstance) -> CollectResult:
@@ -33,7 +33,7 @@ For example:
           return result
       ```
 
-=== "Java Integration SDK"
+=== "Java Adapter Library"
 
       ```python linenums="1"
       public CollectRestuls collect(AdapterInstance adapterInstance) {

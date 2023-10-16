@@ -53,7 +53,7 @@ Each log file is prepended with the type of log file followed by a number that r
 ---
 ###  How do I add logs to my adapter?
 
-=== "Python Integration SDK"
+=== "Python Adapter Library"
 
     The template adapter defines a logger variable in the `adapter.py` file that configures all adapter logging using 
     [adapter_logging](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/299ce55ac0b1e53dde9c1b4b3e217ab41df57299/lib/python/src/aria/ops/adapter_logging.py) from the Python SDK.
@@ -72,7 +72,7 @@ Each log file is prepended with the type of log file followed by a number that r
        ...
     ```
 
-=== "Java Integration SDK"
+=== "Java Adapter Library"
 
     Adapter logging is setup bia the [Get Logger](../references/java_project/java_lib/-integration-s-d-k-adapter-library/com.vmware.aria.operations/get-logger.html) method
     available through the `AdapterLogger` class of the Java Integrations SDK. The **Get Logger** method returns a Log4j Logger:
