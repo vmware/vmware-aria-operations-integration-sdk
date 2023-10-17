@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 
 java {
     toolchain {
@@ -67,6 +67,7 @@ publishing {
             artifact(tasks.kotlinSourcesJar.get())
             artifact(javadocJar)
             pom {
+                name.set("VMware Aria Operations Integration SDK Adapter Libraray")
                 description.set("A library for facilitating the development of Adapters using the VMware Aria Operations Integration SDK")
                 url.set("https://github.com/vmware/vmware-aria-operations-integration-sdk")
                 licenses {
