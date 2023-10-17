@@ -4,13 +4,13 @@
 
 Policy and capacity models can only be specified by writing a `describe.xml` file in the `conf` directory.
 
-
+---
 ### Are there replacements for  `onConfigure`, `onStopCollection`, and `onDiscard` methods?
 
 The `onConfigure`, `onStopCollection`, and `onDiscard` methods have no replacement in the new integration SDK.
 
-
-### VMware Aria Operations returns 'Unknown adapter type' when setting up new adapter instance
+---
+### VMware Aria Operations returns 'Unknown adapter type' message when setting up a new adapter instance
 
 ![Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'](../images/unknown_adapter_type.png)
 > Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
@@ -21,6 +21,7 @@ If the pak file installs successfully but errors when creating an account (adapt
 - Check that the Cloud Proxy supports containerized adapters. Containerized adapter
   support is supported in VMware Aria Operations version 8.10.0 and later.
 
+---
 ### How do I migrate connection-related elements from config.json to connections.json?
 
 As of version 1.0.0,
