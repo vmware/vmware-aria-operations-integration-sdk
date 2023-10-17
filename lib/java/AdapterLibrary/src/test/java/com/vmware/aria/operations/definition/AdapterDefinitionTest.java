@@ -33,13 +33,6 @@ class AdapterDefinitionTest {
             parameter.setDefault("DefaultValue");
         });
 
-        StringParameterBuilder stringParameterBuilder = new StringParameterBuilder("MyKey");
-        stringParameterBuilder.setMaxLength(200);
-        stringParameterBuilder.setAdvanced(true);
-        stringParameterBuilder.setDefault("default");
-        StringParameter myKeyParameter = stringParameterBuilder.build();
-        ad.addParameter(myKeyParameter);
-
         System.out.print(ad.getJson());
     }
 
