@@ -1,13 +1,14 @@
 # mp-build
 
-### mp-build returns 'Unable to build pak file'
+### mp-build returns 'Unable to build container'
 
-In most cases, this error indicates issues with building the container image. The most probable cause is:
+In most cases, this error indicates issues with building the container image. The most probable causes are:
 
+1. Unknown Instruction :
       ```
       mp-build
       Building adapter [Finished]
-      Unable to build pak file
+      Unable to build container 
       ERROR: Unable to build Docker file at /Users/user/code/aria_ops/management-packs/test:
        {'message': 'dockerfile parse error line 7: unknown instruction: COP'}
 
@@ -50,4 +51,3 @@ In most cases, this error indicates issues with building the container image. Th
 ???+ info
 
     For issues regarding mp-build and docker, see [Docker's](docker.md) page.
-
