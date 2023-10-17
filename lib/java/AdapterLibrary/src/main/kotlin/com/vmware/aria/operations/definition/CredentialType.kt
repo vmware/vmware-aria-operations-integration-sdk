@@ -34,7 +34,7 @@ class CredentialType @JvmOverloads constructor(
         label: String = key,
         required: Boolean = true
     ): CredentialStringParameter {
-        val field = CredentialStringParameter(key, label, required)
+        val field = CredentialStringParameter(key, label, required, credentialParameters.size)
         addParameter(field)
         return field
     }
@@ -50,7 +50,7 @@ class CredentialType @JvmOverloads constructor(
     fun defineStringParameter(key: String, block: Consumer<CredentialStringParameterBuilder>): CredentialStringParameter {
         val parameterBuilder = CredentialStringParameterBuilder(key)
         block.accept(parameterBuilder)
-        val parameter = parameterBuilder.build()
+        val parameter = parameterBuilder.build(credentialParameters.size)
         addParameter(parameter)
         return parameter
     }
@@ -72,7 +72,7 @@ class CredentialType @JvmOverloads constructor(
         label: String = key,
         required: Boolean = true
     ): CredentialIntParameter {
-        val field = CredentialIntParameter(key, label, required)
+        val field = CredentialIntParameter(key, label, required, credentialParameters.size)
         addParameter(field)
         return field
     }
@@ -88,7 +88,7 @@ class CredentialType @JvmOverloads constructor(
     fun defineIntParameter(key: String, block: Consumer<CredentialIntParameterBuilder>): CredentialIntParameter {
         val parameterBuilder = CredentialIntParameterBuilder(key)
         block.accept(parameterBuilder)
-        val parameter = parameterBuilder.build()
+        val parameter = parameterBuilder.build(credentialParameters.size)
         addParameter(parameter)
         return parameter
     }
@@ -109,7 +109,7 @@ class CredentialType @JvmOverloads constructor(
         label: String = key,
         required: Boolean = true
     ): CredentialPasswordParameter {
-        val field = CredentialPasswordParameter(key, label, required)
+        val field = CredentialPasswordParameter(key, label, required, credentialParameters.size)
         addParameter(field)
         return field
     }
@@ -125,7 +125,7 @@ class CredentialType @JvmOverloads constructor(
     fun definePasswordParameter(key: String, block: Consumer<CredentialPasswordParameterBuilder>): CredentialPasswordParameter {
         val parameterBuilder = CredentialPasswordParameterBuilder(key)
         block.accept(parameterBuilder)
-        val parameter = parameterBuilder.build()
+        val parameter = parameterBuilder.build(credentialParameters.size)
         addParameter(parameter)
         return parameter
     }
@@ -151,7 +151,7 @@ class CredentialType @JvmOverloads constructor(
         default: String? = null,
         required: Boolean = true
     ): CredentialEnumParameter {
-        val field = CredentialEnumParameter(key, values, label, default, required)
+        val field = CredentialEnumParameter(key, values, label, default, required, credentialParameters.size)
         addParameter(field)
         return field
     }
@@ -167,7 +167,7 @@ class CredentialType @JvmOverloads constructor(
     fun defineEnumParameter(key: String, block: Consumer<CredentialEnumParameterBuilder>): CredentialEnumParameter {
         val parameterBuilder = CredentialEnumParameterBuilder(key)
         block.accept(parameterBuilder)
-        val parameter = parameterBuilder.build()
+        val parameter = parameterBuilder.build(credentialParameters.size)
         addParameter(parameter)
         return parameter
     }
@@ -191,7 +191,6 @@ class CredentialType @JvmOverloads constructor(
         if (credentialParameters.containsKey(key)) {
             throw DuplicateKeyException("Credential field with key $key already exists in Adapter Definition.")
         }
-        parameter.displayOrder = credentialParameters.size
         credentialParameters[key] = parameter
     }
 
@@ -214,8 +213,7 @@ sealed class CredentialParameter {
     abstract val required: Boolean
     open val password = false
     open val enum = false
-    var displayOrder: Int = 0
-        internal set
+    open val displayOrder: Int = 0
 
     open val json: JsonObject
         get() = buildJsonObject {
@@ -234,7 +232,7 @@ sealed class CredentialParameter {
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
  * @param required True if user is required to provide this parameter. Defaults to True.
  */
-class CredentialIntParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true):
+class CredentialIntParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true, override val displayOrder: Int = 0):
     CredentialParameter() {
     override val type = "integer"
 }
@@ -247,7 +245,7 @@ class CredentialIntParameter @JvmOverloads constructor(override val key: String,
 class CredentialIntParameterBuilder(val key: String) {
     var label: String = key
     var required: Boolean = true
-    fun build() = CredentialIntParameter(key, label, required)
+    fun build(displayOrder: Int) = CredentialIntParameter(key, label, required, displayOrder)
 }
 
 /**
@@ -255,7 +253,7 @@ class CredentialIntParameterBuilder(val key: String) {
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
  * @param required True if user is required to provide this parameter. Defaults to True.
  */
-class CredentialStringParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true):
+class CredentialStringParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true, override val displayOrder: Int = 0):
     CredentialParameter() {
     override val type = "string"
 }
@@ -268,7 +266,7 @@ class CredentialStringParameter @JvmOverloads constructor(override val key: Stri
 class CredentialStringParameterBuilder(val key: String) {
     var label: String = key
     var required: Boolean = true
-    fun build() = CredentialStringParameter(key, label, required)
+    fun build(displayOrder: Int) = CredentialStringParameter(key, label, required, displayOrder)
 }
 
 /**
@@ -276,7 +274,7 @@ class CredentialStringParameterBuilder(val key: String) {
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
  * @param required True if user is required to provide this parameter. Defaults to True.
  */
-class CredentialPasswordParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true):
+class CredentialPasswordParameter @JvmOverloads constructor(override val key: String, override val label: String = key, override val required: Boolean = true, override val displayOrder: Int = 0):
     CredentialParameter() {
     override val type = "string"
     override val password = true
@@ -290,7 +288,7 @@ class CredentialPasswordParameter @JvmOverloads constructor(override val key: St
 class CredentialPasswordParameterBuilder(val key: String) {
     var label: String = key
     var required: Boolean = true
-    fun build() = CredentialPasswordParameter(key, label, required)
+    fun build(displayOrder: Int) = CredentialPasswordParameter(key, label, required, displayOrder)
 }
 
 /**
@@ -299,8 +297,9 @@ class CredentialPasswordParameterBuilder(val key: String) {
  * it will be added as an additional enum value.
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
  * @param required True if user is required to provide this parameter. Defaults to True.
+ * @param displayOrder
  */
-class CredentialEnumParameter @JvmOverloads constructor(override val key: String, val values: List<EnumParameter.EnumValue>, override val label: String = key, val default: String? = null, override val required: Boolean = true): CredentialParameter() {
+class CredentialEnumParameter @JvmOverloads constructor(override val key: String, val values: List<EnumParameter.EnumValue>, override val label: String = key, val default: String? = null, override val required: Boolean = true, override val displayOrder: Int = 0): CredentialParameter() {
     override val type = "string"
     override val enum = true
 
@@ -357,5 +356,5 @@ class CredentialEnumParameterBuilder(val key: String) {
         default = key
     }
     var required: Boolean = true
-    fun build() = CredentialEnumParameter(key, values, label, default, required)
+    fun build(displayOrder: Int) = CredentialEnumParameter(key, values, label, default, required, displayOrder)
 }

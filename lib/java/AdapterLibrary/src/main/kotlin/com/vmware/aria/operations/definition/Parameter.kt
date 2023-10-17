@@ -73,7 +73,7 @@ class IntegerParameterBuilder(val key: String) {
     var default: Int? = null
     var required: Boolean = true
     var advanced: Boolean = false
-    fun build() = IntParameter(key, label, description, default, required, advanced)
+    fun build(dashboardOrder: Int) = IntParameter(key, label, description, default, required, advanced, dashboardOrder)
 }
 
 /**
@@ -120,7 +120,7 @@ class StringParameterBuilder(val key: String) {
     var maxLength: Int = 512
     var required: Boolean = true
     var advanced: Boolean = false
-    fun build() = StringParameter(key, label, description, default, maxLength, required, advanced)
+    fun build(dashboardOrder: Int) = StringParameter(key, label, description, default, maxLength, required, advanced, dashboardOrder)
 }
 
 
@@ -210,7 +210,7 @@ class EnumParameterBuilder(val key: String) {
     }
     var required: Boolean = true
     var advanced: Boolean = false
-    fun build() = EnumParameter(key, values, label, description, default, required, advanced)
+    fun build(dashboardOrder: Int) = EnumParameter(key, values, label, description, default, required, advanced, dashboardOrder)
 }
 
 private fun appendToJsonObject(
