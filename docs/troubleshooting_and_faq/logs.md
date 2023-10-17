@@ -74,7 +74,7 @@ Each log file is prepended with the type of log file followed by a number that r
 
 === "Java Adapter Library"
 
-    Adapter logging is setup bia the [Get Logger](../references/java_project/java_lib/-integration-s-d-k-adapter-library/com.vmware.aria.operations/get-logger.html) method
+    Adapter logging is setup via the [Get Logger](../references/java_project/java_lib/-integration-s-d-k-adapter-library/com.vmware.aria.operations/get-logger.html) method
     available through the `AdapterLogger` class of the Java Integrations SDK. The **Get Logger** method returns a Log4j Logger:
 
     ```java linenums="1" hl_lines="3"
