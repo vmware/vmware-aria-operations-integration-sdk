@@ -13,6 +13,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import java.util.function.Consumer
 
 
 class AdapterDefinition
@@ -76,6 +77,22 @@ class AdapterDefinition
         return parameter
     }
 
+/**
+ * Create a new string parameter and add it to the adapter instance. The user will be asked to provide a value for
+ * this parameter each time a new account/adapter instance is created.
+ * @param key Used to identify the parameter
+ * @param block Anonymous function taking a StringParameterBuilder as a parameter that can be used to override
+ * default values. This is particularly useful in Java.
+ */
+    @Throws(DuplicateKeyException::class)
+    fun defineStringParameter(key: String, block: Consumer<StringParameterBuilder>): StringParameter {
+        val parameterBuilder = StringParameterBuilder(key)
+        block.accept(parameterBuilder)
+        val parameter = parameterBuilder.build()
+        addParameter(parameter)
+        return parameter
+    }
+
     /**
     * Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
     * this parameter each time a new account/adapter instance is created.
@@ -100,6 +117,22 @@ class AdapterDefinition
         advanced: Boolean = false
     ): IntParameter {
         val parameter = IntParameter(key, label, description, default, required, advanced)
+        addParameter(parameter)
+        return parameter
+    }
+
+    /**
+     * Create a new integer parameter and add it to the adapter instance. The user will be asked to provide a value for
+     * this parameter each time a new account/adapter instance is created.
+     * @param key Used to identify the parameter
+     * @param block Anonymous function taking an IntegerParameterBuilder as a parameter that can be used to override
+     * default values. This is particularly useful in Java.
+     */
+    @Throws(DuplicateKeyException::class)
+    fun defineIntegerParameter(key: String, block: Consumer<IntegerParameterBuilder>): IntParameter {
+        val parameterBuilder = IntegerParameterBuilder(key)
+        block.accept(parameterBuilder)
+        val parameter = parameterBuilder.build()
         addParameter(parameter)
         return parameter
     }
@@ -131,6 +164,22 @@ class AdapterDefinition
         advanced: Boolean = false
     ): EnumParameter {
         val parameter = EnumParameter(key, values, label, description, default, required, advanced)
+        addParameter(parameter)
+        return parameter
+    }
+
+    /**
+     * Create a new enum parameter and add it to the adapter instance. The user will be asked to provide a value for
+     * this parameter each time a new account/adapter instance is created.
+     * @param key Used to identify the parameter
+     * @param block Anonymous function taking an EnumParameterBuilder as a parameter that can be used to override
+     * default values. This is particularly useful in Java.
+     */
+    @Throws(DuplicateKeyException::class)
+    fun defineEnumParameter(key: String, block: Consumer<EnumParameterBuilder>): EnumParameter {
+        val parameterBuilder = EnumParameterBuilder(key)
+        block.accept(parameterBuilder)
+        val parameter = parameterBuilder.build()
         addParameter(parameter)
         return parameter
     }

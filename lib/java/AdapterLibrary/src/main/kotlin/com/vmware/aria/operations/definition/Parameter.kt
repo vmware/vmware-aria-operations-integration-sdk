@@ -58,6 +58,24 @@ class IntParameter @JvmOverloads constructor(
     override val type = "integer"
 }
 
+
+/**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property description More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+ * @property default The default value of the parameter.
+ * @property required True if user is required to provide this parameter. Defaults to True.
+ * @property advanced True if the parameter should be collapsed by default. Defaults to False.
+ */
+class IntegerParameterBuilder(val key: String) {
+    var label: String = key
+    var description: String? = null
+    var default: Int? = null
+    var required: Boolean = true
+    var advanced: Boolean = false
+    fun build() = IntParameter(key, label, description, default, required, advanced)
+}
+
 /**
  * @param key Used to identify the parameter.
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
@@ -85,6 +103,26 @@ class StringParameter @JvmOverloads constructor(
             put("max_length", maxLength)
         }
 }
+
+/**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property description More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+ * @property default The default value of the parameter.
+ * @property maxLength The max length of the parameter value, defaults to 512.
+ * @property required True if user is required to provide this parameter. Defaults to True.
+ * @property advanced True if the parameter should be collapsed by default. Defaults to False.
+ */
+class StringParameterBuilder(val key: String) {
+    var label: String = key
+    var description: String? = null
+    var default: String? = null
+    var maxLength: Int = 512
+    var required: Boolean = true
+    var advanced: Boolean = false
+    fun build() = StringParameter(key, label, description, default, maxLength, required, advanced)
+}
+
 
 /**
  * @param key Used to identify the parameter.
@@ -130,6 +168,49 @@ class EnumParameter @JvmOverloads constructor(
                 }
             }
         }
+}
+
+
+/**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property description More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
+ * @property default The default enum value of the parameter.
+ * @property required True if user is required to provide this parameter. Defaults to True.
+ * @property advanced True if the parameter should be collapsed by default. Defaults to False.
+ */
+class EnumParameterBuilder(val key: String) {
+    var label: String = key
+    private val values: MutableList<EnumParameter.EnumValue> = mutableListOf()
+    var description: String? = null
+    private var default: String? = null
+
+    /**
+     * Adds an option to the Enum Parameter
+     * @param key The key of the Enum
+     * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+     */
+    @JvmOverloads
+    fun withOption(key: String, label: String = key) {
+        values.add(EnumParameter.EnumValue(key, label))
+    }
+
+    /**
+     * Adds an option to the Enum Parameter, and sets it as the default option. This should
+     * only be called once per parameter. If it is called multiple times, the default will be
+     * set to the value of the last call.
+     *
+     * @param key The key of the Enum
+     * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+     */
+    @JvmOverloads
+    fun withDefaultOption(key: String, label: String = key) {
+        values.add(EnumParameter.EnumValue(key, label))
+        default = key
+    }
+    var required: Boolean = true
+    var advanced: Boolean = false
+    fun build() = EnumParameter(key, values, label, description, default, required, advanced)
 }
 
 private fun appendToJsonObject(
