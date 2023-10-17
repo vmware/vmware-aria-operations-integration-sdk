@@ -74,27 +74,37 @@ Each log file is prepended with the type of log file followed by a number that r
 
 === "Java Adapter Library"
 
-    Adapter logging is setup via the [Get Logger](../references/java_project/java_lib/-integration-s-d-k-adapter-library/com.vmware.aria.operations/get-logger.html) method
-    available through the `AdapterLogger` class of the Java Integrations SDK. The **Get Logger** method returns a Log4j Logger:
+    Adapter logging is setup via the [Setup Logging](../references/java_project/java_lib/com/vmware/aria/operations/AdapterLogger.html#setupLogging(java.lang.String,java.lang.Integer,java.lang.Long)) method
+    available through the `AdapterLogger` class of the Java Integrations SDK. The logger only need to be set up once.
+    To retrieve the logger, you can call the `Get Logger` static method:
 
     ```java linenums="1" hl_lines="3"
     import org.apache.logging.log4j.Logger;
     import com.vmware.aria.operations.AdapterLogger;
 
-    public void myMethod() {
-      Logger logger = AdapterLogger.getLogger();
-      logger.info("info log");
-      logger.warning("warning log");
-      logger.error("error log");
-      logger.debug("debug log");
-    }
+    public Class Adapter {
+      public void myMethod() {
+        Logger logger = AdapterLogger.getLogger();
+        logger.info("info log");
+        logger.warning("warning log");
+        logger.error("error log");
+        logger.debug("debug log");
+      }
 
-    public void myOtherMethod() {
-      Logger logger = AdapterLogger.getLogger();
-      logger.info("other info log");
-      logger.warning("other warning log");
-      logger.error("other error log");
-      logger.debug("other debug log");
+      public void myOtherMethod() {
+        Logger logger = AdapterLogger.getLogger();
+        logger.info("other info log");
+        logger.warning("other warning log");
+        logger.error("other error log");
+        logger.debug("other debug log");
+      }
+
+      public static void main(String[] args){
+        AdapterLogger.setupLogging("Adapter");
+        Adapter instance = new Adapter();
+        instance.myMethod();
+        instance.myOtherMethhod();
+      }
     }
     ```
 
