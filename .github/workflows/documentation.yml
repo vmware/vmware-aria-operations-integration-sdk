@@ -32,9 +32,9 @@ jobs:
       run: pip install -e lib/python/
     - name: Generate Java Adapter Library Documentation
       run: |
-        ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaHtml
+        ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaJavadoc
         mkdir -p docs/references/java_project/java_lib/
-        cp -r lib/java/AdapterLibrary/build/dokka/html/* docs/references/java_project/java_lib/
+        cp -r lib/java/AdapterLibrary/build/dokka/javadoc/* docs/references/java_project/java_lib/
     - name: Deploy MKDocs Site
       run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
 
