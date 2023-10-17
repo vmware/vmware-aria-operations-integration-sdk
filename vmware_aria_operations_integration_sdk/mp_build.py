@@ -695,9 +695,9 @@ def main() -> None:
                     os.chdir(project.path)
                 rmdir(temp_dir)
     except DockerWrapperError as error:
-        logger.error("Unable to build pak file")
-        logger.error(error.message)
-        logger.info(error.recommendation)
+        logger.error("Unable to build container")
+        logger.error(error.message, extra={"style": "class:ansi_escaped"})
+        logger.error(error.recommendation)
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl-C pressed by user")
