@@ -109,6 +109,32 @@ class MetricAttribute @JvmOverloads constructor(
 }
 
 /**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property unit Specifies what unit this metric is returned in. This allows the UI to display the units in a
+ * consistent manner, and perform conversions when appropriate.
+ * @property isRate Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+ * will be set automatically. Otherwise, defaults to False.
+ * @property isDiscrete Declares that this attribute's range of values is discrete (integer) rather than continuous
+ * (floating point). Defaults to False, unless 'is_string' is set, in which case it will always be set to True.
+ * @property isKpi If set, threshold breaches for this metric will be used in the calculation of the object's
+ * 'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+ * @property isImpact If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+ * proxy to a root cause, but not the root cause itself.
+ * @property isKeyAttribute True if the attribute should be shown in some object summary widgets in the UI.
+ */
+class MetricAttributeBuilder(val key: String) {
+    var label: String = key
+    var unit: SdkUnit = Units.None
+    var isRate: Boolean = unit.isRate
+    var isDiscrete: Boolean = false
+    var isKpi: Boolean = false
+    var isImpact: Boolean = false
+    var isKeyAttribute: Boolean = false
+    fun build(dashboardOrder: Int) = MetricAttribute(key, label, unit, isRate, isDiscrete, isKpi, isImpact, isKeyAttribute, dashboardOrder)
+}
+
+/**
  * @param key Used to identify the parameter.
  * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
  * @param isString Determines if the property is numeric or string (text).
@@ -155,4 +181,47 @@ class PropertyAttribute @JvmOverloads constructor(
         "float"
     }
     override val isProperty: Boolean = true
+}
+
+/**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property isKpi If set, threshold breaches for this metric will be used in the calculation of the object's
+ * 'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+ * @property isImpact If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+ * proxy to a root cause, but not the root cause itself.
+ * @property isKeyAttribute True if the attribute should be shown in some object summary widgets in the UI.
+ */
+class StringPropertyAttributeBuilder(val key: String) {
+    var label: String = key
+    var isKpi: Boolean = false
+    var isImpact: Boolean = false
+    var isKeyAttribute: Boolean = false
+    fun build(dashboardOrder: Int) = PropertyAttribute(key, label, true, Units.None, false, true, isKpi, isImpact, isKeyAttribute, dashboardOrder)
+}
+
+/**
+ * @property key Used to identify the parameter.
+ * @property label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+ * @property unit Specifies what unit this metric is returned in. This allows the UI to display the units in a
+ * consistent manner, and perform conversions when appropriate.
+ * @property isRate Declares this attribute as a rate (e.g., kilobytes per second). If a unit is specified, this
+ * will be set automatically. Otherwise, defaults to False.
+ * @property isDiscrete Declares that this attribute's range of values is discrete (integer) rather than continuous
+ * (floating point). Defaults to False.
+ * @property isKpi If set, threshold breaches for this metric will be used in the calculation of the object's
+ * 'Self - Health Score' metric, which can affect the 'Anomalies' Badge.
+ * @property isImpact If set, this attribute will never be the 'root cause' of an issue. For example, it could be a
+ * proxy to a root cause, but not the root cause itself.
+ * @property isKeyAttribute True if the attribute should be shown in some object summary widgets in the UI.
+ */
+class NumericPropertyAttributeBuilder(val key: String) {
+    var label: String = key
+    var unit: SdkUnit = Units.None
+    var isRate: Boolean = unit.isRate
+    var isDiscrete: Boolean = false
+    var isKpi: Boolean = false
+    var isImpact: Boolean = false
+    var isKeyAttribute: Boolean = false
+    fun build(dashboardOrder: Int) = PropertyAttribute(key, label, false, unit, isRate, isDiscrete, isKpi, isImpact, isKeyAttribute, dashboardOrder)
 }

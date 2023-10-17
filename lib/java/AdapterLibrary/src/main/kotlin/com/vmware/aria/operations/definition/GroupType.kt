@@ -11,6 +11,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import java.util.function.Consumer
 
 abstract class GroupType @Throws(KeyException::class) constructor() {
     abstract val key: String
@@ -127,6 +128,20 @@ abstract class GroupType @Throws(KeyException::class) constructor() {
     }
 
     /**
+     * Create a new metric definition and add it to the containing object definition.
+     * @param key Used to identify the metric.
+     * @param block Anonymous function taking a [MetricAttributeBuilder] as a parameter that can be used to override
+     * default values of the attribute. This is particularly useful in Java.
+     */
+    fun defineMetric(key: String, block: Consumer<MetricAttributeBuilder>): MetricAttribute {
+        val metricBuilder = MetricAttributeBuilder(key)
+        block.accept(metricBuilder)
+        val metric = metricBuilder.build(this.attributeMap.size)
+        addAttribute(metric)
+        return metric
+    }
+
+    /**
      * @param key Used to identify the parameter.
      * @param label Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
      * @param isKpi If set, threshold breaches for this metric will be used in the calculation of the object's
@@ -140,7 +155,6 @@ abstract class GroupType @Throws(KeyException::class) constructor() {
     fun defineStringProperty(
         key: String,
         label: String = key,
-        isDiscrete: Boolean = false,
         isKpi: Boolean = false,
         isImpact: Boolean = false,
         isKeyAttribute: Boolean = false,
@@ -157,6 +171,20 @@ abstract class GroupType @Throws(KeyException::class) constructor() {
             isKeyAttribute,
             dashboardOrder = this.attributeMap.size,
         )
+        addAttribute(property)
+        return property
+    }
+
+    /**
+     * Create a new string property definition and add it to the containing object definition.
+     * @param key Used to identify the property
+     * @param block Anonymous function taking a [StringPropertyAttributeBuilder] as a parameter that can be used to override
+     * default values of the attribute. This is particularly useful in Java.
+     */
+    fun defineStringProperty(key: String, block: Consumer<StringPropertyAttributeBuilder>): PropertyAttribute {
+        val propertyBuilder = StringPropertyAttributeBuilder(key)
+        block.accept(propertyBuilder)
+        val property = propertyBuilder.build(this.attributeMap.size)
         addAttribute(property)
         return property
     }
@@ -200,6 +228,22 @@ abstract class GroupType @Throws(KeyException::class) constructor() {
             isKeyAttribute,
             dashboardOrder = this.attributeMap.size,
         )
+        addAttribute(property)
+        return property
+    }
+
+
+    /**
+     * Create a new numeric property definition and add it to the containing object definition.
+     * @param key Used to identify the property
+     * @param block Anonymous function taking a [StringPropertyAttributeBuilder] as a parameter that can be used to override
+     * default values of the attribute. This is particularly useful in Java.
+     */
+    @Throws(DuplicateKeyException::class)
+    fun defineNumericProperty(key: String, block: Consumer<NumericPropertyAttributeBuilder>): PropertyAttribute {
+        val propertyBuilder = NumericPropertyAttributeBuilder(key)
+        block.accept(propertyBuilder)
+        val property = propertyBuilder.build(this.attributeMap.size)
         addAttribute(property)
         return property
     }
