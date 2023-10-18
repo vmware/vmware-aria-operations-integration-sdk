@@ -132,7 +132,7 @@ class JavaAdapter(AdapterConfig):
         dockerfile.write("# Set the working directory inside the Docker image\n")
         dockerfile.write("WORKDIR /home/gradle/project\n\n")
         dockerfile.write("# Copy the Gradle build file and the source code\n")
-        dockerfile.write("COPY build.gradle .\n")
+        dockerfile.write("COPY build.gradle.kts .\n")
         dockerfile.write(f"COPY src src\n\n")
         dockerfile.write("# Run Gradle to compile the code\n")
         dockerfile.write("RUN gradle build\n\n")
