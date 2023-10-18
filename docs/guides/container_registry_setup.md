@@ -29,12 +29,13 @@ There are many options for installing or using a container registry. The followi
         VMware Aria Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
-3. Run `mp-build` and set the registry and repository tag when prompted (may look like `registry.mycompany.com/my_project/repository_for_test_mp`)
+3. Run `mp-build` and set the registry and repository tag when prompted (may look like `harbor.my-organization.com/my-project-repository/adaptername`)
 
     ??? note
 
         If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
 
+4. Once step `3` is successful, subsequent builds will no longer require any of the above steps.
 
 ## Using a Cloud-based Container Registry
 
@@ -56,6 +57,8 @@ running `mp-build`.
     ??? note
 
         If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
+ 
+4. Once step `3` is successful, subsequent builds will no longer require any of the above steps.
 
 ### Using Docker Hub
 
@@ -90,3 +93,4 @@ Docker CLI recommends using a token when using docker hub instead of your login 
 
         If `mp-build` doesn't prompt for a tag for the container repository, open the `config.json` file in the project's root directory, then replace the key-value of `container_repository` with the tag.
 
+4. Once step `3` is successful, subsequent builds will no longer require any of the above steps.
