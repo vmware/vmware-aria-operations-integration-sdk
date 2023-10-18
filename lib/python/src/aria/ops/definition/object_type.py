@@ -111,6 +111,8 @@ class ObjectType(GroupType):  # type: ignore
         Create a new enum identifier and apply it to this object type definition.
         All identifiers marked as 'part of uniqueness' are used to determine object identification. If none exist, the
         object name will be used for identification.
+
+        Args:
             key (str): Used to identify the parameter.
             values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified and not part of this array, it
             will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
