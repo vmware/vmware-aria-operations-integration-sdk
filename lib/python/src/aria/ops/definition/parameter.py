@@ -70,7 +70,7 @@ class IntParameter(Parameter):
             key (str): Used to identify the parameter.
             label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
             description (Optional[str]): More in-depth explanation of the parameter. Displayed as a tooltip in the VMware Aria Operations UI.
-            default (Optional[str]): The default value of the parameter.
+            default (Optional[int]): The default value of the parameter.
             required (bool): True if user is required to provide this parameter. Defaults to True.
             advanced (bool): True if the parameter should be collapsed by default. Defaults to False.
             display_order (int): Determines the order parameters will be displayed in the UI.
