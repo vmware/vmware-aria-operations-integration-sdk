@@ -151,7 +151,6 @@ public class Adapter {
 
     // Main entry point of the adapter. You should not need to modify anything below this line.
     public static void main(String[] args) throws FileNotFoundException {
-        // For log rotation and other logging setups, consider using a Java logging library or framework.
         AdapterLogger.setupLogging("Adapter");
         Logger logger = AdapterLogger.getLogger();
 
