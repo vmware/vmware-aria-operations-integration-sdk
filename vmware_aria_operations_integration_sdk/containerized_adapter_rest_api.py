@@ -123,7 +123,7 @@ async def get_request_body(port: int, connection: Connection) -> Dict:
             "credentialKey": connection.credential["credential_kind_key"],
             "credentialFields": fields,
         }
-
+    suite_api_connection = connection.get_suite_api_connection()
     request_body: Dict[str, object] = {
         "adapterKey": {
             "name": connection.name,
@@ -132,9 +132,9 @@ async def get_request_body(port: int, connection: Connection) -> Dict:
             "identifiers": identifiers,
         },
         "clusterConnectionInfo": {
-            "userName": connection.suite_api_username,
-            "password": connection.suite_api_password,
-            "hostName": connection.suite_api_hostname,
+            "userName": suite_api_connection.username,
+            "password": suite_api_connection.password,
+            "hostName": suite_api_connection.hostname,
         },
         "certificateConfig": {"certificates": connection.certificates or []},
     }
