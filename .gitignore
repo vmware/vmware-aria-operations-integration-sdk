@@ -73,7 +73,8 @@ images/base-python-adapter/target/
 images/base-python-adapter/.ipynb_checkpoints
 
 #IntelliJ project
-.idea
+*.idea
+*.iml
 
 # test/build
 .tox
