@@ -13,7 +13,7 @@ used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and pus
 
     ```json
     {
-      "default_container_registry_path" : "harbor.my-organization.com/my-project-registry/"
+      "default_container_registry_path" : "harbor.my-organization.com/my-project/"
       ...
     }
     ```
@@ -21,7 +21,7 @@ used to [tag](https://docs.docker.com/engine/reference/commandline/tag/) and pus
 `mp-build` constructs a tag using the **default_container_registry_path** and the lowercase value of the `adapter_kinds`
 key in the `manifest.txt` file.
 For example, if the adapter_kinds value is "AdapterName"
-the resulting tag would be `harbor.my-organization.com/my-project-registry/adaptername`.
+the resulting tag would be `harbor.my-organization.com/my-project/adaptername`.
 
 ## `container_port` (int, optional. default: 8080)
 

@@ -29,7 +29,7 @@ There are many options for installing or using a container registry. The followi
         VMware Aria Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
-3. Run `mp-build` and set the registry and repository tag when prompted (may look like `harbor.my-organization.com/my-project-repository/adaptername`)
+3. Run `mp-build` and set the registry and repository tag when prompted (may look like `harbor.my-organization.com/my-project/adaptername`)
 
     ??? note
 
