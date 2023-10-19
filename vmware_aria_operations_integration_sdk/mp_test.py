@@ -587,7 +587,14 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
         "command line arguments or in the interactive prompt.",
     )
     new_connection = Connection(
-        name, identifiers, credentials, None, suite_api_credentials[0], suite_api_credentials[1], suite_api_credentials[2], suite_api_credentials[3]
+        name,
+        identifiers,
+        credentials,
+        None,
+        suite_api_credentials[0],
+        suite_api_credentials[1],
+        suite_api_credentials[2],
+        suite_api_credentials[3],
     )
     project.connections.append(new_connection)
     record_project(project)
@@ -602,7 +609,9 @@ derived from the 'conf/describe.xml' file and are specific to each Management Pa
     return new_connection
 
 
-def get_suite_api_connection_info(project: Project) -> Tuple[Optional[str], Optional[str], Optional[str], SuiteApiConnection]:
+def get_suite_api_connection_info(
+    project: Project,
+) -> Tuple[Optional[str], Optional[str], Optional[str], SuiteApiConnection]:
     suiteapi_hostname = get_config_value(
         CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
         DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME,
@@ -669,12 +678,30 @@ def get_suite_api_connection_info(project: Project) -> Tuple[Optional[str], Opti
                 suiteapi_password,
                 os.path.join(project.path, CONNECTIONS_FILE_NAME),
             )
-            return None, None, None, SuiteApiConnection(suiteapi_hostname, suiteapi_username, suiteapi_password)
+            return (
+                None,
+                None,
+                None,
+                SuiteApiConnection(
+                    suiteapi_hostname, suiteapi_username, suiteapi_password
+                ),
+            )
         else:
-            return suiteapi_hostname, suiteapi_username, suiteapi_password, SuiteApiConnection(suiteapi_hostname, suiteapi_username, suiteapi_password)
+            return (
+                suiteapi_hostname,
+                suiteapi_username,
+                suiteapi_password,
+                SuiteApiConnection(
+                    suiteapi_hostname, suiteapi_username, suiteapi_password
+                ),
+            )
     else:
-        return None, None, None, SuiteApiConnection(suiteapi_hostname, suiteapi_username, suiteapi_password)
-
+        return (
+            None,
+            None,
+            None,
+            SuiteApiConnection(suiteapi_hostname, suiteapi_username, suiteapi_password),
+        )
 
 
 def input_parameter(parameter_type: str, parameter: Element, resources: Dict) -> str:

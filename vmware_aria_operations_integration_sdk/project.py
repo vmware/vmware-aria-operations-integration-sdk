@@ -17,9 +17,6 @@ from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
 from vmware_aria_operations_integration_sdk.constant import CONFIG_PROJECTS_PATH_KEY
 from vmware_aria_operations_integration_sdk.constant import (
-    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
-)
-from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_CONNECTION_CERTIFICATES_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
@@ -30,6 +27,9 @@ from vmware_aria_operations_integration_sdk.constant import (
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_CONNECTION_NAME_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
+    CONNECTIONS_CONFIG_CONNECTIONS_LIST_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
     CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY,
@@ -68,23 +68,25 @@ logger.addHandler(consoleHandler)
 
 
 class SuiteApiConnection:
-    def __init__(self, hostname, username, password):
-        self.hostname = hostname
-        self.username = username
-        self.password = password
+    def __init__(
+        self, hostname: Optional[str], username: Optional[str], password: Optional[str]
+    ) -> None:
+        self.hostname: str = hostname or DEFAULT_PLACEHOLDER_SUITE_API_HOSTNAME
+        self.username: str = username or DEFAULT_PLACEHOLDER_SUITE_API_USERNAME
+        self.password: str = password or DEFAULT_PLACEHOLDER_SUITE_API_PASSWORD
 
 
 class Connection:
     def __init__(
-            self,
-            name: str,
-            identifiers: Dict[str, Any],
-            credential: Dict[str, Any],
-            certificates: Optional[List[Dict]] = None,
-            suite_api_hostname: Optional[str] = None,
-            suite_api_username: Optional[str] = None,
-            suite_api_password: Optional[str] = None,
-            suite_api_connection: Optional[SuiteApiConnection] = None
+        self,
+        name: str,
+        identifiers: Dict[str, Any],
+        credential: Dict[str, Any],
+        certificates: Optional[List[Dict]] = None,
+        suite_api_hostname: Optional[str] = None,
+        suite_api_username: Optional[str] = None,
+        suite_api_password: Optional[str] = None,
+        suite_api_connection: Optional[SuiteApiConnection] = None,
     ) -> None:
         self.name = name
         self.identifiers = identifiers
@@ -99,7 +101,14 @@ class Connection:
 
         # But we want to be able to access the full connection with default values if
         # necessary
-        self.suite_api_connection = suite_api_connection
+        if suite_api_connection:
+            self.suite_api_connection = suite_api_connection
+        else:
+            self.suite_api_connection = SuiteApiConnection(
+                self._suite_api_hostname,
+                self._suite_api_username,
+                self._suite_api_password,
+            )
 
         # These should not be saved to the connection file - they are command-line
         # options only
@@ -114,7 +123,7 @@ class Connection:
             "certificates": self.certificates,
             "suite_api_hostname": self._suite_api_hostname,
             "suite_api_username": self._suite_api_username,
-            "suite_api_password": self._suite_api_password
+            "suite_api_password": self._suite_api_password,
         }
 
     def get_memory_limit(self) -> int:
@@ -139,7 +148,6 @@ class Connection:
         return memory_limit  # type: ignore
 
     def get_suite_api_connection(self) -> SuiteApiConnection:
-
         return self.suite_api_connection
 
     @classmethod
@@ -167,26 +175,39 @@ class Connection:
             os.path.join(path, CONNECTIONS_FILE_NAME),
         )
 
-        connection_hostname = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY)
-        connection_username = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY)
-        connection_password = json_connection.get(CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY)
+        connection_hostname = json_connection.get(
+            CONNECTIONS_CONFIG_SUITE_API_HOSTNAME_KEY
+        )
+        connection_username = json_connection.get(
+            CONNECTIONS_CONFIG_SUITE_API_USERNAME_KEY
+        )
+        connection_password = json_connection.get(
+            CONNECTIONS_CONFIG_SUITE_API_PASSWORD_KEY
+        )
 
-        hostname = (connection_hostname or default_hostname)
-        username = (connection_username or default_username)
-        password = (connection_password or default_password)
+        hostname = connection_hostname or default_hostname
+        username = connection_username or default_username
+        password = connection_password or default_password
 
         suite_api_connection = SuiteApiConnection(hostname, username, password)
 
         return Connection(
-            name, identifiers, credential, certificates, connection_hostname, connection_username, connection_password, suite_api_connection
+            name,
+            identifiers,
+            credential,
+            certificates,
+            connection_hostname,
+            connection_username,
+            connection_password,
+            suite_api_connection,
         )
 
 
 class Project:
     def __init__(
-            self,
-            path: str,
-            connections: Optional[List[Connection]] = None,
+        self,
+        path: str,
+        connections: Optional[List[Connection]] = None,
     ) -> None:
         if connections is None:
             connections = []
