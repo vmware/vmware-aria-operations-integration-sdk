@@ -356,7 +356,10 @@
             "$ref": "#/components/schemas/CredentialConfig"
           },
           "clusterConnectionInfo": {
-            "$ref": "#/components/schemas/ClusterConnectionInfo"
+            "nullable": true,
+            "allOf": [{
+              "$ref": "#/components/schemas/ClusterConnectionInfo"
+            }]
           },
           "certificateConfig": {
             "$ref": "#/components/schemas/CertificateConfig"

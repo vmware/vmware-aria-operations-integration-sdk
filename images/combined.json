@@ -12,11 +12,6 @@
          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
       }
    },
-   "servers": [
-      {
-         "url": "http://localhost:8080"
-      }
-   ],
    "paths": {
       "/apiVersion": {
          "get": {
@@ -391,7 +386,12 @@
                   "$ref": "#/components/schemas/CredentialConfig"
                },
                "clusterConnectionInfo": {
-                  "$ref": "#/components/schemas/ClusterConnectionInfo"
+                  "nullable": true,
+                  "allOf": [
+                     {
+                        "$ref": "#/components/schemas/ClusterConnectionInfo"
+                     }
+                  ]
                },
                "certificateConfig": {
                   "$ref": "#/components/schemas/CertificateConfig"
@@ -472,6 +472,7 @@
          },
          "ClusterConnectionInfo": {
             "type": "object",
+            "nullable": true,
             "title": "ClusterConnectionInfo",
             "description": "Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.",
             "properties": {
