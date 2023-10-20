@@ -7,6 +7,7 @@ package com.vmware.aria.operations
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -93,9 +94,12 @@ class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
         } ?: Credential(null, emptyList())
 
         suiteApiClient = SuiteApiClient(
-            json["cluster_connection_info"]?.let {
-                Json.decodeFromJsonElement<SuiteApiConnectionInfo>(it)
-            } ?: SuiteApiConnectionInfo("", "", "")
+            when (val suiteApiConnectionInfo = json["cluster_connection_info"]) {
+                is JsonNull, null -> SuiteApiConnectionInfo("", "", "")
+                else -> Json.decodeFromJsonElement<SuiteApiConnectionInfo>(
+                    suiteApiConnectionInfo
+                )
+            }
         )
 
         certificates = json["certificate_config"]?.let {
@@ -138,13 +142,16 @@ class AdapterInstance(json: JsonObject) : Object(getKey(json)) {
         private fun getKey(json: JsonObject): Key {
             return json["adapter_key"]?.jsonObject?.let { adapterKey ->
                 Key(
-                    adapterType = adapterKey["adapter_kind"]?.jsonPrimitive?.content ?: "",
-                    objectType = adapterKey["object_kind"]?.jsonPrimitive?.content ?: "",
+                    adapterType = adapterKey["adapter_kind"]?.jsonPrimitive?.content
+                        ?: "",
+                    objectType = adapterKey["object_kind"]?.jsonPrimitive?.content
+                        ?: "",
                     name = adapterKey["name"]?.jsonPrimitive?.content ?: "",
                     identifiers = adapterKey["identifiers"]?.jsonArray?.map { identifier ->
                         Identifier(
                             identifier.jsonObject["key"]?.jsonPrimitive?.content ?: "",
-                            identifier.jsonObject["value"]?.jsonPrimitive?.content ?: "",
+                            identifier.jsonObject["value"]?.jsonPrimitive?.content
+                                ?: "",
                             identifier.jsonObject["is_part_of_uniqueness"]?.jsonPrimitive?.boolean
                                 ?: true
                         )

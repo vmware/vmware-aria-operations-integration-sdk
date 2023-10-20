@@ -105,6 +105,14 @@ class AdapterInstanceTest {
             "collection_number", n(COLLECTION_NUMBER),
             "collection_window", WINDOW
     ));
+    JsonObject ADAPTER_INSTANCE2 = obj(Map.of(
+            "adapter_key", KEY,
+            "credential_config", CREDENTIAL,
+            "cluster_connection_info", JsonNull.INSTANCE,
+            "certificate_config", CERTIFICATES,
+            "collection_number", n(COLLECTION_NUMBER),
+            "collection_window", WINDOW
+    ));
 
     @Test
     public void getIdentifierValue() {
@@ -130,6 +138,15 @@ class AdapterInstanceTest {
         assertEquals(HOSTNAME, ai.getSuiteApiClient().getConnectionInfo().getHostname());
         assertEquals(USERNAME, ai.getSuiteApiClient().getConnectionInfo().getUsername());
         assertEquals(PASSWORD, ai.getSuiteApiClient().getConnectionInfo().getPassword());
+    }
+
+    @Test
+    public void getNullSuiteApiClient() {
+        AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE2);
+        assertNotNull(ai.getSuiteApiClient());
+        assertEquals("", ai.getSuiteApiClient().getConnectionInfo().getHostname());
+        assertEquals("", ai.getSuiteApiClient().getConnectionInfo().getUsername());
+        assertEquals("", ai.getSuiteApiClient().getConnectionInfo().getPassword());
     }
 
     @Test

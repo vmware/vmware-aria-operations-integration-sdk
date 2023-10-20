@@ -91,6 +91,12 @@ class TimerKtTest {
         System.out.println(Timing.graph());
     }
 
+    @Test
+    public void graph3() {
+        // print a graph
+        assertTrue(Timing.graph().isEmpty());
+    }
+
     private void sleep(Long milliseconds) {
         try {
             Thread.sleep(milliseconds);
