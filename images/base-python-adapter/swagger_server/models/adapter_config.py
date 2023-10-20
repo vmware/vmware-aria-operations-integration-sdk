@@ -9,12 +9,12 @@ from typing import Dict
 from typing import List
 
 from swagger_server import util
+from swagger_server.models.all_of_adapter_config_cluster_connection_info import (
+    AllOfAdapterConfigClusterConnectionInfo,
+)  # noqa: F401,E501
 from swagger_server.models.base_model_ import Model
 from swagger_server.models.certificate_config import (
     CertificateConfig,
-)  # noqa: F401,E501
-from swagger_server.models.cluster_connection_info import (
-    ClusterConnectionInfo,
 )  # noqa: F401,E501
 from swagger_server.models.collection_window import CollectionWindow  # noqa: F401,E501
 from swagger_server.models.credential_config import CredentialConfig  # noqa: F401,E501
@@ -31,7 +31,7 @@ class AdapterConfig(Model):
         self,
         adapter_key: ObjectKey = None,
         credential_config: CredentialConfig = None,
-        cluster_connection_info: ClusterConnectionInfo = None,
+        cluster_connection_info: AllOfAdapterConfigClusterConnectionInfo = None,
         certificate_config: CertificateConfig = None,
         collection_number: int = None,
         collection_window: CollectionWindow = None,
@@ -43,7 +43,7 @@ class AdapterConfig(Model):
         :param credential_config: The credential_config of this AdapterConfig.  # noqa: E501
         :type credential_config: CredentialConfig
         :param cluster_connection_info: The cluster_connection_info of this AdapterConfig.  # noqa: E501
-        :type cluster_connection_info: ClusterConnectionInfo
+        :type cluster_connection_info: AllOfAdapterConfigClusterConnectionInfo
         :param certificate_config: The certificate_config of this AdapterConfig.  # noqa: E501
         :type certificate_config: CertificateConfig
         :param collection_number: The collection_number of this AdapterConfig.  # noqa: E501
@@ -54,7 +54,7 @@ class AdapterConfig(Model):
         self.swagger_types = {
             "adapter_key": ObjectKey,
             "credential_config": CredentialConfig,
-            "cluster_connection_info": ClusterConnectionInfo,
+            "cluster_connection_info": AllOfAdapterConfigClusterConnectionInfo,
             "certificate_config": CertificateConfig,
             "collection_number": int,
             "collection_window": CollectionWindow,
@@ -133,22 +133,24 @@ class AdapterConfig(Model):
         self._credential_config = credential_config
 
     @property
-    def cluster_connection_info(self) -> ClusterConnectionInfo:
+    def cluster_connection_info(self) -> AllOfAdapterConfigClusterConnectionInfo:
         """Gets the cluster_connection_info of this AdapterConfig.
 
 
         :return: The cluster_connection_info of this AdapterConfig.
-        :rtype: ClusterConnectionInfo
+        :rtype: AllOfAdapterConfigClusterConnectionInfo
         """
         return self._cluster_connection_info
 
     @cluster_connection_info.setter
-    def cluster_connection_info(self, cluster_connection_info: ClusterConnectionInfo):
+    def cluster_connection_info(
+        self, cluster_connection_info: AllOfAdapterConfigClusterConnectionInfo
+    ):
         """Sets the cluster_connection_info of this AdapterConfig.
 
 
         :param cluster_connection_info: The cluster_connection_info of this AdapterConfig.
-        :type cluster_connection_info: ClusterConnectionInfo
+        :type cluster_connection_info: AllOfAdapterConfigClusterConnectionInfo
         """
 
         self._cluster_connection_info = cluster_connection_info

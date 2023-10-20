@@ -6,6 +6,9 @@ from __future__ import absolute_import
 
 from swagger_server.models.adapter_config import AdapterConfig
 from swagger_server.models.adapter_definition import AdapterDefinition
+from swagger_server.models.all_of_adapter_config_cluster_connection_info import (
+    AllOfAdapterConfigClusterConnectionInfo,
+)
 from swagger_server.models.api_version import ApiVersion
 from swagger_server.models.attribute_definition import AttributeDefinition
 from swagger_server.models.certificate import Certificate
@@ -15,6 +18,9 @@ from swagger_server.models.collect_result import CollectResult
 from swagger_server.models.collection_window import CollectionWindow
 from swagger_server.models.credential_config import CredentialConfig
 from swagger_server.models.credential_definition import CredentialDefinition
+from swagger_server.models.credential_definition_enum_values import (
+    CredentialDefinitionEnumValues,
+)
 from swagger_server.models.credential_definition_fields import (
     CredentialDefinitionFields,
 )
@@ -31,3 +37,5 @@ from swagger_server.models.object_key import ObjectKey
 from swagger_server.models.object_relationship import ObjectRelationship
 from swagger_server.models.property_data import PropertyData
 from swagger_server.models.test_result import TestResult
+
+# import models into model package

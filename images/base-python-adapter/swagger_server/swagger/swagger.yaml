@@ -503,7 +503,9 @@ components:
         credentialConfig:
           $ref: '#/components/schemas/CredentialConfig'
         clusterConnectionInfo:
-          $ref: '#/components/schemas/ClusterConnectionInfo'
+          nullable: true
+          allOf:
+          - $ref: '#/components/schemas/ClusterConnectionInfo'
         certificateConfig:
           $ref: '#/components/schemas/CertificateConfig'
         collectionNumber:
@@ -573,6 +575,7 @@ components:
           type: string
           description: Host name for connection to the VMware Aria Operations Cluster
       description: Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.
+      nullable: true
     Certificate:
       title: Certificate
       required:
