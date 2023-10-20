@@ -556,6 +556,7 @@ components:
         This class contains all information about the credential's field entered when the adapter instance is created.
     ClusterConnectionInfo:
       title: ClusterConnectionInfo
+      nullable: true
       required:
       - hostName
       - userName
