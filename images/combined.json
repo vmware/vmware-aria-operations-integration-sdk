@@ -1,948 +1,953 @@
 {
-   "openapi": "3.0.0",
-   "info": {
-      "title": "Adapter API",
-      "version": "1.0.0",
-      "contact": {
-         "name": "VMware, Inc"
-      },
-      "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development.",
-      "license": {
-         "name": "Apache-2.0",
-         "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
-      }
-   },
-   "paths": {
-      "/apiVersion": {
-         "get": {
-            "summary": "API Version",
-            "responses": {
-               "200": {
-                  "description": "OK",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "$ref": "#/components/schemas/ApiVersion"
-                        }
-                     }
-                  }
-               }
-            },
-            "operationId": "apiVersion",
-            "description": "Get API Version"
-         },
-         "parameters": []
-      },
-      "/test": {
-         "post": {
-            "summary": "Connection Test",
-            "operationId": "test",
-            "responses": {
-               "200": {
-                  "description": "OK",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "$ref": "#/components/schemas/TestResult"
-                        }
-                     }
-                  }
-               },
-               "400": {
-                  "description": "Bad Request"
-               }
-            },
-            "description": "Trigger a connection test",
-            "requestBody": {
-               "content": {
-                  "application/json": {
-                     "schema": {
-                        "$ref": "#/components/schemas/AdapterConfig"
-                     }
-                  }
-               }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Adapter API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "VMware, Inc"
+    },
+    "description": "The API contract is defined using a standard OpenAPI specification to simplify adapter development.",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/apiVersion": {
+      "get": {
+        "summary": "API Version",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiVersion"
+                }
+              }
             }
-         }
+          }
+        },
+        "operationId": "apiVersion",
+        "description": "Get API Version"
       },
-      "/collect": {
-         "post": {
-            "summary": "Data Collection",
-            "operationId": "collect",
-            "responses": {
-               "200": {
-                  "description": "OK",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "$ref": "#/components/schemas/CollectResult"
-                        }
-                     }
-                  }
-               }
-            },
-            "requestBody": {
-               "content": {
-                  "application/json": {
-                     "schema": {
-                        "$ref": "#/components/schemas/AdapterConfig"
-                     }
-                  }
-               },
-               "description": ""
-            },
-            "parameters": [],
-            "description": "Do data collection"
-         }
-      },
-      "/endpointURLs": {
-         "post": {
-            "summary": "Retrieve endpoint URLs",
-            "responses": {
-               "200": {
-                  "description": "OK",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "$ref": "#/components/schemas/EndpointResults"
-                        }
-                     }
-                  }
-               }
-            },
-            "operationId": "get-endpointUrls",
-            "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aria Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
-            "requestBody": {
-               "content": {
-                  "application/json": {
-                     "schema": {
-                        "$ref": "#/components/schemas/AdapterConfig"
-                     }
-                  }
-               }
+      "parameters": []
+    },
+    "/test": {
+      "post": {
+        "summary": "Connection Test",
+        "operationId": "test",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
             }
-         },
-         "parameters": []
-      },
-      "/adapterDefinition": {
-         "get": {
-            "summary": "Retrieve the data model for collection",
-            "responses": {
-               "200": {
-                  "description": "OK",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "$ref": "#/components/schemas/AdapterDefinition"
-                        }
-                     }
-                  }
-               },
-               "204": {
-                  "description": "No Adapter Definition returned",
-                  "content": {
-                     "application/json": {
-                        "schema": {
-                           "type": "object"
-                        }
-                     }
-                  }
-               }
-            },
-            "operationId": "definition",
-            "description": "Get Adapter Definition"
-         },
-         "parameters": []
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "description": "Trigger a connection test",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdapterConfig"
+              }
+            }
+          }
+        }
       }
-   },
-   "components": {
-      "schemas": {
-         "ObjectKey": {
-            "type": "object",
-            "title": "ObjectKey",
-            "description": "Represents a key to uniquely identify a object in the system. A key's\nuniqueness depends on its object kind, adapter kind, and either the\nobject name or additional \"uniqueness\" identifiers.\n\nSee {Identifier} for information about object identifiers.\n\nA object key includes the object name as part of the key's uniqueness if\nit has no identifiers marked as part of uniqueness; otherwise, it includes\nthe identifiers marked as part of uniqueness instead of the object name.\n\nAll components used to determine uniqueness are compared in a case-insensitive way.\n\nThe following shows how to add two objects, by objectKey, to a discovery\nresult.  The first is created with no identifiers.  The second is created\nwith two identifiers, one of which plays a part in uniquely identifying the\nobject and the other which is for informational purposes only.",
-            "properties": {
-               "name": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "Name of the object this key represents"
-               },
-               "adapterKind": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "Adapter kind key this key represents."
-               },
-               "objectKind": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "The object kind key this key represents."
-               },
-               "identifiers": {
-                  "type": "array",
-                  "description": "Collection of identifiers for this key. Identifiers are case insensitive. No two identifiers with the same key can exist for the same resource.",
-                  "items": {
-                     "$ref": "#/components/schemas/Identifier"
-                  }
-               }
-            },
-            "required": [
-               "name",
-               "adapterKind",
-               "objectKind"
+    },
+    "/collect": {
+      "post": {
+        "summary": "Data Collection",
+        "operationId": "collect",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectResult"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdapterConfig"
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [],
+        "description": "Do data collection"
+      }
+    },
+    "/endpointURLs": {
+      "post": {
+        "summary": "Retrieve endpoint URLs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointResults"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-endpointUrls",
+        "description": "This should return a list of properly formed endpoint URL(s) (https://ip address) this adapter instance is expected to communicate with. List of URLs will be used for taking advantage of the VMware Aria Operations Manager certificate trust system. If the list is empty this means adapter will handle certificates manually.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdapterConfig"
+              }
+            }
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/adapterDefinition": {
+      "get": {
+        "summary": "Retrieve the data model for collection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterDefinition"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Adapter Definition returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "definition",
+        "description": "Get Adapter Definition"
+      },
+      "parameters": []
+    }
+  },
+  "components": {
+    "schemas": {
+      "ObjectKey": {
+        "type": "object",
+        "title": "ObjectKey",
+        "description": "Represents a key to uniquely identify a object in the system. A key's\nuniqueness depends on its object kind, adapter kind, and either the\nobject name or additional \"uniqueness\" identifiers.\n\nSee {Identifier} for information about object identifiers.\n\nA object key includes the object name as part of the key's uniqueness if\nit has no identifiers marked as part of uniqueness; otherwise, it includes\nthe identifiers marked as part of uniqueness instead of the object name.\n\nAll components used to determine uniqueness are compared in a case-insensitive way.\n\nThe following shows how to add two objects, by objectKey, to a discovery\nresult.  The first is created with no identifiers.  The second is created\nwith two identifiers, one of which plays a part in uniquely identifying the\nobject and the other which is for informational purposes only.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the object this key represents"
+          },
+          "adapterKind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Adapter kind key this key represents."
+          },
+          "objectKind": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The object kind key this key represents."
+          },
+          "identifiers": {
+            "type": "array",
+            "description": "Collection of identifiers for this key. Identifiers are case insensitive. No two identifiers with the same key can exist for the same resource.",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "adapterKind",
+          "objectKind"
+        ]
+      },
+      "Identifier": {
+        "type": "object",
+        "title": "Identifier",
+        "description": "Stores the adapter object's identifier configuration.\nAn identifier can either be an active identifier or an informational identifier.\nAll active identifiers have the flag \"isPartOfUniqueness\" set to true, \nwhile all informational identifiers have this flag set to false. In the product,\nthere cannot be more than one object with the same values for all active identifiers.\nThis class contains all information about the object identifier.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Key for the object identifier. For a object kind, identifier keys are unique. In describe.xml file, the attribute \"key\" corresponds to this field. This is a case-insensitive field and can not be empty.",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "description": "Value of the object identifier. This is a case-insensitive field"
+          },
+          "isPartOfUniqueness": {
+            "type": "boolean",
+            "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.",
+            "default": false
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "ObjectData": {
+        "type": "object",
+        "title": "ObjectData",
+        "description": "Stores object configuration information. Collection of metrics/properties for the object and the object key for current object.",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/ObjectKey"
+          },
+          "metrics": {
+            "type": "array",
+            "description": "Collection of metrics.",
+            "items": {
+              "$ref": "#/components/schemas/MetricData"
+            }
+          },
+          "properties": {
+            "type": "array",
+            "description": "Collection of properties.",
+            "items": {
+              "$ref": "#/components/schemas/PropertyData"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "MetricData": {
+        "type": "object",
+        "title": "MetricData",
+        "description": "Represents a single data for a given metric, where an data is a time-stamp and a value;",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
+          },
+          "numberValue": {
+            "type": "number",
+            "format": "double",
+            "description": "Current double value."
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "default": -1,
+            "description": "Timestamp of the data."
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "PropertyData": {
+        "type": "object",
+        "title": "PropertyData",
+        "description": "Represents a single data for a given property, where the value can be numeric or string type.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
+          },
+          "stringValue": {
+            "type": "string",
+            "description": "Current string value"
+          },
+          "numberValue": {
+            "type": "number",
+            "format": "double",
+            "description": "Current double value."
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "default": -1,
+            "description": "Timestamp of the data."
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "CollectResult": {
+        "type": "object",
+        "title": "CollectResult",
+        "description": "Result of the collection process. Every collect result has object data collection with metrics/properties and the relationship of all objects.",
+        "properties": {
+          "result": {
+            "type": "array",
+            "description": "Collection of collected objects with metrics and properties.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectData"
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "description": "Collection of objects relationships with parent to children structure.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectRelationship"
+            }
+          },
+          "notExistingObjects": {
+            "type": "array",
+            "description": "Collection of not existing objects.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectKey"
+            }
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        }
+      },
+      "ObjectRelationship": {
+        "type": "object",
+        "title": "ObjectRelationship",
+        "description": "Represents a single parent to many children relationship.",
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/ObjectKey"
+          },
+          "children": {
+            "type": "array",
+            "description": "Collection of children for the current parent.",
+            "items": {
+              "$ref": "#/components/schemas/ObjectKey"
+            }
+          },
+          "add": {
+            "type": "boolean",
+            "description": "If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.",
+            "default": true
+          },
+          "clearFirst": {
+            "type": "boolean",
+            "description": "If the value is true all children will be removed from the parent before adding this list.",
+            "default": true
+          }
+        },
+        "required": [
+          "parent"
+        ]
+      },
+      "TestResult": {
+        "type": "object",
+        "title": "TestResult",
+        "description": "Represents the configuration validation result. Result contains error message if validation is failed.",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "description": "Contains the error message if the test connection failed."
+          }
+        }
+      },
+      "AdapterConfig": {
+        "type": "object",
+        "title": "AdapterConfig",
+        "description": "Is designed for transferring adapter instance configuration from the Collector to\nAdapter, containing all necessary information about connection parameters, credentials.",
+        "minProperties": 0,
+        "properties": {
+          "adapterKey": {
+            "$ref": "#/components/schemas/ObjectKey"
+          },
+          "credentialConfig": {
+            "$ref": "#/components/schemas/CredentialConfig"
+          },
+          "clusterConnectionInfo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ClusterConnectionInfo"
+              }
             ]
-         },
-         "Identifier": {
+          },
+          "certificateConfig": {
+            "$ref": "#/components/schemas/CertificateConfig"
+          },
+          "collectionNumber": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "collectionWindow": {
             "type": "object",
-            "title": "Identifier",
-            "description": "Stores the adapter object's identifier configuration.\nAn identifier can either be an active identifier or an informational identifier.\nAll active identifiers have the flag \"isPartOfUniqueness\" set to true, \nwhile all informational identifiers have this flag set to false. In the product,\nthere cannot be more than one object with the same values for all active identifiers.\nThis class contains all information about the object identifier.",
+            "title": "CollectionWindow",
+            "minProperties": 2,
             "properties": {
-               "key": {
-                  "type": "string",
-                  "description": "Key for the object identifier. For a object kind, identifier keys are unique. In describe.xml file, the attribute \"key\" corresponds to this field. This is a case-insensitive field and can not be empty.",
-                  "minLength": 1
-               },
-               "value": {
-                  "type": "string",
-                  "description": "Value of the object identifier. This is a case-insensitive field"
-               },
-               "isPartOfUniqueness": {
-                  "type": "boolean",
-                  "description": "Flag to indicate whether the identifier should be considered for object's uniqueness. If a object has multiple identifiers that are part of uniqueness, there can be only one combination of values of those identifiers in VMware Aria Operations.",
-                  "default": false
-               }
-            },
-            "required": [
-               "key"
-            ]
-         },
-         "ObjectData": {
-            "type": "object",
-            "title": "ObjectData",
-            "description": "Stores object configuration information. Collection of metrics/properties for the object and the object key for current object.",
-            "properties": {
-               "key": {
-                  "$ref": "#/components/schemas/ObjectKey"
-               },
-               "metrics": {
-                  "type": "array",
-                  "description": "Collection of metrics.",
-                  "items": {
-                     "$ref": "#/components/schemas/MetricData"
-                  }
-               },
-               "properties": {
-                  "type": "array",
-                  "description": "Collection of properties.",
-                  "items": {
-                     "$ref": "#/components/schemas/PropertyData"
-                  }
-               },
-               "events": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/Event"
-                  }
-               }
-            },
-            "required": [
-               "key"
-            ]
-         },
-         "MetricData": {
-            "type": "object",
-            "title": "MetricData",
-            "description": "Represents a single data for a given metric, where an data is a time-stamp and a value;",
-            "properties": {
-               "key": {
-                  "type": "string",
-                  "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
-               },
-               "numberValue": {
-                  "type": "number",
-                  "format": "double",
-                  "description": "Current double value."
-               },
-               "timestamp": {
-                  "type": "integer",
-                  "format": "int64",
-                  "default": -1,
-                  "description": "Timestamp of the data."
-               }
-            },
-            "required": [
-               "key"
-            ]
-         },
-         "PropertyData": {
-            "type": "object",
-            "title": "PropertyData",
-            "description": "Represents a single data for a given property, where the value can be numeric or string type.",
-            "properties": {
-               "key": {
-                  "type": "string",
-                  "description": "Key represents a hierarchical structure for an individual\nmetric. The formation of the metric key is an important part of designing a\ndata feed. Well-formed metric keys will lead to better usability, performance\nand visualization of analytics results, such as root cause analysis.\n\nThe base concepts are as follows:<br>\nA metric key can consist of any number of hierarchical groups. Each hierarchical group can contain\ninstances. The last item in the hierarchy is assumed to be the name of the\nmetric. The hierarchy without instance names represents an attribute that can\nbe collected. If there are no instances, then a metric key and an attribute are one and the same."
-               },
-               "stringValue": {
-                  "type": "string",
-                  "description": "Current string value"
-               },
-               "numberValue": {
-                  "type": "number",
-                  "format": "double",
-                  "description": "Current double value."
-               },
-               "timestamp": {
-                  "type": "integer",
-                  "format": "int64",
-                  "default": -1,
-                  "description": "Timestamp of the data."
-               }
-            },
-            "required": [
-               "key"
-            ]
-         },
-         "CollectResult": {
-            "type": "object",
-            "title": "CollectResult",
-            "description": "Result of the collection process. Every collect result has object data collection with metrics/properties and the relationship of all objects.",
-            "properties": {
-               "result": {
-                  "type": "array",
-                  "description": "Collection of collected objects with metrics and properties.",
-                  "items": {
-                     "$ref": "#/components/schemas/ObjectData"
-                  }
-               },
-               "relationships": {
-                  "type": "array",
-                  "description": "Collection of objects relationships with parent to children structure.",
-                  "items": {
-                     "$ref": "#/components/schemas/ObjectRelationship"
-                  }
-               },
-               "notExistingObjects": {
-                  "type": "array",
-                  "description": "Collection of not existing objects.",
-                  "items": {
-                     "$ref": "#/components/schemas/ObjectKey"
-                  }
-               },
-               "errorMessage": {
+              "startTime": {
+                "type": "number",
+                "minimum": 0
+              },
+              "endTime": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "required": [
+          "adapterKey"
+        ]
+      },
+      "CredentialConfig": {
+        "type": "object",
+        "title": "CredentialConfig",
+        "description": "Represents the adapter's configured credential object. \nContains all information about the credentials entered when the adapter instance is created.",
+        "properties": {
+          "credentialKey": {
+            "type": "string",
+            "description": "Credential configuration key. In describe.xml file, the \"key\" attribute corresponds to this field.",
+            "minLength": 1
+          },
+          "credentialFields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "List of all credential field configurations. In describe.xml, the element \"CredentialField\" inside \"CredentialKind\" corresponds to individual elements in this list.",
+            "items": {
+              "$ref": "#/components/schemas/CredentialField"
+            }
+          }
+        },
+        "required": [
+          "credentialKey",
+          "credentialFields"
+        ]
+      },
+      "CredentialField": {
+        "type": "object",
+        "title": "CredentialField",
+        "description": "Represents adapter's credential configuration field.\nThis class contains all information about the credential's field entered when the adapter instance is created.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Credential field key. In describe.xml file, the \"key\" attribute corresponds to this field.",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "description": "Value of the credential field. This field is populated  on adapter instance creation.",
+            "format": "password"
+          },
+          "isPassword": {
+            "type": "boolean",
+            "default": false,
+            "description": "Flag to indicate whether this is a password field."
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "ClusterConnectionInfo": {
+        "type": "object",
+        "nullable": true,
+        "title": "ClusterConnectionInfo",
+        "description": "Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Represents the user name in the credential."
+          },
+          "password": {
+            "type": "string",
+            "description": "Represents the password in the credential.",
+            "format": "password"
+          },
+          "hostName": {
+            "type": "string",
+            "description": "Host name for connection to the VMware Aria Operations Cluster"
+          }
+        },
+        "required": [
+          "userName",
+          "hostName"
+        ]
+      },
+      "Certificate": {
+        "title": "Certificate",
+        "type": "object",
+        "description": "Represents the adapter's trusted certificate object. This class contains all information about the certificates trusted by user from UI when the adapter instance is created.",
+        "properties": {
+          "certPemString": {
+            "type": "string"
+          },
+          "isInvalidHostnameAccepted": {
+            "type": "boolean",
+            "default": false,
+            "description": "In case if the hostname verification fails and isInvalidHostnameAccepted is true \nAdapter should do the verification by comparing the certificates from the endpoints with the certificates received from the Collector. \nFor example the comparison can be done by thumbprint."
+          },
+          "isExpiredCertificateAccepted": {
+            "type": "boolean",
+            "default": false,
+            "description": "In case if the connection fails because of certificate expiration and isExpiredCertificateAccepted is true then the Adapter should ignore that failure and continue the connection."
+          }
+        },
+        "required": [
+          "certPemString"
+        ]
+      },
+      "CertificateConfig": {
+        "title": "CertificateConfig",
+        "type": "object",
+        "description": "Represents the adapter's trusted certificates.",
+        "properties": {
+          "certificates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Certificate"
+            }
+          }
+        }
+      },
+      "Event": {
+        "title": "Event",
+        "type": "object",
+        "properties": {
+          "criticality": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 5
+          },
+          "message": {
+            "type": "string"
+          },
+          "faultKey": {
+            "type": "string"
+          },
+          "autoCancel": {
+            "type": "boolean",
+            "default": false
+          },
+          "startDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "updateDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cancelDate": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "watchWaitCycle": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "cancelWaitCycle": {
+            "type": "integer",
+            "format": "int32",
+            "default": 3
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ApiVersion": {
+        "title": "ApiVersion",
+        "type": "object",
+        "description": "API Version",
+        "properties": {
+          "major": {
+            "type": "integer",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1,
+            "exclusiveMinimum": false,
+            "readOnly": true
+          },
+          "minor": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "readOnly": true
+          },
+          "maintenance": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 0,
+            "readOnly": true
+          }
+        },
+        "required": [
+          "major",
+          "minor",
+          "maintenance"
+        ]
+      },
+      "EndpointResults": {
+        "title": "EndpointResults",
+        "type": "object",
+        "description": "Endpoint URLs collection",
+        "properties": {
+          "endpointUrls": {
+            "type": "array",
+            "description": "Collection of endpoint URLs",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AttributeDefinition": {
+        "type": "object",
+        "title": "Attribute Definition",
+        "description": "Defines an attribute's metadata",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_rate": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_discrete": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_kpi": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_impact": {
+            "type": "boolean",
+            "default": false
+          },
+          "is_key_attribute": {
+            "type": "boolean",
+            "default": false
+          },
+          "dashboard_order": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data_type": {
+            "type": "string"
+          },
+          "is_property": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "is_rate",
+          "is_discrete",
+          "is_kpi",
+          "is_impact",
+          "is_key_attribute",
+          "dashboard_order",
+          "data_type",
+          "is_property"
+        ]
+      },
+      "CredentialDefinition": {
+        "type": "object",
+        "title": "Credential Definition",
+        "description": "Defines what credential fields are present on a given credential type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
                   "type": "string"
-               }
-            }
-         },
-         "ObjectRelationship": {
-            "type": "object",
-            "title": "ObjectRelationship",
-            "description": "Represents a single parent to many children relationship.",
-            "properties": {
-               "parent": {
-                  "$ref": "#/components/schemas/ObjectKey"
-               },
-               "children": {
+                },
+                "label": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "password": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "enum": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "enum_values": {
                   "type": "array",
-                  "description": "Collection of children for the current parent.",
                   "items": {
-                     "$ref": "#/components/schemas/ObjectKey"
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "display_order": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                      }
+                    }
                   }
-               },
-               "add": {
-                  "type": "boolean",
-                  "description": "If the value is true, then this relationship will be added to VMware Aria Operations Manager, if false, this relationship will be removed from VMware Aria Operations Manager.",
-                  "default": true
-               },
-               "clearFirst": {
-                  "type": "boolean",
-                  "description": "If the value is true all children will be removed from the parent before adding this list.",
-                  "default": true
-               }
-            },
-            "required": [
-               "parent"
-            ]
-         },
-         "TestResult": {
-            "type": "object",
-            "title": "TestResult",
-            "description": "Represents the configuration validation result. Result contains error message if validation is failed.",
-            "properties": {
-               "errorMessage": {
+                },
+                "default": {
                   "type": "string",
-                  "description": "Contains the error message if the test connection failed."
-               }
+                  "nullable": true
+                },
+                "display_order": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "type": {
+                  "type": "string",
+                  "default": "string"
+                }
+              },
+              "required": [
+                "key",
+                "label",
+                "required",
+                "password",
+                "enum",
+                "display_order",
+                "type"
+              ]
             }
-         },
-         "AdapterConfig": {
-            "type": "object",
-            "title": "AdapterConfig",
-            "description": "Is designed for transferring adapter instance configuration from the Collector to\nAdapter, containing all necessary information about connection parameters, credentials.",
-            "minProperties": 0,
-            "properties": {
-               "adapterKey": {
-                  "$ref": "#/components/schemas/ObjectKey"
-               },
-               "credentialConfig": {
-                  "$ref": "#/components/schemas/CredentialConfig"
-               },
-               "clusterConnectionInfo": {
-                  "nullable": true,
-                  "allOf": [
-                     {
-                        "$ref": "#/components/schemas/ClusterConnectionInfo"
-                     }
-                  ]
-               },
-               "certificateConfig": {
-                  "$ref": "#/components/schemas/CertificateConfig"
-               },
-               "collectionNumber": {
+          }
+        }
+      },
+      "IdentifierDefinition": {
+        "type": "object",
+        "title": "Identifier Definition",
+        "description": "Defines what identifiers are present on a given object type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          },
+          "ident_type": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "enum": {
+            "type": "boolean",
+            "default": false
+          },
+          "enum_values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "display_order": {
                   "type": "integer",
                   "format": "int32",
                   "minimum": 0
-               },
-               "collectionWindow": {
-                  "type": "object",
-                  "title": "CollectionWindow",
-                  "minProperties": 2,
-                  "properties": {
-                     "startTime": {
-                        "type": "number",
-                        "minimum": 0
-                     },
-                     "endTime": {
-                        "type": "number",
-                        "minimum": 0
-                     }
-                  }
-               }
-            },
-            "required": [
-               "adapterKey"
-            ]
-         },
-         "CredentialConfig": {
-            "type": "object",
-            "title": "CredentialConfig",
-            "description": "Represents the adapter's configured credential object. \nContains all information about the credentials entered when the adapter instance is created.",
-            "properties": {
-               "credentialKey": {
-                  "type": "string",
-                  "description": "Credential configuration key. In describe.xml file, the \"key\" attribute corresponds to this field.",
-                  "minLength": 1
-               },
-               "credentialFields": {
-                  "type": "array",
-                  "minItems": 1,
-                  "description": "List of all credential field configurations. In describe.xml, the element \"CredentialField\" inside \"CredentialKind\" corresponds to individual elements in this list.",
-                  "items": {
-                     "$ref": "#/components/schemas/CredentialField"
-                  }
-               }
-            },
-            "required": [
-               "credentialKey",
-               "credentialFields"
-            ]
-         },
-         "CredentialField": {
-            "type": "object",
-            "title": "CredentialField",
-            "description": "Represents adapter's credential configuration field.\nThis class contains all information about the credential's field entered when the adapter instance is created.",
-            "properties": {
-               "key": {
-                  "type": "string",
-                  "description": "Credential field key. In describe.xml file, the \"key\" attribute corresponds to this field.",
-                  "minLength": 1
-               },
-               "value": {
-                  "type": "string",
-                  "description": "Value of the credential field. This field is populated  on adapter instance creation.",
-                  "format": "password"
-               },
-               "isPassword": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Flag to indicate whether this is a password field."
-               }
-            },
-            "required": [
-               "key"
-            ]
-         },
-         "ClusterConnectionInfo": {
-            "type": "object",
-            "nullable": true,
-            "title": "ClusterConnectionInfo",
-            "description": "Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.",
-            "properties": {
-               "userName": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "Represents the user name in the credential."
-               },
-               "password": {
-                  "type": "string",
-                  "description": "Represents the password in the credential.",
-                  "format": "password"
-               },
-               "hostName": {
-                  "type": "string",
-                  "description": "Host name for connection to the VMware Aria Operations Cluster"
-               }
-            },
-            "required": [
-               "userName",
-               "hostName"
-            ]
-         },
-         "Certificate": {
-            "title": "Certificate",
-            "type": "object",
-            "description": "Represents the adapter's trusted certificate object. This class contains all information about the certificates trusted by user from UI when the adapter instance is created.",
-            "properties": {
-               "certPemString": {
-                  "type": "string"
-               },
-               "isInvalidHostnameAccepted": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "In case if the hostname verification fails and isInvalidHostnameAccepted is true \nAdapter should do the verification by comparing the certificates from the endpoints with the certificates received from the Collector. \nFor example the comparison can be done by thumbprint."
-               },
-               "isExpiredCertificateAccepted": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "In case if the connection fails because of certificate expiration and isExpiredCertificateAccepted is true then the Adapter should ignore that failure and continue the connection."
-               }
-            },
-            "required": [
-               "certPemString"
-            ]
-         },
-         "CertificateConfig": {
-            "title": "CertificateConfig",
-            "type": "object",
-            "description": "Represents the adapter's trusted certificates.",
-            "properties": {
-               "certificates": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/Certificate"
-                  }
-               }
+                }
+              }
             }
-         },
-         "Event": {
-            "title": "Event",
-            "type": "object",
-            "properties": {
-               "criticality": {
-                  "type": "integer",
-                  "format": "int32",
-                  "default": 0,
-                  "minimum": 0,
-                  "maximum": 5
-               },
-               "message": {
-                  "type": "string"
-               },
-               "faultKey": {
-                  "type": "string"
-               },
-               "autoCancel": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "startDate": {
-                  "type": "integer",
-                  "format": "int64"
-               },
-               "updateDate": {
-                  "type": "integer",
-                  "format": "int64"
-               },
-               "cancelDate": {
-                  "type": "integer",
-                  "format": "int64"
-               },
-               "watchWaitCycle": {
-                  "type": "integer",
-                  "format": "int32",
-                  "default": 1
-               },
-               "cancelWaitCycle": {
-                  "type": "integer",
-                  "format": "int32",
-                  "default": 3
-               }
-            },
-            "required": [
-               "message"
-            ]
-         },
-         "ApiVersion": {
-            "title": "ApiVersion",
-            "type": "object",
-            "description": "API Version",
-            "properties": {
-               "major": {
-                  "type": "integer",
-                  "default": 1,
-                  "minimum": 1,
-                  "maximum": 1,
-                  "exclusiveMinimum": false,
-                  "readOnly": true
-               },
-               "minor": {
-                  "type": "integer",
-                  "default": 0,
-                  "minimum": 0,
-                  "maximum": 0,
-                  "readOnly": true
-               },
-               "maintenance": {
-                  "type": "integer",
-                  "default": 0,
-                  "minimum": 0,
-                  "maximum": 0,
-                  "readOnly": true
-               }
-            },
-            "required": [
-               "major",
-               "minor",
-               "maintenance"
-            ]
-         },
-         "EndpointResults": {
-            "title": "EndpointResults",
-            "type": "object",
-            "description": "Endpoint URLs collection",
-            "properties": {
-               "endpointUrls": {
-                  "type": "array",
-                  "description": "Collection of endpoint URLs",
-                  "items": {
-                     "type": "string"
-                  }
-               }
-            }
-         },
-         "AttributeDefinition": {
-            "type": "object",
-            "title": "Attribute Definition",
-            "description": "Defines an attribute's metadata",
-            "properties": {
-               "key": {
-                  "type": "string"
-               },
-               "label": {
-                  "type": "string"
-               },
-               "unit": {
-                  "type": "string",
-                  "nullable": true
-               },
-               "is_rate": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "is_discrete": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "is_kpi": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "is_impact": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "is_key_attribute": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "dashboard_order": {
-                  "type": "integer",
-                  "format": "int32"
-               },
-               "data_type": {
-                  "type": "string"
-               },
-               "is_property": {
-                  "type": "boolean"
-               }
-            },
-            "required": [
-               "key",
-               "label",
-               "is_rate",
-               "is_discrete",
-               "is_kpi",
-               "is_impact",
-               "is_key_attribute",
-               "dashboard_order",
-               "data_type",
-               "is_property"
-            ]
-         },
-         "CredentialDefinition": {
-            "type": "object",
-            "title": "Credential Definition",
-            "description": "Defines what credential fields are present on a given credential type",
-            "properties": {
-               "key": {
-                  "type": "string"
-               },
-               "label": {
-                  "type": "string"
-               },
-               "fields": {
-                  "type": "array",
-                  "items": {
-                     "type": "object",
-                     "properties": {
-                        "key": {
-                           "type": "string"
-                        },
-                        "label": {
-                           "type": "string"
-                        },
-                        "required": {
-                           "type": "boolean",
-                           "default": true
-                        },
-                        "password": {
-                           "type": "boolean",
-                           "default": false
-                        },
-                        "enum": {
-                           "type": "boolean",
-                           "default": false
-                        },
-                        "enum_values": {
-                           "type": "array",
-                           "items": {
-                              "type": "object",
-                              "properties": {
-                                 "key": {
-                                    "type": "string"
-                                 },
-                                 "label": {
-                                    "type": "string"
-                                 },
-                                 "display_order": {
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "minimum": 0
-                                 }
-                              }
-                           }
-                        },
-                        "default": {
-                           "type": "string",
-                           "nullable": true
-                        },
-                        "display_order": {
-                           "type": "integer",
-                           "format": "int32"
-                        },
-                        "type": {
-                           "type": "string",
-                           "default": "string"
-                        }
-                     },
-                     "required": [
-                        "key",
-                        "label",
-                        "required",
-                        "password",
-                        "enum",
-                        "display_order",
-                        "type"
-                     ]
-                  }
-               }
-            }
-         },
-         "IdentifierDefinition": {
-            "type": "object",
-            "title": "Identifier Definition",
-            "description": "Defines what identifiers are present on a given object type",
-            "properties": {
-               "key": {
-                  "type": "string"
-               },
-               "label": {
-                  "type": "string"
-               },
-               "description": {
-                  "type": "string"
-               },
-               "required": {
-                  "type": "boolean",
-                  "default": true
-               },
-               "ident_type": {
-                  "type": "integer",
-                  "format": "int32",
-                  "default": 1
-               },
-               "enum": {
-                  "type": "boolean",
-                  "default": false
-               },
-               "enum_values": {
-                  "type": "array",
-                  "items": {
-                     "type": "object",
-                     "properties": {
-                        "key": {
-                           "type": "string"
-                        },
-                        "label": {
-                           "type": "string"
-                        },
-                        "display_order": {
-                           "type": "integer",
-                           "format": "int32",
-                           "minimum": 0
-                        }
-                     }
-                  }
-               },
-               "display_order": {
-                  "type": "integer",
-                  "format": "int32"
-               },
-               "type": {
-                  "type": "string"
-               },
-               "length": {
-                  "type": "integer",
-                  "nullable": true
-               },
-               "default": {
-                  "type": "string",
-                  "nullable": true
-               }
-            },
-            "required": [
-               "key",
-               "label",
-               "required",
-               "ident_type",
-               "enum",
-               "display_order",
-               "type"
-            ]
-         },
-         "GroupDefinition": {
-            "title": "Group Definition",
-            "type": "object",
-            "description": "Definition of a group of attributes and subgroups",
-            "properties": {
-               "attributes": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/AttributeDefinition"
-                  }
-               },
-               "groups": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/GroupDefinition"
-                  }
-               }
-            }
-         },
-         "ObjectDefinition": {
-            "title": "Object Definition",
-            "type": "object",
-            "description": "Definition of an object type",
-            "properties": {
-               "key": {
-                  "type": "string"
-               },
-               "label": {
-                  "type": "string"
-               },
-               "identifiers": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/IdentifierDefinition"
-                  }
-               },
-               "attributes": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/AttributeDefinition"
-                  }
-               },
-               "groups": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/GroupDefinition"
-                  }
-               }
-            },
-            "required": [
-               "key",
-               "label",
-               "identifiers",
-               "groups"
-            ]
-         },
-         "AdapterDefinition": {
-            "title": "Adapter Definition",
-            "type": "object",
-            "description": "Definition of the object model returned in CollectResult",
-            "properties": {
-               "schema_version": {
-                  "type": "integer",
-                  "format": "int32"
-               },
-               "adapter_key": {
-                  "type": "string"
-               },
-               "adapter_label": {
-                  "type": "string"
-               },
-               "describe_version": {
-                  "type": "integer",
-                  "format": "int32"
-               },
-               "adapter_instance": {
-                  "$ref": "#/components/schemas/ObjectDefinition"
-               },
-               "credential_types": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/CredentialDefinition"
-                  }
-               },
-               "object_types": {
-                  "type": "array",
-                  "items": {
-                     "$ref": "#/components/schemas/ObjectDefinition"
-                  }
-               }
-            },
-            "required": [
-               "adapter_key",
-               "adapter_label",
-               "describe_version",
-               "adapter_instance",
-               "credential_types",
-               "object_types"
-            ]
-         }
+          },
+          "display_order": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "length": {
+            "type": "integer",
+            "nullable": true
+          },
+          "default": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "required",
+          "ident_type",
+          "enum",
+          "display_order",
+          "type"
+        ]
       },
-      "links": {},
-      "callbacks": {},
-      "securitySchemes": {}
-   },
-   "security": [],
-   "tags": []
+      "GroupDefinition": {
+        "title": "Group Definition",
+        "type": "object",
+        "description": "Definition of a group of attributes and subgroups",
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeDefinition"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupDefinition"
+            }
+          }
+        }
+      },
+      "ObjectDefinition": {
+        "title": "Object Definition",
+        "type": "object",
+        "description": "Definition of an object type",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IdentifierDefinition"
+            }
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttributeDefinition"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupDefinition"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "identifiers",
+          "groups"
+        ]
+      },
+      "AdapterDefinition": {
+        "title": "Adapter Definition",
+        "type": "object",
+        "description": "Definition of the object model returned in CollectResult",
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "adapter_key": {
+            "type": "string"
+          },
+          "adapter_label": {
+            "type": "string"
+          },
+          "describe_version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "adapter_instance": {
+            "$ref": "#/components/schemas/ObjectDefinition"
+          },
+          "credential_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CredentialDefinition"
+            }
+          },
+          "object_types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectDefinition"
+            }
+          }
+        },
+        "required": [
+          "adapter_key",
+          "adapter_label",
+          "describe_version",
+          "adapter_instance",
+          "credential_types",
+          "object_types"
+        ]
+      }
+    },
+    "links": {},
+    "callbacks": {},
+    "securitySchemes": {}
+  },
+  "security": [],
+  "tags": []
 }
