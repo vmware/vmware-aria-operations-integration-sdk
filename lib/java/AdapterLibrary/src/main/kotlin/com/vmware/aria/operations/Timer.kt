@@ -86,6 +86,9 @@ private enum class LineStyle(val horizontalChar: String, val junctionChar: Strin
 fun graph(): String {
     val width = 88
     val sortedTimers = timers.sortedBy { timer -> timer.startTime }
+    if(sortedTimers.isEmpty()) {
+        return ""
+    }
     val timeMin = sortedTimers.first().startTime
     val timeMax =
         timers.maxOf { timer -> timer.endTime ?: TimeSource.Monotonic.markNow() }
