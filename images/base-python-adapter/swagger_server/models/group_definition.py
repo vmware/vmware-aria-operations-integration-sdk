@@ -2,6 +2,7 @@
 #  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
+from __future__ import annotations
 
 from datetime import date
 from datetime import datetime
@@ -13,7 +14,6 @@ from swagger_server.models.attribute_definition import (
     AttributeDefinition,
 )  # noqa: F401,E501
 from swagger_server.models.base_model_ import Model
-from swagger_server.models.group_definition import GroupDefinition  # noqa: F401,E501
 
 
 class GroupDefinition(Model):
