@@ -437,6 +437,7 @@
       },
       "ClusterConnectionInfo": {
         "type": "object",
+        "nullable": true,
         "title": "ClusterConnectionInfo",
         "description": "Represents the connection info to be used by adapter to communicate with the VMware Aria Operations Suite API.",
         "properties": {
