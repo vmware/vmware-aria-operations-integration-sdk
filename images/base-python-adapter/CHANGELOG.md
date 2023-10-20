@@ -1,7 +1,7 @@
 VMware Aria Operations Integration Base Python Adapter
 
 ### 1.0.0 (10-20-2023)
-* Now Server accepts a null value for SuiteAPI credentials.
+* Server accept a null value for SuiteAPI credentials.
 
 ## 0.12.1 (09-15-2023)
 * Improve logging setup error handling: Ensure that if the logs directory is not writable the Adapter
