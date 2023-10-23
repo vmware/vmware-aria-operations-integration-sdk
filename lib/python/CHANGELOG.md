@@ -1,5 +1,9 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## 1.0.0 (10-23-2023)
+* Release version 1.0.0 to coincide with version 1.1.0 of the SDK.
+* Documentation fixes.
+
 ## 0.8.1 (09-15-2023)
 * Improve error handling when log directory is not writable
 

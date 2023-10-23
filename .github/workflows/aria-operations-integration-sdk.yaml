@@ -44,7 +44,7 @@ jobs:
       if: ${{ always() }}
 
   python-lib:
-    name: Aria Operations Integration SDK Python Library
+    name: Aria Operations Integration SDK Python Adapter Library
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -78,3 +78,23 @@ jobs:
         path: lib/python/test-results-${{ matrix.python-version }}.xml
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
+
+  java-lib:
+    name: Aria Operations Integration SDK Java Adapter Library
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: zulu
+        architecture: x64
+    - name: Setup and execute Gradle 'test' task
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: -p ./lib/java/AdapterLibrary/ test
+        gradle-executable: ./lib/java/AdapterLibrary/gradlew

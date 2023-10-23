@@ -1,0 +1,322 @@
+
+package ${package_name};
+
+import com.vmware.aria.operations.*;
+import com.vmware.aria.operations.Object;
+import com.vmware.aria.operations.definition.AdapterDefinition;
+import com.vmware.aria.operations.definition.ObjectType;
+import com.vmware.aria.operations.definition.Units;
+import org.apache.logging.log4j.Logger;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.CentralProcessor.TickType;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+
+public class Adapter {
+    private static final String ADAPTER_KIND = "${adapter_key}";
+    private static final String ADAPTER_NAME = "${display_name}";
+
+    public AdapterDefinition getAdapterDefinition() {
+        Timer timer = new Timer("Get Adapter Definition");
+        Logger logger = AdapterLogger.getLogger();
+        AdapterDefinition definition = null;
+        try {
+            definition = new AdapterDefinition(ADAPTER_KIND, ADAPTER_NAME);
+
+            definition.defineStringParameter(
+                    "id",
+                    "ID",
+                    "Example identifier. Using a value of 'bad' will cause " +
+                            "test connection to fail; any other value will pass.",
+                    null,
+                    Integer.MAX_VALUE,
+                    true,
+                    true
+            );
+
+            // The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
+            // determine how much memory to allocate to the docker container running this adapter. It does not
+            // need to be read inside the adapter code.
+            definition.defineIntegerParameter(
+                    "container_memory_limit",
+                    "Adapter Memory Limit (MB)",
+                    "Sets the maximum amount of memory VMware Aria Operations can " +
+                            "allocate to the container running this adapter instance.",
+                    1024,
+                    true,
+                    true
+            );
+
+            ObjectType cpu = definition.defineObjectType("cpu", "CPU");
+            cpu.defineNumericProperty("cpu_count", "CPU Count", Units.INSTANCE.getNone(), false, true);
+            cpu.defineMetric("user_time", "User Time", Units.Time.SECONDS.getUnit());
+            cpu.defineMetric("system_time", "System Time", Units.Time.SECONDS.getUnit());
+            cpu.defineMetric("idle_time", "Idle Time", Units.Time.SECONDS.getUnit());
+
+            ObjectType disk = definition.defineObjectType("disk", "Disk");
+            disk.defineStringProperty("partition", "Partition");
+            disk.defineMetric(
+                    "total_space", "Total Space", Units.DataSize.BIBYTE.getUnit(), false, true
+            );
+            disk.defineMetric(
+                    "used_space", "Used Space", Units.DataSize.BIBYTE.getUnit(), false, true
+            );
+            disk.defineMetric(
+                    "free_space", "Free Space", Units.DataSize.BIBYTE.getUnit(), false, true
+            );
+            disk.defineMetric(
+                    "disk_utilization",
+                    "Disk Utilization",
+                    Units.Ratio.PERCENT.getUnit(),
+                    false,
+                    false,
+                    true
+            );
+
+            ObjectType system = definition.defineObjectType("system", "System");
+            system.defineStringProperty("id", "ID");
+
+            logger.debug("Returning adapter definition:" + definition.getJson());
+            return definition;
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            timer.stop();
+        }
+
+        return definition;
+    }
+
+    public TestResult test(AdapterInstance adapterInstance) {
+        Timer timer = new Timer("Test");
+        Logger logger = AdapterLogger.getLogger();
+        TestResult result = new TestResult();
+        try {
+
+            // A typical test connection will generally consist of:
+            // 1. Read identifier values from adapter_instance that are required to
+            //    connect to the target(s)
+            // 2. Connect to the target(s), and retrieve some sample data
+            // 3. Disconnect cleanly from the target (ensure this happens even if an
+            //    error occurs)
+            // 4. If any of the above failed, return an error, otherwise pass.
+
+            String id = adapterInstance.getIdentifierValue("id");
+
+            // Read the 'id' identifier in the adapter instance and use it for a
+            // connection test.
+            if (id == null) {
+                result.withError("No ID Found" + id);
+            } else if (id.equalsIgnoreCase("bad")) {
+                // As there is not an actual failure condition to test for, this
+                // example only shows the mechanics of reading identifiers and
+                // constructing test results. Here we add an error to the result
+                // that is returned.
+                result.withError("The Id is bad");
+            }
+
+            // otherwise, the test has passed
+        } catch (Exception e) {
+            logger.error("Unexpected connection test error", e);
+            result.withError("Unexpected connection test error: " + e.getMessage());
+        } finally {
+            // TODO: If any connections are still open, make sure they are closed before returning
+            logger.debug("Returning test result:" + result.getJson());
+            timer.stop();
+        }
+
+        return result;
+    }
+
+    public CollectResult collect(AdapterInstance adapterInstance) {
+        Timer timer = new Timer("Collection");
+        Logger logger = AdapterLogger.getLogger();
+        CollectResult result = new CollectResult();
+
+        try {
+            // Sample collection code follows. Replace this with your own collection
+            // code. A typical collection will generally consist of:
+            // 1. Read identifier values from adapter_instance that are required to
+            //    connect to the target(s)
+            // 2. Connect to the target(s), and retrieve data
+            // 3. Add the data into a CollectResult's objects, properties, metrics, etc
+            // 4. Disconnect cleanly from the target (ensure this happens even if an
+            //    error occurs)
+            // 5. Return the CollectResult.
+
+
+            // CPU
+            OperatingSystemMXBean jVMManagementInterface = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+            int availableProcessors = jVMManagementInterface.getAvailableProcessors();
+            logger.info("Number of CPUs: " + availableProcessors);
+            Object cpu = result.getOrCreateObject(ADAPTER_KIND, "cpu", "CPU");
+            cpu.withProperty("cpu_count", availableProcessors);
+
+            SystemInfo systemInformation = new SystemInfo();
+
+            CentralProcessor processor = systemInformation.getHardware().getProcessor();
+
+            // Get an array of CPU tick times
+            long[] startTicks = processor.getSystemCpuLoadTicks();
+            Thread.sleep(1000);
+            long[] endTicks = processor.getSystemCpuLoadTicks();
+
+            // Calculate the CPU times
+            long userTime = endTicks[TickType.USER.getIndex()] - startTicks[TickType.USER.getIndex()];
+            long systemTime = endTicks[TickType.SYSTEM.getIndex()] - startTicks[TickType.SYSTEM.getIndex()];
+            long idleTime = endTicks[TickType.IDLE.getIndex()] - startTicks[TickType.IDLE.getIndex()];
+
+            cpu.withMetric("user_time", userTime);
+            cpu.withMetric("system_time", systemTime);
+            cpu.withMetric("idle_time", idleTime);
+
+            // Disks
+            ArrayList<Object> disks = new ArrayList<>();
+            for (Path root : FileSystems.getDefault().getRootDirectories()) {
+                try {
+                    FileStore store = Files.getFileStore(root);
+                    Object disk = result.getOrCreateObject(ADAPTER_KIND, "disk", "Disk " + root.toString());
+                    disk.withProperty("partition", root.toString());
+
+                    // Disk stats
+                    long totalSpace = store.getTotalSpace();
+                    long freeSpace = store.getUsableSpace();
+                    long usedSpace = totalSpace - freeSpace;
+                    double utilization = (double) usedSpace / totalSpace * 100;
+
+                    // Adding metrics to disk
+                    disk.withMetric("total_space", totalSpace);
+                    disk.withMetric("free_space", freeSpace);
+                    disk.withMetric("used_space", usedSpace);
+                    disk.withMetric("disk_utilization", utilization);
+
+                    if (utilization >= 90) {
+                        disk.withEvent("High disk utilization");
+                    }
+
+                    disks.add(disk);
+
+                } catch (IOException e) {
+                    logger.error("Unable to process disk data due to: " + e.getMessage());
+                    logger.debug(e.getStackTrace());
+                }
+            }
+
+            // Add System Object
+            Object system = result.getOrCreateObject(ADAPTER_KIND, "system", "System");
+            String id = adapterInstance.getIdentifierValue("id");
+            system.withProperty("id", id);
+            system.addChild(cpu);
+            system.addChildren(disks);
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Unexpected collection error");
+            logger.error(e);
+            result.withError("Unexpected collection error: " + e.getMessage());
+        } finally {
+            logger.debug("Returning collection result" + result.getJson());
+            timer.stop();
+        }
+
+        return result;
+    }
+
+    public EndpointResult getEndpoints(AdapterInstance adapterInstance) {
+        Logger logger = AdapterLogger.getLogger();
+        Timer timer = new Timer("Get Endpoints");
+        EndpointResult result = new EndpointResult();
+        try {
+            // In the case that an SSL Certificate is needed to communicate to the target,
+            // add each URL that the adapter uses here. Often this will be derived from a
+            // 'host' parameter in the adapter instance. In this Adapter we don't use any
+            // HTTPS connections, so we won't add any. If we did, we might do something like
+            // this:
+            // result.with_endpoint(adapter_instance.get_identifier_value("host"))
+            //
+            // Multiple endpoints can be returned, like this:
+            // result.with_endpoint(adapter_instance.get_identifier_value("primary_host"))
+            // result.with_endpoint(adapter_instance.get_identifier_value("secondary_host"))
+            //
+            // This 'get_endpoints' method will be run before the 'test' method,
+            // and VMware Aria Operations will use the results to extract a certificate from
+            // each URL. If the certificate is not trusted by the VMware Aria Operations
+            // Trust Store, the user will be prompted to either accept or reject the
+            // certificate. If it is accepted, the certificate will be added to the
+            // AdapterInstance object that is passed to the 'test' and 'collect' methods.
+            // Any certificate that is encountered in those methods should then be validated
+            // against the certificate(s) in the AdapterInstance.
+
+            // TODO: Add any additional endpoints if any
+        } catch (Exception e) {
+            logger.info(e.getMessage());
+        } finally {
+            logger.debug("Returning endpoints: " + result.getJson());
+            timer.stop();
+        }
+        return result;
+    }
+
+    // Main entry point of the adapter. You should not need to modify anything below this line.
+    public static void main(String[] args) throws FileNotFoundException {
+        AdapterLogger.setupLogging("Adapter");
+        Logger logger = AdapterLogger.getLogger();
+
+        // Start a new log file by calling 'rotate'. By default, the last five calls will be
+        // retained. If the logs are not manually rotated, the 'setup_logging' call should be
+        // invoked with the 'max_size' parameter set to a reasonable value, e.g.,
+        // 10_489_760 (10MB).
+        AdapterLogger.rotate();
+        logger.info("Running adapter code with arguments: " + String.join(", ", args));
+        if (args.length != 3) {
+            // `inputfile` and `outputfile` are always automatically appended to the
+            // argument list by the server
+            logger.error("Arguments must be <method> <inputfile> <outputfile>");
+            System.exit(1);
+        }
+
+        String method = args[0];
+        try {
+            Pipes.input = args[1];
+            Pipes.output = args[2];
+
+            Adapter adapter = new Adapter();
+
+            switch (method) {
+                case "test":
+                    adapter.test(AdapterInstance.fromInput()).sendResults();
+                    break;
+                case "endpoint_urls":
+                    adapter.getEndpoints(AdapterInstance.fromInput()).sendResults();
+                    break;
+                case "collect":
+                    adapter.collect(AdapterInstance.fromInput()).sendResults();
+                    break;
+                case "adapter_definition":
+                    AdapterDefinition result = adapter.getAdapterDefinition();
+                    if (result != null) {
+                        result.sendResults();
+                    } else {
+                        logger.info("getAdapterDefinition method did not return an AdapterDefinition");
+                        System.exit(1);
+                    }
+                    break;
+                default:
+                    logger.error("Command " + method + " not found");
+                    System.exit(1);
+            }
+        } finally {
+            logger.info(Timing.graph());
+        }
+    }
+}

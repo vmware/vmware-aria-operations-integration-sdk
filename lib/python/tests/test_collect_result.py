@@ -103,7 +103,7 @@ def test_get_json_1_object_with_event() -> None:
     expected_result = copy.deepcopy(one_object_base_result)
     expected_result["result"][0]["events"] = [
         {
-            "autoCancel": False,
+            "autoCancel": True,
             "cancelWaitCycle": 3,
             "criticality": 4,
             "message": "event message",

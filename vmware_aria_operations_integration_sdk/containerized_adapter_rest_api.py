@@ -10,6 +10,7 @@ from httpx import ReadTimeout
 from httpx import Response
 from requests import Request
 
+from vmware_aria_operations_integration_sdk.constant import CONNECT_ENDPOINT
 from vmware_aria_operations_integration_sdk.describe import Describe
 from vmware_aria_operations_integration_sdk.describe import get_adapter_instance
 from vmware_aria_operations_integration_sdk.project import Connection
@@ -42,10 +43,11 @@ async def send_post_to_adapter(
     client: httpx.AsyncClient, port: int, connection: Connection, endpoint: str
 ) -> Tuple[Request, Response, float]:
     try:
+        send_cluster_connection_info = endpoint != CONNECT_ENDPOINT
         request, response, elapsed_time = await post(
             client,
             url=f"http://localhost:{port}/{endpoint}",
-            json=await get_request_body(port, connection),
+            json=await get_request_body(port, connection, send_cluster_connection_info),
             headers={"Accept": "application/json"},
         )
     except ReadTimeout as timeout:
@@ -83,7 +85,9 @@ async def send_get_to_adapter(
     return request, response, elapsed_time
 
 
-async def get_request_body(port: int, connection: Connection) -> Dict:
+async def get_request_body(
+    port: int, connection: Connection, send_cluster_connection_info: bool = True
+) -> Dict:
     describe, resources = await Describe.get(port)
     adapter_instance = get_adapter_instance(describe)
     if adapter_instance is None:
@@ -123,7 +127,7 @@ async def get_request_body(port: int, connection: Connection) -> Dict:
             "credentialKey": connection.credential["credential_kind_key"],
             "credentialFields": fields,
         }
-
+    suite_api_connection = connection.get_suite_api_connection()
     request_body: Dict[str, object] = {
         "adapterKey": {
             "name": connection.name,
@@ -131,10 +135,12 @@ async def get_request_body(port: int, connection: Connection) -> Dict:
             "objectKind": adapter_instance.get("key"),
             "identifiers": identifiers,
         },
-        "clusterConnectionInfo": {
-            "userName": connection.suite_api_username,
-            "password": connection.suite_api_password,
-            "hostName": connection.suite_api_hostname,
+        "clusterConnectionInfo": None
+        if not send_cluster_connection_info
+        else {
+            "userName": suite_api_connection.username,
+            "password": suite_api_connection.password,
+            "hostName": suite_api_connection.hostname,
         },
         "certificateConfig": {"certificates": connection.certificates or []},
     }

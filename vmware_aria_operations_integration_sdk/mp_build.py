@@ -204,7 +204,9 @@ def _tag_and_push(
         image.tag(container_registry, tag)
 
         try:
-            with Spinner(f"Pushing Adapter Image to {container_registry}"):
+            with Spinner(
+                f"Pushing Adapter Image to {container_registry} with tag {tag}"
+            ):
                 digest = push_image(docker_client, container_registry, tag)
         except PushError as push_error:
             if should_prompt:
@@ -693,9 +695,9 @@ def main() -> None:
                     os.chdir(project.path)
                 rmdir(temp_dir)
     except DockerWrapperError as error:
-        logger.error("Unable to build pak file")
-        logger.error(error.message)
-        logger.info(error.recommendation)
+        logger.error("Unable to build container")
+        logger.error(error.message, extra={"style": "class:ansi_escaped"})
+        logger.error(error.recommendation)
         exit(1)
     except KeyboardInterrupt:
         logger.debug("Ctrl-C pressed by user")

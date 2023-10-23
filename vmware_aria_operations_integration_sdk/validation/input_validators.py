@@ -199,6 +199,17 @@ class ChainValidator(Validator):  # type: ignore
             validator.validate(document)
 
 
+class JavaPackageValidator(NotEmptyValidator):
+    def __init__(self) -> None:
+        super().__init__("Java Package")
+
+    def validate(self, document: Document) -> None:
+        super().validate(document)
+        for char in document.text:
+            if char.isupper():
+                raise ValidationError(message=f"{self.label} cannot contain uppercase")
+
+
 class ContainerRegistryValidator(NotEmptyValidator):
     valid_characters = "-_./" + string.ascii_lowercase + string.digits
     default_domain = "registry.hub.docker.com"

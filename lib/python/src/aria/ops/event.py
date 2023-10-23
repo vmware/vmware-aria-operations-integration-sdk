@@ -21,22 +21,30 @@ class Event:
 
     Args:
         message (str): The message describes and identifies an event.
-        criticality (Criticality, optional): TODO. Defaults to Criticality.NONE.
-        fault_key (str, optional): TODO. Defaults to None.
-        auto_cancel (bool, optional): TODO. Defaults to False.
-        start_date (int, optional): TODO. Defaults to None.
-        update_date (int, optional): TODO. Defaults to None.
-        cancel_date (int, optional): TODO. Defaults to None.
+        criticality (Criticality, optional): The criticality or severity of the event.
+        fault_key (str, optional): A metric/property key that this event is related to. Defaults to None, which
+                                   indicates the event's source is not related to a metric or property.
+        auto_cancel (bool, optional): If True, VMware Aria Operations should automatically cancel an event
+                                      when it stops being sent. Otherwise, it is the responsibility of the adapter
+                                      to send the event with a 'cancel_date' when the event should be canceled.
+                                      Defaults to True.
+        start_date (int, optional): If set, overrides the start date of the event. Defaults to None, which indicates
+                                    the start time should be the time when VMware Aria Operations first sees the event.
+        update_date (int, optional): If set, indicates that the event has been updated by the target at the
+                                     indicated time. Defaults to None.
+        cancel_date (int, optional): If 'auto_cancel' is set to False, use the cancel_date to indicate that the event should
+                                     be cancelled. Defaults to None.
         watch_wait_cycle (int, optional): The number of times this event must be present in a collection before Aria
                                           Operations surfaces it in the UI. Defaults to 1.
-        cancel_wait_cycle (int, optional): The number of times this event must be absent in a collection before Aria
-                                            Operations removes it from the UI. Defaults to 3.
+        cancel_wait_cycle (int, optional): If 'auto_cancel' is set to True, sets the number of times this event must be
+                                           absent in a collection before Aria Operations removes it from the UI.
+                                           Defaults to 3.
     """
 
     message: str
     criticality: Criticality = Criticality.NONE
     fault_key: Optional[str] = None
-    auto_cancel: bool = False
+    auto_cancel: bool = True
     start_date: Optional[int] = None
     update_date: Optional[int] = None
     cancel_date: Optional[int] = None

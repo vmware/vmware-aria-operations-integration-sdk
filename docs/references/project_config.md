@@ -25,7 +25,7 @@ if it is present.
 
     ```json
     {
-        "container_repository" : "harbor.my-organization.com/my-project-registry/adaptername"
+        "container_repository" : "harbor.my-organization.com/my-project/adaptername"
         ...
     }
     ```

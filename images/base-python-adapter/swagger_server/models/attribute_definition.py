@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
@@ -125,6 +125,10 @@ class AttributeDefinition(Model):
         :param key: The key of this AttributeDefinition.
         :type key: str
         """
+        if key is None:
+            raise ValueError(
+                "Invalid value for `key`, must not be `None`"
+            )  # noqa: E501
 
         self._key = key
 
@@ -146,6 +150,10 @@ class AttributeDefinition(Model):
         :param label: The label of this AttributeDefinition.
         :type label: str
         """
+        if label is None:
+            raise ValueError(
+                "Invalid value for `label`, must not be `None`"
+            )  # noqa: E501
 
         self._label = label
 
@@ -188,6 +196,10 @@ class AttributeDefinition(Model):
         :param is_rate: The is_rate of this AttributeDefinition.
         :type is_rate: bool
         """
+        if is_rate is None:
+            raise ValueError(
+                "Invalid value for `is_rate`, must not be `None`"
+            )  # noqa: E501
 
         self._is_rate = is_rate
 
@@ -209,6 +221,10 @@ class AttributeDefinition(Model):
         :param is_discrete: The is_discrete of this AttributeDefinition.
         :type is_discrete: bool
         """
+        if is_discrete is None:
+            raise ValueError(
+                "Invalid value for `is_discrete`, must not be `None`"
+            )  # noqa: E501
 
         self._is_discrete = is_discrete
 
@@ -230,6 +246,10 @@ class AttributeDefinition(Model):
         :param is_kpi: The is_kpi of this AttributeDefinition.
         :type is_kpi: bool
         """
+        if is_kpi is None:
+            raise ValueError(
+                "Invalid value for `is_kpi`, must not be `None`"
+            )  # noqa: E501
 
         self._is_kpi = is_kpi
 
@@ -251,6 +271,10 @@ class AttributeDefinition(Model):
         :param is_impact: The is_impact of this AttributeDefinition.
         :type is_impact: bool
         """
+        if is_impact is None:
+            raise ValueError(
+                "Invalid value for `is_impact`, must not be `None`"
+            )  # noqa: E501
 
         self._is_impact = is_impact
 
@@ -272,6 +296,10 @@ class AttributeDefinition(Model):
         :param is_key_attribute: The is_key_attribute of this AttributeDefinition.
         :type is_key_attribute: bool
         """
+        if is_key_attribute is None:
+            raise ValueError(
+                "Invalid value for `is_key_attribute`, must not be `None`"
+            )  # noqa: E501
 
         self._is_key_attribute = is_key_attribute
 
@@ -293,6 +321,10 @@ class AttributeDefinition(Model):
         :param dashboard_order: The dashboard_order of this AttributeDefinition.
         :type dashboard_order: int
         """
+        if dashboard_order is None:
+            raise ValueError(
+                "Invalid value for `dashboard_order`, must not be `None`"
+            )  # noqa: E501
 
         self._dashboard_order = dashboard_order
 
@@ -314,6 +346,10 @@ class AttributeDefinition(Model):
         :param data_type: The data_type of this AttributeDefinition.
         :type data_type: str
         """
+        if data_type is None:
+            raise ValueError(
+                "Invalid value for `data_type`, must not be `None`"
+            )  # noqa: E501
 
         self._data_type = data_type
 
@@ -335,5 +371,9 @@ class AttributeDefinition(Model):
         :param is_property: The is_property of this AttributeDefinition.
         :type is_property: bool
         """
+        if is_property is None:
+            raise ValueError(
+                "Invalid value for `is_property`, must not be `None`"
+            )  # noqa: E501
 
         self._is_property = is_property

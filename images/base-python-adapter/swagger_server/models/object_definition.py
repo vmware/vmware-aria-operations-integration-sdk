@@ -1,5 +1,5 @@
 # coding: utf-8
-#  Copyright 2022 VMware, Inc.
+#  Copyright 2022-2023 VMware, Inc.
 #  SPDX-License-Identifier: Apache-2.0
 from __future__ import absolute_import
 
@@ -96,6 +96,10 @@ class ObjectDefinition(Model):
         :param key: The key of this ObjectDefinition.
         :type key: str
         """
+        if key is None:
+            raise ValueError(
+                "Invalid value for `key`, must not be `None`"
+            )  # noqa: E501
 
         self._key = key
 
@@ -117,6 +121,10 @@ class ObjectDefinition(Model):
         :param label: The label of this ObjectDefinition.
         :type label: str
         """
+        if label is None:
+            raise ValueError(
+                "Invalid value for `label`, must not be `None`"
+            )  # noqa: E501
 
         self._label = label
 
@@ -138,6 +146,10 @@ class ObjectDefinition(Model):
         :param identifiers: The identifiers of this ObjectDefinition.
         :type identifiers: List[IdentifierDefinition]
         """
+        if identifiers is None:
+            raise ValueError(
+                "Invalid value for `identifiers`, must not be `None`"
+            )  # noqa: E501
 
         self._identifiers = identifiers
 
@@ -180,5 +192,9 @@ class ObjectDefinition(Model):
         :param groups: The groups of this ObjectDefinition.
         :type groups: List[GroupDefinition]
         """
+        if groups is None:
+            raise ValueError(
+                "Invalid value for `groups`, must not be `None`"
+            )  # noqa: E501
 
         self._groups = groups

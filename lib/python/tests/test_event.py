@@ -9,7 +9,7 @@ def test_minimal_event() -> None:
     assert event.get_json() == {
         "message": "name",
         "criticality": 4,
-        "autoCancel": False,
+        "autoCancel": True,
         "watchWaitCycle": 1,
         "cancelWaitCycle": 3,
     }
