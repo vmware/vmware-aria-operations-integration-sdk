@@ -1,4 +1,6 @@
 VMware Aria Operations Integration Base Python Adapter
+----------------------------------------------
+
 
 ## 1.0.0 (10-20-2023)
 * Release version 1.0.0 to coincide with version 1.1.0 of the SDK
