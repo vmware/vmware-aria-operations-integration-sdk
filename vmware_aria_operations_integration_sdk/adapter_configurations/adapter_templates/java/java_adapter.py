@@ -67,10 +67,10 @@ class JavaAdapter(AdapterConfig):
                 selection_prompt,
                 "Select a template for your project:",
                 items=self.templates,
-                description="- Sample Adapter: Generates a working adapter with comments "
-                "throughout its code\n"
-                "- New Adapter: The minimum necessary code to start developing "
-                "an adapter\n\n"
+                description="- New Adapter: The minimum necessary code to start developing "
+                "an adapter\n"
+                "- Sample Adapter: Generates a working adapter with comments "
+                "throughout its code\n\n"
                 "For more information visit "
                 "https://vmware.github.io/vmware-aria-operations-integration"
                 "-sdk/get_started/#template-projects",
