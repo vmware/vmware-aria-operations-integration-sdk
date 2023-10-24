@@ -12,11 +12,10 @@ Welcome to the VMware Aria Operations Integration SDK.
 The Integration SDK creates Management Packs to add custom objects, data, and
 relationships from an endpoint into VMware Aria Operations.
 
-Using this SDK to create a Management Pack requires some Python
-knowledge (more languages are planned), and an understanding of how to get
-data from the endpoint using an API. For example, to create a Management Pack for
-Cassandra DB, an understanding of how to write an SQL query, execute it, and read the
-results is required.
+Using this SDK to create a Management Pack requires some Python or Java knowledge, 
+and an understanding of how to get data from the endpoint using an API. For example, 
+to create a Management Pack for Cassandra DB, an understanding of how to write an 
+SQL query, execute it, and read the results is required.
 
 Currently, installing a Management Pack built with the Integration SDK is supported for
 On-Prem versions of VMware Aria Operations only, but we are working to bring support to

@@ -283,7 +283,7 @@ Now that you have an overview of setting up and using the SDK tools,
 you can delve deeper into the structure of each project: 
 
 - To understand the basic project structure required to develop and build a Management Pack, go to the [mp-init](references/mp-init.md) documentation.
-- To understand the specific project structure of Python Adapters, go to the [Java Project](references/java_project/index.md) documentation.
-- To understand the specific project structure of Java Adapters, go to the [Python Project](references/python_project/index.md) documentation.
+- To understand the specific project structure of Python Adapters, go to the [Python Project](references/python_project/index.md) documentation.
+- To understand the specific project structure of Java Adapters, go to the [Java Project](references/java_project/index.md) documentation.
 - For more documentation about Project Templates, including the Sample Adapter, consult the `Guides` section.
  
