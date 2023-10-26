@@ -1,11 +1,20 @@
 # Installation Issues
 
 ### Management Pack fails to install
-Management Packs can fail to install for a number of reasons, although it is not common. The best way to diagnose what is happening
-is to look in the logs on the main VMware Aria Operations cluster node (not a Cloud Proxy). To access these logs, `ssh` into the cluster
-and navigate to `$ALIVE_BASE/user/log`. Installation issues are logged to the analytics log, which has the form `analytics-<GUID>.log`.
-Generally, a good place to start is to search that log file for the adapter kind key (found in the `manifest.txt` file in the project 
-directory, as the entry in the `adapter_kinds` array).
+Management Packs can fail to install for a number of reasons, although it is not common. 
+The best way to diagnose what is happening is to look in the logs on the main VMware 
+Aria Operations cluster node (not a Cloud Proxy). There are two methods to access these 
+logs:
+  * Using `ssh`: `ssh` into the cluster and navigate to `$ALIVE_BASE/user/log`. 
+    Installation issues are logged to the analytics log, which has the form 
+    `analytics-<GUID>.log`. Generally, a good place to start is to search that log file 
+    for the adapter kind key (found in the `manifest.txt` file in the project directory, 
+    as the entry in the `adapter_kinds` array).
+  * Using the VMware Aria Operations UI: Navigate to `Administration` &rarr; 
+    `Support Logs`. Expand the first `VMware Aria Operations Cluster Node`, and expand 
+    `ANALYTICS`. Select the analytics log, which has the form `analytics-<GUID>.log`. 
+    By default, the viewer only displays 1000 lines of the file. You may need to 
+    increase this. To search, use your browser's search function.
 
 ### Adding an Account: 'Collector is not compatible with adapter type.'
 ![Example of a 'Collector is not compatible with adapter type' error message](../images/not_compatible.png)
