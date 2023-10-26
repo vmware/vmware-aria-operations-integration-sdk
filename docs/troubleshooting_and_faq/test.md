@@ -9,9 +9,17 @@ There are several sub-steps that are performed:
 * Compiles the Adapter code (if required by the language)
 * Assembles the resulting container
 
-Depending on the size of the base image (this is language-dependant), and the download speed
-of your internet connection, this can take some time build the Adapter image the first time.
-Fortunately, subsequent builds should be much faster as the intermediate steps are cached.
+Depending on the size of the base image(s), and the download speed of your internet 
+connection, it can take some time build the Adapter image the first time.
+Subsequent builds should be much faster as the intermediate steps are cached. 
+See below for approximate image sizes.
+
+| Language | Stage       | Image                     | Compressed Size |
+|----------|-------------|---------------------------|-----------------|
+| Python   | Compilation | N/A                       | N/A             |
+| Python   | Execution   | base-adapter:python-1.0.0 | 54 MiB          |
+| Java     | Compilation | gradle:8.3.0-jdk17        | 341 MiB         |
+| Java     | Execution   | base-adapter:java-1.0.0   | 212 MiB         |
 
 ### `mp-test` returns '500 INTERNAL SERVER ERROR'
 
