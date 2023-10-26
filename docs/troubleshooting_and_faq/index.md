@@ -4,13 +4,13 @@
 
     Use the search bar above to help you find what you want faster.
 
-
-- [mp-build](build.md): Pack file building errors relating to the "`Unable to build pak file`" error from `mp-build`.
-- [mp-test](collections.md): Common collection errors troubleshooting steps, and other collection-related questions.
 - [Container Registries](container_registries.md): Container registry-related questions, such as credentials and setting up registries.
 - [Docker](docker.md): Common Docker related troubleshooting steps.
-- [Logs](logs.md): Adapter and Server logs, logs storage, log levels, and more logs-related questions.
-- [Other](other.md): Capacity models and Java SDK-related questions
+- [Adapter Design](adapter_design.md): Common questions and issues that arise when creating an Adapter.
+- [mp-test](test.md): Common collection errors when running `mp-test`.
+- [mp-build](build.md): Pack file building errors relating to the "`Unable to build pak file`" error from `mp-build`.
+- [Installation](installation.md): Common issues when installing a Management Pack or adding an Account (Adapter Instance).
+- [Logs](logs.md): Adapter and Server logs, logs storage, log levels, and other logs-related questions.
 
 !!! info
 
