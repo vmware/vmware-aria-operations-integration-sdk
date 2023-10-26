@@ -2,7 +2,7 @@
 
 ### Are there replacements for `onConfigure`, `onStopCollection`, and `onDiscard` methods?
 
-The `onConfigure`, `onStopCollection`, and `onDiscard` methods from the Legacy SDK have no replacement in the Integration SDK.
+The `onConfigure`, `onStopCollection`, and `onDiscard` methods from the traditional Java SDK have no replacement in the Integration SDK.
 
 ---
 ### Can an Adapter collect for multiple Accounts/Adapter Instances?
