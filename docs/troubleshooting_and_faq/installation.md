@@ -5,6 +5,7 @@ Management Packs can fail to install for a number of reasons, although it is not
 The best way to diagnose what is happening is to look in the logs on the main VMware 
 Aria Operations cluster node (not a Cloud Proxy). There are two methods to access these 
 logs:
+
   * Using `ssh`: `ssh` into the cluster and navigate to `$ALIVE_BASE/user/log`. 
     Installation issues are logged to the analytics log, which has the form 
     `analytics-<GUID>.log`. Generally, a good place to start is to search that log file 
@@ -20,7 +21,7 @@ logs:
 ### Adding an Account: 'Collector is not compatible with adapter type.'
 ![Example of a 'Collector is not compatible with adapter type' error message](../images/not_compatible.png)
 > Example of a 'Collector is not compatible with adapter type' error message
-> 
+
 This message occurs if the `Collector/Group` field in the 'Add Account' page is set to a collector that is not a Cloud Proxy.
 Integration SDK management packs can only run on a Cloud Proxy. See [below](#how-can-i-install-a-cloud-proxy-in-my-vmware-aria-operations-environment)
 for instructions on installing a Cloud Proxy in VMware Aria Operations.
@@ -42,7 +43,8 @@ This message can occur for several reasons:
 
 If the test connection times out, logs can be found in `collector.log`. In particular, if you see a message similar to this:
 ```
-Status 404: {"message":"manifest for <image> not found: manifest unknown: The named manifest is not known to the registry."}
+Status 404: {"message":"manifest for <image> not found: manifest unknown: 
+    The named manifest is not known to the registry."}
 ```
 It means that the Docker Repository is not public. See 
 [Setting up a Container Registry](container_registries.md#how-can-i-setup-a-container-registry-for-my-project) and if necessary,
@@ -50,6 +52,7 @@ a [workaround (for development only) for using a public repository](container_re
 
 Access the collector log using the Aria Operations Cloud Proxy the adapter is running on. 
 There are two methods to access these logs:
+
 * Using `ssh`: `ssh` into the cloud proxy the adapter is running on and navigate to 
   `$ALIVE_BASE/user/log`. Test Connection issues are logged to the collector log 
   `collector.log`. Generally, a good place to start is to search that log file

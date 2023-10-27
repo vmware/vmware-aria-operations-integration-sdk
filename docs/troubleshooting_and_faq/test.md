@@ -4,6 +4,7 @@
 
 If this is the first time testing an Adapter, most likely the build process is active but taking a long time to complete.
 There are several sub-steps that are performed:
+
 * Downloads the base image(s)
 * Download and install any dependencies
 * Compiles the Adapter code (if required by the language)

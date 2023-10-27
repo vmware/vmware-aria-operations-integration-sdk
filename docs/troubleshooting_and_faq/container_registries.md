@@ -13,6 +13,7 @@ container from the registry and run the container.
 ### What requirements are there for a container registry?
 
 Any container registry should work if it is set up so that:
+
 * You have write access to a repository for pushing an image
 * The repository is public, so that the image can be pulled anonymously (e.g., without first doing a `docker login`)
 * The registry is accessible by your VMware Aria Operations Cloud Proxies
