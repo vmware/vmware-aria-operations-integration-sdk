@@ -6,7 +6,12 @@ For more information about how the Adapter Container Image distribution works, s
 
 The container registry is a key component of this distribution model, and as such it is required when building a Management Pack (i.e., using [`mp-build`](../references/mp-build.md))
 
-There are many options for installing or using a container registry. The following are known to work.
+Any container registry should work if it is set up so that:
+* You have write access to a repository for pushing an image
+* The repository is public, so that the image can be pulled anonymously (e.g., without first doing a `docker login`)
+* The registry is accessible by your VMware Aria Operations Cloud Proxies
+
+The following are known to work.
 
 ## Using the 'Harbor' Container Registry
 
@@ -72,7 +77,7 @@ Docker CLI recommends using a token when using docker hub instead of your login 
  
     ???+ note
 
-        VMware Aria Operations pulls images anonymously, which requires the registry to be public.
+        VMware Aria Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 2. Login to docker hub using the CLI docker login

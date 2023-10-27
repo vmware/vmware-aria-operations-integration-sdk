@@ -10,7 +10,15 @@ file. During installation, VMware Aria Operations uses the information inside th
 container from the registry and run the container.
 
 ---
-### How can I setup a container registry for my project
+### What requirements are there for a container registry?
+
+Any container registry should work if it is set up so that:
+* You have write access to a repository for pushing an image
+* The repository is public, so that the image can be pulled anonymously (e.g., without first doing a `docker login`)
+* The registry is accessible by your VMware Aria Operations Cloud Proxies
+
+---
+### How can I setup a container registry for my project?
 
 See [Setting up a Container Registry](../guides/container_registry_setup.md)
 
@@ -39,7 +47,7 @@ there is a workaround. Cloud proxies lookup images locally before attempting to 
 
 1. Build the Management Pack as usual, specifying the private registry.
 2. SSH into the cloud proxy where the adapter is going to run.
-2. Login to docker (usually using `docker login`), and pull the adapter container image used by the management pack. 
+3. Login to docker (usually using `docker login`), and pull the adapter container image used by the management pack. 
    This _must_ have the same image digest SHA that the management pack specifies. 
 
     ???+ note
@@ -47,4 +55,4 @@ there is a workaround. Cloud proxies lookup images locally before attempting to 
         The Digest SHA can be found by unzipping the `.pak` file, then unzipping the `adapter.zip`. The image digest can be found in the 
         file `<ADAPTERNAME>.conf` as the value of the `DIGEST` key.
 
-3. Install Management Pack in VMware Aria operations
+4. Install Management Pack in VMware Aria operations
