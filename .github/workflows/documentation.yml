@@ -1,8 +1,5 @@
 name: documentation
-on:
-  push:
-    branches:
-    - main
+on: [push, pull_request]
 permissions:
   contents: write
 jobs:
@@ -35,6 +32,12 @@ jobs:
         ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaJavadoc
         mkdir -p docs/references/java_project/java_lib/
         cp -r lib/java/AdapterLibrary/build/dokka/javadoc/* docs/references/java_project/java_lib/
+    - name: Build MKDocs Site
+      # If not on the main branch, build the docs to check for errors, but do not deploy
+      if: github.ref != 'refs/heads/main'
+      run: mkdocs build
     - name: Deploy MKDocs Site
+      # If on the main branch, deploy the site
+      if: github.ref == 'refs/heads/main'
       run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
 
