@@ -32,7 +32,7 @@ In addition, at least one Cloud Proxy (also version 8.10 or later) must be set u
     * The repository is public, so that the image can be pulled anonymously (e.g., without first doing a `docker login`)
     * The registry is accessible by your VMware Aria Operations Cloud Proxies
      
-  See the [Container Registry FAQ](/troubleshooting_and_faq/container_registries.md#why-do-i-need-a-container-registry) for additional information.
+  See the [Container Registry FAQ](troubleshooting_and_faq/container_registries.md#why-do-i-need-a-container-registry) for additional information.
 * Python3 3.9.0 or later. Updating to the latest stable version is recommended. Python 3.8 and earlier (including Python2) are not supported. For instructions on installing Python, go
   to [Python's installation documentation](https://wiki.python.org/moin/BeginnersGuide/Download),
   and follow the instructions provided for your operating system.

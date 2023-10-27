@@ -32,7 +32,7 @@ The following are known to work.
     ???+ note
 
         VMware Aria Operations pulls images anonymously, which requires the repository to be public.
-        For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
+        For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 3. Run `mp-build` and set the registry and repository tag when prompted (may look like `harbor.my-organization.com/my-project/adaptername`)
 
@@ -55,7 +55,7 @@ running `mp-build`.
     ???+ note
 
         VMware Aria Operations pulls images anonymously, which requires the repository to be public.
-        For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
+        For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 3. Run `mp-build` and set the registry and repository when prompted (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/repository-for-test-mp`)
 
@@ -78,7 +78,7 @@ Docker CLI recommends using a token when using docker hub instead of your login 
     ???+ note
 
         VMware Aria Operations pulls images anonymously, which requires the repository to be public.
-        For more information, see the FAQ: [I can't use a public repository. Are there any options?](troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
+        For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 2. Login to docker hub using the CLI docker login
 
