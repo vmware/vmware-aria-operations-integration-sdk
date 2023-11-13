@@ -390,7 +390,8 @@ class CollectResult(
                     }
                 result["result"] =
                     Json.encodeToJsonElement(objects.values
-                        .filter { obj -> !objectIsExternal(obj) or obj.hasContent() })
+                        .filter { obj -> !objectIsExternal(obj) or obj.hasContent() }
+                        .map{ obj -> obj.json})
                 result["relationships"] =
                     Json.encodeToJsonElement(relationshipUpdates.map { obj ->
                         mapOf(

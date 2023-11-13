@@ -5,18 +5,15 @@
 
 package com.vmware.aria.operations
 
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
-@Serializable
-data class Metric @OptIn(ExperimentalSerializationApi::class)
+data class Metric
 private constructor(
     val key: String,
-    @SerialName("numberValue") val doubleValue: Double,
-    @EncodeDefault(ALWAYS) val timestamp: Long = System.currentTimeMillis(),
+    val doubleValue: Double,
+    val timestamp: Long = System.currentTimeMillis(),
 ) {
     /**
      * Class representing a Metric Data Point.
@@ -41,12 +38,19 @@ private constructor(
         numberValue: Number,
         timestamp: Long = System.currentTimeMillis(),
     ) : this(key, numberValue.toDouble(), timestamp)
+
+    val json: JsonObject
+        get() = buildJsonObject {
+            put("key", key)
+            put("numberValue", doubleValue)
+            put("timestamp", timestamp)
+        }
 }
 
-@Serializable
 sealed class Property {
     abstract val key: String
     abstract val timestamp: Long
+    abstract val json: JsonObject
 }
 
 /**
@@ -63,20 +67,25 @@ sealed class Property {
  * @property timestamp Time in milliseconds since the Epoch when this property value was
  * recorded. Defaults to the current time.
  */
-@Serializable
-data class StringProperty @OptIn(ExperimentalSerializationApi::class)
+data class StringProperty
 @JvmOverloads constructor(
     override val key: String,
     val stringValue: String,
-    @EncodeDefault(ALWAYS) override val timestamp: Long = System.currentTimeMillis(),
-) : Property()
+    override val timestamp: Long = System.currentTimeMillis(),
+) : Property() {
+    override val json: JsonObject
+        get() = buildJsonObject {
+            put("key", key)
+            put("stringValue", stringValue)
+            put("timestamp", timestamp)
+        }
+}
 
-@Serializable
-data class NumericProperty @OptIn(ExperimentalSerializationApi::class)
+data class NumericProperty
 private constructor(
     override val key: String,
-    @SerialName("numberValue") val doubleValue: Double,
-    @EncodeDefault(ALWAYS) override val timestamp: Long = System.currentTimeMillis(),
+    val doubleValue: Double,
+    override val timestamp: Long = System.currentTimeMillis(),
 ) : Property() {
     /**
      * Class representing a Numeric Property value.
@@ -99,5 +108,13 @@ private constructor(
         numberValue: Number,
         timestamp: Long = System.currentTimeMillis(),
     ) : this(key, numberValue.toDouble(), timestamp)
+
+
+    override val json: JsonObject
+        get() = buildJsonObject {
+            put("key", key)
+            put("numberValue", doubleValue)
+            put("timestamp", timestamp)
+        }
 }
 

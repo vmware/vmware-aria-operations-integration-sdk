@@ -9,6 +9,10 @@ import kotlinx.serialization.EncodeDefault.Mode.ALWAYS
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 
 /**
  * Represents an Object (resource) in VMware Aria Operations.
@@ -18,8 +22,6 @@ import kotlinx.serialization.Transient
  *
  * @property key A [Key] that uniquely identifies this Object.
  */
-@Serializable
-@OptIn(ExperimentalSerializationApi::class)
 open class Object(val key: Key) {
     /**
      * Represents an Object (resource) in VMware Aria Operations.
@@ -40,26 +42,16 @@ open class Object(val key: Key) {
         identifiers: List<Identifier> = emptyList(),
     ) : this(Key(adapterType, objectType, name, identifiers))
 
-    @EncodeDefault(ALWAYS)
-    private val metrics: MutableSet<Metric> = mutableSetOf()
-    @EncodeDefault(ALWAYS)
-    private val properties: MutableSet<Property> = mutableSetOf()
-    @EncodeDefault(ALWAYS)
+    private val metrics: List<JsonObject>
+        get() = metricMap.flatMap { it.value }.map {it.json}
+    private val properties: List<JsonObject>
+        get() = propertyMap.flatMap {it.value }.map { it.json}
     private val events: MutableSet<Event> = mutableSetOf()
 
-    @Transient
     private val metricMap = mutableMapOf<String, MutableSet<Metric>>()
-
-    @Transient
     private val propertyMap = mutableMapOf<String, MutableSet<Property>>()
-
-    @Transient
     private val parents = mutableSetOf<Key>()
-
-    @Transient
     private val children = mutableSetOf<Key>()
-
-    @Transient
     internal var hasUpdatedChildren = false
 
     /**
@@ -104,9 +96,7 @@ open class Object(val key: Key) {
      * @param metric A [Metric] data point to add to this [Object]
      */
     fun addMetric(metric: Metric) {
-        if (metrics.add(metric)) {
-            metricMap.getOrPut(metric.key) { mutableSetOf() }.add(metric)
-        }
+        metricMap.getOrPut(metric.key) { mutableSetOf() }.add(metric)
     }
 
     /**
@@ -167,9 +157,7 @@ open class Object(val key: Key) {
      * @param property A [Property] data point to add to this [Object]
      */
     fun addProperty(property: Property) {
-        if (properties.add(property)) {
-            propertyMap.getOrPut(property.key) { mutableSetOf() }.add(property)
-        }
+        propertyMap.getOrPut(property.key) { mutableSetOf() }.add(property)
     }
 
     /**
@@ -418,4 +406,12 @@ open class Object(val key: Key) {
      */
     fun hasContent() =
         metrics.isNotEmpty() or properties.isNotEmpty() or events.isNotEmpty()
+
+    val json: JsonObject
+        get() = buildJsonObject {
+            put("key", Json.encodeToJsonElement(key))
+            put("metrics", Json.encodeToJsonElement(metrics))
+            put("properties", Json.encodeToJsonElement(properties))
+            put("events", Json.encodeToJsonElement(events))
+        }
 }
