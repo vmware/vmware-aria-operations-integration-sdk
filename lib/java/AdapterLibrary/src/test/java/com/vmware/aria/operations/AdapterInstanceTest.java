@@ -60,11 +60,13 @@ class AdapterInstanceTest {
             "credential_fields", arr(List.of(
                     obj(Map.of(
                             "key", str(FIELD1),
-                            "value", str(FIELD1_VALUE)
+                            "value", str(FIELD1_VALUE),
+                            "is_password", bool(false)
                     )),
                     obj(Map.of(
                             "key", str(FIELD2),
-                            "value", str(FIELD2_VALUE)
+                            "value", str(FIELD2_VALUE),
+                            "is_password", bool(false)
                     ))
             ))
     ));
