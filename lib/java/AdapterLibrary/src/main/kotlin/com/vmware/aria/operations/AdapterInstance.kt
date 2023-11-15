@@ -17,7 +17,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
-data class CredentialField(val key: String, val value: String)
+data class CredentialField(
+    val key: String,
+    val value: String,
+    @SerialName("is_password") val isPassword: Boolean,
+)
 
 @Serializable
 class Credential(
