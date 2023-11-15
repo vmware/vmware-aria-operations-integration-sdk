@@ -33,8 +33,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -535,6 +539,84 @@ class SuiteApiClient @JvmOverloads constructor(
     }
 
     /**
+     * Query for resources using the Suite API, and convert the
+     * responses to SDK Objects.
+     *
+     * Note that not all information from the query is returned. For example, the
+     * query returns health statuses of each object, but those are not present in
+     * the resulting Objects. If information other than the Object itself is needed,
+     * you will need to call the endpoint and process the results manually.
+     *
+     * @param query: json of the resourceQuery, as defined in the SuiteAPI docs:
+     * https://[[aria-ops-hostname]]/suite-api/doc/swagger-ui.html#/Resources/getMatchingResourcesUsingPOST
+     * @return list of sdk [Objects][Object] representing each of the returned objects.
+     */
+    fun queryForResources(query: JsonObject): List<Object> {
+        try {
+            var results = mutableListOf<JsonElement>()
+            if (query.containsKey("name") && query.containsKey("regex")) {
+                // This is behavior in the suite api itself, we're just warning about it
+                // here to avoid confusion.
+                logger.warn(
+                    "'name' and 'regex' are mutually exclusive in resource " +
+                            "queries. Ignoring the 'regex' key in favor of 'name' " +
+                            "key."
+                )
+            }
+            // The 'name' key takes an array but only looks up the first element.
+            // Fix that limitation here .
+            if (query["name"]?.jsonArray?.size?.let { it > 1 } == true) {
+                val jsonBody = query
+                for (name in query["name"]?.jsonArray ?: emptyList()) {
+                    val newJsonBody = jsonBody.toMutableMap()
+                    newJsonBody["name"] = buildJsonArray { add(name) }
+                    val response = postPaged(
+                        "/api/resources/query",
+                        Json.encodeToJsonElement(newJsonBody).jsonObject,
+                        "resourceList"
+                    )
+                    results.addAll(
+                        response["resourceList"]?.jsonArray ?: buildJsonArray { })
+                }
+            } else {
+                val response = this.postPaged(
+                    "/api/resources/query",
+                    query,
+                    "resourceList",
+                )
+                results.addAll(
+                    response.jsonObject["resourceList"]?.jsonArray ?: buildJsonArray {})
+            }
+            return results.mapNotNull { obj ->
+                obj.jsonObject["resourceKey"]?.jsonObject?.let {
+                    keyToObject(it)
+                }
+            }
+        } catch (e: Exception) {
+            logger.error(e)
+            return emptyList()
+        }
+    }
+
+    private fun keyToObject(jsonObjectKey: JsonObject): Object? {
+        return Object(
+            Key(
+                jsonObjectKey["adapterKindKey"]?.jsonPrimitive?.content ?: return null,
+                jsonObjectKey["resourceKindKey"]?.jsonPrimitive?.content ?: return null,
+                jsonObjectKey["name"]?.jsonPrimitive?.content ?: return null,
+                jsonObjectKey["resourceIdentifiers"]?.jsonArray?.map { identifier: JsonElement ->
+                    Identifier(
+                        identifier.jsonObject["identifierType"]?.jsonObject?.get("name")?.jsonPrimitive?.content ?: return null,
+                        identifier.jsonObject["value"]?.jsonPrimitive?.content ?: return null,
+                        identifier.jsonObject["identifierType"]?.jsonObject?.get("isPartOfUniqueness")?.jsonPrimitive?.booleanOrNull ?: return null,
+                    )
+                } ?: emptyList()
+            )
+        )
+    }
+
+
+    /**
      * Releases the token if present and closes any features of the client that require closing
      */
     override fun close() {
@@ -572,9 +654,11 @@ private suspend fun HttpResponse.toJson() =
 
 private suspend fun HttpResponse.throwOnErrorStatus(): HttpResponse {
     if (this.status.value >= 300) {
-        throw SuiteApiClientException("${this.call.request.method.value} request to " +
-                "${this.call.request.url} returned ${this.status.description} " +
-                "(${this.status.value})", this.status.value)
+        throw SuiteApiClientException(
+            "${this.call.request.method.value} request to " +
+                    "${this.call.request.url} returned ${this.status.description} " +
+                    "(${this.status.value})", this.status.value
+        )
     }
     return this
 }
