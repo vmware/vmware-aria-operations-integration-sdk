@@ -1,7 +1,7 @@
 # VMware vCenter MP Extension
 
 ## Requirements
-- [Integration SDK](../../README.md#Requirements)
+- [Integration SDK](../../docs/get_started.md#requirements)
 - vCenter Adapter Instance on VMware Aria Operations
 - Container registry accessible to the cloud proxy where the vCenter MP Extension adapter will run.
   
@@ -10,7 +10,7 @@
 ### Build pak file
 - Run `mp-build` at the root of the sample project directory. `mp-build` uses the given container registry to 
   upload a container image that contains the adapter. The cloud proxy pulls the container image from the registry and
-  runs the adapter inside the container. Consult the [Troubleshooting](../../doc/troubleshooting_and_faq.md) section for 
+  runs the adapter inside the container. Consult the [Troubleshooting](../../docs/troubleshooting_and_faq/index.md) section for 
   additional information about setting up container registries.
 ```shell
 > mp-build
@@ -24,24 +24,24 @@ Enter the tag for the container registry: [PATH_TO_CONTAINER_REGISTRY]/vcenterex
 - Go to  **Integrations &rarr; Repository &rarr; ADD**.
 - Select the pak file located in the `build` directory at the root of the sample project directory, then go through the prompts and wait for the installation to complete.
 - Check **ignore the PAK file signature checking** and then press **UPLOAD**
-  ![Upload solution pop-up](../../doc/add_solution.png)
+  ![Upload solution pop-up](../../docs/images/add_solution.png)
 - After the pak file finishes uploading, press **NEXT** and then press **YES** when the pop-up appears
- 
-  ![Pop-up confirmation prompt](../../doc/comfirmation_prompt.png)
+
+  ![Pop-up confirmation prompt](../../docs/images/comfirmation_prompt.png)
  
 - Accept the license agreement
  
-  ![License Agreement screen](../../doc/license_agreement.png)
+  ![License Agreement screen](../../docs/images/license_agreement.png)
 
 - Wait for the solution to install
 ### Configure Adapter
 - Go to  **Integrations &rarr; ADD ACCOUNT**.
  
-  ![Add account screenshot](../../doc/add_account.png)
+  ![Add account screenshot](../../docs/images/add_account.png)
 
 - Select VCenter Extension MP
   When adding an account, the 'Hostname' parameter must be identical to the 'vCenter Server' parameter on the adapter instance it is extending.
  
-  ![Add account screenshot](../../doc/add_account_prompt.png)
+  ![Add account screenshot](../../docs/images/add_account_prompt.png)
 
 - Validate Connection and Add Account
