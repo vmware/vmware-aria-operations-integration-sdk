@@ -36,13 +36,21 @@ class Credential(
     @SerialName("credential_fields") private val fields: List<CredentialField>,
 ) : Map<String, String> by fields.associate({ field -> Pair(field.key, field.value) })
 
+@Serializable
+class CertificateInfo(
+    @SerialName("cert_pem_string") val certPem: String,
+    @SerialName("is_invalid_hostname_accepted") val isInvalidHostnameAccepted: Boolean,
+    @SerialName("is_expired_certificate_accepted") val isExpiredCertAccepted: Boolean,
+
+)
+
 /**
  * Class that represents a list of validated SSL certificates that have been verified
  * automatically by a CA or manually by the user.
  */
 @Serializable
-class Certificates(private val certificates: List<String>) :
-    List<String> by certificates
+class Certificates(private val certificates: List<CertificateInfo>) :
+    List<CertificateInfo> by certificates
 
 /**
  * Class that describes a time window. In some cases, it is useful to have a start and end time
