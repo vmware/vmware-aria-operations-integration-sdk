@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0.2"
+version = "1.0.3"
 
 java {
     toolchain {

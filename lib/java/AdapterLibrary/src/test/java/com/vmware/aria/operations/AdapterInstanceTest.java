@@ -1,13 +1,106 @@
 package com.vmware.aria.operations;
 
-import kotlinx.serialization.json.*;
-import org.junit.jupiter.api.*;
+import kotlinx.serialization.json.JsonArray;
+import kotlinx.serialization.json.JsonElement;
+import kotlinx.serialization.json.JsonElementKt;
+import kotlinx.serialization.json.JsonNull;
+import kotlinx.serialization.json.JsonObject;
+import kotlinx.serialization.json.JsonPrimitive;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class AdapterInstanceTest {
+    JsonObject KEY = obj(Map.of(
+            "name", str("MyAdapterInstanceName"),
+            "adapter_kind", str("MyAdapterKind"),
+            "object_kind", str("MyAdapterKind_AdapterInstance"),
+            "identifiers", arr(List.of(
+                    obj(Map.of(
+                            "key", str("id1"),
+                            "value", str("value1"),
+                            "is_part_of_uniqueness", bool(true)
+                    )),
+                    obj(Map.of(
+                            "key", str("id2"),
+                            "value", str("value2"),
+                            "is_part_of_uniqueness", bool(true)
+                    ))
+            ))
+    ));
+    String CREDENTIAL_TYPE = "type1";
+    String FIELD1 = "field1";
+    String FIELD1_VALUE = "value1";
+    String FIELD2 = "field2";
+    String FIELD2_VALUE = "value2";
+    JsonObject CREDENTIAL = obj(Map.of(
+            "credential_key", str(CREDENTIAL_TYPE),
+            "credential_fields", arr(List.of(
+                    obj(Map.of(
+                            "key", str(FIELD1),
+                            "value", str(FIELD1_VALUE),
+                            "is_password", bool(false)
+                    )),
+                    obj(Map.of(
+                            "key", str(FIELD2),
+                            "value", str(FIELD2_VALUE),
+                            "is_password", bool(false)
+                    ))
+            ))
+    ));
+    JsonObject NULL_CREDENTIAL = obj(Map.of());
+    String CERT1 = "Certificate1_ae4c200b34";
+    String CERT2 = "Certificate2_ff7d2c2b65";
+    JsonElement CERTIFICATES = obj(Map.of(
+            "certificates", arr(List.of(
+                    obj(Map.of(
+                            "cert_pem_string", str(CERT1),
+                            "is_invalid_hostname_accepted", bool(true),
+                            "is_expired_certificate_accepted", bool(false)
+                    )), obj(Map.of(
+                            "cert_pem_string", str(CERT2),
+                            "is_invalid_hostname_accepted", bool(true),
+                            "is_expired_certificate_accepted", bool(false)
+                    ))
+            )))
+    );
+    String USERNAME = "user1";
+    String PASSWORD = "P@SSW0RD";
+    String HOSTNAME = "https://host.com";
+    JsonElement CLUSTER_CONNECTION_INFO = obj(Map.of(
+            "user_name", str(USERNAME),
+            "password", str(PASSWORD),
+            "host_name", str(HOSTNAME)
+    ));
+    Double START_TIME = 123.456;
+    Double END_TIME = 456.789;
+    JsonElement WINDOW = obj(Map.of(
+            "start_time", n(START_TIME),
+            "end_time", n(END_TIME)
+    ));
+    Integer COLLECTION_NUMBER = 1;
+    JsonObject ADAPTER_INSTANCE1 = obj(Map.of(
+            "adapter_key", KEY,
+            "credential_config", CREDENTIAL,
+            "cluster_connection_info", CLUSTER_CONNECTION_INFO,
+            "certificate_config", CERTIFICATES,
+            "collection_number", n(COLLECTION_NUMBER),
+            "collection_window", WINDOW
+    ));
+    JsonObject ADAPTER_INSTANCE2 = obj(Map.of(
+            "adapter_key", KEY,
+            "credential_config", CREDENTIAL,
+            "cluster_connection_info", JsonNull.INSTANCE,
+            "certificate_config", CERTIFICATES,
+            "collection_number", n(COLLECTION_NUMBER),
+            "collection_window", WINDOW
+    ));
+
     private JsonArray arr(List<? extends JsonElement> a) {
         return new JsonArray(a);
     }
@@ -31,90 +124,6 @@ class AdapterInstanceTest {
     private JsonPrimitive nil() {
         return JsonElementKt.JsonPrimitive((Boolean) null);
     }
-
-    JsonObject KEY = obj(Map.of(
-            "name", str("MyAdapterInstanceName"),
-            "adapter_kind", str("MyAdapterKind"),
-            "object_kind", str("MyAdapterKind_AdapterInstance"),
-            "identifiers", arr(List.of(
-                    obj(Map.of(
-                            "key", str("id1"),
-                            "value", str("value1"),
-                            "is_part_of_uniqueness", bool(true)
-                    )),
-                    obj(Map.of(
-                            "key", str("id2"),
-                            "value", str("value2"),
-                            "is_part_of_uniqueness", bool(true)
-                    ))
-            ))
-    ));
-
-    String CREDENTIAL_TYPE = "type1";
-    String FIELD1 = "field1";
-    String FIELD1_VALUE = "value1";
-    String FIELD2 = "field2";
-    String FIELD2_VALUE = "value2";
-    JsonObject CREDENTIAL = obj(Map.of(
-            "credential_key", str(CREDENTIAL_TYPE),
-            "credential_fields", arr(List.of(
-                    obj(Map.of(
-                            "key", str(FIELD1),
-                            "value", str(FIELD1_VALUE),
-                            "is_password", bool(false)
-                    )),
-                    obj(Map.of(
-                            "key", str(FIELD2),
-                            "value", str(FIELD2_VALUE),
-                            "is_password", bool(false)
-                    ))
-            ))
-    ));
-
-    JsonObject NULL_CREDENTIAL = obj(Map.of());
-
-    String CERT1 = "Certificate1_ae4c200b34";
-    String CERT2 = "Certificate2_ff7d2c2b65";
-    JsonElement CERTIFICATES = obj(Map.of(
-            "certificates", arr(List.of(
-                    str(CERT1),
-                    str(CERT2)
-            ))
-    ));
-
-    String USERNAME = "user1";
-    String PASSWORD = "P@SSW0RD";
-    String HOSTNAME = "https://host.com";
-    JsonElement CLUSTER_CONNECTION_INFO = obj(Map.of(
-            "user_name", str(USERNAME),
-            "password", str(PASSWORD),
-            "host_name", str(HOSTNAME)
-    ));
-
-    Double START_TIME = 123.456;
-    Double END_TIME = 456.789;
-    JsonElement WINDOW = obj(Map.of(
-            "start_time", n(START_TIME),
-            "end_time", n(END_TIME)
-    ));
-
-    Integer COLLECTION_NUMBER = 1;
-    JsonObject ADAPTER_INSTANCE1 = obj(Map.of(
-            "adapter_key", KEY,
-            "credential_config", CREDENTIAL,
-            "cluster_connection_info", CLUSTER_CONNECTION_INFO,
-            "certificate_config", CERTIFICATES,
-            "collection_number", n(COLLECTION_NUMBER),
-            "collection_window", WINDOW
-    ));
-    JsonObject ADAPTER_INSTANCE2 = obj(Map.of(
-            "adapter_key", KEY,
-            "credential_config", CREDENTIAL,
-            "cluster_connection_info", JsonNull.INSTANCE,
-            "certificate_config", CERTIFICATES,
-            "collection_number", n(COLLECTION_NUMBER),
-            "collection_window", WINDOW
-    ));
 
     @Test
     public void getIdentifierValue() {
@@ -156,8 +165,8 @@ class AdapterInstanceTest {
         AdapterInstance ai = new AdapterInstance(ADAPTER_INSTANCE1);
         assertNotNull(ai.getCertificates());
         assertEquals(2, ai.getCertificates().size());
-        assertEquals(CERT1, ai.getCertificates().get(0));
-        assertEquals(CERT2, ai.getCertificates().get(1));
+        assertEquals(CERT1, ai.getCertificates().get(0).getCertPem());
+        assertEquals(CERT2, ai.getCertificates().get(1).getCertPem());
     }
 
     @Test
