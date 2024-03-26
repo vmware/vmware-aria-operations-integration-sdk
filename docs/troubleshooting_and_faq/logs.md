@@ -10,7 +10,7 @@ project.
 ###  Where are the adapter logs stored in VMware Aria Operations?
 
 Logs are generated and stored on the cloud proxy where the adapter is running at 
-`$ALIVE_BASE/user/log/adapter/<ADAPTERKEY>/<ADAPTER_INTERNAL_INSTANCE_ID>`.
+`$ALIVE_BASE/user/log/adapters/<ADAPTERKEY>/<ADAPTER_INTERNAL_INSTANCE_ID>`.
 
 `ADAPTERKEY` should match the adapter key used in the `manifest.txt`, and the `ADAPTER_INTERNAL_INSTANCE_ID` should
 match the Internal ID
