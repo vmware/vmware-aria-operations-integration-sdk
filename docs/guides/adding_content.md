@@ -157,7 +157,7 @@ Adding Content
 
     Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.
  
-A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the `describe.xml` file.
+A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the file `content/traversalSpecs/traversal.xml`.
 Each path consists of two or more _nodes_, and each node is separated by two bars (`||`).
 A traversal always starts with the same object type, known as the _root_. When creating a traversal, the root object type is specified using the `rootAdapterKind` and `rootResourceKind` attributes. Every path in the traversal must start with the root object as its first node. Nodes are represented by the adapter type and object type separated by double colons (`::`). After the first node, each node must also include a relationship direction, either `child`, or `~child` (parent), separated from the adapter kind and resource kind by double colons (`::`).
 Multiple traversals can be included in a Management Pack, and each individual traversal can have its own root object type.
@@ -170,10 +170,10 @@ my_instance_resource_kind
            |
 my_database_resource_kind
 ```
-Now, say that we want to be able to select an instance and see all the databases running on it. We can make a very simple traversal with a single path in `describe.xml`:
+Now, say that we want to be able to select an instance and see all the databases running on it. We can make a very simple traversal with a single path in `traversal.xml`:
 ```xml
+<?xml version="1.0" encoding="utf-8" ?>
 <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
-   <!-- ... -->
    <TraversalSpecKinds>
       <TraversalSpecKind name="MyTraversal" rootAdapterKind="my_adapter" rootResourceKind="my_instance_resource_kind" description="Navigate from the Instance to the Databases hosted on it.">
          <ResourcePath path="my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child"/>
@@ -203,7 +203,7 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
 ```
 ???+ info 
 
-    For more information about the supported elements and attributes, see the [describe.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd#L4).
+    For more information about the supported elements and attributes, see the [traversal.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/1702fc9b81dcb30e8949ac64e5b3ed0651fa3864/vmware_aria_operations_integration_sdk/adapter_configurations/traversalSpecsSchema.xsd).
 
 When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
