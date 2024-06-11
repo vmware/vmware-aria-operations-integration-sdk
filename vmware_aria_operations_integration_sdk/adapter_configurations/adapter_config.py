@@ -70,7 +70,7 @@ class AdapterConfig(ABC):
 
         self.conf_dir_path = os.path.join(project_path, "conf")
         self.conf_resources_dir_path = os.path.join(project_path, "resources")
-        self.conf_images_dir_path = os.path.join(project_path, "images")
+        self.conf_images_dir_path = os.path.join(self.conf_dir_path, "images")
 
         self.response_values: Dict[str, Any] = {
             "display_name": display_name,

@@ -98,7 +98,10 @@ The init script creates a project in the given path with the following structure
 ├── venv-ADAPTER NAME
 ├── conf
 │   ├── describeSchema.xsd
-│   └── resources
+│   └──  images
+│       ├── AdapterKind
+│       ├── ResourceKind
+│       └── TraversalSpec
 ├── content
 │   ├── alertdefs
 │   │   └── alertDefinitionSchema.xsd

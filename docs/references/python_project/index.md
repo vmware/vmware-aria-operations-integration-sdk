@@ -34,7 +34,11 @@ files and directories specific to Python (highlighted below):
 │   ├── adapter.py
 │   └── constants.py
 ├── conf
-│   └── describeSchema.xsd
+│   ├── describeSchema.xsd
+│   └──  images
+│       ├── AdapterKind
+│       ├── ResourceKind
+│       └── TraversalSpec
 ├── content
 │   ├── alertdefs
 │   │   └── alertDefinitionSchema.xsd
@@ -53,10 +57,6 @@ files and directories specific to Python (highlighted below):
 │   ├── symptomdefs
 │   └── traversalspecs
 │       └── traversalSpecsSchema.xsd
-├── images
-│   ├── AdapterKind
-│   ├── ResourceKind
-│   └── TraversalSpec
 └── resources
     └── resources.properties
 ```

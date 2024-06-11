@@ -30,7 +30,11 @@ files and directories specific to Java (highlighted below):
 ├── manifest.txt
 ├── requirements.txt
 ├── conf
-│   └── describeSchema.xsd
+│   ├── describeSchema.xsd
+│   └──  images
+│       ├── AdapterKind
+│       ├── ResourceKind
+│       └── TraversalSpec
 ├── content
 │   ├── alertdefs
 │   │   └── alertDefinitionSchema.xsd
@@ -49,10 +53,6 @@ files and directories specific to Java (highlighted below):
 │   ├── symptomdefs
 │   └── traversalspecs
 │       └── traversalSpecsSchema.xsd
-├── images
-│   ├── AdapterKind
-│   ├── ResourceKind
-│   └── TraversalSpec
 ├── resources
 │   └── resources.properties
 └── src
