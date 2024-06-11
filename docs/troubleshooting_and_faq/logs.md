@@ -33,7 +33,7 @@ Each log file is prepended with the type of log file followed by a number that r
   Contains all logs related to the HTTP server inside the container. Server logs can't be modified since the server code
   comes packaged
   inside
-  the [base-adapter](https://projects.registry.vmware.com/harbor/projects/46752/repositories/base-adapter/artifacts-tab)
+  the [base-adapter](https://projects.packages.broadcom.com/ui/packages/docker:%2F%2Fvmware_aria_operations_integration_sdk%2Fbase-adapter/python-1.0.0?name=base-adapter&type=packages)
   Python image.
 
 - `adapter.log`

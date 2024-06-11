@@ -50,7 +50,7 @@ server. In the adapter's dockerfile, this is specified in the 'FROM' directive o
 first line. For example, the following line Dockerfile creates an adapter using the
 `0.10.3` version of the Server:
 ```
-FROM projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base-adapter:python-0.10.3
+FROM projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base-adapter:python-0.10.3
 
 COPY adapter_requirements.txt .
 RUN pip3 install -r adapter_requirements.txt
