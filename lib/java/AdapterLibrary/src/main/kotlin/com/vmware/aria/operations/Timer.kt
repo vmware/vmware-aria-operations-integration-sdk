@@ -59,6 +59,15 @@ class Timer constructor(val name: String) {
 }
 
 /**
+ * Functional interface for Java Interoperability that allows throwing an exception
+ * from the closure.
+ */
+fun interface ThrowingFn<T> {
+    @Throws(Exception::class)
+    fun execute(): T?
+}
+
+/**
  * Times the function / closure. The time is not returned but can be graphed using the
  * [graph] function.
  *
@@ -66,11 +75,13 @@ class Timer constructor(val name: String) {
  * @param fn The function or closure to time
  * @return The result of [fn]
  */
-fun <T> time(name: String, fn: () -> T?): T? {
+fun <T> time(name: String, fn: ThrowingFn<T>): T? {
     val timer = Timer(name)
-    val returnValue = fn()
-    timer.stop()
-    return returnValue
+    try {
+        return fn.execute()
+    } finally {
+        timer.stop()
+    }
 }
 
 private enum class LineStyle(val horizontalChar: String, val junctionChar: String) {
