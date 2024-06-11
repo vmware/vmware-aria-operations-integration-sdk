@@ -188,8 +188,8 @@ When the Management Pack is installed in VMware Aria Operations, the `Object Bro
 Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:
 
 ```xml
+<?xml version="1.0" encoding="utf-8" ?>
 <AdapterKind xmlns="http://schemas.vmware.com/vcops/schema" key="my_adapter" nameKey="1" version="1">
-   <!-- ... -->
    <TraversalSpecKinds>
       <TraversalSpecKind name="MyTraversal" rootAdapterKind="my_adapter" rootResourceKind="my_instance_resource_kind" description="Navigate from the Instance to the Databases hosted on it and VM hosting it.">
          <ResourcePath path="my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child"/>

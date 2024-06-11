@@ -20,7 +20,7 @@ In most cases, this error indicates issues with building the container image. Th
       Unable to build container
       ERROR: Unable to build Docker file at /Users/user/code/aria_ops/management-packs/test:
       The command '/bin/sh -c pip3 install -r adapter_requirements.txt --upgrade' returned a non-zero code: 1
-      Step 1/6 : FROM projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base-adapter:python-0.12.1
+      Step 1/6 : FROM projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base-adapter:python-1.0.0
       ---> 162815abfec9
 
       Step 2/6 : COPY commands.cfg .

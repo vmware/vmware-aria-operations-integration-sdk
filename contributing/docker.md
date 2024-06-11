@@ -91,54 +91,43 @@ unique tag `python-0.3.0`.
 	docker tag base-adapter:python-0.3.0 base-adapter:python-latest
 	```
 
-## [Harbor](https://goharbor.io/)
-
-### What is it?
-Harbor is an open source container image registry that secures images
-with role-based access control, scans images for vulnerabilities, and signs
-images as trusted. A Cloud Native Computing Foundation Incubating project, Harbor delivers compliance, performance,
-and interoperability to consistently and securely manage images across cloud
-native compute platforms like Kubernetes and Docker.
-
-### Why use it?
-Harbor is a VMware platform that allows full control of projects for internal or external distribution
-without the liabilities of an externally hosted solution like Docker Hub.
+## Using the Broadcom public repository
 
 ### Pulling Images
-1. Make sure you have access to Harbor by logging in to the [vmware_aria_operations_integration_sdk](https://projects.registry.vmware.com/harbor/projects/46752/repositories) registry,
-then go to the [members](https://projects.registry.vmware.com/harbor/projects/46752/members) page, and ensure you are a member of the project.
-	- If you are not a member of this team, contact any of members listed as admins
+1. Make sure you have access to Artifactory by logging in to the [Broadcom Registry](https://projects.packages.broadcom.com/).
 
 2. Log in to harbor through the Docker CLI:
 ```
-docker login projects.registry.vmware.com
+docker login projects.packages.broadcom.com
 ```
 
 3. Pull any image inside the `vmware_aria_operations_integration_sdk` repo to ensure login worked. The command
 below will pull the latest version of the Python image.
 ```
-docker pull projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base-adapter-server:python
+docker pull projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base-adapter-server:python
 ```
-Images can also be downloaded through the Harbor web UI by clicking the icon next to the artifact hash (under the pull command).
 
 ### Pushing Images
-Before pushing and image to Harbor make sure the image has a unique tag and any applicable stable tags
+Before pushing and image to Artifactory make sure the image has a unique tag and any applicable stable tags
 
-1. Log in to Harbor through the Docker CLI (if you are already logged in, skip this step):
+1. Log in to Artifactory through the Docker CLI 
+
+Note: the Broadcom registry has a dedicated URL that is only accesible via the 
+broadcom VPN. This is why the URLs for pushing do not match the URLs for pulling. 
 ```
-docker login projects.registry.vmware.com
+docker login vmware_aria_operations_integration_sdk-docker-prod-local.usw1.packages.broadcom.com
 ```
 
-2. For every image tag, add an additional tag with the prefix `projects.registry.vmware.com/vmware_aria_operations_integration_sdk/`:
+2. For every image tag, add an additional tag with the prefix `projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/`:
 ```
-docker tag base-adapter:python-0.3.0 projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-0.3.0
-docker tag base-adapter:python-0 projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-0
-docker tag base-adapter:python-latest projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-latest
+docker tag base-adapter:python-0.3.0 projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-0.3.0
+docker tag base-adapter:python-0 projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-0
+docker tag base-adapter:python-latest projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-latest
 ```
 
 3. Push all tagged images:
 ```
-docker push projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-0.3.0
-docker push projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-0
-docker push projects.registry.vmware.com/vmware_aria_operations_integration_sdk/base_adapter:python-latest
+docker push vmware_aria_operations_integration_sdk-docker-prod-local.usw1.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-0.3.0
+docker push vmware_aria_operations_integration_sdk-docker-prod-local.usw1.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-0
+docker push vmware_aria_operations_integration_sdk-docker-prod-local.usw1.packages.broadcom.com/vmware_aria_operations_integration_sdk/base_adapter:python-latest
 ```
