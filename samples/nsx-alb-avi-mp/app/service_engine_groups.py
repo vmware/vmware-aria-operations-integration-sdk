@@ -15,7 +15,7 @@ from service_engine import ServiceEngine
 logger = logging.getLogger(__name__)
 
 
-class ServiceEngineGroup(Object):
+class ServiceEngineGroup(Object):  # type: ignore
     """Service Engines are created within a group, which contains the definition of how the Service Engines should
     be sized, placed, and made highly available.
     Each cloud will have at least one SE group.
@@ -64,7 +64,7 @@ def get_service_engine_groups(api: ApiSession) -> List[ServiceEngineGroup]:
             new_service_engine_group.add_metric(
                 Metric(
                     key="service_engines",
-                    value=777
+                    value=777,
                     # TODO calculate number of service engines by counting the number of service enignes that reference
                     #  this SEG by uuid  (se_group_ref": "https://avi-1.tvs.vmware.com/api/serviceenginegroup/uuid)
                 )
