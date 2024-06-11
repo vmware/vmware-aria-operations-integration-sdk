@@ -285,9 +285,9 @@ class LongCollectionStatistics:
         # This is a duplicated from LongCollectionBundle
         self.collection_bundles: List[CollectionBundle] = list()
         self.total_number_of_collections = len(collection_bundle_list)
-        self.long_object_type_statistics: Dict[
-            ObjectType, LongObjectTypeStatistics
-        ] = defaultdict(lambda: LongObjectTypeStatistics(long_run_duration))
+        self.long_object_type_statistics: Dict[ObjectType, LongObjectTypeStatistics] = (
+            defaultdict(lambda: LongObjectTypeStatistics(long_run_duration))
+        )
         for collection_bundle in collection_bundle_list:
             self.add(collection_bundle)
 

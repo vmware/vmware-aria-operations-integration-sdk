@@ -236,8 +236,8 @@ def registry_prompt(default: str) -> str:
         validator=ContainerRegistryValidator("Path"),
         description="The full path of a container registry refers to the combination of domain, port, and path to a container registry.\n"
         "Example:\n"
-        "'projects.registry.vmware.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest' breaks into:\n\n"
-        "- domain: projects.registry.vmware.com\n"
+        "'projects.packages.broadcom.com:443/vmware_aria_operations_integration_sdk_mps/base-adapter:latest' breaks into:\n\n"
+        "- domain: projects.packages.broadcom.com\n"
         "- port: 443\n"
         "- path: vmware_aria_operations_integration_sdk_mps/base-adapter\n"
         "- tag: latest\n\n"

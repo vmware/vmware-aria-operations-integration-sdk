@@ -162,11 +162,11 @@ class PropertyAttribute(Attribute):
 
     def to_json(self) -> dict:
         return super().to_json() | {
-            "data_type": "string"
-            if self.is_string
-            else "integer"
-            if self.is_discrete
-            else "float",
+            "data_type": (
+                "string"
+                if self.is_string
+                else "integer" if self.is_discrete else "float"
+            ),
             "is_discrete": True if self.is_string else self.is_discrete,
             "is_property": True,
         }

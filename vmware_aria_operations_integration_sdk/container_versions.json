@@ -4,7 +4,7 @@
         "path": "base-python-adapter",
         "version": "1.0.0"
     },
-    "registry_url": "projects.registry.vmware.com/vmware_aria_operations_integration_sdk",
+    "registry_url": "projects.packages.broadcom.com/vmware_aria_operations_integration_sdk",
     "secondary_images": [
         {
             "language": "Java",
