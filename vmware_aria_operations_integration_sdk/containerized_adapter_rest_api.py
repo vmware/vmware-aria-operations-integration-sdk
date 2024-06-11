@@ -135,13 +135,15 @@ async def get_request_body(
             "objectKind": adapter_instance.get("key"),
             "identifiers": identifiers,
         },
-        "clusterConnectionInfo": None
-        if not send_cluster_connection_info
-        else {
-            "userName": suite_api_connection.username,
-            "password": suite_api_connection.password,
-            "hostName": suite_api_connection.hostname,
-        },
+        "clusterConnectionInfo": (
+            None
+            if not send_cluster_connection_info
+            else {
+                "userName": suite_api_connection.username,
+                "password": suite_api_connection.password,
+                "hostName": suite_api_connection.hostname,
+            }
+        ),
         "certificateConfig": {"certificates": connection.certificates or []},
     }
     if connection.custom_collection_number:
