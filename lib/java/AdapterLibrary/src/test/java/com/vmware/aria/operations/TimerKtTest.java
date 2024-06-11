@@ -3,6 +3,7 @@ package com.vmware.aria.operations;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TimerKtTest {
@@ -25,6 +26,23 @@ class TimerKtTest {
             return 5;
         });
         assertEquals(5, i);
+    }
+
+    @Test
+    public void timeException() {
+        // This adds a timer to the graph, but we can't access the timer directly
+        try {
+            Integer i = Timing.time("Timer 1", () -> {
+                sleep(sleep1Duration);
+                throw new Exception("exception");
+            });
+        } catch (Exception e) {
+            // do nothing
+        }
+        Timer.Companion.getTimers$integration_sdk_adapter_library().forEach((item) -> {
+            assertNotNull(item.getEndTime$integration_sdk_adapter_library());
+        });
+
     }
 
     @Test
