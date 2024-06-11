@@ -493,9 +493,9 @@ class Table:
             line_count = max(map(lambda _lines: len(_lines), columns))
             for line_number in range(line_count):
                 line = map(
-                    lambda column: ""
-                    if line_number >= len(column)
-                    else column[line_number],
+                    lambda column: (
+                        "" if line_number >= len(column) else column[line_number]
+                    ),
                     columns,
                 )
                 output += formatting.format(*line) + "\n"
