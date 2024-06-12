@@ -1,1 +1,1 @@
-vmware-aria-operations-integration-sdk-lib~=1.0.0
+vmware-aria-operations-integration-sdk-lib~=1.0.1
