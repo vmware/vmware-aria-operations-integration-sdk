@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -58,12 +59,64 @@ class AdapterInstance(Object):  # type: ignore
 
         certificate_config = json.get("certificate_config")
         if type(certificate_config) is dict:
-            self.certificates = certificate_config.get("certificates", [])
+            self.certificates: list = certificate_config.get("certificates", [])
         else:
             self.certificates = []
 
         self.collection_number: Optional[int] = json.get("collection_number", None)
         self.collection_window: Optional[Dict] = json.get("collection_window", None)
+
+    def get_suite_api_client(self) -> Optional[SuiteApiClient]:
+        """
+        Gets a Suite Api Client. Note that Suite API calls can only be
+        made from the 'collect' endpoint. The SuiteApiClient present and authenticated
+        when called from 'collect', and 'None' in calls to 'test' and 'get_endpoints'.
+
+        Returns:
+            Authenticated SuiteApiClient, or None
+        """
+        return self.suite_api_client
+
+    def get_certificates(self) -> list[Any]:
+        """
+        Gets a list of all certificates that have been validated by a CA or manually
+        accepted by a user.
+
+        Returns:
+            A list of certificates for verifying SSH connections.
+        """
+        return self.certificates
+
+    def get_collection_number(self) -> Optional[int]:
+        """
+        Gets the current collection number, starting from 0.
+        This will be 'None' on calls to 'test' and 'get_endpoints'.
+
+        Returns:
+            The current collection number
+        """
+        return self.collection_number
+
+    def get_collection_window(self) -> Optional[Dict]:
+        """Gets the window for the current collection.
+
+         In some cases, it is useful to have a start and end time for collection. The
+         start_time and end_time will be modified each collection such that each
+         collection's end_time will be the next collection's start_time. Thus, the
+         window can be treated as either the interval `(start_time, end_time]` or
+         `[start_time, end_time)`, so long as each collection uses the same convention,
+         there will be no overlaps or missing times. (Note that restarting the adapter
+         instance will reset the time window. In general, this will cause overlap
+         and/or missing times when restarts occur for any reason).
+
+         Times are provided in milliseconds since the Epoch.
+
+        Returns:
+            A dictionary with two keys: 'start_time' and 'end_time'. On the first
+            collection, 'start_time' will be set to '0'. On calls to 'test' and
+            'get_endpoints', this will be 'None'.
+        """
+        return self.collection_window
 
     def get_credential_type(self) -> Optional[str]:
         """Get the type (key) of credential. This is useful if an adapter supports multiple types of credentials.
