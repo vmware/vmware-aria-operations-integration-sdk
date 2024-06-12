@@ -68,9 +68,9 @@ class AdapterInstance(Object):  # type: ignore
 
     def get_suite_api_client(self) -> Optional[SuiteApiClient]:
         """
-        Gets a Suite Api Client. Note that Suite API calls can only be
-        made from the 'collect' endpoint. The SuiteApiClient present and authenticated
-        when called from 'collect', and 'None' in calls to 'test' and 'get_endpoints'.
+        Gets an authenticated Suite API Client. Note that Suite API calls can only be
+        made from the 'collect' endpoint. Returns 'None' when called from 'test' and
+        'get_endpoints'.
 
         Returns:
             Authenticated SuiteApiClient, or None
@@ -83,14 +83,14 @@ class AdapterInstance(Object):  # type: ignore
         accepted by a user.
 
         Returns:
-            A list of certificates for verifying SSH connections.
+            A list of certificates for verifying SSL connections.
         """
         return self.certificates
 
     def get_collection_number(self) -> Optional[int]:
         """
         Gets the current collection number, starting from 0.
-        This will be 'None' on calls to 'test' and 'get_endpoints'.
+        Returns 'None' when called from 'test' and 'get_endpoints'.
 
         Returns:
             The current collection number
