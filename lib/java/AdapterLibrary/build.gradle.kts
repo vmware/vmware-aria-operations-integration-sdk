@@ -5,14 +5,14 @@ plugins {
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.serialization") version "1.9.0"
     id("org.jetbrains.dokka") version "1.9.0"
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-1"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-2"
     `java-library`
     `signing`
     `maven-publish`
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0.3"
+version = "1.0.4"
 
 java {
     toolchain {
