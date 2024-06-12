@@ -431,8 +431,7 @@ class Object:
         Args:
             parent (Object): Parent :class:`Object`
         """
-        self._parents.add(parent._key)
-        parent._children.add(self._key)
+        parent.add_child(self)
 
     def add_parents(self, parents: List[Object]) -> None:
         """Method that adds a list of parent Objects to this Object.
@@ -478,7 +477,9 @@ class Object:
         Args:
             children (List[Object]): A list of child :class:`Object`
         """
-        # We want to set this even in the case where the list is empty
+        # We want to set this even in the case where the list is empty, as the user
+        # could be intentionally calling with no children to remove previously-existing
+        # children
         self._updated_children = True
         for child in children:
             self.add_child(child)
