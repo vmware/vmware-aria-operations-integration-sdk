@@ -64,11 +64,12 @@ class Certificates(private val certificates: List<CertificateInfo>) :
 @Serializable
 data class CollectionWindow(
     /**
-     * The start of the window. On the first collection, this will be set to `0`.
+     * The start of the window in milliseconds since the Epoch. On the first collection,
+     * this will be set to `0`.
      */
     @SerialName("start_time") val startTime: Double,
     /**
-     * The end of the window
+     * The end of the window in milliseconds since the Epoch.
      */
     @SerialName("end_time") val endTime: Double,
 )
