@@ -26,6 +26,10 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
   -p PATH, --path PATH  Path to root directory of project. Defaults to the current directory, or prompts if current directory is not a project.
   -r [REGISTRY_TAG], --registry-tag [REGISTRY_TAG]
                         The full container registry tag where the container image will be stored (overwrites config file).
+  --push-registry [REGISTRY_PUSH_URL]  
+                        The full container registry tag where the container image will be pushed to (overwrites config file). If this is omitted, and not present in the config file, it will default to the 'registry-tag' argument or equivalent entry in the config file.
+  --use-default-registry
+                        If this flag is present, the Management Pack will use the default registry in VMware Aria Operations for pulling the adapter container image.
   --registry-username REGISTRY_USERNAME
                         The container registry username.
   --registry-password REGISTRY_PASSWORD

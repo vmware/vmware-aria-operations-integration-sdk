@@ -28,6 +28,9 @@ from vmware_aria_operations_integration_sdk.config import get_config_value
 from vmware_aria_operations_integration_sdk.config import set_config_value
 from vmware_aria_operations_integration_sdk.constant import API_VERSION_ENDPOINT
 from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_CONTAINER_PUSH_REPOSITORY_KEY,
+)
+from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_CONTAINER_REPOSITORY_KEY,
 )
 from vmware_aria_operations_integration_sdk.constant import (
@@ -36,10 +39,10 @@ from vmware_aria_operations_integration_sdk.constant import (
 from vmware_aria_operations_integration_sdk.constant import (
     CONFIG_DEFAULT_MEMORY_LIMIT_KEY,
 )
-from vmware_aria_operations_integration_sdk.constant import (
-    CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY,
-)
 from vmware_aria_operations_integration_sdk.constant import CONFIG_FILE_NAME
+from vmware_aria_operations_integration_sdk.constant import (
+    CONFIG_USE_DEFAULT_REGISTRY_KEY,
+)
 from vmware_aria_operations_integration_sdk.constant import DEFAULT_PORT
 from vmware_aria_operations_integration_sdk.constant import (
     GLOBAL_CONFIG_CONTAINER_PORT_KEY,
@@ -168,6 +171,7 @@ def _is_docker_hub_registry_format(registry: Optional[str]) -> bool:
 
 def _tag_and_push(
     image: Image,
+    container_push_registry_arg: Optional[str],
     container_registry_arg: Optional[str],
     config_file: str,
     manifest: dict,
@@ -180,10 +184,13 @@ def _tag_and_push(
         container_registry = get_config_value(
             CONFIG_CONTAINER_REPOSITORY_KEY, config_file=config_file
         )
-    if not container_registry:
-        container_registry = get_config_value(
-            CONFIG_FALLBACK_CONTAINER_REGISTRY_KEY, config_file=config_file
+    container_push_registry = container_push_registry_arg
+    if not container_push_registry:
+        container_push_registry = get_config_value(
+            CONFIG_CONTAINER_PUSH_REPOSITORY_KEY, config_file=config_file
         )
+    if not container_push_registry:
+        container_push_registry = container_registry
 
     # we want to keep track of the original value, so we can update it if necessary
     original_value = container_registry
@@ -191,23 +198,23 @@ def _tag_and_push(
     digest = ""
     should_prompt = container_registry is None
     while not digest:
-        container_registry = validate_container_registry(
+        container_push_registry = validate_container_registry(
             adapter_kind_key,
             config_file,
-            container_registry,
+            container_push_registry,
             should_prompt,
             **kwargs,
         )
 
         tag = manifest["version"] + "_" + str(time.time())
 
-        image.tag(container_registry, tag)
+        image.tag(container_push_registry, tag)
 
         try:
             with Spinner(
-                f"Pushing Adapter Image to {container_registry} with tag {tag}"
+                f"Pushing Adapter Image to {container_push_registry} with tag {tag}"
             ):
-                digest = push_image(docker_client, container_registry, tag)
+                digest = push_image(docker_client, container_push_registry, tag)
         except PushError as push_error:
             if should_prompt:
                 logger.error(push_error.message)
@@ -215,16 +222,20 @@ def _tag_and_push(
                 raise push_error
 
         # We only set the value if we are able to push the image
-        if original_value != container_registry and digest:
+        if original_value != container_push_registry and digest:
+            container_registry = container_push_registry
             set_config_value(
                 key=CONFIG_CONTAINER_REPOSITORY_KEY,
-                value=container_registry,
+                value=container_push_registry,
                 config_file=config_file,
             )
 
-        components = ContainerRegistryValidator.get_container_registry_components(
-            container_registry
-        )
+    if not container_registry:
+        raise Exception("Container Repository is not set.")
+
+    components = ContainerRegistryValidator.get_container_registry_components(
+        container_registry
+    )
 
     return components["domain"], components["port"], components["path"], digest
 
@@ -324,6 +335,8 @@ async def build_pak_file(
     temp_dir: str,
     insecure_communication: bool,
     container_registry_arg: Optional[str],
+    container_push_registry_arg: Optional[str],
+    use_default_registry_arg: bool,
     **kwargs: Any,
 ) -> str:
     docker_client = init()
@@ -390,6 +403,7 @@ async def build_pak_file(
 
             domain, container_registry_port, path, digest = _tag_and_push(
                 image,
+                container_push_registry_arg,
                 container_registry_arg,
                 config_file,
                 manifest,
@@ -471,8 +485,14 @@ async def build_pak_file(
                 else:
                     adapter_conf.write(f"API_PROTOCOL=https\n")
                     adapter_conf.write(f"API_PORT=443\n")
-
-                adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
+                use_default_registry = (
+                    get_config_value(
+                        CONFIG_USE_DEFAULT_REGISTRY_KEY, False, config_file=config_file
+                    )
+                    or use_default_registry_arg
+                )
+                if not use_default_registry:
+                    adapter_conf.write(f"REGISTRY={conf_registry_field}\n")
                 adapter_conf.write(f"REPOSITORY=/{conf_repo_field}\n")
                 adapter_conf.write(f"DIGEST={digest}\n")
 
@@ -589,10 +609,26 @@ def main() -> None:
         )
 
         parser.add_argument(
+            "-r",
             "--registry-tag",
             help="The full container registry tag where the container image will be stored (overwrites config file).",
             nargs="?",
             const="",
+        )
+
+        parser.add_argument(
+            "--push-registry",
+            help="The full container registry tag where the container image will be pushed to (overwrites config file).",
+            nargs="?",
+            const="",
+        )
+
+        parser.add_argument(
+            "--use-default-registry",
+            help="If this flag is present, the Management Pack will use the default "
+            "registry in VMware Aria Operations for pulling the adapter container "
+            "image.",
+            action="store_true",
         )
 
         parser.add_argument(
@@ -624,6 +660,8 @@ def main() -> None:
         project = get_project(parsed_args)
         insecure_communication = parsed_args.insecure_collector_communication
         container_registry = parsed_args.registry_tag
+        container_push_registry = parsed_args.push_registry
+        use_default_registry = parsed_args.use_default_registry
         registry_username = parsed_args.registry_username
         registry_password = parsed_args.registry_password
         if parsed_args.no_ttl:
@@ -672,6 +710,8 @@ def main() -> None:
                     temp_dir,
                     insecure_communication,
                     container_registry,
+                    container_push_registry,
+                    use_default_registry,
                     registry_username=registry_username,
                     registry_password=registry_password,
                 )
