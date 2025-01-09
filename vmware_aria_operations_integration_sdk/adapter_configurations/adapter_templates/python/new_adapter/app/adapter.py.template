@@ -167,6 +167,7 @@ def main(argv: List[str]) -> None:
             exit(1)
     finally:
         logger.info(Timer.graph())
+        exit(0)
 
 
 if __name__ == "__main__":
