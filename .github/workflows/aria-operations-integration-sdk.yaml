@@ -36,7 +36,7 @@ jobs:
       run: |
         pytest -s tests
     - name: Upload SDK pytest test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pytest-results-${{ matrix.python-version }}
         path: tools/test-results-${{ matrix.os }}-${{ matrix.python-version }}.xml
@@ -72,7 +72,7 @@ jobs:
       run: |
         pytest -s lib/python/tests
     - name: Upload Python Library pytest test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pytest-results-${{ matrix.python-version }}
         path: lib/python/test-results-${{ matrix.python-version }}.xml
