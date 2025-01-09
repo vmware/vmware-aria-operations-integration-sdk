@@ -101,7 +101,7 @@ def init() -> DockerClient:
             if platform.system() == "Windows":
                 host_os_port_path = "C:\ProgramData\docker"
             else:
-                host_os_port_path = "/var/run/docker.dock"
+                host_os_port_path = "/var/run/docker.sock"
 
             raise InitError(
                 message="Cannot connect to the Docker daemon",
