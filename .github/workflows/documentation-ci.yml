@@ -1,7 +1,5 @@
-name: documentation
-on:
-  release:
-    types: [published]
+name: documentation-ci
+on: [push, pull_request]
 permissions:
   contents: write
 jobs:
@@ -36,21 +34,16 @@ jobs:
         ./lib/java/AdapterLibrary/gradlew -p lib/java/AdapterLibrary dokkaJavadoc
         mkdir -p docs/references/java_project/java_lib/
         cp -r lib/java/AdapterLibrary/build/dokka/javadoc/* docs/references/java_project/java_lib/
+    - name: Setup documentation user
+      run: |
+        git config --global user.name ci-bot
+        git config --global user.email ci-bot@example.com
     - name: Build MKDocs Site
       # If not on the main branch, build the docs to check for errors, but do not deploy
       if: github.ref != 'refs/heads/main'
       run: mkdocs build
     - name: Deploy MKDocs Site
-      # If on the main branch, deploy the site
+      # If on the main branch, deploy the site to the 'development' version
       if: github.ref == 'refs/heads/main'
-      run: mkdocs gh-deploy --force --remote-branch github-pages-documentation
-    - name: Get Release Version
-      run: |
-        export VERSION=${{ github.event.release.tag_name }}
-    - name: Setup documentation user
-      run: |
-        git config --global user.name ci-bot
-        git config --global user.email ci-bot@example.com
-    - name: Deploy MKDocs Site
-      run: mike deploy -b github-pages-documentation-test --push --update-aliases ${VERSION} latest
+      run: mike deploy -b github-pages-documentation --push develop
 
