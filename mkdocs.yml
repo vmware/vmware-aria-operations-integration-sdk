@@ -1,5 +1,6 @@
 site_name: VMware Aria Operations Integration SDK
 repo_url: https://github.com/vmware/vmware-aria-operations-integration-sdk
+site_url: https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/
 docs_dir: docs
 plugins:
 - search
@@ -10,6 +11,8 @@ plugins:
       python:
         options:
           show_docstring_attributes: true
+- mike:
+    deploy_prefix: sdk
 theme:
   name: material
   language: en
@@ -40,7 +43,9 @@ theme:
   - content.code.select
   - content.tooltips
 
-
+extra:
+  version:
+    provider: mike
 
 markdown_extensions:
 - def_list
@@ -62,4 +67,4 @@ markdown_extensions:
     permalink: true
 
 copyright: |
-  &copy; 2023 VMware, Inc.
+  &copy; 2023-2024 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
