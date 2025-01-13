@@ -143,7 +143,7 @@ def main(argv: List[str]) -> None:
         # `inputfile` and `outputfile` are always automatically appended to the
         # argument list by the server
         logger.error("Arguments must be <method> <inputfile> <ouputfile>")
-        exit(1)
+        sys.exit(1)
 
     method = argv[0]
     try:
@@ -161,13 +161,13 @@ def main(argv: List[str]) -> None:
                 logger.info(
                     "get_adapter_definition method did not return an AdapterDefinition"
                 )
-                exit(1)
+                sys.exit(1)
         else:
             logger.error(f"Command {method} not found")
-            exit(1)
+            sys.exit(1)
     finally:
         logger.info(Timer.graph())
-        exit(0)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
