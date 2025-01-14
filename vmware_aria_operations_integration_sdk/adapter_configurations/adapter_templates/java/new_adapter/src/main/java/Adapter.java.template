@@ -196,6 +196,7 @@ public class Adapter {
             }
         } finally {
             logger.info(Timing.graph());
+            System.exit(0);
         }
     }
 }
