@@ -163,9 +163,11 @@ class ImageValidator(Validator):  # type: ignore
             raise ValidationError(
                 message="Image must be in PNG format and 256x256 pixels."
             )
-        except UnidentifiedImageError as e:
+        except Exception as e:
             raise ValidationError(
-                message=f"{e}. Image must be in PNG format and 256x256 pixels."
+                message=f"{e}. Image must be in PNG format and 256x256 pixels.".replace(
+                    "..", "."
+                )
             )
 
 
