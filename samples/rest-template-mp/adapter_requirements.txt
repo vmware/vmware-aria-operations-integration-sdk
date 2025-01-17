@@ -1,2 +1,2 @@
 vmware-aria-operations-integration-sdk-lib==0.7.*
-requests==2.31.*
+requests>=2.32.*
