@@ -1,1 +1,0 @@
-var packageSearchIndex = [{"l":"com.vmware.aria.operations","url":"com/vmware/aria/operations/package-summary.html"}, {"l":"com.vmware.aria.operations.definition","url":"com/vmware/aria/operations/definition/package-summary.html"}, {"l":"All packages","url":"index.html"}]
