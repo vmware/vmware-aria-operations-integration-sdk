@@ -1,0 +1,2929 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/1.1.0/guides/adding_to_an_adapter/">
+      
+      
+        <link rel="prev" href="../extending_an_existing_management_pack/">
+      
+      
+        <link rel="next" href="../adding_content/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Adding to an Adapter - VMware Aria Operations Integration SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adding-to-an-adapter" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-header__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VMware Aria Operations Integration SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Adding to an Adapter
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-nav__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VMware Aria Operations Integration SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../creating_a_new_management_pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating a New Management Pack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extending_an_existing_management_pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extending an Existing Management Pack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Adding to an Adapter
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Adding to an Adapter
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Object Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is the Object Model?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#describexml-vs-adapterdefinition" class="md-nav__link">
+    <span class="md-ellipsis">
+      describe.xml vs. AdapterDefinition
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining an Adapter and Adapter Instance in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Configuration Field to an Adapter Instance in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-credential-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining a Credential in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-adapter-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Adapter Instance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-an-object-type-to-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding an Object Type to the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Object
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-an-attribute-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining an Attribute in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-metric-or-property" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Metric or Property
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Event
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-relationship" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Relationship
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_content/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adding Content
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container_registry_setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting up a Container Registry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    References
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java Adapters
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            Java Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Java Projects
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/java_lib/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter Library
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Python Adapters
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Python Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Python Projects
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2" id="__nav_6_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Adapter Library
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Adapter Library
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_instance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter instance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_logging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter logging
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/event/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/object/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/pipe_utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipe utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/result/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Result
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/suite_api_client/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Suite api client
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/timer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Timer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2_10" id="__nav_6_2_2_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Definition
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_2_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            Definition
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/adapter_definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/assertions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Assertions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/attribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Attribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/credential_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Credential type
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/group/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/object_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object type
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/parameter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parameter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/units/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Units
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/connections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-init/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-init
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Config File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_connections_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Connections File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/global_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Global Config File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Troubleshooting and FAQs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshooting and FAQs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/collections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/container_registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Container Registries
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/docker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docker
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/logs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Logs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/other/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Other
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Object Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Object Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is the Object Model?
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#describexml-vs-adapterdefinition" class="md-nav__link">
+    <span class="md-ellipsis">
+      describe.xml vs. AdapterDefinition
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining an Adapter and Adapter Instance in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Configuration Field to an Adapter Instance in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-credential-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining a Credential in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-adapter-instance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Adapter Instance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-an-object-type-to-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding an Object Type to the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Object
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-an-attribute-in-the-object-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining an Attribute in the Object Model
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-metric-or-property" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Metric or Property
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-event" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating an Event
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-relationship" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Relationship
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="adding-to-an-adapter">Adding to an Adapter<a class="headerlink" href="#adding-to-an-adapter" title="Permanent link">&para;</a></h1>
+<h2 id="object-model">Object Model<a class="headerlink" href="#object-model" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-the-object-model">What is the Object Model?<a class="headerlink" href="#what-is-the-object-model" title="Permanent link">&para;</a></h3>
+<p>At runtime, Aria Operations Manager creates objects representing data sources in the adapter. Every adapter must include
+an object model that provides object types, object properties, and semantic definitions describing resources and the
+metric data's meaning. The object model can be defined by using a <code>describe.xml</code> file, which should be defined in the
+<code>conf</code> directory,
+or it can be defined using the Adapter Library
+by returning an <code>AdapterDefinition</code> object from the <strong>Get Adapter Definition</strong> method.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li><a href="../../references/python_project/python_lib/adapter_instance/">Python Adapter Library</a>.</li>
+<li><a href="../../references/java_project/java_lib/">Java Adapter Library</a>.</li>
+</ul>
+</details>
+<h3 id="describexml-vs-adapterdefinition">describe.xml vs. AdapterDefinition<a class="headerlink" href="#describexml-vs-adapterdefinition" title="Permanent link">&para;</a></h3>
+<p>When running <code>mp-build</code>, <code>mp-test collect</code>, or <code>mp-test test</code> they call the <strong>Get Adapter Definition</strong> method 
+and then generate <code>describe.xml</code> file with the <code>AdapterDefinition</code> object.
+If a <code>describe.xml</code> file is present in the <code>conf</code> directory, the <strong>Get Adapter Definition</strong> method is not called.</p>
+<h2 id="defining-an-adapter-and-adapter-instance-in-the-object-model">Defining an Adapter and Adapter Instance in the Object Model<a class="headerlink" href="#defining-an-adapter-and-adapter-instance-in-the-object-model" title="Permanent link">&para;</a></h2>
+<p>To define an adapter in the <code>conf/describe.xml</code> file use the top-level <code>AdapterKind</code> XML element. Only one adapter can be
+defined in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a>. The <code>key</code> will be used
+when creating objects (See <a href="#creating-an-object">Creating an object</a>), and must also be present in the <code>manifest.txt</code>
+file in the <code>"adapter_kinds"</code> array. When defining an adapter, we also have to define an adapter instance type. An adapter
+instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter
+must have exactly one adapter instance type.
+The Adapter instance type is set by defining a <code>ResourceKind</code> XML element with
+attribute <code>type=7</code>.
+When using an Adapter Library, we can use the <code>AdapterDefinition</code> object.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/definition/adapter_definition/">AdapterDefinition</a> object.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/AdapterDefinition.html">AdapterDefinition</a> object.</li>
+<li>describe.xml <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd">documentation</a>.</li>
+</ul>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Python Adapter Library</label><label for="__tabbed_1_2">Java Adapter Library</label><label for="__tabbed_1_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a>   <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a>   <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span>
+<span class="normal"><a href="#__codelineno-1-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">(){</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">   </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span>
+<span class="normal"><a href="#__codelineno-2-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">    </span><span class="nt">&lt;CredentialKinds/&gt;</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">        </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter_adapter_instance&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="na">credentialKind=</span><span class="s">&quot;&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">    </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>Once an adapter instance is defined, any configuration fields (<code>ResourceIdentifier</code> element) and credentials (<code>CredentialKind</code> element)
+will be prompted to the user when creating an account in VMware Aria Operations on the <code>Data Sources</code> &rarr; <code>Integrations</code>
+page (See <a href="#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model">Adding a Configuration Field to an Adapter Instance</a>
+and <a href="#defining-a-credential-in-the-object-model">Adding a Credential</a>. After the account has been created, configuration fields will be
+available in the input to the <strong>Collect</strong>, <strong>Test</strong>, and <strong>Get Endpoint</strong> methods.
+(See <a href="#creating-an-adapter-instance">Creating an Adapter Instance</a>.)</p>
+<h2 id="adding-a-configuration-field-to-an-adapter-instance-in-the-object-model">Adding a Configuration Field to an Adapter Instance in the Object Model<a class="headerlink" href="#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model" title="Permanent link">&para;</a></h2>
+<p>Adapter instance <em>identifiers</em> distinguish between adapter instances from the same adapter. They also allow for user configuration.
+In the <code>describe.xml</code> adapter instance identifiers can have an <code>identType</code> of <code>1</code> or <code>2</code>. A type of <code>1</code> means the
+identifier will be used for determining uniqueness, and will show up by default on the configuration page. If the type
+is <code>2</code>, the identifier is <em>non-identifying</em>, and will show up under the 'advanced' section of the configuration page.
+The <code>Parameter</code>object has an <code>advanced</code> property that determines identType.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/definition/parameter/">Parameter</a> object.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/Parameter.html">Parameter</a> object.</li>
+<li>describe.xml <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd">documentation</a>.</li>
+</ul>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Python Adapter Library</label><label for="__tabbed_2_2">Java Adapter Library</label><label for="__tabbed_2_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>  <span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a>      <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a>      <span class="n">definition</span><span class="o">.</span><span class="n">define_string_parameter</span><span class="p">(</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a>          <span class="s2">&quot;instance&quot;</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a>          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Instance&quot;</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a>          <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a>      <span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a>      <span class="n">definition</span><span class="o">.</span><span class="n">define_enum_parameter</span><span class="p">(</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a>          <span class="s2">&quot;ssl_mode&quot;</span><span class="p">,</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a>          <span class="n">values</span><span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Disable&quot;</span><span class="p">,</span> <span class="s2">&quot;Require&quot;</span><span class="p">],</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a>          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SSL&quot;</span><span class="p">,</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a>          <span class="n">default</span><span class="o">=</span><span class="s2">&quot;Require&quot;</span><span class="p">,</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a>          <span class="n">advanced</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a>      <span class="p">)</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a>      <span class="n">definition</span><span class="o">.</span><span class="n">define_int_parameter</span><span class="p">(</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a>          <span class="s2">&quot;max_events&quot;</span><span class="p">,</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a>          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Max Events&quot;</span><span class="p">,</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a>          <span class="n">advanced</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a>      <span class="p">)</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a>      <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span>
+<span class="normal"><a href="#__codelineno-4-13">13</a></span>
+<span class="normal"><a href="#__codelineno-4-14">14</a></span>
+<span class="normal"><a href="#__codelineno-4-15">15</a></span>
+<span class="normal"><a href="#__codelineno-4-16">16</a></span>
+<span class="normal"><a href="#__codelineno-4-17">17</a></span>
+<span class="normal"><a href="#__codelineno-4-18">18</a></span>
+<span class="normal"><a href="#__codelineno-4-19">19</a></span>
+<span class="normal"><a href="#__codelineno-4-20">20</a></span>
+<span class="normal"><a href="#__codelineno-4-21">21</a></span>
+<span class="normal"><a href="#__codelineno-4-22">22</a></span>
+<span class="normal"><a href="#__codelineno-4-23">23</a></span>
+<span class="normal"><a href="#__codelineno-4-24">24</a></span>
+<span class="normal"><a href="#__codelineno-4-25">25</a></span>
+<span class="normal"><a href="#__codelineno-4-26">26</a></span>
+<span class="normal"><a href="#__codelineno-4-27">27</a></span>
+<span class="normal"><a href="#__codelineno-4-28">28</a></span>
+<span class="normal"><a href="#__codelineno-4-29">29</a></span>
+<span class="normal"><a href="#__codelineno-4-30">30</a></span>
+<span class="normal"><a href="#__codelineno-4-31">31</a></span>
+<span class="normal"><a href="#__codelineno-4-32">32</a></span>
+<span class="normal"><a href="#__codelineno-4-33">33</a></span>
+<span class="normal"><a href="#__codelineno-4-34">34</a></span>
+<span class="normal"><a href="#__codelineno-4-35">35</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">(){</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">      </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">      </span><span class="n">definition</span><span class="p">.</span><span class="na">defineStringParameter</span><span class="p">(</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">          </span><span class="s">&quot;instance&quot;</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">          </span><span class="s">&quot;Instance&quot;</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">          </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">          </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">          </span><span class="mi">512</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">          </span><span class="n">True</span><span class="p">,</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">      </span><span class="p">);</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="w">      </span><span class="n">definition</span><span class="p">.</span><span class="na">defineEnumParameter</span><span class="p">(</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="w">            </span><span class="s">&quot;ssl_mode&quot;</span><span class="p">,</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15"></a><span class="w">            </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16"></a><span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">EnumParameter</span><span class="p">.</span><span class="na">EnumValue</span><span class="p">(</span><span class="s">&quot;Disable&quot;</span><span class="p">),</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17"></a><span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">EnumParameter</span><span class="p">.</span><span class="na">EnumValue</span><span class="p">(</span><span class="s">&quot;Require&quot;</span><span class="p">)</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="w">            </span><span class="p">),</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19"></a><span class="w">            </span><span class="s">&quot;SSL&quot;</span><span class="p">,</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20"></a><span class="w">            </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21"></a><span class="w">            </span><span class="s">&quot;Require&quot;</span><span class="p">,</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22"></a><span class="w">            </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23"></a><span class="w">            </span><span class="kc">true</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24"></a><span class="w">      </span><span class="p">);</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25"></a>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26"></a><span class="w">      </span><span class="n">definition</span><span class="p">.</span><span class="na">defineIntegerParameter</span><span class="p">(</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27"></a><span class="w">          </span><span class="s">&quot;max_events&quot;</span><span class="p">,</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28"></a><span class="w">          </span><span class="s">&quot;Max Events&quot;</span><span class="p">,</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29"></a><span class="w">          </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30"></a><span class="w">          </span><span class="kc">null</span><span class="p">,</span><span class="w">  </span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31"></a><span class="w">          </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32"></a><span class="w">          </span><span class="kc">true</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33"></a><span class="w">      </span><span class="p">);</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34"></a><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span>
+<span class="normal"><a href="#__codelineno-5-12">12</a></span>
+<span class="normal"><a href="#__codelineno-5-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;My Adapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">    </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">        </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;instance&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;6&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="w">        </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;ssl_mode&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="w">            </span><span class="nt">&lt;enum</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;Disable&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="w">            </span><span class="nt">&lt;enum</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;Require&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="w">        </span><span class="nt">&lt;/ResourceIdentifier&gt;</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="w">        </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;max_events&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;8&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;2&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="w">    </span><span class="nt">&lt;/ResourceKind&gt;</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="w">  </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="w">  </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<blockquote>
+<p><img alt="Account creation with above settings, plus a credential" src="../../images/adding_configuration_fields.png" /></p>
+<p>Creating an account from the above xml (plus a credential). <code>ssl_mode</code> and <code>max_events</code> have an identType of 2, so they are present in 'Advanced Settings'.</p>
+<p>Note: If there are any existing connections used by the <a href="../../references/mp-test/"><code>mp-test</code></a> tool before resource identifiers were created or updated, these will need to be deleted or updated.</p>
+</blockquote>
+<p>Once an adapter instance is defined, any configuration fields (<code>ResourceIdentifier</code> element) will be prompted to the user when
+creating an account in VMware Aria Operations on the <code>Data Sources</code> &rarr; <code>Integrations</code> page.
+After the account has been created, configuration fields will be available to the <code>AdapterInstance</code> object passed to the
+<strong>Collect</strong>, <strong>Test</strong>, and <strong>Get Endpoints</strong> methods.</p>
+<h2 id="defining-a-credential-in-the-object-model">Defining a Credential in the Object Model<a class="headerlink" href="#defining-a-credential-in-the-object-model" title="Permanent link">&para;</a></h2>
+<p>In order to connect to most targets, a credential is required. If necessary, an adapter can have multiple different credential kinds.
+To add a credential to the Adapter using in the <code>conf/describe.xml</code>, add a <code>CredentialKind</code> element to <code>AdapterKind/CredentialKinds</code>.
+The <code>CredentialKind</code> element takes one or more <code>CredentialField</code> elements which correspond to an individual piece
+of data needed for a credential.
+We can use the <strong>Define Credential Type</strong> method
+to define a new credential type and add it to the <code>AdapterDefinition</code> object; then we can specify each credential
+field using the returned <code>CredentialType</code> object.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python:<ul>
+<li><a href="../../references/python_project/python_lib/definition/credential_type/">CredentialType</a> object. </li>
+<li><a href="../../references/python_project/python_lib/definition/adapter_definition/#aria.ops.definition.adapter_definition.AdapterDefinition.define_credential_type">Define Credential Type</a> method.</li>
+</ul>
+</li>
+<li>Java:<ul>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/CredentialType.html">CredentialType</a> object.</li>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/AdapterDefinition.html#defineCredentialType(java.lang.String,java.lang.String)">Define Credential Type</a> method.</li>
+</ul>
+</li>
+<li>describe.xml <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd">documentation</a>.</li>
+</ul>
+</details>
+<p>A typical credential that requires a username and password might look like this:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Python Adapter Library</label><label for="__tabbed_3_2">Java Adapter Library</label><label for="__tabbed_3_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span>
+<span class="normal"><a href="#__codelineno-6-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a>    <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a>    <span class="n">credential</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_credential_type</span><span class="p">(</span><span class="s2">&quot;my_credential_type&quot;</span><span class="p">,</span> <span class="s2">&quot;Credential&quot;</span><span class="p">)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a>    <span class="n">credential</span><span class="o">.</span><span class="n">define_string_parameter</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span> <span class="s2">&quot;User Name&quot;</span><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a>    <span class="n">credential</span><span class="o">.</span><span class="n">define_password_parameter</span><span class="p">(</span><span class="s2">&quot;user_password&quot;</span><span class="p">,</span> <span class="s2">&quot;Password&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a>    <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span>
+<span class="normal"><a href="#__codelineno-7-7">7</a></span>
+<span class="normal"><a href="#__codelineno-7-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">    </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">    </span><span class="n">CredentialType</span><span class="w"> </span><span class="n">credential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="na">defineCredentialType</span><span class="p">(</span><span class="s">&quot;my_credential_type&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Credential&quot;</span><span class="p">);</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">    </span><span class="n">credential</span><span class="p">.</span><span class="na">defineStringParameter</span><span class="p">(</span><span class="s">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;User Name&quot;</span><span class="p">);</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">    </span><span class="n">credential</span><span class="p">.</span><span class="na">definePasswordParameter</span><span class="p">(</span><span class="s">&quot;user_password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Password&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span>
+<span class="normal"><a href="#__codelineno-8-6">6</a></span>
+<span class="normal"><a href="#__codelineno-8-7">7</a></span>
+<span class="normal"><a href="#__codelineno-8-8">8</a></span>
+<span class="normal"><a href="#__codelineno-8-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;CredentialKinds&gt;</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">&lt;CredentialKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_credential_type&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">      </span><span class="nt">&lt;CredentialField</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;0&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;user_name&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="na">password=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">      </span><span class="nt">&lt;CredentialField</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;user_password&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="na">password=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="w">    </span><span class="nt">&lt;/CredentialKind&gt;</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="w">  </span><span class="nt">&lt;/CredentialKinds&gt;</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="w">  </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>When defining a credential in <code>conf/describe.xml</code> file, it must be added to the Adapter Instance. The adapter
+instance is a special <code>ResourceKind</code> that is used to configure an adapter. It is marked with the xml attribute/value
+<code>type="7"</code>. To add the credential to the adapter instance, add an attribute <code>credentialKind</code> to the adapter instance's
+<code>ResourceKind</code> element, with a value of the <code>CredentialKind</code>'s <code>key</code> attribute.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:1"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block"></div>
+</div>
+</div>
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
+<span class="normal"><a href="#__codelineno-9-2">2</a></span>
+<span class="normal"><a href="#__codelineno-9-3">3</a></span>
+<span class="normal"><a href="#__codelineno-9-4">4</a></span>
+<span class="normal"><a href="#__codelineno-9-5">5</a></span>
+<span class="normal"><a href="#__codelineno-9-6">6</a></span>
+<span class="normal"><a href="#__codelineno-9-7">7</a></span>
+<span class="normal"><a href="#__codelineno-9-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">        </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">        </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_adapter_instance&quot;</span><span class="w"> </span><span class="na">credentialKind=</span><span class="s">&quot;my_credential_type&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">        </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="w">    </span><span class="nt">&lt;/ResourceKind&gt;</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="w">    </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+<blockquote>
+<p><img alt="Adding a credential" src="../../images/adding_a_credential.png" /></p>
+<p>Adding a credential to an adapter instance with the <code>username</code> and <code>password</code> fields as defined above. 'Credential name'
+is always added (by VMware Aria Operations), and allows for credentials to be reused between adapter instances.</p>
+</blockquote>
+<p>Both <code>describe.xml</code> and <code>AdapterDefinition</code> object allow for the use of multiple credential types.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Python Adapter Library</label><label for="__tabbed_5_2">Java Adapter Library</label><label for="__tabbed_5_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-10-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-10-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-10-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-10-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-10-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-10-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-10-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-10-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-10-10">10</a></span>
+<span class="normal"><a href="#__codelineno-10-11">11</a></span>
+<span class="normal"><a href="#__codelineno-10-12">12</a></span>
+<span class="normal"><a href="#__codelineno-10-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a> <span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a>     <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a>     <span class="c1"># Basic Auth</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a>     <span class="n">basic_auth_credential</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_credential_type</span><span class="p">(</span><span class="s2">&quot;basic_auth_credential&quot;</span><span class="p">,</span> <span class="s2">&quot;Basic Auth&quot;</span><span class="p">)</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6"></a>     <span class="n">basic_auth_credential</span><span class="o">.</span><span class="n">define_string_parameter</span><span class="p">(</span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span> <span class="s2">&quot;User Name&quot;</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7"></a>     <span class="n">basic_auth_credential</span><span class="o">.</span><span class="n">define_password_parameter</span><span class="p">(</span><span class="s2">&quot;user_password&quot;</span><span class="p">,</span> <span class="s2">&quot;Password&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9"></a>     <span class="c1"># Token</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10"></a>     <span class="n">token_credential</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_credential_type</span><span class="p">(</span><span class="s2">&quot;token_credential&quot;</span><span class="p">,</span> <span class="s2">&quot;Token&quot;</span><span class="p">)</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11"></a>     <span class="n">token_credential</span><span class="o">.</span><span class="n">define_password_parameter</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">,</span> <span class="s2">&quot;Token&quot;</span><span class="p">)</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12"></a>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13"></a>     <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-11-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-11-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-11-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-11-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-11-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-11-10">10</a></span>
+<span class="normal"><a href="#__codelineno-11-11">11</a></span>
+<span class="normal"><a href="#__codelineno-11-12">12</a></span>
+<span class="normal"><a href="#__codelineno-11-13">13</a></span>
+<span class="normal"><a href="#__codelineno-11-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">    </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="c1">// Basic Auth</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">basicAuthCredential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="na">defineCredentialType</span><span class="p">(</span><span class="s">&quot;basic_auth_credential&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Basic Auth&quot;</span><span class="p">);</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">    </span><span class="n">basicAuthCredential</span><span class="p">.</span><span class="na">defineStringParameter</span><span class="p">(</span><span class="s">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;User Name&quot;</span><span class="p">);</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="w">    </span><span class="n">basicAuthCredential</span><span class="p">.</span><span class="na">definePasswordParameter</span><span class="p">(</span><span class="s">&quot;user_password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Password&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8"></a>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="w">    </span><span class="c1">// Token</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="w">    </span><span class="n">tokenCredential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="na">defineCredentialType</span><span class="p">(</span><span class="s">&quot;token_credential&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Token&quot;</span><span class="p">);</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">    </span><span class="n">tokenCredential</span><span class="p">.</span><span class="na">definePasswordParameter</span><span class="p">(</span><span class="s">&quot;token&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Token&quot;</span><span class="p">);</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12"></a>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span>
+<span class="normal"><a href="#__codelineno-12-11">11</a></span>
+<span class="normal"><a href="#__codelineno-12-12">12</a></span>
+<span class="normal"><a href="#__codelineno-12-13">13</a></span>
+<span class="normal"><a href="#__codelineno-12-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">  </span><span class="nt">&lt;CredentialKinds&gt;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">      </span><span class="nt">&lt;CredentialKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;basic_auth_credential&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="w">        </span><span class="nt">&lt;CredentialField</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;0&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;user_name&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="na">password=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="w">        </span><span class="nt">&lt;CredentialField</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;user_password&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="na">password=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="w">      </span><span class="nt">&lt;/CredentialKind&gt;</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="w">      </span><span class="nt">&lt;CredentialKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;token_credential&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="w">          </span><span class="nt">&lt;CredentialField</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;token&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="na">password=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9"></a><span class="w">      </span><span class="nt">&lt;/CredentialKind&gt;</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="w">  </span><span class="nt">&lt;/CredentialKinds&gt;</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="w">  </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="w">      </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter_adapter_instance&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="na">credentialKind=</span><span class="s">&quot;basic_auth_credential,token_credential&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13"></a><span class="w">  </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>In the describe.xml credential kind keys are separated by a comma.</p>
+</details>
+<p>Once the credential is defined in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a>, it can be used in the adapter code.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If there are any existing connections used by the <a href="../../references/mp-test/"><code>mp-test</code></a> tool before the credential was created
+or updated, these will need to be deleted or updated.</p>
+</div>
+<p>Once an adapter instance is defined, any credential defined in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a>
+will be prompted to the user when creating an account in VMware Aria Operations on the <code>Data Sources</code> &rarr; <code>Integrations</code>
+page. After the account has been created, credential fields will be available <code>AdapterInstance</code> object passed to the
+<strong>Collect</strong>, <strong>Test</strong>, and <strong>Get Endpoints</strong> methods.(See <a href="#creating-an-adapter-instance">Creating an Adapter Instance</a>.)</p>
+<p>Credentials defined in the object model are available to the <code>AdapterInstance</code> object passed to
+the <strong>Collect</strong>, <strong>Test</strong>, and <strong>Get Endpoints</strong> methods (See <a href="#creating-an-adapter-instance">Creating an Adapter Instance</a>.).
+If an adapter supports multiple credential types, the <strong>Get Credential Type</strong> method can be used to determine the type of the
+credential used by the adapter instance.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/adapter_instance/#aria.ops.adapter_instance.AdapterInstance.get_credential_type">Get Credential Type</a> method.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/AdapterInstance.html#getCredentialType()">Get Credential Type</a> method.</li>
+</ul>
+</details>
+<h2 id="creating-an-adapter-instance">Creating an Adapter Instance<a class="headerlink" href="#creating-an-adapter-instance" title="Permanent link">&para;</a></h2>
+<p>Using an Adapter Library,
+the canonical method for creating an adapter instance is using the <code>AdapterInstance</code> object.
+Configuration fields and credentials can be accessed using <strong>Get Identifier Value</strong> and <strong>Get Credential Value</strong>,
+respectively. </p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <ul>
+<li><a href="../../references/python_project/python_lib/object/#aria.ops.object.Object.get_identifier_value">Get Identifier Value</a> method.</li>
+<li><a href="../../references/python_project/python_lib/adapter_instance/#aria.ops.adapter_instance.AdapterInstance.get_credential_value">Get Credential Value</a> method.</li>
+</ul>
+</li>
+<li>Java <ul>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/Object.html#getIdentifierValue(java.lang.String,java.lang.String)">Get Identifier Value</a>(Inherited from Object) method.</li>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/AdapterInstance.html#getCredentialValue(java.lang.String)">Get Credential Value</a> method.</li>
+</ul>
+</li>
+</ul>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Python Adapter Library</label><label for="__tabbed_6_2">Java Adapter Library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span>
+<span class="normal"><a href="#__codelineno-13-6">6</a></span>
+<span class="normal"><a href="#__codelineno-13-7">7</a></span>
+<span class="normal"><a href="#__codelineno-13-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="n">adapter_instance</span> <span class="o">=</span> <span class="n">AdapterInstance</span><span class="o">.</span><span class="n">from_input</span><span class="p">()</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="n">instance</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;instance&quot;</span><span class="p">)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="n">ssl_mode</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;ssl_mode&quot;</span><span class="p">)</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="n">max_events</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;max_events&quot;</span><span class="p">)</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="n">username</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_credential_value</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="n">password</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_credential_value</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span>
+<span class="normal"><a href="#__codelineno-14-5">5</a></span>
+<span class="normal"><a href="#__codelineno-14-6">6</a></span>
+<span class="normal"><a href="#__codelineno-14-7">7</a></span>
+<span class="normal"><a href="#__codelineno-14-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="n">AdapterInstance</span><span class="w"> </span><span class="n">adapterInstance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterInstance</span><span class="p">.</span><span class="na">fromInput</span><span class="p">();</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="n">String</span><span class="w"> </span><span class="n">instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adapterInstance</span><span class="p">.</span><span class="na">getIdentifierValue</span><span class="p">(</span><span class="s">&quot;instance&quot;</span><span class="p">);</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="n">String</span><span class="w"> </span><span class="n">sslMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adapterInstance</span><span class="p">.</span><span class="na">getIdentifierValue</span><span class="p">(</span><span class="s">&quot;ssl_mode&quot;</span><span class="p">);</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><span class="n">String</span><span class="w"> </span><span class="n">maxEvents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adapterInstance</span><span class="p">.</span><span class="na">getIdentifierValue</span><span class="p">(</span><span class="s">&quot;max_events&quot;</span><span class="p">);</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7"></a><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adapterInstance</span><span class="p">.</span><span class="na">getCredentialValue</span><span class="p">(</span><span class="s">&quot;username&quot;</span><span class="p">);</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="n">String</span><span class="w"> </span><span class="n">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adapterInstance</span><span class="p">.</span><span class="na">getCredentialValue</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the AdapterInstance From Input fuction can only be called once per collection, test connection, or getEndpointURL invocation.</p>
+</div>
+<p>For other languages, or writing an adapter without an Adapter Library, JSON representing
+the adapter instance is sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the
+filename of the named pipe. The adapter instance JSON is described in the
+<a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json">VMware Aria Operations Collector Framework OpenAPI Document</a>.</p>
+<h2 id="adding-an-object-type-to-the-object-model">Adding an Object Type to the Object Model<a class="headerlink" href="#adding-an-object-type-to-the-object-model" title="Permanent link">&para;</a></h2>
+<p>An object type is a class of objects (resources) that share the same set of metrics, properties, and identifiers. For
+example an adapter might have a 'Database' object kind, and when an adapter instance is created and connects to an
+application, several 'database' objects are created representing distinct databases in the application.
+To create a new object type in the <code>conf/describe.xml</code> file, add a <code>ResourceKind</code> element inside <code>AdapterKind/ResourceKinds</code>.
+A <code>key</code> attribute is required, and must be unique among other object types within the <code>describe.xml</code> file.
+To create a new object type use the <strong>Define Object Type</strong> method of the <code>AdapterDefinition</code> object.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <ul>
+<li><a href="../../references/python_project/python_lib/definition/adapter_definition/">AdaterDefinition</a> object.</li>
+<li><a href="../../references/python_project/python_lib/definition/adapter_definition/#aria.ops.definition.adapter_definition.AdapterDefinition.define_object_type">Define Object Type</a> method.</li>
+</ul>
+</li>
+<li>Java<ul>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/AdapterDefinition.html">AdapterDefinition</a> object.</li>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/AdapterDefinition.html#defineObjectType(java.lang.String,java.lang.String)">Define Object Type</a> method.</li>
+</ul>
+</li>
+<li>describe.xml <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd">documentation</a>.</li>
+</ul>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:3"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Python Adapter Library</label><label for="__tabbed_7_2">Java Adapter Library</label><label for="__tabbed_7_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span>
+<span class="normal"><a href="#__codelineno-15-2">2</a></span>
+<span class="normal"><a href="#__codelineno-15-3">3</a></span>
+<span class="normal"><a href="#__codelineno-15-4">4</a></span>
+<span class="normal"><a href="#__codelineno-15-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2"></a>    <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4"></a>    <span class="n">definition</span><span class="o">.</span><span class="n">define_object_type</span><span class="p">(</span><span class="s2">&quot;my_database_resource_kind&quot;</span><span class="p">,</span> <span class="s2">&quot;Database&quot;</span><span class="p">)</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5"></a>    <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1">1</a></span>
+<span class="normal"><a href="#__codelineno-16-2">2</a></span>
+<span class="normal"><a href="#__codelineno-16-3">3</a></span>
+<span class="normal"><a href="#__codelineno-16-4">4</a></span>
+<span class="normal"><a href="#__codelineno-16-5">5</a></span>
+<span class="normal"><a href="#__codelineno-16-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="w">    </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">    </span><span class="n">definition</span><span class="p">.</span><span class="na">defineObjectType</span><span class="p">(</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Database&quot;</span><span class="p">);</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1">1</a></span>
+<span class="normal"><a href="#__codelineno-17-2">2</a></span>
+<span class="normal"><a href="#__codelineno-17-3">3</a></span>
+<span class="normal"><a href="#__codelineno-17-4">4</a></span>
+<span class="normal"><a href="#__codelineno-17-5">5</a></span>
+<span class="normal"><a href="#__codelineno-17-6">6</a></span>
+<span class="normal"><a href="#__codelineno-17-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="w">    </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="w">  </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="w">    </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="w">    </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;9&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="w">  </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>In addition, an object type may have <em>identifiers</em>, which can distinguish between objects of the same type. In the database
+example, we may need to know a <code>port</code> and <code>ip address</code> to uniquely identify each database. If no identifiers are specified,
+an object's <code>name</code> is used for determining uniqueness. If any identifiers are present (see note), then the <code>name</code> is
+not used for this purpose.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:3"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><input id="__tabbed_8_3" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">Python Adapter Library</label><label for="__tabbed_8_2">Java Adapter Library</label><label for="__tabbed_8_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-18-1">1</a></span>
+<span class="normal"><a href="#__codelineno-18-2">2</a></span>
+<span class="normal"><a href="#__codelineno-18-3">3</a></span>
+<span class="normal"><a href="#__codelineno-18-4">4</a></span>
+<span class="normal"><a href="#__codelineno-18-5">5</a></span>
+<span class="normal"><a href="#__codelineno-18-6">6</a></span>
+<span class="normal"><a href="#__codelineno-18-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2"></a>    <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4"></a>    <span class="n">data_base</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_object_type</span><span class="p">(</span><span class="s2">&quot;my_database_resource_kind&quot;</span><span class="p">,</span> <span class="s2">&quot;Database&quot;</span><span class="p">)</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5"></a>    <span class="n">data_base</span><span class="o">.</span><span class="n">define_string_identifier</span><span class="p">(</span><span class="s2">&quot;server_ip&quot;</span><span class="p">,</span> <span class="s2">&quot;IP&quot;</span><span class="p">)</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6"></a>    <span class="n">data_base</span><span class="o">.</span><span class="n">define_string_identifier</span><span class="p">(</span><span class="s2">&quot;server_port&quot;</span><span class="p">,</span> <span class="s2">&quot;Port&quot;</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7"></a>    <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-19-1">1</a></span>
+<span class="normal"><a href="#__codelineno-19-2">2</a></span>
+<span class="normal"><a href="#__codelineno-19-3">3</a></span>
+<span class="normal"><a href="#__codelineno-19-4">4</a></span>
+<span class="normal"><a href="#__codelineno-19-5">5</a></span>
+<span class="normal"><a href="#__codelineno-19-6">6</a></span>
+<span class="normal"><a href="#__codelineno-19-7">7</a></span>
+<span class="normal"><a href="#__codelineno-19-8">8</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="w">        </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3"></a>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="w">        </span><span class="n">ObjectType</span><span class="w"> </span><span class="n">dataBase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="na">defineObjectType</span><span class="p">(</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="p">,</span><span class="s">&quot;Database&quot;</span><span class="p">);</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="w">        </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineStringIdentifier</span><span class="p">(</span><span class="s">&quot;server_ip&quot;</span><span class="p">,</span><span class="s">&quot;IP&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="w">        </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineStringIdentifier</span><span class="p">(</span><span class="s">&quot;server_port&quot;</span><span class="p">,</span><span class="s">&quot;Port&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-20-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-20-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-20-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-20-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-20-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-20-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-20-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-20-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-20-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-20-10">10</a></span>
+<span class="normal"><a href="#__codelineno-20-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="w">    </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="w">  </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="w">    </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="w">    </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;9&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="w">        </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;server_ip&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;10&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="w">        </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;server_port&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;11&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8"></a><span class="w">        </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="w">    </span><span class="nt">&lt;/ResourceKind&gt;</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="w">  </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>'ResourceIdentifier' element can have an <code>identType</code> of <code>1</code> or <code>2</code>. A type of <code>1</code> is most common, and means the
+identifier will be used for determining uniqueness. If the type is <code>2</code>, the identifier is <em>non-identifying</em>, and will
+show up in the identifiers of an object but will not cause a new object to be created if it changes. If <em>all</em>
+identifiers are non-identifying, then the object's name reverts to determining uniqueness of objects. When using
+an Adapter Library, the <strong>Define String Identifier</strong>  methods accepts a parameter for uniqueness.</p>
+</details>
+<p>Once the object type is defined in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a>,
+it can be used in the adapter code. See <a href="#creating-an-object">Creating an object</a>.</p>
+<h2 id="creating-an-object">Creating an Object<a class="headerlink" href="#creating-an-object" title="Permanent link">&para;</a></h2>
+<p>Before creating an object, ensure that the object type is <a href="#adding-an-object-type-to-the-object-model">present in the object model</a>.</p>
+<p>Using an Adapter Library,
+the canonical method for creating a new object is to use the <code>CollectResult</code> object.</p>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/result/">CollectResult</a> object.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/CollectResult.html">CollectResult</a> object.</li>
+</ul>
+</details>
+<div class="tabbed-set tabbed-alternate" data-tabs="9:2"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">Python Adapter Library</label><label for="__tabbed_9_2">Java Adapter Library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-21-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-21-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-21-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-21-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-21-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-21-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-21-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-21-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-21-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-21-10">10</a></span>
+<span class="normal"><a href="#__codelineno-21-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">CollectionResult</span><span class="p">()</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="n">database1</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">adapter_kind</span><span class="o">=</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="n">object_kind</span><span class="o">=</span><span class="s2">&quot;my_database_resource_kind&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;db1&quot;</span><span class="p">,</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3"></a>                          <span class="n">identifiers</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4"></a>                              <span class="n">Identifier</span><span class="p">(</span><span class="s2">&quot;server_ip&quot;</span><span class="p">,</span> <span class="s2">&quot;10.0.34.1&quot;</span><span class="p">),</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5"></a>                              <span class="n">Identifier</span><span class="p">(</span><span class="s2">&quot;server_port&quot;</span><span class="p">,</span> <span class="mi">110</span><span class="p">)</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6"></a>                          <span class="p">])</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="c1"># &lt;additional collection code&gt;</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="c1"># ...</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9"></a>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="c1"># send database1 (and all other objects in the CollectResult) back to VMware Aria Operations</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="n">result</span><span class="o">.</span><span class="n">send_result</span><span class="p">()</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-22-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-22-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-22-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-22-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-22-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-22-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-22-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-22-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-22-10">10</a></span>
+<span class="normal"><a href="#__codelineno-22-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="n">CollectionResult</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CollectionResult</span><span class="p">();</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="n">ObjectType</span><span class="w"> </span><span class="n">database1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">getOrCreateObject</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;db1&quot;</span><span class="p">,</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3"></a><span class="w">                          </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="w"> </span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="w">                              </span><span class="k">new</span><span class="w"> </span><span class="n">Identifier</span><span class="p">(</span><span class="s">&quot;server_ip&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;10.0.34.1&quot;</span><span class="p">),</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5"></a><span class="w">                              </span><span class="k">new</span><span class="w"> </span><span class="n">Identifier</span><span class="p">(</span><span class="s">&quot;server_port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;110&quot;</span><span class="p">)</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="w">                          </span><span class="p">));</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7"></a><span class="c1">// &lt;additional collection code&gt;</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="c1">// ...</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9"></a>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10"></a><span class="c1">// send database1 (and all other objects in the CollectResult) back to VMware Aria Operations</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11"></a><span class="n">result</span><span class="p">.</span><span class="na">sendResults</span><span class="p">();</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<blockquote>
+<p><img alt="Example of a database object with the above settings" src="../../images/adding_an_object_type.png" /></p>
+<p>Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in <code>Environment</code> &rarr; <code>Inventory</code>. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the <em>identifier</em> columns. Identifiers are ordered in ascending <code>dispOrder</code>.-</p>
+</blockquote>
+<p>For other languages, or writing an adapter without an Adapter Library, objects must be returned as JSON, described
+in
+the <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json">VMware Aria Operations Collector Framework OpenAPI Document</a>
+.</p>
+<h2 id="defining-an-attribute-in-the-object-model">Defining an Attribute in the Object Model<a class="headerlink" href="#defining-an-attribute-in-the-object-model" title="Permanent link">&para;</a></h2>
+<p>An attribute is a class of metrics or properties similar to how an object type is a class of objects. Attributes can be
+either a metric or property.</p>
+<ul>
+<li>A metric is numeric data that is useful to track over time. Examples: CPU Utilization (%), Used Disk Space (GB)</li>
+<li>A property is numeric or string data that rarely changes and only the current (last) value is relevant. Examples:
+  Operating System Name, CPU Count</li>
+</ul>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Properties should not be used for string data that has a large number of possible values. For example, if you
+want to have a property that shows the last time an operation was run on a server, it is better to convert that
+to a numeric metric such as <code>hours_since_last_operation</code>, rather than using a string property with a human-readable
+timestamp, as large numbers of distinct string values can degrade the performance of VMware Aria Operations.</p>
+</details>
+<p>In the <code>conf/describe.xml</code> file, attributes can be grouped together in <code>ResourceGroup</code> elements, which can be nested.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="10:3"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><input id="__tabbed_10_2" name="__tabbed_10" type="radio" /><input id="__tabbed_10_3" name="__tabbed_10" type="radio" /><div class="tabbed-labels"><label for="__tabbed_10_1">Python Adapter Library</label><label for="__tabbed_10_2">Java Adapter Library</label><label for="__tabbed_10_3">describe.xml</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-23-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-23-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-23-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-23-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-23-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-23-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-23-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-23-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-23-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-23-10">10</a></span>
+<span class="normal"><a href="#__codelineno-23-11">11</a></span>
+<span class="normal"><a href="#__codelineno-23-12">12</a></span>
+<span class="normal"><a href="#__codelineno-23-13">13</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2"></a>    <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="s2">&quot;MyAdapter&quot;</span><span class="p">,</span> <span class="s2">&quot;My Adapter&quot;</span><span class="p">)</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3"></a>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4"></a>    <span class="n">data_base</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_object_type</span><span class="p">(</span><span class="s2">&quot;my_database_resource_kind&quot;</span><span class="p">,</span> <span class="s2">&quot;Database&quot;</span><span class="p">)</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5"></a>    <span class="n">data_base</span><span class="o">.</span><span class="n">define_string_identifier</span><span class="p">(</span><span class="s2">&quot;server_ip&quot;</span><span class="p">,</span> <span class="s2">&quot;IP&quot;</span><span class="p">)</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6"></a>    <span class="n">data_base</span><span class="o">.</span><span class="n">define_string_identifier</span><span class="p">(</span><span class="s2">&quot;server_port&quot;</span><span class="p">,</span> <span class="s2">&quot;Port&quot;</span><span class="p">)</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7"></a>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8"></a>    <span class="n">table_space_group</span> <span class="o">=</span> <span class="n">data_base</span><span class="o">.</span><span class="n">define_group</span><span class="p">(</span><span class="s2">&quot;tablespace&quot;</span><span class="p">,</span> <span class="s2">&quot;Tablespace&quot;</span><span class="p">)</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9"></a>    <span class="n">table_space_group</span><span class="o">.</span><span class="n">define_string_property</span><span class="p">(</span><span class="s2">&quot;tablespace_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">)</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10"></a>    <span class="n">table_space_group</span><span class="o">.</span><span class="n">define_metric</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="s2">&quot;Reads&quot;</span><span class="p">)</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11"></a>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12"></a>    <span class="n">data_base</span><span class="o">.</span><span class="n">define_metric</span><span class="p">(</span><span class="s2">&quot;session_count&quot;</span><span class="p">,</span> <span class="s2">&quot;Sessions&quot;</span><span class="p">)</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13"></a>    <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-24-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-24-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-24-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-24-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-24-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-24-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-24-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-24-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-24-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-24-10">10</a></span>
+<span class="normal"><a href="#__codelineno-24-11">11</a></span>
+<span class="normal"><a href="#__codelineno-24-12">12</a></span>
+<span class="normal"><a href="#__codelineno-24-13">13</a></span>
+<span class="normal"><a href="#__codelineno-24-14">14</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="kd">public</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="nf">getAdapterDefinition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2"></a><span class="w">    </span><span class="n">AdapterDefinition</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AdapterDefinition</span><span class="p">(</span><span class="s">&quot;MyAdapter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;My Adapter&quot;</span><span class="p">);</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3"></a>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="w">    </span><span class="n">Object</span><span class="w"> </span><span class="n">dataBase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="na">getOrCreateObject</span><span class="p">(</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Database&quot;</span><span class="p">);</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5"></a><span class="w">    </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineStringIdentifier</span><span class="p">(</span><span class="s">&quot;server_ip&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;IP&quot;</span><span class="p">);</span>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="w">    </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineStringIdentifier</span><span class="p">(</span><span class="s">&quot;server_port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Port&quot;</span><span class="p">);</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7"></a>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8"></a><span class="w">    </span><span class="n">Group</span><span class="w"> </span><span class="n">tableSpaceGroup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineGroup</span><span class="p">(</span><span class="s">&quot;tablespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Tablespace&quot;</span><span class="p">);</span>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="w">    </span><span class="n">tableSpaceGroup</span><span class="p">.</span><span class="na">defineStringProperty</span><span class="p">(</span><span class="s">&quot;tablespace_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Name&quot;</span><span class="p">);</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10"></a><span class="w">    </span><span class="n">tableSpaceGroup</span><span class="p">.</span><span class="na">defineMetric</span><span class="p">(</span><span class="s">&quot;reads&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Reads&quot;</span><span class="p">);</span>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11"></a>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12"></a><span class="w">    </span><span class="n">dataBase</span><span class="p">.</span><span class="na">defineMetric</span><span class="p">(</span><span class="s">&quot;session_count&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Sessions&quot;</span><span class="p">);</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">definition</span><span class="p">;</span>
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14"></a><span class="p">}</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-xml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-25-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-25-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-25-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-25-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-25-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-25-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-25-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-25-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-25-10">10</a></span>
+<span class="normal"><a href="#__codelineno-25-11">11</a></span>
+<span class="normal"><a href="#__codelineno-25-12">12</a></span>
+<span class="normal"><a href="#__codelineno-25-13">13</a></span>
+<span class="normal"><a href="#__codelineno-25-14">14</a></span>
+<span class="normal"><a href="#__codelineno-25-15">15</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MyAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="w">  </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3"></a><span class="w">  </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4"></a><span class="w">    </span><span class="cm">&lt;!--...--&gt;</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5"></a><span class="w">    </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;9&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="w">      </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;server_ip&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;10&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7"></a><span class="w">      </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;server_port&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;11&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8"></a><span class="w">      </span><span class="nt">&lt;ResourceGroup</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;tablespace&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9"></a><span class="w">        </span><span class="nt">&lt;ResourceAttribute</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;12&quot;</span><span class="w"> </span><span class="na">dashboardOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;tablespace_name&quot;</span><span class="w"> </span><span class="na">dataType=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">isProperty=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10"></a><span class="w">        </span><span class="nt">&lt;ResourceAttribute</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;13&quot;</span><span class="w"> </span><span class="na">dashboardOrder=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;reads&quot;</span><span class="w"> </span><span class="na">dataType=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">isProperty=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11"></a><span class="w">      </span><span class="nt">&lt;/ResourceGroup&gt;</span>
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12"></a><span class="w">      </span><span class="nt">&lt;ResourceAttribute</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;14&quot;</span><span class="w"> </span><span class="na">dashboardOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;session_count&quot;</span><span class="w"> </span><span class="na">dataType=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">isProperty=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13"></a><span class="w">    </span><span class="nt">&lt;/ResourceKind&gt;</span>
+</span><span id="__span-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14"></a><span class="w">  </span><span class="nt">&lt;/ResourceKinds&gt;</span>
+</span><span id="__span-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/definition/group/#aria.ops.definition.group.GroupType.define_group">Define Group</a> method.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/definition/ObjectType.html#defineGroup(java.lang.String,java.lang.String)">Define Group</a> method.</li>
+<li>describe.xml <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd">documentation</a>.</li>
+</ul>
+</details>
+<p>Once an attribute is defined in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a>, 
+it can be used in the adapter code. See <a href="#creating-a-metric-or-property">Creating a metric or property</a>.</p>
+<h2 id="creating-a-metric-or-property">Creating a Metric or Property<a class="headerlink" href="#creating-a-metric-or-property" title="Permanent link">&para;</a></h2>
+<p>Before creating a metric or property, 
+ensure that the attribute describing the data is <a href="#defining-an-attribute-in-the-object-model">present in the object model</a>.</p>
+<p>When using an Adapter Library, metrics and properties can be added using the attribute key and a value.
+In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and
+form the metric or property key.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="11:2"><input checked="checked" id="__tabbed_11_1" name="__tabbed_11" type="radio" /><input id="__tabbed_11_2" name="__tabbed_11" type="radio" /><div class="tabbed-labels"><label for="__tabbed_11_1">Python Adapter Library</label><label for="__tabbed_11_2">Java Adapter Library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-26-1">1</a></span>
+<span class="normal"><a href="#__codelineno-26-2">2</a></span>
+<span class="normal"><a href="#__codelineno-26-3">3</a></span>
+<span class="normal"><a href="#__codelineno-26-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1"></a><span class="n">database1</span> <span class="o">=</span> <span class="c1"># Object</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2"></a><span class="n">database1</span><span class="o">.</span><span class="n">with_property</span><span class="p">(</span><span class="s2">&quot;tablespace|tablespace_name&quot;</span><span class="p">,</span> <span class="s2">&quot;MyTablespace&quot;</span><span class="p">)</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3"></a><span class="n">database1</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;tablespace|reads&quot;</span><span class="p">,</span> <span class="mi">104</span><span class="p">)</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4"></a><span class="n">database1</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;session_count&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-27-1">1</a></span>
+<span class="normal"><a href="#__codelineno-27-2">2</a></span>
+<span class="normal"><a href="#__codelineno-27-3">3</a></span>
+<span class="normal"><a href="#__codelineno-27-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1"></a><span class="n">Object</span><span class="w"> </span><span class="n">database1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Object</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2"></a><span class="n">database1</span><span class="p">.</span><span class="na">withProperty</span><span class="p">(</span><span class="s">&quot;tablespace|tablespace_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MyTablespace&quot;</span><span class="p">);</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3"></a><span class="n">database1</span><span class="p">.</span><span class="na">withMetric</span><span class="p">(</span><span class="s">&quot;tablespace|reads&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">104</span><span class="p">);</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4"></a><span class="n">database1</span><span class="p">.</span><span class="na">withMetric</span><span class="p">(</span><span class="s">&quot;session_count&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<blockquote>
+<p><img alt="Metrics and properties in a my_database_resource_kind object" src="../../images/adding_an_attribute.png" /></p>
+<p>Result of the above code. Since the numbers and strings are hard-coded, these values will never change.
+For a real adapter, the values will be the result of querying the target for up-to-date information.
+Note that there are a number of automatically generated metrics and properties. The metric groups 'Badge',
+'VMware Aria Operations Generated', and 'VMware Aria Operations Manager Generated Properties' (and the metrics
+and properties inside) are present on every object.</p>
+</blockquote>
+<p>For other languages, or writing an adapter without an Adapter Library, metrics and properties
+are returned as JSON inside of objects, described in the
+<a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json">VMware Aria Operations Collector Framework OpenAPI Document</a>.</p>
+<h2 id="creating-an-event">Creating an Event<a class="headerlink" href="#creating-an-event" title="Permanent link">&para;</a></h2>
+<p>Events do not need to be declared in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a> file, and can simply be added to an object at runtime.</p>
+<p>Using the <a href="../../references/python_project/python_lib/adapter_instance/">Python Adapter Library</a>
+, events are added to resources. The only required parameter is the message, which describes and uniquely identifies the event.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="12:2"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><input id="__tabbed_12_2" name="__tabbed_12" type="radio" /><div class="tabbed-labels"><label for="__tabbed_12_1">Python Adapter Library</label><label for="__tabbed_12_2">Java Adapter Library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-28-1">1</a></span>
+<span class="normal"><a href="#__codelineno-28-2">2</a></span>
+<span class="normal"><a href="#__codelineno-28-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1"></a><span class="n">database1</span> <span class="o">=</span> <span class="c1"># Object</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2"></a><span class="n">database1</span><span class="o">.</span><span class="n">with_event</span><span class="p">(</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3"></a>    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Database read latency is above threshold&quot;</span><span class="p">,</span> <span class="n">criticality</span><span class="o">=</span><span class="n">Criticality</span><span class="o">.</span><span class="n">IMMEDIATE</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-29-1">1</a></span>
+<span class="normal"><a href="#__codelineno-29-2">2</a></span>
+<span class="normal"><a href="#__codelineno-29-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1"></a><span class="n">Object</span><span class="w"> </span><span class="n">database1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Object</span>
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2"></a><span class="n">database1</span><span class="p">.</span><span class="na">withEvent</span><span class="p">(</span>
+</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3"></a><span class="w">    </span><span class="s">&quot;Database read latency is above threshold&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Criticality</span><span class="p">.</span><span class="na">IMMEDIATE</span><span class="p">);</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <a href="../../references/python_project/python_lib/object/#aria.ops.object.Object.with_event">With Event</a> method.</li>
+<li>Java <a href="../../references/java_project/java_lib/com/vmware/aria/operations/Object.html#withEvent(java.lang.String,com.vmware.aria.operations.Criticality,java.lang.String,java.lang.Boolean,java.lang.Long,java.lang.Long,java.lang.Long,java.lang.Integer,java.lang.Integer)">With Event</a> method.</li>
+</ul>
+</details>
+<blockquote>
+<p><img alt="Result of the above code" src="../../images/adding_an_event.png" /></p>
+<p>Result of the above code. Note that the criticality is affecting the health of the db1 object it is attached to.</p>
+</blockquote>
+<p>For other languages, or writing an adapter without an Adapter Library, events are
+returned as JSON inside of objects, described in the
+<a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json">VMware Aria Operations Collector Framework OpenAPI Document</a>
+.</p>
+<h2 id="creating-a-relationship">Creating a Relationship<a class="headerlink" href="#creating-a-relationship" title="Permanent link">&para;</a></h2>
+<p>Relationships do not need
+to be declared in the <a href="#defining-an-adapter-and-adapter-instance-in-the-object-model">object model</a> file,
+and can simply be added between objects at runtime.
+Relationships are always between a <em>parent</em> and <em>child</em>, and if object1 is a parent of object2, that implies object2
+is a child of object1.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><div class="tabbed-labels"><label for="__tabbed_13_1">Python Adapter Library</label><label for="__tabbed_13_2">Java Adapter Library</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-30-1">1</a></span>
+<span class="normal"><a href="#__codelineno-30-2">2</a></span>
+<span class="normal"><a href="#__codelineno-30-3">3</a></span>
+<span class="normal"><a href="#__codelineno-30-4">4</a></span>
+<span class="normal"><a href="#__codelineno-30-5">5</a></span>
+<span class="normal"><a href="#__codelineno-30-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1"></a><span class="n">instance</span> <span class="o">=</span> <span class="c1"># Object</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2"></a><span class="n">database1</span> <span class="o">=</span> <span class="c1"># Object</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3"></a><span class="n">database2</span> <span class="o">=</span> <span class="c1"># Object</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4"></a><span class="n">instance</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">database1</span><span class="p">)</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5"></a><span class="n">database2</span><span class="o">.</span><span class="n">add_parent</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6"></a><span class="c1"># database2 and database1 both have the same relationship with respect to the instance object after these calls</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="language-java highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-31-1">1</a></span>
+<span class="normal"><a href="#__codelineno-31-2">2</a></span>
+<span class="normal"><a href="#__codelineno-31-3">3</a></span>
+<span class="normal"><a href="#__codelineno-31-4">4</a></span>
+<span class="normal"><a href="#__codelineno-31-5">5</a></span>
+<span class="normal"><a href="#__codelineno-31-6">6</a></span>
+<span class="normal"><a href="#__codelineno-31-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1"></a><span class="n">Object</span><span class="w"> </span><span class="n">instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Object</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2"></a><span class="n">Object</span><span class="w"> </span><span class="n">database1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Object</span>
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3"></a><span class="n">Object</span><span class="w"> </span><span class="n">database2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="c1">// Object</span>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4"></a>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5"></a><span class="n">instance</span><span class="p">.</span><span class="na">addChild</span><span class="p">(</span><span class="n">database1</span><span class="p">);</span>
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6"></a><span class="n">database2</span><span class="p">.</span><span class="na">addParent</span><span class="p">(</span><span class="n">instance</span><span class="p">);</span>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7"></a><span class="c1">// database2 and database1 both have the same relationship with respect to the instance object after these calls</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<blockquote>
+<p><img alt="Result of the above code" src="../../images/adding_relationships.png" /></p>
+<p>Result of the above code. The db1 and db2 objects are both children of the 'instance' object. The health of a child
+object can impact the health of a parent object.</p>
+</blockquote>
+<details class="warning" open="open">
+<summary>Warning</summary>
+<p>Relationships must not have cycles. A cycle happens when an object's relationships are structured in such a
+ way that it is its own descendant (or ancestor).
+ For example, the following creates a cycle: </p>
+<ul>
+<li>object1 parent of object2</li>
+<li>object2 parent of object3</li>
+<li>object3 parent of object1  </li>
+</ul>
+<p>Care should be taken to avoid these, as they can adversely affect
+ VMware Aria Operations' analytics calculations.</p>
+</details>
+<details class="info" open="open">
+<summary>references</summary>
+<ul>
+<li>Python <ul>
+<li><a href="../../references/python_project/python_lib/object/#aria.ops.object.Object.add_child">Add Child</a> method.</li>
+<li><a href="../../references/python_project/python_lib/object/#aria.ops.object.Object.add_parent">Add Parent</a> method.</li>
+</ul>
+</li>
+<li>Java <ul>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/Object.html#addChild(com.vmware.aria.operations.Object)">Add Child</a> method.</li>
+<li><a href="../../references/java_project/java_lib/com/vmware/aria/operations/Object.html#addParent(com.vmware.aria.operations.Object)">Add Parent</a> method.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>For other languages, or writing an adapter without an Adapter Library, relationships are returned as JSON inside a
+collect result object, described in
+the <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json">VMware Aria Operations Collector Framework OpenAPI Document</a>
+.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2023-2025 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+        <script src="../../js/open_in_new_tab.js"></script>
+      
+    
+  </body>
+</html>

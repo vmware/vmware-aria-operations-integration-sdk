@@ -1,0 +1,2034 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/1.1.0/guides/adding_content/">
+      
+      
+        <link rel="prev" href="../adding_to_an_adapter/">
+      
+      
+        <link rel="next" href="../container_registry_setup/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Adding Content - VMware Aria Operations Integration SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adding-content" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-header__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VMware Aria Operations Integration SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Adding Content
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-nav__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VMware Aria Operations Integration SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get Started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Guides
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../creating_a_new_management_pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating a New Management Pack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extending_an_existing_management_pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extending an Existing Management Pack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_to_an_adapter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adding to an Adapter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Adding Content
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Adding Content
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Dashboard
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-report-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Report Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-alert-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Alert Definitions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Traversal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Localization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container_registry_setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting up a Container Registry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    References
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java Adapters
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            Java Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Java Projects
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/java_lib/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter Library
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Python Adapters
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Python Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Python Projects
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2" id="__nav_6_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Adapter Library
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Adapter Library
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_instance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter instance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_logging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter logging
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/event/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/object/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/pipe_utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipe utils
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/result/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Result
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/suite_api_client/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Suite api client
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/timer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Timer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2_10" id="__nav_6_2_2_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Definition
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_2_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            Definition
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/adapter_definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter definition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/assertions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Assertions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/attribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Attribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/credential_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Credential type
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/group/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/object_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object type
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/parameter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parameter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/units/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Units
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/connections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connections
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-init/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-init
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Config File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_connections_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Connections File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/global_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Global Config File
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Troubleshooting and FAQs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshooting and FAQs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contents
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/collections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/container_registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Container Registries
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/docker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docker
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/logs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Logs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/other/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Other
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Dashboard
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-report-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Report Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-alert-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Alert Definitions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding a Traversal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-localization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Localization
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="adding-content">Adding Content<a class="headerlink" href="#adding-content" title="Permanent link">&para;</a></h1>
+<p>To add content to a Management Pack, first create the adapter with the objects, metrics, properties, and relationships that are necessary for the content.
+  Once the adapter is ready, install the Management Pack on VMware Aria Operations and create an adapter instance.</p>
+<p>Then follow the instructions below to create the content, export it, and add to the Management Pack project.</p>
+<h2 id="adding-a-dashboard">Adding a Dashboard<a class="headerlink" href="#adding-a-dashboard" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>To add a dashboard to a Management Pack, first create the dashboard. Creating a dashboard is outside the scope of this document, but more information can be found here:</p>
+<ul>
+<li><a href="https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-BBEF42E2-301F-4C07-AA51-F836FECF1271.html">Dashboards (VMware Aria Operations documentation)</a></li>
+<li><a href="https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-0ABB810B-0496-48CF-AFC5-AA9BDF9B527A.html">Create and Configure Dashboards (VMware Aria Operations documentation)</a></li>
+<li><a href="https://www.youtube.com/watch?v=bIOgkU0kwu4">VMware Aria Operations Dashboards Made Easy (video series)</a></li>
+</ul>
+</li>
+<li>
+<p>Once the dashboard is created, click <code>Manage</code> on the <code>Visualize</code> &rarr; <code>Dashboards</code> page. Select the dashboard, click the <code>...</code> button, and select <code>Export</code>.</p>
+<p><img alt="" src="../../images/export_dashboard_1.png" /></p>
+<p><img alt="" src="../../images/export_dashboard_2.png" /></p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Selecting multiple dashboards will combine them into a single dashboard.json file (see step 3). All the following steps are identical in this case, but exporting each dashboard individually is recommended as it makes managing the content easier within the Management Pack project.</p>
+</details>
+<p><img alt="" src="../../images/export_dashboard_3.png" /></p>
+</li>
+<li>
+<p>After selecting <code>Export</code> a zip file will download with the following files and directories:</p>
+<div class="language-text highlight"><pre><span></span><code>```
+dashboard
+├── dashboard.json
+└── resources
+  └── resources.properties
+```
+</code></pre></div>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>A newly created dashboard will not contain a <code>resources</code> directory, unless it was cloned and/or edited from an existing dashboard that contained localization (See <a href="#adding-localization">Adding Localization</a>). If localization is not required, ignore the <code>resources</code> directories in the following steps.</p>
+</details>
+<p>Unzip the file and move the root <code>dashboard</code> directory to the <code>[project_dir]/content/dashboards</code> directory. The <code>dashboard</code> directory and dashboard file (<code>dashboard.json</code>) can be renamed, but should match. For example, with two dashboards, <code>myDashboard</code> and <code>myOtherDashboard</code>, the project's content directory should look like this:</p>
+<div class="language-text highlight"><pre><span></span><code>```
+├── dashboards
+│   ├── myDashboard
+│   │   ├── myDashboard.json
+│   │   └── resources
+│   │       └── resources.properties
+│   └── myOtherDashboard
+│       ├── myOtherDashboard.json
+│       └── resources
+│           └── resources.properties
+└── &lt;...&gt;
+content
+```
+</code></pre></div>
+</li>
+<li>
+<p>If a dashboard uses any configuration files (Text Widget Content, Resource Kind Metrics, or Topology Widget Configurations), these are not included in the zip file. To add these to the Management Pack project, copy the necessary content from the <code>Configure</code> &rarr; <code>Configuration Files</code> page in VMware Aria Operations and save as a file in the <code>content/files/txtwidget</code>, <code>content/files/reskndmetric</code>, or <code>content/files/topowidget</code> directory. </p>
+</li>
+<li>
+<p>Once the dashboard(s) are present in the content directory as above, run <code>mp-build</code> to create a new pak file that includes the dashboards.</p>
+</li>
+</ol>
+<h2 id="adding-a-report-template">Adding a Report Template<a class="headerlink" href="#adding-a-report-template" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>To add a report template to a Management Pack, first create the template. Creating a report template is outside the scope of this document, but more information can be found here:</p>
+<ul>
+<li><a href="https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-D7C6B89F-B4D0-409F-8045-71B92FE81AFF.html">Reports (VMware Aria Operations documentation)</a></li>
+<li><a href="https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-40D426D2-92D8-4132-A695-79ED57B6683A.html">Create a Report Template (VMware Aria Operations documentation)</a></li>
+</ul>
+</li>
+<li>
+<p>Once the report template is created, click <code>Manage</code> on the <code>Visualize</code> &rarr; <code>reports</code> page. Select the report, click the <code>...</code> button, and select <code>Export</code>.</p>
+<p><img alt="" src="../../images/export_report_1.png" /></p>
+<p><img alt="" src="../../images/export_report_2.png" /></p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Selecting multiple report templates will combine them into a single content.xml file (see step 3). All the following steps are identical in this case, but exporting each report individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple report templates share a view. In this case, best practice is to do one of two things:</p>
+<ul>
+<li>Select all report templates with the shared view, so that they are combined into a single file and the view is not duplicated, or</li>
+<li>Duplicate the view before exporting, so that each report template has its own unique view that can be modified separately.</li>
+</ul>
+<p>The reason for this is that if a view is shared between two report templates, but is defined in multiple files, than the view could be modified in multiple places, leading to potential conflicts.</p>
+</details>
+<p><img alt="" src="../../images/export_report_3.png" /></p>
+</li>
+<li>
+<p>After selecting <code>Export</code> a zip file will download with the following files and directories:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>&lt;Report_name&gt;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── content.xml
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>└── resources
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> └── content.properties
+</span></code></pre></div>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>A newly created report template will not contain a <code>resources</code> directory, unless it was cloned and/or edited from an existing report template that contained localization (See <a href="#adding-localization">Adding Localization</a>). If localization is not required, ignore the <code>resources</code> directories in the following steps.</p>
+</details>
+<p>Unzip the file and move the root directory to the <code>[project_dir]/content/reports</code> directory. The directory and report file (<code>content.xml</code>) can be renamed to match, if desired. For example, with two reports, <code>myReport</code> and <code>myOtherReport</code>, the project's content directory should look like this:</p>
+<div class="language-text highlight"><pre><span></span><code>```
+content
+├── reports
+│   ├── myReport
+│   │   ├── myReport.xml
+│   │   └── resources
+│   │       └── content.properties
+│   └── myOtherReport
+│       ├── myOtherReport.xml
+│       └── resources
+│           └── content.properties
+└── &lt;...&gt;
+```
+</code></pre></div>
+</li>
+<li>
+<p>Once the report template(s) are present in the content directory as above, run <code>mp-build</code> to create a new pak file that includes the report templates.</p>
+</li>
+</ol>
+<h2 id="adding-alert-definitions">Adding Alert Definitions<a class="headerlink" href="#adding-alert-definitions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>To add an alert definition to a Management Pack, first create the alert definition. Creating an alert definition is outside the scope of this document, but more information can be found here:</p>
+<ul>
+<li><a href="https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html">Configuring Alerts (VMware Aria Operations documentation)</a></li>
+</ul>
+</li>
+<li>
+<p>Once the alert definition is created, click <code>Manage</code> on the <code>Configure</code> &rarr; <code>Alerts</code> &rarr; <code>Alert Definitions</code> page. Select the alert, click the <code>...</code> button, and select <code>Export</code>.</p>
+<p><img alt="" src="../../images/export_alert_1.png" /></p>
+<p><img alt="" src="../../images/export_alert_2.png" /></p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Selecting multiple alert definitions will combine them into a single xml file (see step 3). All the following steps are identical in this case, but exporting each alert individually is recommended as it makes managing the content easier within the Management Pack project. An exception is when multiple alert definitions share symptoms or recommendations. In this case, best practice is to do one of three things:</p>
+<ul>
+<li>Select all alert definitions with a shared dependency, so that they are combined into a single file and the dependency is not duplicated, or</li>
+<li>Move the shared dependency out of the alert definition xml file and into its own xml file, which then goes in the <code>content/recommendations</code> or <code>content/symptoms</code> directory.</li>
+<li>Duplicate the symptom or recommendation before exporting, so that each alert definition has its own unique dependency that can be modified separately.</li>
+</ul>
+<p>The reason for this is that if a dependency is shared between two alerts, but is defined in multiple files, than the dependency could be modified in multiple places, leading to potential conflicts.</p>
+</details>
+<p><img alt="" src="../../images/export_alert_3.png" /></p>
+</li>
+<li>
+<p>After selecting <code>Export</code> a zip file will download containing a single xml file that contains the alert definition and any dependent content (e.g., symptoms, recommendations)</p>
+<p>Unzip the file and move the alert xml file to the <code>[project_dir]/content/alertdefs</code> directory. The alert file can be renamed. For example, with two alerts, <code>myAlert</code> and <code>myOtherAlert</code>, the project's content directory should look like this:</p>
+<div class="language-text highlight"><pre><span></span><code>```
+content
+├── alertdefs
+│   ├── myAlert.xml
+│   └── myOtherAlert.xml
+└── &lt;...&gt;
+```
+</code></pre></div>
+</li>
+<li>
+<p>Once the alert definition(s) are present in the content directory as above, run <code>mp-build</code> to create a new pak file that includes the alert definitions.</p>
+</li>
+</ol>
+<h2 id="adding-a-traversal">Adding a Traversal<a class="headerlink" href="#adding-a-traversal" title="Permanent link">&para;</a></h2>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.</p>
+</details>
+<p>A traversal specification defines how to navigate through objects by defining one or more <em>paths</em> through their relationships, and is defined in the <code>describe.xml</code> file.
+Each path consists of two or more <em>nodes</em>, and each node is separated by two bars (<code>||</code>).
+A traversal always starts with the same object type, known as the <em>root</em>. When creating a traversal, the root object type is specified using the <code>rootAdapterKind</code> and <code>rootResourceKind</code> attributes. Every path in the traversal must start with the root object as its first node. Nodes are represented by the adapter type and object type separated by double colons (<code>::</code>). After the first node, each node must also include a relationship direction, either <code>child</code>, or <code>~child</code> (parent), separated from the adapter kind and resource kind by double colons (<code>::</code>).
+Multiple traversals can be included in a Management Pack, and each individual traversal can have its own root object type.</p>
+<p>For example, assume we have an adapter called <code>my_adapter</code> with two object types, <code>my_instance_resource_kind</code> and <code>my_database_resource_kind</code> that have a parent-child relationship (each <code>my_instance_resource_kind</code> object is the parent of some number of <code>my_database_resource_kind</code> objects). Additionally, we have a relationship to VMs that are a parent to <code>my_instance_resource_kind</code> objects. The raw relationships look like this:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>     VirtualMachine
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>           |
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>my_instance_resource_kind
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>           |
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>my_database_resource_kind
+</span></code></pre></div>
+Now, say that we want to be able to select an instance and see all the databases running on it. We can make a very simple traversal with a single path in <code>describe.xml</code>:
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">   </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">   </span><span class="nt">&lt;TraversalSpecKinds&gt;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">&lt;TraversalSpecKind</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;MyTraversal&quot;</span><span class="w"> </span><span class="na">rootAdapterKind=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">rootResourceKind=</span><span class="s">&quot;my_instance_resource_kind&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;Navigate from the Instance to the Databases hosted on it.&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">         </span><span class="nt">&lt;ResourcePath</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="nt">&lt;/TraversalSpecKind&gt;</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">   </span><span class="nt">&lt;/TraversalSpecKinds&gt;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div>
+When the Management Pack is installed in VMware Aria Operations, the <code>Object Browser</code> will show the traversal in the <code>Environments</code> section. The root node is named <code>Instance</code>, and there are two instances of the path for each of the two database objects that are children of the <code>Instance</code> object.</p>
+<p><img alt="Simple Traversal in VMware Aria Operations" src="../../images/traversal_1.png" /></p>
+<p>Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">   </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">   </span><span class="nt">&lt;TraversalSpecKinds&gt;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="nt">&lt;TraversalSpecKind</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;MyTraversal&quot;</span><span class="w"> </span><span class="na">rootAdapterKind=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">rootResourceKind=</span><span class="s">&quot;my_instance_resource_kind&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;Navigate from the Instance to the Databases hosted on it and VM hosting it.&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">         </span><span class="nt">&lt;ResourcePath</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;my_adapter::my_instance_resource_kind||my_adapter::my_database_resource_kind::child&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">         </span><span class="nt">&lt;ResourcePath</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;my_adapter::my_instance_resource_kind||VMWARE::VirtualMachine::~child&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="nt">&lt;/TraversalSpecKind&gt;</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="nt">&lt;TraversalSpecKind</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;MyReversedTraversal&quot;</span><span class="w"> </span><span class="na">rootAdapterKind=</span><span class="s">&quot;my_adapter&quot;</span><span class="w"> </span><span class="na">rootResourceKind=</span><span class="s">&quot;my_database_resource_kind&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;Navigate from each Database to its Instance, and from the Instance to the VM.&quot;</span><span class="nt">&gt;</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">         </span><span class="nt">&lt;ResourcePath</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;my_adapter::my_database_resource_kind||my_adapter::my_instance_resource_kind::~child||VMWARE::VirtualMachine::~child&quot;</span><span class="nt">/&gt;</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="nt">&lt;/TraversalSpecKind&gt;</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">   </span><span class="nt">&lt;/TraversalSpecKinds&gt;</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="nt">&lt;/AdapterKind&gt;</span>
+</span></code></pre></div>
+<details class="info" open="open">
+<summary>Info</summary>
+<p>For more information about the supported elements and attributes, see the <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd#L4">describe.xml documentation</a>.</p>
+</details>
+<p>When the Management Pack is installed in VMware Aria Operations, the <code>Object Browser</code> will show the both traversals in the <code>Environments</code> section.
+In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:</p>
+<p><img alt="MyTraversal in VMware Aria Operations" src="../../images/traversal_2.png" /></p>
+<p>In the second traversal ("MyReversedTraversal"), instead of starting from the instance, the traversal's root node is a database. This traversal has a single path, from database to instance to VM. Thus, every database will show up at the top level, and each can be expanded to show the instance it resides on, and the instance can be expanded to show the VM:</p>
+<p><img alt="MyReversedTraversal in VMware Aria Operations" src="../../images/traversal_3.png" /></p>
+<h2 id="adding-localization">Adding Localization<a class="headerlink" href="#adding-localization" title="Permanent link">&para;</a></h2>
+<p>The VMware Aria Operations UI supports translations in resource files that are included within a Management Pack.</p>
+<p>The corresponding model element in the content file (<code>dashboard.json</code>, <code>describe.xml</code>, etc) has an identifying attribute (often <code>key</code> or <code>name</code>), which also is the default representation in the UI (a <em>label</em>).
+To change this label an element, add a <code>nameKey</code> attribute in the model definition. The value of the <code>nameKey</code> attribute must be a positive integer, and corresponds to the key portion of
+a key-value pair in localization resource files.</p>
+<p>For example, to localize <code>total_bytes</code> attribute from a <code>describe.xml</code> file, first ensure there is a <code>nameKey</code> element that has a unique value:
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&lt;ResourceAttribute</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;182&quot;</span><span class="w"> </span><span class="na">dashboardOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;total_bytes&quot;</span><span class="w"> </span><span class="na">dataType=</span><span class="s">&quot;integer&quot;</span><span class="w"> </span><span class="na">isProperty=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span></code></pre></div>
+Then, create a resource localization directory and file. The default labels are in a <code>resources.properties</code> (In the case of report templates: <code>content.properties</code>) file, which reside in a <code>resources</code> directory next to the content, and by convention is English.
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>conf
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── describe.xml
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>│   └── resources
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│       └── resources.properties &lt;- Default (English) resource localization file
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>&lt;...&gt;
+</span></code></pre></div></p>
+<p>The <code>resources.properties</code> file should contain all <code>nameKey</code> values and English labels:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>version=1
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>1=&lt;...&gt;
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>...
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>181=&lt;...&gt;
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>182=Total Bytes
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>183=&lt;...&gt;
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>...
+</span></code></pre></div></p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p><code>NameKey</code> integers do not have to be in order or contiguous.</p>
+</details>
+<p>To supply an additional translation, create an additional file with the form <code>resources_&lt;locale&gt;.properties</code>, with the same set of keys as the original file but mapping to translated values.
+A locale specifier can have two parts, a two-letter language ID and an optional two-letter country code.
+The currently supported locales are:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Locale</th>
+<th style="text-align: center;">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">de</td>
+<td style="text-align: center;">German</td>
+</tr>
+<tr>
+<td style="text-align: center;">es</td>
+<td style="text-align: center;">Spanish</td>
+</tr>
+<tr>
+<td style="text-align: center;">fr</td>
+<td style="text-align: center;">French</td>
+</tr>
+<tr>
+<td style="text-align: center;">ja</td>
+<td style="text-align: center;">Japanese</td>
+</tr>
+<tr>
+<td style="text-align: center;">ko</td>
+<td style="text-align: center;">Korean</td>
+</tr>
+<tr>
+<td style="text-align: center;">zh-CN</td>
+<td style="text-align: center;">Chinese (Simplified)</td>
+</tr>
+<tr>
+<td style="text-align: center;">zh-TW</td>
+<td style="text-align: center;">Chinese (Traditional)</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to translate into French, add a resources file with the 'French' language code to the <code>resources</code> directory:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>conf
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>├── describe.xml
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>│   └── resources
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>│       ├── resources.properties
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>│       └── resources_fr.properties &lt;- French resource localization file
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>&lt;...&gt;
+</span></code></pre></div>
+This <code>resources_fr.properties</code> file should contain all <code>nameKey</code> values in the <code>resources.properties</code> with translated values:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>version=1
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>1=&lt;...&gt;
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>...
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>181=&lt;...&gt;
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>182=Total d&#39;octets
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>183=&lt;...&gt;
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>...
+</span></code></pre></div>
+Configuration Fields can include descriptions. A description can be used to provide a more detailed explanation of what the configuration field does or controls, and will show up in the UI as a tooltip that appears when a user clicks an info button to the right of the field.
+To add a description, use the <code>nameKey</code> value appended with <code>.description</code>. For example:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>version=1
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>1=&lt;...&gt;
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>...
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>10=&lt;...&gt;
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>11=vROps Host
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>11.description= vROps Cluster Host
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>12=&lt;...&gt;
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>...
+</span></code></pre></div>
+<img alt="Example of a tooltip description on a Configuration Field" src="../../images/configuration_field_description.png" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2023-2025 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+        <script src="../../js/open_in_new_tab.js"></script>
+      
+    
+  </body>
+</html>
