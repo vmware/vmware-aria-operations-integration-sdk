@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
 from typing import Dict
 from typing import Optional
 
+from aria.ops.certificate_info import CertificateInfo
 from aria.ops.object import Identifier
 from aria.ops.object import Key
 from aria.ops.object import Object
@@ -58,10 +58,12 @@ class AdapterInstance(Object):  # type: ignore
             self.suite_api_client = None
 
         certificate_config = json.get("certificate_config")
+        self.certificates: list[CertificateInfo] = []
         if type(certificate_config) is dict:
-            self.certificates: list = certificate_config.get("certificates", [])
-        else:
-            self.certificates = []
+            self.certificates = [
+                CertificateInfo(cert)
+                for cert in certificate_config.get("certificates", [])
+            ]
 
         self.collection_number: Optional[int] = json.get("collection_number", None)
         self.collection_window: Optional[Dict] = json.get("collection_window", None)
@@ -77,7 +79,7 @@ class AdapterInstance(Object):  # type: ignore
         """
         return self.suite_api_client
 
-    def get_certificates(self) -> list[Any]:
+    def get_certificates(self) -> list[CertificateInfo]:
         """
         Gets a list of all certificates that have been validated by a CA or manually
         accepted by a user.
