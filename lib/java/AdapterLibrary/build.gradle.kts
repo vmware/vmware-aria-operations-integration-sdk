@@ -80,12 +80,7 @@ publishing {
                     developer {
                         id.set("kjrokos")
                         name.set("Kyle Rokos")
-                        email.set("krokos@vmware.com")
-                    }
-                    developer {
-                        id.set("quirogas")
-                        name.set("Santiago Quiroga Cubillos")
-                        email.set("squirogacubi@vmware.com")
+                        email.set("kyle.rokos@broadcom.com")
                     }
                 }
                 scm {

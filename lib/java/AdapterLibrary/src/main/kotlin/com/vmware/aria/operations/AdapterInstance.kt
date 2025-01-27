@@ -15,6 +15,10 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.ByteArrayInputStream
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+import java.util.Base64;
 
 @Serializable
 data class CredentialField(
@@ -41,8 +45,14 @@ class CertificateInfo(
     @SerialName("cert_pem_string") val certPem: String,
     @SerialName("is_invalid_hostname_accepted") val isInvalidHostnameAccepted: Boolean,
     @SerialName("is_expired_certificate_accepted") val isExpiredCertAccepted: Boolean,
-
-)
+) {
+    fun certificate(): X509Certificate {
+        val certBytes = Base64.getDecoder().decode(certPem)
+        return CertificateFactory.getInstance("X.509").generateCertificate(
+            ByteArrayInputStream(certBytes)
+        ) as X509Certificate
+    }
+}
 
 /**
  * Class that represents a list of validated SSL certificates that have been verified
