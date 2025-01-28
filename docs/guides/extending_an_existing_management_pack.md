@@ -6,7 +6,12 @@ It walks you through the steps necessary to extend an existing Management Pack t
 additional data, using the MySQL Management Pack as an example.
 
 Extending an existing management pack is similar to creating a new management pack, but
-has some additional constraints. This section will create a management pack that adds
+has some additional constraints. One of the primary limitations is that attributes that
+extend an existing management pack's objects cannot be defined (in code or in 
+`describe.xml`), which means that they can't have any metadata set about them (e.g., 
+units, labels, kpi flags, etc).
+
+This section will create a management pack that adds
 metrics to the existing MySQL management pack's database object. It assumes
 you have already installed the SDK and understand the tools and steps in the 'Get
 Started' section. It also assumes that you have installed and configured the [MySQL

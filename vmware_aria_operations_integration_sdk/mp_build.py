@@ -458,6 +458,13 @@ async def build_pak_file(
                         "resources.properties",
                     ),
                 )
+            with open(
+                os.path.join(temp_dir, adapter_dir, "conf", "version.txt"), "w"
+            ) as version_file:
+                version = manifest["version"].strip().split(".")
+                version_file.write(f"Major-Version={version[0]}\n")
+                version_file.write(f"Minor-Version={version[1]}\n")
+                version_file.write(f"Implementation-Version={version[2]}\n")
 
             with open(adapter_dir + ".conf", "w") as adapter_conf:
                 adapter_conf.write(f"KINDKEY={adapter_kind_key}\n")

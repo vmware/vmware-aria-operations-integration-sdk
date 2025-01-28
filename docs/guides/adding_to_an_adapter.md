@@ -562,9 +562,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
 > Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.-
 
 For other languages, or writing an adapter without an Adapter Library, objects must be returned as JSON, described
-in
-the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
-.
+in the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Defining an Attribute in the Object Model
 An attribute is a class of metrics or properties similar to how an object type is a class of objects. Attributes can be
@@ -593,11 +591,18 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         data_base.define_string_identifier("server_ip", "IP")
         data_base.define_string_identifier("server_port", "Port")
 
+        # Example of a metric definition without a group
+        data_base.define_metric("session_count", "Sessions")
+
+        # Example of metric and property definitions with a 'tablespace' group
         table_space_group = data_base.define_group("tablespace", "Tablespace")
         table_space_group.define_string_property("tablespace_name", "Name")
         table_space_group.define_metric("reads", "Reads")
 
-        data_base.define_metric("session_count", "Sessions")
+        # Example of a property definition within nested groups 
+        table_stats_group = table_space_group.define_group("table_stats", "Table Statistics")
+        table_stats_group.define_numeric_property("table_count", "Number of Tables")
+
         return definition
     ```
 
@@ -611,11 +616,18 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         dataBase.defineStringIdentifier("server_ip", "IP");
         dataBase.defineStringIdentifier("server_port", "Port");
     
+        // Example of a metric definition without a group
+        dataBase.defineMetric("session_count", "Sessions");
+
+        // Example of metric and property definitions with a 'tablespace' group
         Group tableSpaceGroup = dataBase.defineGroup("tablespace", "Tablespace");
         tableSpaceGroup.defineStringProperty("tablespace_name", "Name");
         tableSpaceGroup.defineMetric("reads", "Reads");
+
+        // Example of a property definition within nested groups 
+        tableStatsGroup = tableSpaceGroup.defineGroup("table_stats", "Table Statistics")
+        tableStatsGroup.defineNumericProperty("table_count", "Number of Tables")
     
-        dataBase.defineMetric("session_count", "Sessions");
         return definition;
     }
     ```
@@ -630,20 +642,39 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         <ResourceKind key="my_database_resource_kind" nameKey="9">
           <ResourceIdentifier dispOrder="1" key="server_ip" nameKey="10" required="true" type="string" identType="1"/>
           <ResourceIdentifier dispOrder="2" key="server_port" nameKey="11" required="true" type="integer" identType="1"/>
-          <ResourceGroup nameKey="4" key="tablespace">
-            <ResourceAttribute nameKey="12" dashboardOrder="1" key="tablespace_name" dataType="string" isProperty="true" />
-            <ResourceAttribute nameKey="13" dashboardOrder="2" key="reads" dataType="integer" isProperty="false" />
-          </ResourceGroup>
+
           <ResourceAttribute nameKey="14" dashboardOrder="1" key="session_count" dataType="integer" isProperty="false" />
+
+          <ResourceGroup nameKey="4" key="tablespace">
+            <ResourceAttribute nameKey="12" dashboardOrder="2" key="tablespace_name" dataType="string" isProperty="true" />
+            <ResourceAttribute nameKey="13" dashboardOrder="3" key="reads" dataType="integer" isProperty="false" />
+            <ResourceGroup nameKey="15" key="table_stats">
+              <ResourceAttribute nameKey="16" dashboardOrder="4" key="table_count" dataType="integer" isProperty="true" />
+            </ResourceGroup>
+          </ResourceGroup>
+
         </ResourceKind>
       </ResourceKinds>
     </AdapterKind>
     ```
 
+In addition to the required 'key', additional attribute metadata can be set, for example units.
+For more information on these, see the documentation on `defineMetric`, `defineStringProperty`, 
+and `defineNumericProperty` methods in the references below.
+
+
 ???+ info "references"
 
-    - Python [Define Group](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
-    - Java [Define Group](../references/java_project/java_lib/com/vmware/aria/operations/definition/ObjectType.html#defineGroup(java.lang.String,java.lang.String)) method.
+    - Python 
+      * [Define Group](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
+      * [Define Metric](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_metric) method.
+      * [Define Numeric Property](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_numeric_property) method.
+      * [Define String Property](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_string_property) method.
+    - Java 
+      * [Define Group](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineGroup(java.lang.String,java.lang.String)) method.
+      * [Define Metric](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineMetric(java.lang.String,java.lang.String,com.vmware.aria.operations.definition.SdkUnit,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
+      * [Define Numeric Property](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineNumericProperty(java.lang.String,java.lang.String,com.vmware.aria.operations.definition.SdkUnit,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
+      * [Define String Property](../references/java_project/java_lib/com/vmware/aria/operations/definition/ObjectType.html#defineStringProperty(java.lang.String,java.lang.String,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
     - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 
@@ -653,6 +684,11 @@ it can be used in the adapter code. See [Creating a metric or property](#creatin
 ## Creating a Metric or Property
 Before creating a metric or property, 
 ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
+???+ note
+    If the data is being sent to an _external_ object (i.e., an object that was created by a different adapter), there is no
+    way to add attribute descriptions to the data. Metrics and Properties can be added to the external object in the same way
+    as below, but note that the attribute key will be displayed in the UI. In addition, any additional metadata about 
+    attributes cannot be added to these metrics (e.g., units, labels, descriptions, etc).
 
 When using an Adapter Library, metrics and properties can be added using the attribute key and a value.
 In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and
@@ -662,17 +698,24 @@ form the metric or property key.
 
     ```python linenums="1"
     database1 = # Object
+
+    database1.with_metric("session_count", 5)
+
     database1.with_property("tablespace|tablespace_name", "MyTablespace")
     database1.with_metric("tablespace|reads", 104)
-    database1.with_metric("session_count", 5)
+
+    database1.with_property("tablespace|table_stats|table_count", 9)
     ```
 === "Java Adapter Library"
 
     ```java linenums="1"
     Object database1 = // Object
+    database1.withMetric("session_count", 5);
+
     database1.withProperty("tablespace|tablespace_name", "MyTablespace");
     database1.withMetric("tablespace|reads", 104);
-    database1.withMetric("session_count", 5);
+
+    database1.withProperty("tablespace|table_stats|table_count", 9)
     ```
 
 > ![Metrics and properties in a my_database_resource_kind object](../images/adding_an_attribute.png)
