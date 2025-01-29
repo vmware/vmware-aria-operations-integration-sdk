@@ -5,8 +5,8 @@ title "Building and installing a Pack File that uses an external container regis
 participant "mp-build"
 entity "Pack File\n(Filesystem)" as pak
 database "Container Registry" as registry
-participant "VMware Aria \nOperations Cluster" as cluster
-collections "VMware Aria \nOperations Cloud Proxy" as proxy
+participant "VCF Operations Cluster" as cluster
+collections "VCF Operations Cloud Proxy" as proxy
 
 group Build Pack File
     activate "mp-build"

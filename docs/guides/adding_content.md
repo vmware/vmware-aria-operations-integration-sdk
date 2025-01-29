@@ -1,16 +1,16 @@
 Adding Content
 ==============
   To add content to a Management Pack, first create the adapter with the objects, metrics, properties, and relationships that are necessary for the content.
-  Once the adapter is ready, install the Management Pack on VMware Aria Operations and create an adapter instance.
+  Once the adapter is ready, install the Management Pack on VMware Cloud Foundation (VCF) Operations and create an adapter instance.
 
   Then follow the instructions below to create the content, export it, and add to the Management Pack project.
 
 ## Adding a Dashboard
 
   1. To add a dashboard to a Management Pack, first create the dashboard. Creating a dashboard is outside the scope of this document, but more information can be found here:
-    * [Dashboards (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-BBEF42E2-301F-4C07-AA51-F836FECF1271.html)
-    * [Create and Configure Dashboards (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-0ABB810B-0496-48CF-AFC5-AA9BDF9B527A.html)
-    * [VMware Aria Operations Dashboards Made Easy (video series)](https://www.youtube.com/watch?v=bIOgkU0kwu4)
+    * [Dashboards (VCF Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-BBEF42E2-301F-4C07-AA51-F836FECF1271.html)
+    * [Create and Configure Dashboards (VCF Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-0ABB810B-0496-48CF-AFC5-AA9BDF9B527A.html)
+    * [VCF Operations Dashboards Made Easy (video series)](https://www.youtube.com/watch?v=bIOgkU0kwu4)
 
   2. Once the dashboard is created, click `Manage` on the `Visualize` &rarr; `Dashboards` page. Select the dashboard, click the `...` button, and select `Export`.
 
@@ -54,15 +54,15 @@ Adding Content
         content
         ```
 
-  4. If a dashboard uses any configuration files (Text Widget Content, Resource Kind Metrics, or Topology Widget Configurations), these are not included in the zip file. To add these to the Management Pack project, copy the necessary content from the `Configure` &rarr; `Configuration Files` page in VMware Aria Operations and save as a file in the `content/files/txtwidget`, `content/files/reskndmetric`, or `content/files/topowidget` directory. 
+  4. If a dashboard uses any configuration files (Text Widget Content, Resource Kind Metrics, or Topology Widget Configurations), these are not included in the zip file. To add these to the Management Pack project, copy the necessary content from the `Configure` &rarr; `Configuration Files` page in VCF Operations and save as a file in the `content/files/txtwidget`, `content/files/reskndmetric`, or `content/files/topowidget` directory. 
 
   5. Once the dashboard(s) are present in the content directory as above, run `mp-build` to create a new pak file that includes the dashboards.
 
 ## Adding a Report Template
 
   1. To add a report template to a Management Pack, first create the template. Creating a report template is outside the scope of this document, but more information can be found here:
-    * [Reports (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-D7C6B89F-B4D0-409F-8045-71B92FE81AFF.html)
-    * [Create a Report Template (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-40D426D2-92D8-4132-A695-79ED57B6683A.html)
+    * [Reports (VCF Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-D7C6B89F-B4D0-409F-8045-71B92FE81AFF.html)
+    * [Create a Report Template (VCF Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-40D426D2-92D8-4132-A695-79ED57B6683A.html)
 
   2. Once the report template is created, click `Manage` on the `Visualize` &rarr; `reports` page. Select the report, click the `...` button, and select `Export`.
 
@@ -116,7 +116,7 @@ Adding Content
 ## Adding Alert Definitions
 
   1. To add an alert definition to a Management Pack, first create the alert definition. Creating an alert definition is outside the scope of this document, but more information can be found here:
-    * [Configuring Alerts (VMware Aria Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html)
+    * [Configuring Alerts (VCF Operations documentation)](https://docs.vmware.com/en/vRealize-Operations/8.6/com.vmware.vcom.core.doc/GUID-6049D9E3-57A4-443B-9334-ED336EE3BA1A.html)
 
   2. Once the alert definition is created, click `Manage` on the `Configure` &rarr; `Alerts` &rarr; `Alert Definitions` page. Select the alert, click the `...` button, and select `Export`.
 
@@ -155,7 +155,7 @@ Adding Content
 
 ???+ note 
 
-    Traversals must be created manually. There is no option to create in the VMware Aria Operations UI and export.
+    Traversals must be created manually. There is no option to create in the VCF Operations UI and export.
  
 A traversal specification defines how to navigate through objects by defining one or more _paths_ through their relationships, and is defined in the file `content/traversalSpecs/traversal.xml`.
 Each path consists of two or more _nodes_, and each node is separated by two bars (`||`).
@@ -181,9 +181,9 @@ Now, say that we want to be able to select an instance and see all the databases
    </TraversalSpecKinds>
 </AdapterKind>
 ```
-When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
+When the Management Pack is installed in VCF Operations, the `Object Browser` will show the traversal in the `Environments` section. The root node is named `Instance`, and there are two instances of the path for each of the two database objects that are children of the `Instance` object.
 
-![Simple Traversal in VMware Aria Operations](../images/traversal_1.png)
+![Simple Traversal in VCF Operations](../images/traversal_1.png)
 
 Taking the simple traversal as a starting point, we can add in the VM resource, and create a second traversal that starts at the 'bottom', with the databases, and moves upward:
 
@@ -205,18 +205,18 @@ Taking the simple traversal as a starting point, we can add in the VM resource, 
 
     For more information about the supported elements and attributes, see the [traversal.xml documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/1702fc9b81dcb30e8949ac64e5b3ed0651fa3864/vmware_aria_operations_integration_sdk/adapter_configurations/traversalSpecsSchema.xsd).
 
-When the Management Pack is installed in VMware Aria Operations, the `Object Browser` will show the both traversals in the `Environments` section.
+When the Management Pack is installed in VCF Operations, the `Object Browser` will show the both traversals in the `Environments` section.
 In the first traversal's root node is an instance, and there are two paths. The first gets the database children, and the second gets the VM parent. Since the database and VM are both on the second node of the paths, these will show up as siblings:
 
-![MyTraversal in VMware Aria Operations](../images/traversal_2.png)
+![MyTraversal in VCF Operations](../images/traversal_2.png)
 
 In the second traversal ("MyReversedTraversal"), instead of starting from the instance, the traversal's root node is a database. This traversal has a single path, from database to instance to VM. Thus, every database will show up at the top level, and each can be expanded to show the instance it resides on, and the instance can be expanded to show the VM:
 
-![MyReversedTraversal in VMware Aria Operations](../images/traversal_3.png)
+![MyReversedTraversal in VCF Operations](../images/traversal_3.png)
 
 ## Adding Localization
 
-The VMware Aria Operations UI supports translations in resource files that are included within a Management Pack.
+The VCF Operations UI supports translations in resource files that are included within a Management Pack.
 
 The corresponding model element in the content file (`dashboard.json`, `describe.xml`, etc) has an identifying attribute (often `key` or `name`), which also is the default representation in the UI (a _label_).
 To change this label an element, add a `nameKey` attribute in the model definition. The value of the `nameKey` attribute must be a positive integer, and corresponds to the key portion of

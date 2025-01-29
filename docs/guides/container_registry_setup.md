@@ -10,13 +10,13 @@ Any container registry should work if it is set up so that:
 
 * You have write access to a repository for pushing an image
 * The repository is public, so that the image can be pulled anonymously (e.g., without first doing a `docker login`)
-* The registry is accessible by your VMware Aria Operations Cloud Proxies
+* The registry is accessible by your VMware Cloud Foundation (VCF) Operations Cloud Proxies
 
 The following are known to work.
 
 ## Using the 'Harbor' Container Registry
 
-1. Install Harbor, if necessary. Ensure that the network you install it into is accessible from both your development environment and the VMware Aria Operations Cloud Proxies.
+1. Install Harbor, if necessary. Ensure that the network you install it into is accessible from both your development environment and the VCF Operations Cloud Proxies.
 
       **Install Harbor using a Tanzu Tile**
       :  Harbor can be installed as a Tanzu Tile. Instructions can be found here: [https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-installing.html](https://docs.vmware.com/en/VMware-Harbor-Registry/services/vmware-harbor-registry/GUID-installing.html).
@@ -32,7 +32,7 @@ The following are known to work.
 
     ???+ note
 
-        VMware Aria Operations pulls images anonymously, which requires the repository to be public.
+        VCF Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 3. Run `mp-build` and set the registry and repository tag when prompted (may look like `harbor.my-organization.com/my-project/adaptername`)
@@ -55,7 +55,7 @@ running `mp-build`.
 
     ???+ note
 
-        VMware Aria Operations pulls images anonymously, which requires the repository to be public.
+        VCF Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 3. Run `mp-build` and set the registry and repository when prompted (usually looks like `aws_account_id.dkr.ecr.region.amazonaws.com/repository-for-test-mp`)
@@ -70,7 +70,7 @@ running `mp-build`.
 
 !!! warning
 
-    VMware Aria Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Download rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). 
+    VCF Operations only supports anonymous pulling of images, which may cause issues when using Docker Hub since there is a [Download rate limit](https://docs.docker.com/docker-hub/download-rate-limit/#:~:text=Docker%20Hub%20limits%20the%20number,pulls%20per%206%20hour%20period). 
 
 Docker CLI recommends using a token when using docker hub instead of your login password, so users should authenticate their Docker Hub account before running `mp-build`.
 
@@ -78,7 +78,7 @@ Docker CLI recommends using a token when using docker hub instead of your login 
  
     ???+ note
 
-        VMware Aria Operations pulls images anonymously, which requires the repository to be public.
+        VCF Operations pulls images anonymously, which requires the repository to be public.
         For more information, see the FAQ: [I can't use a public repository. Are there any options?](../troubleshooting_and_faq/container_registries.md#i-cant-use-a-public-repository-are-there-any-options)
 
 2. Login to docker hub using the CLI docker login

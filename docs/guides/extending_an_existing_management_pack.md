@@ -16,7 +16,7 @@ metrics to the existing MySQL management pack's database object. It assumes
 you have already installed the SDK and understand the tools and steps in the 'Get
 Started' section. It also assumes that you have installed and configured the [MySQL
 management pack](https://customerconnect.vmware.com/downloads/details?downloadGroup=VRTVS_MP_MYSQL_810&productId=1051)
-on a VMware Aria Operations instance in your local network.
+on a VMware Cloud Foundation (VCF)  Operations instance in your local network.
 
 For the purposes of this walkthrough, we will be adding five metrics to the MySQL database
 object that show the total amount of lock waits and statistics about the time spent
@@ -86,7 +86,7 @@ mysql-connector-python>=8.0.32
 #### Modify the adapter definition to add fields for connecting to MySQL
 
 Now that we have added the library, we need to see what information it needs in order
-to connect. Since the adapter will be running on the VMware Aria Operations Cloud Proxy,
+to connect. Since the adapter will be running on the VCF Operations Cloud Proxy,
 which is not where our MySQL instance is running, we will need the following:
 * Host
 * Port
@@ -110,14 +110,14 @@ def get_adapter_definition() -> AdapterDefinition:
     credential.define_string_parameter("username", "Username")
     credential.define_password_parameter("password", "Password")
 
-    # The key 'container_memory_limit' is a special key that is read by the VMware Aria
+    # The key 'container_memory_limit' is a special key that is read by the VCF
     # Operations collector to determine how much memory to allocate to the docker
     # container running this adapter. It does not need to be read inside the adapter
     # code.
     definition.define_int_parameter(
         "container_memory_limit",
         label="Adapter Memory Limit (MB)",
-        description="Sets the maximum amount of memory VMware Aria Operations can "
+        description="Sets the maximum amount of memory VCF Operations can "
                     "allocate to the container running this adapter instance.",
         required=True,
         advanced=True,
@@ -197,12 +197,12 @@ will ask you to create a new connection, prompting for 'host', 'port', 'username
 'password'. After, it will ask if it should override SuiteAPI<sup>1</sup> credentials. Unless you
 have already set these up, select 'Yes', as we will need them later when we modify the
 'collect' method. It will ask you for the SuiteAPI hostname, which should be the
-hostname of the VMware Aria Operations instance where the MySQL management pack is
+hostname of the VCF Operations instance where the MySQL management pack is
 running, and a username and password which have permission to access to the SuiteAPI on
 that system.
 
-> <sup>1</sup>SuiteAPI is a REST API on VMware Aria Operations that can be used for many
-> purposes. The documentation for this API can be found on any VMware Aria Operations
+> <sup>1</sup>SuiteAPI is a REST API on VCF Operations that can be used for many
+> purposes. The documentation for this API can be found on any VCF Operations
 > instance at https://[aria_ops_hostname]/suite-api/. The 'adapter_instance' object that
 > is passed to the 'test', 'get_endpoints', and 'collect' methods can automatically
 > connect to this API and has methods for querying it.
@@ -214,7 +214,7 @@ Choose a connection:  New Connection
 Building adapter [Finished]
 Waiting for adapter to start [Finished]
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Connections are akin to Adapter Instances in VMware Aria Operations, and contain the parameters                                             │
+│Connections are akin to Adapter Instances in VCF Operations, and contain the parameters                                             │
 │needed to connect to a target environment. As such, the following connection parameters and credential fields are                           │
 │derived from the 'conf/describe.xml' file and are specific to each Management Pack.                                                         │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -250,14 +250,14 @@ Validation passed with no errors
 #### Modify the `collect` method to collect metrics, and attach them to the correct database objects
 
 Now that the `test` method is working, we can implement the `collect` method. This is
-the method where we query MySQL for the metrics we want and send them to VMware Aria
+the method where we query MySQL for the metrics we want and send them to VCF
 Operations as part of the database objects. Before we begin writing code, we need to
 look up some information about the MySQL management pack. Specifically, we need the
 following information:
 * The MySQL Adapter Kind Key
 * The MySQL Database Object type
 * A way to create a database object that matches a database that already exists on
-  VMware Aria Operations (usually the identifier list, but the name can sometimes work,
+  VCF Operations (usually the identifier list, but the name can sometimes work,
   as in this case).
 
 These will be used to ensure that the metrics are attached to existing MySQL objects,
@@ -291,9 +291,9 @@ of the `mysql_database` objects in the `MySQLAdapter` adapter.
 
 Getting the `adapter_instance_id` requires a SuiteAPI call. We need to retrieve the
 Adapter Instances for `MySQLAdapter` that has the same host and port identifiers as our
-adapter, and then retrieving the id. However, if we look in VMware Aria Operations
+adapter, and then retrieving the id. However, if we look in VCF Operations
 itself, we can see that each database's name has the format `mysql_host/mysql_database`,
-which should be unique (even if VMware Aria Operations isn't using it for determining
+which should be unique (even if VCF Operations isn't using it for determining
 uniqueness). Thus, a simpler way to get matching objects (in this case) is to construct
 the name, and ask the SuiteAPI to give us all `MySQLAdapter` `mysql_database` objects
 with those names. Then we can simply attach metrics to the resulting `mysql_database`
@@ -525,7 +525,7 @@ data should be present only for the subset that was also returned by the data qu
 ```
 
 When everything is working as expected locally using `mp-test`, we can run
-`mp-build` and install on VMware Aria Operations for a final verification.
+`mp-build` and install on VCF Operations for a final verification.
 
 
 #### Next Steps

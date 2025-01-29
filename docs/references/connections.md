@@ -4,8 +4,8 @@
 ### What are Connections?
 A **connection** refers to the link between an Adapter and other external systems, such as a vCenter Server, other
 databases, or cloud services. These connections allow an Adapter to gather performance and capacity data about your
-virtual or physical infrastructure operations, which can then be analyzed and presented in a unified, comprehensive view. VMware Aria
-Operations uses this data to help automate and simplify operations management.
+virtual or physical infrastructure operations, which can then be analyzed and presented in a unified, comprehensive view. VMware
+Cloud Foundation (VCF) Operations uses this data to help automate and simplify operations management.
 
 Creating a connection usually involves specifying the IP address or hostname of the external system, along with the appropriate
 [credentials](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model) to access that system.
@@ -19,7 +19,7 @@ After establishing the connection, an Adapter can collect data from the connecte
     default), and credentials should be revokable and have the minimum set of
     permissions necessary for the Adapter to function (Usually Read-Only is sufficient).
 
-In addition, sometimes it is desirable for an Adapter to query VMware Aria Operations' 
+In addition, sometimes it is desirable for an Adapter to query VCF Operations' 
 `SuiteAPI`. To facilitate using the API, credentials and connection information are 
 automatically provided to the Adapter when running on a Cloud Proxy. To mimic this when 
 running locally using `mp-test`, `mp-test` needs the SuiteAPI hostname, username, and 
@@ -27,12 +27,12 @@ password.
 
 ??? note
 
-    Suite API documentation can be found on any VMware Aria Operations Cluster, by
+    Suite API documentation can be found on any VCF Operations Cluster, by
     opening `https://[[vmware_aria_operations_cluster_hostname]]/suite-api/doc/swagger-ui.html`. 
 
 When setting up a new connection, `mp-test` will ask if you want to set up the connection
 information for the SuiteAPI. If you are not using this functionality, this can be 
-skipped, otherwise, the hostname should be the VMware Aria Operations Cluster hostname, 
+skipped, otherwise, the hostname should be the VCF Operations Cluster hostname, 
 and the username and password can be any user with permission to access the Suite API.
 `mp-test` will also prompt if you want to set the SuiteAPI credentials as the project 
 default. If you select 'yes', then every connection in this project will use the 

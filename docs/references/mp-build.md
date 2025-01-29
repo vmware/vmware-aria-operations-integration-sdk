@@ -7,9 +7,9 @@ The mp-build tool builds a pak file and uploads the adapter container to a regis
 any tests on the adapter; to test the adapter code, use the [test tool](mp-test.md).
 
 ## Prerequisites
-* The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
+* The [VMware Cloud Foundation Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
-* Write permissions to a container registry that is accessible from VMware Aria Operations.
+* Write permissions to a container registry that is accessible from VCF Operations.
 * Access to the Docker daemon
  
 ???+ info
@@ -29,7 +29,7 @@ any tests on the adapter; to test the adapter code, use the [test tool](mp-test.
   --push-registry [REGISTRY_PUSH_URL]  
                         The full container registry tag where the container image will be pushed to (overwrites config file). If this is omitted, and not present in the config file, it will default to the 'registry-tag' argument or equivalent entry in the config file.
   --use-default-registry
-                        If this flag is present, the Management Pack will use the default registry in VMware Aria Operations for pulling the adapter container image.
+                        If this flag is present, the Management Pack will use the default registry in VCF Operations for pulling the adapter container image.
   --registry-username REGISTRY_USERNAME
                         The container registry username.
   --registry-password REGISTRY_PASSWORD
@@ -82,7 +82,7 @@ build
 └── ManagementPack_1.0.0.pak
 ```
 ### Pak file
-The primary artifact of the `mp-build` tool is a pak file that can be uploaded directly to on-prem VMware Aria Operations installations. The VMware Aria Operations Integration SDK does not currently have support for VMware Aria Operations Cloud. 
+The primary artifact of the `mp-build` tool is a pak file that can be uploaded directly to on-prem VCF Operations installations. The VCF Operations Integration SDK does not currently have support for VCF Operations Cloud. 
 
 The pak file contains: 
 * The `manifest.txt` file and its localization inside the `resources` directory. 
