@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.vmware.aria.operations"
-version = "1.0.4"
+version = "1.1.0"
 
 java {
     toolchain {
@@ -80,12 +80,7 @@ publishing {
                     developer {
                         id.set("kjrokos")
                         name.set("Kyle Rokos")
-                        email.set("krokos@vmware.com")
-                    }
-                    developer {
-                        id.set("quirogas")
-                        name.set("Santiago Quiroga Cubillos")
-                        email.set("squirogacubi@vmware.com")
+                        email.set("kyle.rokos@broadcom.com")
                     }
                 }
                 scm {

@@ -1,5 +1,8 @@
 VMware Aria Operations Integration SDK Library
 ----------------------------------------------
+## Unreleased
+* Add a CertificateInfo class to avoid having to interact with json (dict) objects
+
 ## 1.0.0 (10-23-2023)
 * Release version 1.0.0 to coincide with version 1.1.0 of the SDK.
 * Documentation fixes.
