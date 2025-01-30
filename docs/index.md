@@ -2,31 +2,27 @@
 [![Aria Operations Integration SDK](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml/badge.svg)](https://github.com/vmware/vmware-aria-operations-integration-sdk/actions/workflows/aria-operations-integration-sdk.yaml)
 ![GitHub](https://img.shields.io/github/license/vmware/vmware-aria-operations-integration-sdk?style=plastic)
 
-VMware Aria Operations Integration SDK
+VMware Cloud Foundation Operations Integration SDK
 =====================
 
-Welcome to the VMware Aria Operations Integration SDK.
+Welcome to the VMware Cloud Foundation (VCF) Operations Integration SDK.
 
 ## What is the Integration SDK?
 
 The Integration SDK creates Management Packs to add custom objects, data, and
-relationships from an endpoint into VMware Aria Operations.
+relationships from an endpoint into VCF Operations.
 
 Using this SDK to create a Management Pack requires some Python or Java knowledge, 
 and an understanding of how to get data from the endpoint using an API. For example, 
 to create a Management Pack for Cassandra DB, an understanding of how to write an 
 SQL query, execute it, and read the results is required.
 
-Currently, installing a Management Pack built with the Integration SDK is supported for
-On-Prem versions of VMware Aria Operations only, but we are working to bring support to
-VMware Aria Operations Cloud in a future release.
-
-For a high-level overview of VMware Aria Operations, Management Packs, and this SDK,
+For a high-level overview of VCF Operations, Management Packs, and this SDK,
 see [the introduction](introduction.md).
 
 ## What can the Integration SDK be used for?
 The Integration SDK can be used to add any endpoint that supports remote monitoring to
-VMware Aria Operations. Adding the endpoint involves creating objects that
+VCF Operations. Adding the endpoint involves creating objects that
 represent the endpoint, which may include properties, metrics, and events, as well as
 relationships between objects.
 

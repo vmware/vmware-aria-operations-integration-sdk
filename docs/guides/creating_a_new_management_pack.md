@@ -142,13 +142,13 @@ def get_adapter_definition() -> AdapterDefinition:
         required=True,
     )
 
-    # The key 'container_memory_limit' is a special key that is read by the VMware Aria Operations collector to
+    # The key 'container_memory_limit' is a special key that is read by the VCF Operations collector to
     # determine how much memory to allocate to the docker container running this adapter. It does not
     # need to be read inside the adapter code.
     definition.define_int_parameter(
         "container_memory_limit",
         label="Adapter Memory Limit (MB)",
-        description="Sets the maximum amount of memory VMware Aria Operations can "
+        description="Sets the maximum amount of memory VCF Operations can "
                     "allocate to the container running this adapter instance.",
         required=True,
         advanced=True,
@@ -232,9 +232,9 @@ will ask you to create a new connection, prompting for 'Access Key ID', 'Region 
 'Access Key Secret'. After, it will ask if it should override SuiteAPI<sup>1</sup>
 credentials. We will not need them for this sample, so we can select 'No'.
 
-> <sup>1</sup>SuiteAPI is a REST API on VMware Aria Operations that can be used for many
-> purposes. The documentation for this API can be found on any VMware Aria Operations
-> instance at https://[aria_ops_hostname]/suite-api/. The 'adapter_instance' object that
+> <sup>1</sup>SuiteAPI is a REST API on VCF Operations that can be used for many
+> purposes. The documentation for this API can be found on any VCF Operations
+> instance at https://[vcf_ops_hostname]/suite-api/. The 'adapter_instance' object that
 > is passed to the 'test', 'get_endpoints', and 'collect' methods can automatically
 > connect to this API and has methods for querying it.
 
@@ -261,7 +261,7 @@ Validation passed with no errors
 
 Now that the `test` method is working, we can implement the `collect` method. This is
 the method where we query Alibaba Cloud for the objects, metrics, etc, we want and send
-them to VMware Aria Operations.
+them to VCF Operations.
 
 First, we should remove all the sample code inside the `try` block. All the code for the
 following steps should be inside the `try` block.
@@ -430,7 +430,7 @@ Validation passed with no errors
 ```
 
 When everything is working as expected locally using `mp-test`, we can run
-`mp-build` and install on VMware Aria Operations for a final verification.
+`mp-build` and install on VCF Operations for a final verification.
 
 
 #### Next Steps

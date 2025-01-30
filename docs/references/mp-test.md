@@ -3,13 +3,13 @@
 
 ## Purpose
 
-The `mp-test` tool is used to test an adapter locally. It can verify that each of the `collect`, `test connection`, `endpoint urls`, and `version` endpoints run, validates that the output conforms to the VMware Aria Operations API, and displays the output along with any errors that were found.
+The `mp-test` tool is used to test an adapter locally. It can verify that each of the `collect`, `test connection`, `endpoint urls`, and `version` endpoints run, validates that the output conforms to the VCF Operations API, and displays the output along with any errors that were found.
 
-If the test tool runs error-free on each endpoint, then the Management Pack should run successfully on VMware Aria Operations.
+If the test tool runs error-free on each endpoint, then the Management Pack should run successfully on VCF Operations.
 
 ## Prerequisites
 
-* The [VMware Aria Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
+* The [VCF Operations Integration SDK](../index.md#installation) is installed, with the virtual environment active.
 * A Management Pack project created by the [mp-init](mp-init.md) tool.
 * Access to the Docker daemon
 
@@ -26,17 +26,17 @@ If the test tool runs error-free on each endpoint, then the Management Pack shou
 usage: mp-test [-h] [-p PATH] [-c CONNECTION] [-v {0,1,2,3}]
                {connect,collect,long-run,endpoint_urls,version,wait} ...
 
-Tool for running adapter test and collect methods outside of a VMware Aria Operations Cloud Proxy.
+Tool for running adapter test and collect methods outside of a VCF Operations Cloud Proxy.
 
 positional arguments:
   {connect,collect,long-run,endpoint_urls,version,wait}
-    connect             Simulate the 'test connection' method being called by the VMware Aria Operations collector.
-    collect             Simulate the 'collect' method being called by the VMware Aria Operations collector.
+    connect             Simulate the 'test connection' method being called by the VCF Operations collector.
+    collect             Simulate the 'collect' method being called by the VCF Operations collector.
     long-run            Simulate a long run collection and return data statistics about the overall collection.
-    endpoint_urls       Simulate the 'endpoint_urls' method being called by the VMware Aria Operations collector.
+    endpoint_urls       Simulate the 'endpoint_urls' method being called by the VCF Operations collector.
     adapter_definition  Simulate the 'adapterDefinition' method being called by the mp-build tool to generate a describe.xml file.
-    version             Simulate the 'version' method being called by the VMware Aria Operations collector.
-    wait                Simulate the adapter running on a VMware Aria Operations collector and wait for user input to stop.
+    version             Simulate the 'version' method being called by the VCF Operations collector.
+    wait                Simulate the adapter running on a VCF Operations collector and wait for user input to stop.
                         Useful for calling REST methods via an external tool, such as Insomnia or Postman.
 
 optional arguments:
@@ -100,7 +100,7 @@ In order to test an adapter, the tool needs to know which adapter to test. This 
 If 'Other' is selected, the tool will prompt for a project path. If the path is a valid project, the path will be saved and appear in the project selection prompt in the future.
 
 #### Connection
-A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in VMware Aria Operations. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](../guides/adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model) and [Adding a Credential](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
+A connection provides the inputs the adapter needs to connect to the target it will monitor, similar to creating a new Account (Adapter Instance) in VCF Operations. A connection is derived from the `conf/describe.xml` file, and includes configuration fields and a credential (if one exists). See [Adding a Configuration Field to an Adapter](../guides/adding_to_an_adapter.md#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model) and [Adding a Credential](../guides/adding_to_an_adapter.md#defining-a-credential-in-the-object-model). Connections are specific to each Management Pack. The connection must be specified, and can be set in a number of ways.
 * If the `-c CONNECTION_NAME` or `--connection CONNECTION_NAME` argument is specified, the connection with the given name will be used. 
 * If a command line argument was not provided, or it was not a valid connection name, the tool will prompt the user to select an existing connection or create one:
     ```
@@ -145,7 +145,7 @@ The result is simply a JSON representation of the return value of the method tha
 After the result is received, the tool does some automatic validation of the results. If any issues are detected, the tool will write `Validation Failed:` to the console below the JSON result, followed by a list of the errors.
 The tool performs the following validation:
 * Ensure that the result JSON conforms to
-  the [VMware Aria Operations Collector API Spec](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+  the [VCF Operations Collector API Spec](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
   .
 
 ### Logs

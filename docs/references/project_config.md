@@ -33,7 +33,7 @@ if it is present.
 ## `container_push_repository` (string)
 
 If this is present, this will override the `container_repository` value for the purposes
-of pushing only. The value of `container_repository` will still be used by VMware Aria
+of pushing only. The value of `container_repository` will still be used by VCF
 Operations when pulling the adapter container image.
 This key value should contain the  `host` and `path` used to
 [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to
@@ -43,5 +43,5 @@ the specified repository.
 
 If this is present and true (default is false), the registry portion of the 
 `container_repository` will not be included with the management pack. This forces the end
-user's default registry in VMware Aria Operations to be used instead. This is useful in
+user's default registry in VCF Operations to be used instead. This is useful in
 some distribution scenarios.

@@ -4,7 +4,7 @@ Adding to an Adapter
 ## Object Model
 
 ### What is the Object Model?
-At runtime, Aria Operations Manager creates objects representing data sources in the adapter. Every adapter must include
+At runtime, VMware Cloud Foundation (VCF) Operations creates objects representing data sources in the adapter. Every adapter must include
 an object model that provides object types, object properties, and semantic definitions describing resources and the
 metric data's meaning. The object model can be defined by using a `describe.xml` file, which should be defined in the
 `conf` directory,
@@ -27,7 +27,7 @@ To define an adapter in the `conf/describe.xml` file use the top-level `AdapterK
 defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model). The `key` will be used
 when creating objects (See [Creating an object](#creating-an-object)), and must also be present in the `manifest.txt`
 file in the `"adapter_kinds"` array. When defining an adapter, we also have to define an adapter instance type. An adapter
-instance is a special object in VMware Aria Operations that stores user configuration for a connection. Every adapter
+instance is a special object in VCF Operations that stores user configuration for a connection. Every adapter
 must have exactly one adapter instance type.
 The Adapter instance type is set by defining a `ResourceKind` XML element with
 attribute `type=7`.
@@ -69,7 +69,7 @@ When using an Adapter Library, we can use the `AdapterDefinition` object.
     
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) and credentials (`CredentialKind` element)
-will be prompted to the user when creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations`
+will be prompted to the user when creating an account in VCF Operations on the `Data Sources` &rarr; `Integrations`
 page (See [Adding a Configuration Field to an Adapter Instance](#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model
 )
 and [Adding a Credential](#defining-a-credential-in-the-object-model
@@ -181,7 +181,7 @@ The `Parameter`object has an `advanced` property that determines identType.
 > Note: If there are any existing connections used by the [`mp-test`](../references/mp-test.md) tool before resource identifiers were created or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any configuration fields (`ResourceIdentifier` element) will be prompted to the user when
-creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations` page.
+creating an account in VCF Operations on the `Data Sources` &rarr; `Integrations` page.
 After the account has been created, configuration fields will be available to the `AdapterInstance` object passed to the
 **Collect**, **Test**, and **Get Endpoints** methods.
 
@@ -270,7 +270,7 @@ instance is a special `ResourceKind` that is used to configure an adapter. It is
 > ![Adding a credential](../images/adding_a_credential.png)
 >
 > Adding a credential to an adapter instance with the `username` and `password` fields as defined above. 'Credential name'
-> is always added (by VMware Aria Operations), and allows for credentials to be reused between adapter instances.
+> is always added (by VCF Operations), and allows for credentials to be reused between adapter instances.
 
 Both `describe.xml` and `AdapterDefinition` object allow for the use of multiple credential types.
 
@@ -341,7 +341,7 @@ Once the credential is defined in the [object model](#defining-an-adapter-and-ad
     or updated, these will need to be deleted or updated.
 
 Once an adapter instance is defined, any credential defined in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model)
-will be prompted to the user when creating an account in VMware Aria Operations on the `Data Sources` &rarr; `Integrations`
+will be prompted to the user when creating an account in VCF Operations on the `Data Sources` &rarr; `Integrations`
 page. After the account has been created, credential fields will be available `AdapterInstance` object passed to the
 **Collect**, **Test**, and **Get Endpoints** methods.(See [Creating an Adapter Instance](#creating-an-adapter-instance).)
 
@@ -405,7 +405,7 @@ respectively.
 For other languages, or writing an adapter without an Adapter Library, JSON representing
 the adapter instance is sent to a named pipe. The second-to-last argument the adapter is invoked with will always be the
 filename of the named pipe. The adapter instance JSON is described in the
-[VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
+[VCF Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Adding an Object Type to the Object Model
 An object type is a class of objects (resources) that share the same set of metrics, properties, and identifiers. For
@@ -537,7 +537,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
     # <additional collection code>
     # ...
 
-    # send database1 (and all other objects in the CollectResult) back to VMware Aria Operations
+    # send database1 (and all other objects in the CollectResult) back to VCF Operations
     result.send_result()
     ```
 
@@ -553,7 +553,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
     // <additional collection code>
     // ...
     
-    // send database1 (and all other objects in the CollectResult) back to VMware Aria Operations
+    // send database1 (and all other objects in the CollectResult) back to VCF Operations
     result.sendResults();
     ```
 
@@ -562,9 +562,7 @@ the canonical method for creating a new object is to use the `CollectResult` obj
 > Two objects of type 'my_database_resource_kind'. The creation of the db1 object is shown above. This view is found in `Environment` &rarr; `Inventory`. By default, the identifiers are not shown. They can be enabled by clicking the menu icon in the lower left (not shown in this screenshot) and selecting the _identifier_ columns. Identifiers are ordered in ascending `dispOrder`.-
 
 For other languages, or writing an adapter without an Adapter Library, objects must be returned as JSON, described
-in
-the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
-.
+in the [VCF Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Defining an Attribute in the Object Model
 An attribute is a class of metrics or properties similar to how an object type is a class of objects. Attributes can be
@@ -579,7 +577,7 @@ either a metric or property.
     Properties should not be used for string data that has a large number of possible values. For example, if you
     want to have a property that shows the last time an operation was run on a server, it is better to convert that
     to a numeric metric such as `hours_since_last_operation`, rather than using a string property with a human-readable
-    timestamp, as large numbers of distinct string values can degrade the performance of VMware Aria Operations.
+    timestamp, as large numbers of distinct string values can degrade the performance of VCF Operations.
 
 In the `conf/describe.xml` file, attributes can be grouped together in `ResourceGroup` elements, which can be nested.
 
@@ -593,11 +591,18 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         data_base.define_string_identifier("server_ip", "IP")
         data_base.define_string_identifier("server_port", "Port")
 
+        # Example of a metric definition without a group
+        data_base.define_metric("session_count", "Sessions")
+
+        # Example of metric and property definitions with a 'tablespace' group
         table_space_group = data_base.define_group("tablespace", "Tablespace")
         table_space_group.define_string_property("tablespace_name", "Name")
         table_space_group.define_metric("reads", "Reads")
 
-        data_base.define_metric("session_count", "Sessions")
+        # Example of a property definition within nested groups 
+        table_stats_group = table_space_group.define_group("table_stats", "Table Statistics")
+        table_stats_group.define_numeric_property("table_count", "Number of Tables")
+
         return definition
     ```
 
@@ -611,11 +616,18 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         dataBase.defineStringIdentifier("server_ip", "IP");
         dataBase.defineStringIdentifier("server_port", "Port");
     
+        // Example of a metric definition without a group
+        dataBase.defineMetric("session_count", "Sessions");
+
+        // Example of metric and property definitions with a 'tablespace' group
         Group tableSpaceGroup = dataBase.defineGroup("tablespace", "Tablespace");
         tableSpaceGroup.defineStringProperty("tablespace_name", "Name");
         tableSpaceGroup.defineMetric("reads", "Reads");
+
+        // Example of a property definition within nested groups 
+        tableStatsGroup = tableSpaceGroup.defineGroup("table_stats", "Table Statistics")
+        tableStatsGroup.defineNumericProperty("table_count", "Number of Tables")
     
-        dataBase.defineMetric("session_count", "Sessions");
         return definition;
     }
     ```
@@ -630,20 +642,39 @@ In the `conf/describe.xml` file, attributes can be grouped together in `Resource
         <ResourceKind key="my_database_resource_kind" nameKey="9">
           <ResourceIdentifier dispOrder="1" key="server_ip" nameKey="10" required="true" type="string" identType="1"/>
           <ResourceIdentifier dispOrder="2" key="server_port" nameKey="11" required="true" type="integer" identType="1"/>
-          <ResourceGroup nameKey="4" key="tablespace">
-            <ResourceAttribute nameKey="12" dashboardOrder="1" key="tablespace_name" dataType="string" isProperty="true" />
-            <ResourceAttribute nameKey="13" dashboardOrder="2" key="reads" dataType="integer" isProperty="false" />
-          </ResourceGroup>
+
           <ResourceAttribute nameKey="14" dashboardOrder="1" key="session_count" dataType="integer" isProperty="false" />
+
+          <ResourceGroup nameKey="4" key="tablespace">
+            <ResourceAttribute nameKey="12" dashboardOrder="2" key="tablespace_name" dataType="string" isProperty="true" />
+            <ResourceAttribute nameKey="13" dashboardOrder="3" key="reads" dataType="integer" isProperty="false" />
+            <ResourceGroup nameKey="15" key="table_stats">
+              <ResourceAttribute nameKey="16" dashboardOrder="4" key="table_count" dataType="integer" isProperty="true" />
+            </ResourceGroup>
+          </ResourceGroup>
+
         </ResourceKind>
       </ResourceKinds>
     </AdapterKind>
     ```
 
+In addition to the required 'key', additional attribute metadata can be set, for example units.
+For more information on these, see the documentation on `defineMetric`, `defineStringProperty`, 
+and `defineNumericProperty` methods in the references below.
+
+
 ???+ info "references"
 
-    - Python [Define Group](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
-    - Java [Define Group](../references/java_project/java_lib/com/vmware/aria/operations/definition/ObjectType.html#defineGroup(java.lang.String,java.lang.String)) method.
+    - Python 
+      * [Define Group](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_group) method.
+      * [Define Metric](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_metric) method.
+      * [Define Numeric Property](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_numeric_property) method.
+      * [Define String Property](../references/python_project/python_lib/definition/group.md#aria.ops.definition.group.GroupType.define_string_property) method.
+    - Java 
+      * [Define Group](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineGroup(java.lang.String,java.lang.String)) method.
+      * [Define Metric](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineMetric(java.lang.String,java.lang.String,com.vmware.aria.operations.definition.SdkUnit,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
+      * [Define Numeric Property](../references/java_project/java_lib/com/vmware/aria/operations/definition/GroupType.html#defineNumericProperty(java.lang.String,java.lang.String,com.vmware.aria.operations.definition.SdkUnit,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
+      * [Define String Property](../references/java_project/java_lib/com/vmware/aria/operations/definition/ObjectType.html#defineStringProperty(java.lang.String,java.lang.String,java.lang.Boolean,java.lang.Boolean,java.lang.Boolean)) method.
     - describe.xml [documentation](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/22d90c1e25a65678b172a95aa1b5507e3d400eed/samples/snmp-sample-mp/conf/describeSchema.xsd).
 
 
@@ -653,6 +684,11 @@ it can be used in the adapter code. See [Creating a metric or property](#creatin
 ## Creating a Metric or Property
 Before creating a metric or property, 
 ensure that the attribute describing the data is [present in the object model](#defining-an-attribute-in-the-object-model).
+???+ note
+    If the data is being sent to an _external_ object (i.e., an object that was created by a different adapter), there is no
+    way to add attribute descriptions to the data. Metrics and Properties can be added to the external object in the same way
+    as below, but note that the attribute key will be displayed in the UI. In addition, any additional metadata about 
+    attributes cannot be added to these metrics (e.g., units, labels, descriptions, etc).
 
 When using an Adapter Library, metrics and properties can be added using the attribute key and a value.
 In the case of attributes in groups, the group key(s) and attribute key are separated by a pipe "|" and
@@ -662,17 +698,24 @@ form the metric or property key.
 
     ```python linenums="1"
     database1 = # Object
+
+    database1.with_metric("session_count", 5)
+
     database1.with_property("tablespace|tablespace_name", "MyTablespace")
     database1.with_metric("tablespace|reads", 104)
-    database1.with_metric("session_count", 5)
+
+    database1.with_property("tablespace|table_stats|table_count", 9)
     ```
 === "Java Adapter Library"
 
     ```java linenums="1"
     Object database1 = // Object
+    database1.withMetric("session_count", 5);
+
     database1.withProperty("tablespace|tablespace_name", "MyTablespace");
     database1.withMetric("tablespace|reads", 104);
-    database1.withMetric("session_count", 5);
+
+    database1.withProperty("tablespace|table_stats|table_count", 9)
     ```
 
 > ![Metrics and properties in a my_database_resource_kind object](../images/adding_an_attribute.png)
@@ -680,12 +723,12 @@ form the metric or property key.
 > Result of the above code. Since the numbers and strings are hard-coded, these values will never change.
 > For a real adapter, the values will be the result of querying the target for up-to-date information.
 > Note that there are a number of automatically generated metrics and properties. The metric groups 'Badge',
-> 'VMware Aria Operations Generated', and 'VMware Aria Operations Manager Generated Properties' (and the metrics
+> 'VCF Operations Generated', and 'VCF Operations Manager Generated Properties' (and the metrics
 > and properties inside) are present on every object.
 
 For other languages, or writing an adapter without an Adapter Library, metrics and properties
 are returned as JSON inside of objects, described in the
-[VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
+[VCF Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json).
 
 ## Creating an Event
 Events do not need to be declared in the [object model](#defining-an-adapter-and-adapter-instance-in-the-object-model) file, and can simply be added to an object at runtime.
@@ -719,7 +762,7 @@ Using the [Python Adapter Library](../references/python_project/python_lib/adapt
 
 For other languages, or writing an adapter without an Adapter Library, events are
 returned as JSON inside of objects, described in the
-[VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+[VCF Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
 
 ## Creating a Relationship
@@ -769,7 +812,7 @@ is a child of object1.
       - object3 parent of object1  
 
      Care should be taken to avoid these, as they can adversely affect
-     VMware Aria Operations' analytics calculations.
+     VCF Operations' analytics calculations.
 
 ???+ info "references"
 
@@ -782,5 +825,5 @@ is a child of object1.
 
 For other languages, or writing an adapter without an Adapter Library, relationships are returned as JSON inside a
 collect result object, described in
-the [VMware Aria Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
+the [VCF Operations Collector Framework OpenAPI Document](https://github.com/vmware/vmware-aria-operations-integration-sdk/blob/main/vmware_aria_operations_integration_sdk/api/vmware-aria-operations-collector-fwk2.json)
 .
