@@ -1,7 +1,10 @@
-VMware Aria Operations Integration SDK Library
+VMware Cloud Foundation Operations Integration SDK Library
 ----------------------------------------------
-## Unreleased
+
+## 1.1.0 (02-03-2025)
+* Fix for `add_parent` and `add_parents`
 * Add a CertificateInfo class to avoid having to interact with json (dict) objects
+* Improve documentation
 
 ## 1.0.0 (10-23-2023)
 * Release version 1.0.0 to coincide with version 1.1.0 of the SDK.
