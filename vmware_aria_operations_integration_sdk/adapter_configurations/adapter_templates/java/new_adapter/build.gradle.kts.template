@@ -21,7 +21,7 @@ tasks.named<Jar>("jar") {
 }
 
 dependencies {
-    implementation("com.vmware.aria.operations:integration-sdk-adapter-library:1.0.4")
+    implementation("com.vmware.aria.operations:integration-sdk-adapter-library:1.1.0")
 }
 
 repositories {

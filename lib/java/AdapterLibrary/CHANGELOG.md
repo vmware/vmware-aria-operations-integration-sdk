@@ -1,7 +1,11 @@
 VMware Aria Operations Integration SDK Adapter Library for Java
 ---------------------------------------------------------------
 ## Unreleased
-* Add method for retrieving the x509 certificate from the CertificateInfo class
+
+## 1.1.0 (02-07-2025)
+* Add method for retrieving the x509 certificate from the CertificateInfo class.
+* Fix the Timer class to ensure that it always stops even if the block it is timing throws an exception.
+* Improve Documentation.
 
 ## 1.0.3 (03-12-2024)
 * Fix deserialization error when reading in certificate data.
