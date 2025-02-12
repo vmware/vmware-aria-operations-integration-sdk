@@ -1,0 +1,2321 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/latest/guides/extending_an_existing_management_pack/">
+      
+      
+        <link rel="prev" href="../creating_a_new_management_pack/">
+      
+      
+        <link rel="next" href="../adding_to_an_adapter/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.4">
+    
+    
+      
+        <title>Extending an Existing Management Pack - VMware Aria Operations Integration SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#extending-an-existing-management-pack" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-header__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VMware Aria Operations Integration SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Extending an Existing Management Pack
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="indigo"  aria-label="light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="VMware Aria Operations Integration SDK" class="md-nav__button md-logo" aria-label="VMware Aria Operations Integration SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VMware Aria Operations Integration SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vmware/vmware-aria-operations-integration-sdk" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../get_started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../creating_a_new_management_pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Creating a New Management Pack
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Extending an Existing Management Pack
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Extending an Existing Management Pack
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-library-for-connection-to-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add a library for connection to MySQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the adapter definition to add fields for connecting to MySQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the test method to create a MySQL connection and run a query
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the collect method to collect metrics, and attach them to the correct database objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-mp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the MP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_to_an_adapter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adding to an Adapter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adding_content/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adding Content
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container_registry_setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting up a Container Registry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            References
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Java Adapters
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            Java Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Java Projects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/java_project/java_lib/index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter Library
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Python Adapters
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            Python Adapters
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Python Projects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2" id="__nav_6_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Adapter Library
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Adapter Library
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_instance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter instance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/adapter_logging/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter logging
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/event/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/object/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/pipe_utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipe utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/result/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Result
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/suite_api_client/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Suite api client
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/timer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Timer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2_10" id="__nav_6_2_2_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Definition
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_2_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2_10">
+            <span class="md-nav__icon md-icon"></span>
+            Definition
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/adapter_definition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter definition
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/assertions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Assertions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/attribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Attribute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/credential_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Credential type
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/exceptions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Exceptions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/group/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Group
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/object_type/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Object type
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/parameter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parameter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/python_project/python_lib/definition/units/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Units
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/connections/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Connections
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-init/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-init
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/mp-test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Config File
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/project_connections_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Connections File
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/global_config/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Global Config File
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Troubleshooting and FAQs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshooting and FAQs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contents
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/adapter_design/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Adapter Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-build
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/container_registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Container Registries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/docker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Docker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation Issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/logs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Logs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting_and_faq/test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    mp-test
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-library-for-connection-to-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add a library for connection to MySQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the adapter definition to add fields for connecting to MySQL
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the test method to create a MySQL connection and run a query
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modify the collect method to collect metrics, and attach them to the correct database objects
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-the-mp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the MP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="extending-an-existing-management-pack">Extending an Existing Management Pack<a class="headerlink" href="#extending-an-existing-management-pack" title="Permanent link">&para;</a></h1>
+<hr />
+<p>This guide assumes you have already set up the SDK and know how to create a new project.
+It walks you through the steps necessary to extend an existing Management Pack to add
+additional data, using the MySQL Management Pack as an example.</p>
+<p>Extending an existing management pack is similar to creating a new management pack, but
+has some additional constraints. One of the primary limitations is that attributes that
+extend an existing management pack's objects cannot be defined (in code or in 
+<code>describe.xml</code>), which means that they can't have any metadata set about them (e.g., 
+units, labels, kpi flags, etc).</p>
+<p>This section will create a management pack that adds
+metrics to the existing MySQL management pack's database object. It assumes
+you have already installed the SDK and understand the tools and steps in the 'Get
+Started' section. It also assumes that you have installed and configured the <a href="https://customerconnect.vmware.com/downloads/details?downloadGroup=VRTVS_MP_MYSQL_810&amp;productId=1051">MySQL
+management pack</a>
+on a VMware Cloud Foundation (VCF)  Operations instance in your local network.</p>
+<p>For the purposes of this walkthrough, we will be adding five metrics to the MySQL database
+object that show the total amount of lock waits and statistics about the time spent
+waiting for those locks. This info can be found in MySQL in the table
+<code>performance_schema.table_lock_waits_summary_by_table</code>.</p>
+<p>The first step is to run <code>mp-init</code> and create a new project. There are no restrictions,
+except that the adapter kind key cannot be used by another management pack that is
+installed on the same system. For example, we used the following to create the sample:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>❯ mp-init
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Enter a directory to create the project in. This is the directory where adapter code, metadata, and
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>content will reside. If the directory doesn&#39;t already exist, it will be created.
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Path: mysql-extension-mp
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Management pack display name: Extended MySQL MP
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Management pack adapter key: ExtendedMySQLMP
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>Management pack description: Adds &#39;Lock Wait&#39; metrics to MySQL Database objects
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>Management pack vendor: VMware, Inc
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Enter a path to a EULA text file, or leave blank for no EULA:
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>Enter a path to the management pack icon file, or leave blank for no icon:
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>An icon can be added later by setting the &#39;pak_icon&#39; key in &#39;manifest.txt&#39; to the
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>icon file name and adding the icon file to the root project directory.
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>Creating Project [Finished]
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>project generation completed
+</span></code></pre></div>
+<p>The completed management pack is found in
+<a href="https://github.com/vmware/vmware-aria-operations-integration-sdk/tree/main/samples/mysql-extension-mp">the 'samples' directory</a>, and can be used as a reference
+for this walkthrough or as a starting point for creating your own.</p>
+<p>Once the project finished generating, we can change directory into the project
+and activate the Python virtual environment.</p>
+<p>Next, we need to modify the adapter code. We will break this up into several steps:</p>
+<ol>
+<li><a href="#add-a-library-for-connection-to-mysql">Add a library for connecting to MySQL</a></li>
+<li><a href="#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql">Modify the adapter definition to add fields for connecting to MySQL</a></li>
+<li><a href="#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query">Modify the <code>test</code> method to create a MySQL connection and run a query</a></li>
+<li><a href="#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects">Modify the <code>collect</code> method to collect metrics, and attach them to the correct
+     database objects</a></li>
+<li><a href="#verify-the-mp">Verify the MP</a></li>
+</ol>
+<h4 id="add-a-library-for-connection-to-mysql">Add a library for connection to MySQL<a class="headerlink" href="#add-a-library-for-connection-to-mysql" title="Permanent link">&para;</a></h4>
+<p>In order to add the metrics we want, we will need to be able to run a query against a
+MySQL database. There are several Python libraries that can help us do this. For now,
+let's use <a href="https://dev.mysql.com/doc/connector-python/en/"><code>mysql-connector-python</code></a>.</p>
+<p>To add a library to the adapter, open the file <code>adapter_requirements.txt</code> and add a new
+line with the name of the library. Optionally, we can also add a version constraint.
+Here's what the modified file should look like:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>vmware-aria-operations-integration-sdk-lib==0.7.*
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>psutil
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mysql-connector-python&gt;=8.0.32
+</span></code></pre></div></p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>We can also remove the <code>psutil</code> library, as that is only used in the sample code
+that we will be replacing. However, we would then no longer be able to run <code>mp-test</code>
+until we have removed the sample code that depends on <code>psutil</code>, so for now we will
+keep it.</p>
+</details>
+<h4 id="modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql">Modify the adapter definition to add fields for connecting to MySQL<a class="headerlink" href="#modify-the-adapter-definition-to-add-fields-for-connecting-to-mysql" title="Permanent link">&para;</a></h4>
+<p>Now that we have added the library, we need to see what information it needs in order
+to connect. Since the adapter will be running on the VCF Operations Cloud Proxy,
+which is not where our MySQL instance is running, we will need the following:
+* Host
+* Port
+* Username
+* Password</p>
+<p>In the <code>app/adapter.py</code> file, find the <code>get_adapter_definition()</code> method. We will define
+parameters for the <code>Host</code> and <code>Port</code>, and a credential for the <code>Username</code> and <code>Password</code>.
+After also removing the 'ID' parameter from the sample adapter, the method should look
+similar to this:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_adapter_definition</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">AdapterDefinition</span><span class="p">:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting &#39;Get Adapter Definition&#39;&quot;</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">definition</span> <span class="o">=</span> <span class="n">AdapterDefinition</span><span class="p">(</span><span class="n">ADAPTER_KIND</span><span class="p">,</span> <span class="n">ADAPTER_NAME</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">definition</span><span class="o">.</span><span class="n">define_string_parameter</span><span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;MySQL Host&quot;</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">definition</span><span class="o">.</span><span class="n">define_int_parameter</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="s2">&quot;Port&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3306</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">credential</span> <span class="o">=</span> <span class="n">definition</span><span class="o">.</span><span class="n">define_credential_type</span><span class="p">(</span><span class="s2">&quot;mysql_user&quot;</span><span class="p">,</span> <span class="s2">&quot;MySQL User&quot;</span><span class="p">)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">credential</span><span class="o">.</span><span class="n">define_string_parameter</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;Username&quot;</span><span class="p">)</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">credential</span><span class="o">.</span><span class="n">define_password_parameter</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;Password&quot;</span><span class="p">)</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="c1"># The key &#39;container_memory_limit&#39; is a special key that is read by the VCF</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="c1"># Operations collector to determine how much memory to allocate to the docker</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="c1"># container running this adapter. It does not need to be read inside the adapter</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="c1"># code.</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="n">definition</span><span class="o">.</span><span class="n">define_int_parameter</span><span class="p">(</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>        <span class="s2">&quot;container_memory_limit&quot;</span><span class="p">,</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Adapter Memory Limit (MB)&quot;</span><span class="p">,</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sets the maximum amount of memory VCF Operations can &quot;</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                    <span class="s2">&quot;allocate to the container running this adapter instance.&quot;</span><span class="p">,</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>        <span class="n">advanced</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        <span class="n">default</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>    <span class="p">)</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    <span class="c1"># This Adapter has no object types directly, rather it co-opts object types that</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>    <span class="c1"># are part of the MySQL MP to add additional metrics. As such, we can&#39;t define</span>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>    <span class="c1"># those object types here, because they&#39;re already defined in the MySQL MP with a</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a>    <span class="c1"># different adapter type.</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>    <span class="c1"># If we decide to also create new objects (that are not part of an existing MP),</span>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>    <span class="c1"># those can be added here.</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished &#39;Get Adapter Definition&#39;&quot;</span><span class="p">)</span>
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returning adapter definition: </span><span class="si">{</span><span class="n">definition</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a>    <span class="k">return</span> <span class="n">definition</span>
+</span></code></pre></div>
+<p>The adapter definition is also where objects and metrics are defined, however we are
+only allowed to define objects and metrics that are a part of our adapter type. Because
+extensions modify objects that are part of a different adapter type, we can't add them.
+This means that we can't set metric metadata like 'units', 'labels', etc that we would
+generally be able to set.</p>
+<h4 id="modify-the-test-method-to-create-a-mysql-connection-and-run-a-query">Modify the <code>test</code> method to create a MySQL connection and run a query<a class="headerlink" href="#modify-the-test-method-to-create-a-mysql-connection-and-run-a-query" title="Permanent link">&para;</a></h4>
+<p>Now that we've defined our parameters, we can try to connect and run a test query.
+We will do this in the <code>test</code> method. Notice this takes an <code>AdapterInstance</code> as a
+parameter. We will replace all the code that is inside the try/except block.</p>
+<p>All the parameters and credentials from the definition will be present in this Adapter
+Instance. We can access them like this, using the <code>key</code>s that we defined in the
+<code>get_adapter_definition</code> function to get the value assigned to that parameter:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>    <span class="n">hostname</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;host&quot;</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="s2">&quot;3306&quot;</span><span class="p">))</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">username</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_credential_value</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">password</span> <span class="o">=</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">get_credential_value</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>We can then use them to connect to MySQL and run a test query (be sure to import
+<code>mysql.connector</code>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="n">connection</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>        <span class="n">host</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">user</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="c1"># Run a simple test query</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SHOW databases&quot;</span><span class="p">)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">for</span> <span class="n">database</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span> <span class="c1"># The cursor needs to be consumed before it is closed</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found database &#39;</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></div>
+<p>Since we can expect that this will fail, e.g., if the user provides the wrong username
+and password, we should ensure there is good error-handling in this function.</p>
+<p>If we detect a failure (e.g., in the <code>except</code> block), we should call
+<code>result.with_error(error_message)</code> to indicate the test has failed. If no errors have
+been attached to the <code>result</code> object, the test will pass. (Note that calling
+<code>result.with_error(...)</code> multiple times in the same test will result in only the last
+error being displayed.)</p>
+<p>If the management pack will be widely distributed, it may also be worthwhile to catch
+common errors and ensure the resulting messages are clear and user-friendly.</p>
+<p>We should now be able to run <code>mp-test connect</code> to run this code. The <code>mp-test</code> tool
+will ask you to create a new connection, prompting for 'host', 'port', 'username', and
+'password'. After, it will ask if it should override SuiteAPI<sup>1</sup> credentials. Unless you
+have already set these up, select 'Yes', as we will need them later when we modify the
+'collect' method. It will ask you for the SuiteAPI hostname, which should be the
+hostname of the VCF Operations instance where the MySQL management pack is
+running, and a username and password which have permission to access to the SuiteAPI on
+that system.</p>
+<blockquote>
+<p><sup>1</sup>SuiteAPI is a REST API on VCF Operations that can be used for many
+purposes. The documentation for this API can be found on any VCF Operations
+instance at https://[aria_ops_hostname]/suite-api/. The 'adapter_instance' object that
+is passed to the 'test', 'get_endpoints', and 'collect' methods can automatically
+connect to this API and has methods for querying it.</p>
+</blockquote>
+<p>If everything was successful, the result should look similar to this:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>(venv-Extended MySQL MP) ❯ mp-test connect
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Choose a connection:  New Connection
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Building adapter [Finished]
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Waiting for adapter to start [Finished]
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│Connections are akin to Adapter Instances in VCF Operations, and contain the parameters                                             │
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│needed to connect to a target environment. As such, the following connection parameters and credential fields are                           │
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>│derived from the &#39;conf/describe.xml&#39; file and are specific to each Management Pack.                                                         │
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>Enter connection parameter &#39;MySQL Host&#39;: mysql8-1.localnet
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>Enter connection parameter &#39;Port&#39;: 3306
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>Enter connection parameter &#39;Adapter Memory Limit (MB)&#39;: 1024
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>Enter credential field &#39;Username&#39;: root
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>Enter credential field &#39;Password&#39;: *********
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>Override default SuiteAPI connection information for SuiteAPI calls?  Yes
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>Suite API Hostname: aria-ops-1.vmware.com
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>Suite API User Name: admin
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>Suite API Password: ********
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>Set these as the default SuiteAPI connection?  Yes
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>Enter a name for this connection: default
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>Saved connection &#39;default&#39; in &#39;~/Code/extended-mysql-mp/config.json&#39;.
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>The connection can be modified by manually editing this file.
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>Building adapter [Finished]
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>Waiting for adapter to start [Finished]
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>Running Endpoint URLs [Finished]
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>Running Connect [Finished]
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>{}
+</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>
+</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>Avg CPU %                     | Avg Memory Usage %         | Memory Limit | Network I/O         | Block I/O
+</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>------------------------------+----------------------------+--------------+---------------------+--------------
+</span><span id="__span-5-31"><a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>14.9 % (0.0% / 14.9% / 29.8%) | 4.0 % (4.0% / 4.0% / 4.0%) | 1.0 GiB      | 9.06 KiB / 4.16 KiB | 0.0 B / 0.0 B
+</span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>
+</span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>Request completed in 1.85 seconds.
+</span><span id="__span-5-34"><a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>
+</span><span id="__span-5-35"><a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>All validation logs written to &#39;~/Code/mysql-extention-mp/logs/validation.log&#39;
+</span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>Validation passed with no errors
+</span></code></pre></div></p>
+<h4 id="modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects">Modify the <code>collect</code> method to collect metrics, and attach them to the correct database objects<a class="headerlink" href="#modify-the-collect-method-to-collect-metrics-and-attach-them-to-the-correct-database-objects" title="Permanent link">&para;</a></h4>
+<p>Now that the <code>test</code> method is working, we can implement the <code>collect</code> method. This is
+the method where we query MySQL for the metrics we want and send them to VCF
+Operations as part of the database objects. Before we begin writing code, we need to
+look up some information about the MySQL management pack. Specifically, we need the
+following information:
+* The MySQL Adapter Kind Key
+* The MySQL Database Object type
+* A way to create a database object that matches a database that already exists on
+  VCF Operations (usually the identifier list, but the name can sometimes work,
+  as in this case).</p>
+<p>These will be used to ensure that the metrics are attached to existing MySQL objects,
+rather than creating new ones.</p>
+<p>To get this information, we will <code>ssh</code> into the collector where the MySQL management
+pack is running. Then <code>cd</code> to <code>$ALIVE_BASE/user/plugin/inbound/mysql/conf/</code>.
+From there, open the <code>describe.xml</code> file. The Adapter Kind key is at the top on the
+fourth line:
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">&lt;?xml version = &#39;1.0&#39; encoding = &#39;UTF-8&#39;?&gt;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="cm">&lt;!-- &lt;!DOCTYPE AdapterKind SYSTEM &quot;describeSchema.xsd&quot;&gt; --&gt;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="cm">&lt;!-- Copyright (c) 2020 VMware Inc. All Rights Reserved. --&gt;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nt">&lt;AdapterKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;MySQLAdapter&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://schemas.vmware.com/vcops/schema&quot;</span><span class="nt">&gt;</span>
+</span></code></pre></div>
+Inside the <code>AdapterKind</code> tag are <code>ResourceKinds/ResourceKind</code> tags, and we can search
+for the one that represents the database resource kind. Once we have found it we can see
+that it has two identifiers, one for the adapter instance ID, and one for the database
+name.
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="w">   </span><span class="nt">&lt;ResourceKinds&gt;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">      </span><span class="cm">&lt;!-- ... --&gt;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">      </span><span class="nt">&lt;ResourceKind</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;mysql_database&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;64&quot;</span><span class="w"> </span><span class="nt">&gt;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">          </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;adapter_instance_id&quot;</span><span class="w"> </span><span class="na">length=</span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;37&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span><span class="w"> </span><span class="nt">&lt;/ResourceIdentifier&gt;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">          </span><span class="nt">&lt;ResourceIdentifier</span><span class="w"> </span><span class="na">dispOrder=</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;database_name&quot;</span><span class="w"> </span><span class="na">length=</span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="na">nameKey=</span><span class="s">&quot;65&quot;</span><span class="w"> </span><span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;string&quot;</span><span class="w"> </span><span class="na">identType=</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="na">enum=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">default=</span><span class="s">&quot;&quot;</span><span class="nt">&gt;</span><span class="w"> </span><span class="nt">&lt;/ResourceIdentifier&gt;</span>
+</span></code></pre></div>
+In order to attach a metric to these objects, we will need all identifiers that have an
+<code>identType=1</code>. In this case, those are <code>adapter_instance_id</code> and <code>database_name</code>. This
+means that the combination of those two fields uniquely identify the object among all
+of the <code>mysql_database</code> objects in the <code>MySQLAdapter</code> adapter.</p>
+<p>Getting the <code>adapter_instance_id</code> requires a SuiteAPI call. We need to retrieve the
+Adapter Instances for <code>MySQLAdapter</code> that has the same host and port identifiers as our
+adapter, and then retrieving the id. However, if we look in VCF Operations
+itself, we can see that each database's name has the format <code>mysql_host/mysql_database</code>,
+which should be unique (even if VCF Operations isn't using it for determining
+uniqueness). Thus, a simpler way to get matching objects (in this case) is to construct
+the name, and ask the SuiteAPI to give us all <code>MySQLAdapter</code> <code>mysql_database</code> objects
+with those names. Then we can simply attach metrics to the resulting <code>mysql_database</code>
+objects, which will have all identifiers correctly set by the SuiteAPI.</p>
+<p>First, we should remove all the sample code inside the <code>try</code> block. All the code for the
+following steps should be inside the <code>try</code> block.</p>
+<p>Then, we need to establish a connection to MySQL. We can do this in the same way as in
+test connect. In many cases creating a function for connecting that is called from both
+<code>test</code> and <code>collect</code> is worthwhile. Then we can query the list of databases, and
+construct a list of database names that may be present:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>        <span class="c1"># Get the list of databases on this instance</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SHOW databases&quot;</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        <span class="n">database_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">database</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">database</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">]</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></div>
+<p>We then query the SuiteAPI for <code>mysql_database</code> objects from the <code>MySQLAdapter</code>
+adapter, with the names we computed. The queries that <code>query_for_resources</code> accepts
+are documented in the SuiteAPI documentation, and can search on many types of metadata
+about a resource. After that, we add the returned objects to the <code>result</code> and to a
+dictionary for quick access later.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>        <span class="c1"># Get the list of objects from the SuiteAPI that represent the MySQL</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>        <span class="c1"># databases that are on this instance, and add any we find to the result</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="n">databases</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># dict of database Objects by name for easy access</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="k">with</span> <span class="n">adapter_instance</span><span class="o">.</span><span class="n">suite_api_client</span> <span class="k">as</span> <span class="n">suite_api</span><span class="p">:</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>            <span class="n">dbs</span> <span class="o">=</span> <span class="n">suite_api</span><span class="o">.</span><span class="n">query_for_resources</span><span class="p">(</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>                <span class="n">query</span><span class="o">=</span><span class="p">{</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>                    <span class="s2">&quot;adapterKind&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;MySQLAdapter&quot;</span><span class="p">],</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>                    <span class="s2">&quot;resourceKind&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;mysql_database&quot;</span><span class="p">],</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">database_names</span><span class="p">,</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>                <span class="p">},</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>            <span class="p">)</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>            <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="n">dbs</span><span class="p">:</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>                <span class="n">databases</span><span class="p">[</span><span class="n">db</span><span class="o">.</span><span class="n">get_identifier_value</span><span class="p">(</span><span class="s2">&quot;database_name&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">db</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>                <span class="c1"># Add each database to the collection result. Objects must be</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>                <span class="c1"># added to the result in order for them to be returned by the</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>                <span class="c1"># collect method.</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>                <span class="n">result</span><span class="o">.</span><span class="n">add_object</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Finally, we'll run the query to get the data from MySQL that we want, and add that data
+as metrics to the relevant databases, and return the result:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>        <span class="c1"># Run a query to get some additional data. Here we&#39;re getting info about</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>        <span class="c1"># lock waits on each database</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="s2">                    select OBJECT_SCHEMA,</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="s2">                           sum(COUNT_STAR)     as COUNT_STAR,</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="s2">                           sum(SUM_TIMER_WAIT) as SUM_TIMER_WAIT,</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="s2">                           max(MAX_TIMER_WAIT) as MAX_TIMER_WAIT,</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="s2">                           min(MIN_TIMER_WAIT) as MIN_TIMER_WAIT</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="s2">                    from performance_schema.table_lock_waits_summary_by_table</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="s2">                    group by OBJECT_SCHEMA</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="s2">                    &quot;&quot;&quot;</span><span class="p">)</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>        <span class="c1"># Iterate through the results of the query, and add them to the appropriate</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        <span class="c1"># database Object as metrics.</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">5</span><span class="p">:</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Row is not expected size: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>                <span class="k">continue</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>            <span class="n">database</span> <span class="o">=</span> <span class="n">databases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">database</span><span class="p">:</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> not found in Aria Operations&quot;</span><span class="p">)</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>                <span class="k">continue</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>            <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Count&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>            <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Sum&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>            <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Max&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>            <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>                <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Avg&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>            <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>                <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Avg&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>            <span class="n">database</span><span class="o">.</span><span class="n">with_metric</span><span class="p">(</span><span class="s2">&quot;Table Locks|Min&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span>
+</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>
+</span><span id="__span-10-34"><a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>        <span class="k">return</span> <span class="n">result</span>
+</span></code></pre></div>
+<h4 id="verify-the-mp">Verify the MP<a class="headerlink" href="#verify-the-mp" title="Permanent link">&para;</a></h4>
+<p>To verify the MP, run <code>mp-test</code> using the same connection we created earlier. If there
+are any <code>mysql_database</code> objects that have entries in the
+<code>table_lock_waits_summary_by_table</code> table, we should see those returned in the
+collection result. For example, if the MySQL management pack is configured to collect
+<code>loadgen</code>, <code>mysql</code>, and <code>sys</code>, and the data query returns:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>object_schema      | count_star | sum_timer_wait | max_timer_wait | min_timer_wait
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>-------------------+------------+----------------+----------------+---------------
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>mysql              | 0          | 0              |0               | 0
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>performance_schema | 0          | 0              |0               | 0
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>sys                | 2          | 3946368        |2255204         | 1691164
+</span></code></pre></div>
+Then we would expect to see entries for each database monitored by MySQL, but new
+data should be present only for the subset that was also returned by the data query:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="nt">&quot;nonExistingObjects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&quot;relationships&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">            </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">            </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">                </span><span class="nt">&quot;adapterKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MySQLAdapter&quot;</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">                </span><span class="nt">&quot;identifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adapter_instance_id&quot;</span><span class="p">,</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;347062&quot;</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">                    </span><span class="p">},</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database_name&quot;</span><span class="p">,</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loadgen&quot;</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">                    </span><span class="p">}</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="w">                </span><span class="p">],</span>
+</span><span id="__span-12-21"><a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql8-1.localnet/loadgen&quot;</span><span class="p">,</span>
+</span><span id="__span-12-22"><a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a><span class="w">                </span><span class="nt">&quot;objectKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql_database&quot;</span>
+</span><span id="__span-12-23"><a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="w">            </span><span class="p">},</span>
+</span><span id="__span-12-24"><a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a><span class="w">            </span><span class="nt">&quot;metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-25"><a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a><span class="w">            </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-12-26"><a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-12-27"><a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-12-28"><a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a><span class="w">            </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-29"><a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a><span class="w">            </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-30"><a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a><span class="w">                </span><span class="nt">&quot;adapterKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MySQLAdapter&quot;</span><span class="p">,</span>
+</span><span id="__span-12-31"><a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a><span class="w">                </span><span class="nt">&quot;identifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-32"><a id="__codelineno-12-32" name="__codelineno-12-32" href="#__codelineno-12-32"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-33"><a id="__codelineno-12-33" name="__codelineno-12-33" href="#__codelineno-12-33"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-34"><a id="__codelineno-12-34" name="__codelineno-12-34" href="#__codelineno-12-34"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adapter_instance_id&quot;</span><span class="p">,</span>
+</span><span id="__span-12-35"><a id="__codelineno-12-35" name="__codelineno-12-35" href="#__codelineno-12-35"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;347062&quot;</span>
+</span><span id="__span-12-36"><a id="__codelineno-12-36" name="__codelineno-12-36" href="#__codelineno-12-36"></a><span class="w">                    </span><span class="p">},</span>
+</span><span id="__span-12-37"><a id="__codelineno-12-37" name="__codelineno-12-37" href="#__codelineno-12-37"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-38"><a id="__codelineno-12-38" name="__codelineno-12-38" href="#__codelineno-12-38"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-39"><a id="__codelineno-12-39" name="__codelineno-12-39" href="#__codelineno-12-39"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database_name&quot;</span><span class="p">,</span>
+</span><span id="__span-12-40"><a id="__codelineno-12-40" name="__codelineno-12-40" href="#__codelineno-12-40"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql&quot;</span>
+</span><span id="__span-12-41"><a id="__codelineno-12-41" name="__codelineno-12-41" href="#__codelineno-12-41"></a><span class="w">                    </span><span class="p">}</span>
+</span><span id="__span-12-42"><a id="__codelineno-12-42" name="__codelineno-12-42" href="#__codelineno-12-42"></a><span class="w">                </span><span class="p">],</span>
+</span><span id="__span-12-43"><a id="__codelineno-12-43" name="__codelineno-12-43" href="#__codelineno-12-43"></a><span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql8-1.localnet/mysql&quot;</span><span class="p">,</span>
+</span><span id="__span-12-44"><a id="__codelineno-12-44" name="__codelineno-12-44" href="#__codelineno-12-44"></a><span class="w">                </span><span class="nt">&quot;objectKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql_database&quot;</span>
+</span><span id="__span-12-45"><a id="__codelineno-12-45" name="__codelineno-12-45" href="#__codelineno-12-45"></a><span class="w">            </span><span class="p">},</span>
+</span><span id="__span-12-46"><a id="__codelineno-12-46" name="__codelineno-12-46" href="#__codelineno-12-46"></a><span class="w">            </span><span class="nt">&quot;metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-47"><a id="__codelineno-12-47" name="__codelineno-12-47" href="#__codelineno-12-47"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-48"><a id="__codelineno-12-48" name="__codelineno-12-48" href="#__codelineno-12-48"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Count&quot;</span><span class="p">,</span>
+</span><span id="__span-12-49"><a id="__codelineno-12-49" name="__codelineno-12-49" href="#__codelineno-12-49"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-12-50"><a id="__codelineno-12-50" name="__codelineno-12-50" href="#__codelineno-12-50"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040181</span>
+</span><span id="__span-12-51"><a id="__codelineno-12-51" name="__codelineno-12-51" href="#__codelineno-12-51"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-52"><a id="__codelineno-12-52" name="__codelineno-12-52" href="#__codelineno-12-52"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-53"><a id="__codelineno-12-53" name="__codelineno-12-53" href="#__codelineno-12-53"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Sum&quot;</span><span class="p">,</span>
+</span><span id="__span-12-54"><a id="__codelineno-12-54" name="__codelineno-12-54" href="#__codelineno-12-54"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-12-55"><a id="__codelineno-12-55" name="__codelineno-12-55" href="#__codelineno-12-55"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040181</span>
+</span><span id="__span-12-56"><a id="__codelineno-12-56" name="__codelineno-12-56" href="#__codelineno-12-56"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-57"><a id="__codelineno-12-57" name="__codelineno-12-57" href="#__codelineno-12-57"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-58"><a id="__codelineno-12-58" name="__codelineno-12-58" href="#__codelineno-12-58"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Max&quot;</span><span class="p">,</span>
+</span><span id="__span-12-59"><a id="__codelineno-12-59" name="__codelineno-12-59" href="#__codelineno-12-59"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-12-60"><a id="__codelineno-12-60" name="__codelineno-12-60" href="#__codelineno-12-60"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040181</span>
+</span><span id="__span-12-61"><a id="__codelineno-12-61" name="__codelineno-12-61" href="#__codelineno-12-61"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-62"><a id="__codelineno-12-62" name="__codelineno-12-62" href="#__codelineno-12-62"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-63"><a id="__codelineno-12-63" name="__codelineno-12-63" href="#__codelineno-12-63"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Avg&quot;</span><span class="p">,</span>
+</span><span id="__span-12-64"><a id="__codelineno-12-64" name="__codelineno-12-64" href="#__codelineno-12-64"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-12-65"><a id="__codelineno-12-65" name="__codelineno-12-65" href="#__codelineno-12-65"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040181</span>
+</span><span id="__span-12-66"><a id="__codelineno-12-66" name="__codelineno-12-66" href="#__codelineno-12-66"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-67"><a id="__codelineno-12-67" name="__codelineno-12-67" href="#__codelineno-12-67"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-68"><a id="__codelineno-12-68" name="__codelineno-12-68" href="#__codelineno-12-68"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Min&quot;</span><span class="p">,</span>
+</span><span id="__span-12-69"><a id="__codelineno-12-69" name="__codelineno-12-69" href="#__codelineno-12-69"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-12-70"><a id="__codelineno-12-70" name="__codelineno-12-70" href="#__codelineno-12-70"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040181</span>
+</span><span id="__span-12-71"><a id="__codelineno-12-71" name="__codelineno-12-71" href="#__codelineno-12-71"></a><span class="w">                </span><span class="p">}</span>
+</span><span id="__span-12-72"><a id="__codelineno-12-72" name="__codelineno-12-72" href="#__codelineno-12-72"></a><span class="w">            </span><span class="p">],</span>
+</span><span id="__span-12-73"><a id="__codelineno-12-73" name="__codelineno-12-73" href="#__codelineno-12-73"></a><span class="w">            </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-12-74"><a id="__codelineno-12-74" name="__codelineno-12-74" href="#__codelineno-12-74"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-12-75"><a id="__codelineno-12-75" name="__codelineno-12-75" href="#__codelineno-12-75"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-12-76"><a id="__codelineno-12-76" name="__codelineno-12-76" href="#__codelineno-12-76"></a><span class="w">            </span><span class="nt">&quot;events&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+</span><span id="__span-12-77"><a id="__codelineno-12-77" name="__codelineno-12-77" href="#__codelineno-12-77"></a><span class="w">            </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-78"><a id="__codelineno-12-78" name="__codelineno-12-78" href="#__codelineno-12-78"></a><span class="w">                </span><span class="nt">&quot;adapterKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MySQLAdapter&quot;</span><span class="p">,</span>
+</span><span id="__span-12-79"><a id="__codelineno-12-79" name="__codelineno-12-79" href="#__codelineno-12-79"></a><span class="w">                </span><span class="nt">&quot;identifiers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-80"><a id="__codelineno-12-80" name="__codelineno-12-80" href="#__codelineno-12-80"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-81"><a id="__codelineno-12-81" name="__codelineno-12-81" href="#__codelineno-12-81"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-82"><a id="__codelineno-12-82" name="__codelineno-12-82" href="#__codelineno-12-82"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adapter_instance_id&quot;</span><span class="p">,</span>
+</span><span id="__span-12-83"><a id="__codelineno-12-83" name="__codelineno-12-83" href="#__codelineno-12-83"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;347062&quot;</span>
+</span><span id="__span-12-84"><a id="__codelineno-12-84" name="__codelineno-12-84" href="#__codelineno-12-84"></a><span class="w">                    </span><span class="p">},</span>
+</span><span id="__span-12-85"><a id="__codelineno-12-85" name="__codelineno-12-85" href="#__codelineno-12-85"></a><span class="w">                    </span><span class="p">{</span>
+</span><span id="__span-12-86"><a id="__codelineno-12-86" name="__codelineno-12-86" href="#__codelineno-12-86"></a><span class="w">                        </span><span class="nt">&quot;isPartOfUniqueness&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-12-87"><a id="__codelineno-12-87" name="__codelineno-12-87" href="#__codelineno-12-87"></a><span class="w">                        </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;database_name&quot;</span><span class="p">,</span>
+</span><span id="__span-12-88"><a id="__codelineno-12-88" name="__codelineno-12-88" href="#__codelineno-12-88"></a><span class="w">                        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sys&quot;</span>
+</span><span id="__span-12-89"><a id="__codelineno-12-89" name="__codelineno-12-89" href="#__codelineno-12-89"></a><span class="w">                    </span><span class="p">}</span>
+</span><span id="__span-12-90"><a id="__codelineno-12-90" name="__codelineno-12-90" href="#__codelineno-12-90"></a><span class="w">                </span><span class="p">],</span>
+</span><span id="__span-12-91"><a id="__codelineno-12-91" name="__codelineno-12-91" href="#__codelineno-12-91"></a><span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql8-1.localnet/sys&quot;</span><span class="p">,</span>
+</span><span id="__span-12-92"><a id="__codelineno-12-92" name="__codelineno-12-92" href="#__codelineno-12-92"></a><span class="w">                </span><span class="nt">&quot;objectKind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mysql_database&quot;</span>
+</span><span id="__span-12-93"><a id="__codelineno-12-93" name="__codelineno-12-93" href="#__codelineno-12-93"></a><span class="w">            </span><span class="p">},</span>
+</span><span id="__span-12-94"><a id="__codelineno-12-94" name="__codelineno-12-94" href="#__codelineno-12-94"></a><span class="w">            </span><span class="nt">&quot;metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-12-95"><a id="__codelineno-12-95" name="__codelineno-12-95" href="#__codelineno-12-95"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-96"><a id="__codelineno-12-96" name="__codelineno-12-96" href="#__codelineno-12-96"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Count&quot;</span><span class="p">,</span>
+</span><span id="__span-12-97"><a id="__codelineno-12-97" name="__codelineno-12-97" href="#__codelineno-12-97"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+</span><span id="__span-12-98"><a id="__codelineno-12-98" name="__codelineno-12-98" href="#__codelineno-12-98"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040182</span>
+</span><span id="__span-12-99"><a id="__codelineno-12-99" name="__codelineno-12-99" href="#__codelineno-12-99"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-100"><a id="__codelineno-12-100" name="__codelineno-12-100" href="#__codelineno-12-100"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-101"><a id="__codelineno-12-101" name="__codelineno-12-101" href="#__codelineno-12-101"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Sum&quot;</span><span class="p">,</span>
+</span><span id="__span-12-102"><a id="__codelineno-12-102" name="__codelineno-12-102" href="#__codelineno-12-102"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3946368.0</span><span class="p">,</span>
+</span><span id="__span-12-103"><a id="__codelineno-12-103" name="__codelineno-12-103" href="#__codelineno-12-103"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040182</span>
+</span><span id="__span-12-104"><a id="__codelineno-12-104" name="__codelineno-12-104" href="#__codelineno-12-104"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-105"><a id="__codelineno-12-105" name="__codelineno-12-105" href="#__codelineno-12-105"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-106"><a id="__codelineno-12-106" name="__codelineno-12-106" href="#__codelineno-12-106"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Max&quot;</span><span class="p">,</span>
+</span><span id="__span-12-107"><a id="__codelineno-12-107" name="__codelineno-12-107" href="#__codelineno-12-107"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2255204.0</span><span class="p">,</span>
+</span><span id="__span-12-108"><a id="__codelineno-12-108" name="__codelineno-12-108" href="#__codelineno-12-108"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040182</span>
+</span><span id="__span-12-109"><a id="__codelineno-12-109" name="__codelineno-12-109" href="#__codelineno-12-109"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-110"><a id="__codelineno-12-110" name="__codelineno-12-110" href="#__codelineno-12-110"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-111"><a id="__codelineno-12-111" name="__codelineno-12-111" href="#__codelineno-12-111"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Avg&quot;</span><span class="p">,</span>
+</span><span id="__span-12-112"><a id="__codelineno-12-112" name="__codelineno-12-112" href="#__codelineno-12-112"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1973184.0</span><span class="p">,</span>
+</span><span id="__span-12-113"><a id="__codelineno-12-113" name="__codelineno-12-113" href="#__codelineno-12-113"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040182</span>
+</span><span id="__span-12-114"><a id="__codelineno-12-114" name="__codelineno-12-114" href="#__codelineno-12-114"></a><span class="w">                </span><span class="p">},</span>
+</span><span id="__span-12-115"><a id="__codelineno-12-115" name="__codelineno-12-115" href="#__codelineno-12-115"></a><span class="w">                </span><span class="p">{</span>
+</span><span id="__span-12-116"><a id="__codelineno-12-116" name="__codelineno-12-116" href="#__codelineno-12-116"></a><span class="w">                    </span><span class="nt">&quot;key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Table Locks|Min&quot;</span><span class="p">,</span>
+</span><span id="__span-12-117"><a id="__codelineno-12-117" name="__codelineno-12-117" href="#__codelineno-12-117"></a><span class="w">                    </span><span class="nt">&quot;numberValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1691164.0</span><span class="p">,</span>
+</span><span id="__span-12-118"><a id="__codelineno-12-118" name="__codelineno-12-118" href="#__codelineno-12-118"></a><span class="w">                    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1681767040182</span>
+</span><span id="__span-12-119"><a id="__codelineno-12-119" name="__codelineno-12-119" href="#__codelineno-12-119"></a><span class="w">                </span><span class="p">}</span>
+</span><span id="__span-12-120"><a id="__codelineno-12-120" name="__codelineno-12-120" href="#__codelineno-12-120"></a><span class="w">            </span><span class="p">],</span>
+</span><span id="__span-12-121"><a id="__codelineno-12-121" name="__codelineno-12-121" href="#__codelineno-12-121"></a><span class="w">            </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+</span><span id="__span-12-122"><a id="__codelineno-12-122" name="__codelineno-12-122" href="#__codelineno-12-122"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-12-123"><a id="__codelineno-12-123" name="__codelineno-12-123" href="#__codelineno-12-123"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-12-124"><a id="__codelineno-12-124" name="__codelineno-12-124" href="#__codelineno-12-124"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p>When everything is working as expected locally using <code>mp-test</code>, we can run
+<code>mp-build</code> and install on VCF Operations for a final verification.</p>
+<h4 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h4>
+<ul>
+<li><a href="../adding_to_an_adapter/">Adding to an Adapter</a><ul>
+<li><a href="../adding_to_an_adapter/#defining-an-adapter-and-adapter-instance-in-the-object-model">Defining an Adapter and Adapter Instance in the Object Model</a></li>
+<li><a href="../adding_to_an_adapter/#adding-a-configuration-field-to-an-adapter-instance-in-the-object-model">Adding a Configuration Field to an Adapter Instance</a></li>
+<li><a href="../adding_to_an_adapter/#defining-a-credential-in-the-object-model">Defining a Credential in the Object Model</a></li>
+<li><a href="../adding_to_an_adapter/#creating-an-adapter-instance">Creating an Adapter Instance</a></li>
+<li><a href="../adding_to_an_adapter/#adding-an-object-type-to-the-object-model">Adding an Object Type to the Object Model</a></li>
+<li><a href="../adding_to_an_adapter/#creating-an-object">Creating an Object</a></li>
+<li><a href="../adding_to_an_adapter/#defining-an-attribute-in-the-object-model">Defining an Attribute in the Object Model</a></li>
+<li><a href="../adding_to_an_adapter/#creating-a-metric-or-property">Creating a Metric or Property</a></li>
+<li><a href="../adding_to_an_adapter/#creating-an-event">Creating an Event</a></li>
+<li><a href="../adding_to_an_adapter/#creating-a-relationship">Creating a Relationship</a></li>
+</ul>
+</li>
+<li><a href="../adding_content/">Adding Content</a><ul>
+<li><a href="../adding_content/#adding-a-dashboard">Adding a Dashboard</a></li>
+<li><a href="../adding_content/#adding-a-report-template">Adding a Report Template</a></li>
+<li><a href="../adding_content/#adding-alert-definitions">Adding Alert Definitions</a></li>
+<li><a href="../adding_content/#adding-a-traversal">Adding a Traversal</a></li>
+<li><a href="../adding_content/#adding-localization">Adding Localization</a></li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2023-2025 Broadcom. All Rights Reserved. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      
+        <script src="../../js/open_in_new_tab.js"></script>
+      
+    
+  </body>
+</html>
