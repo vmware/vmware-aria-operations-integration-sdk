@@ -68,7 +68,7 @@ publishing {
             artifact(javadocJar)
             pom {
                 name.set("VMware Aria Operations Integration SDK Adapter Libraray")
-                description.set("A library for facilitating the development of Adapters using the VMware Aria Operations Integration SDK")
+                description.set("A library for facilitating the development of Adapters using the VMware Cloud Foundation Operations Integration SDK")
                 url.set("https://github.com/vmware/vmware-aria-operations-integration-sdk")
                 licenses {
                     license {
