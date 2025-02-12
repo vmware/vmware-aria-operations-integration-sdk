@@ -25,8 +25,8 @@ VMware Aria Operations Integration SDK
 * Fix issue where Suite API connection information in `connections.json` did not inherit
   default values correctly
 * Fix issue where SuiteAPI behavior in an `mp-test` Test Connection did not match the
-  behavior in VMware Aria Operations durring Test Connection and Get Endpoints. Specifically, 
-  on the platform the SuiteAPI credentials are only sent durring a Collection, as that is the
+  behavior in VMware Aria Operations during Test Connection and Get Endpoints. Specifically, 
+  on the platform the SuiteAPI credentials are only sent during a Collection, as that is the
   only time the SuiteAPI is intended to be used. However, `mp-test` had been sending SuiteAPI 
   credentials for all three operations. The behavior of `mp-test` now matches the platform.
 
