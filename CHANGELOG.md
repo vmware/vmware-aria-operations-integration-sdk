@@ -1,5 +1,23 @@
 VMware Aria Operations Integration SDK
 --------------------------------------
+## 1.2.0 (02-12-2025)
+* Fix and updates to Adapter Libraries
+* `config.json` will let you specify a different push repository from the pull repository by using the `container_push_repository` property.
+ ```json
+  {
+      [...],
+      "container_repository": "pull_images_from_this_repository.repository.com/images/test_mp",
+      "container_push_repository": "push_images_to_this_repositroy.repository.com/images/test_mp"
+  }
+  ```
+* Also in `config.json`, there is a `use_default_registry` key that takes a boolean. The default is null/false, but if set to true the registry that the image is pushed to will be omitted from the pack file.
+* Instances of projects.registry.vmware.com have been replaced by projects.packages.broadcom.com
+* The Python Adapter Library has been bumped to 1.1.0.
+* The Java Adapter Library has been bumped to 1.1.0.
+* When generating a new project, the ‘images’ directory (containing icons for object kinds, adapter kinds, and traversals), is now in the correct location.
+* When generating a new Java project, it now defaults to the latest version of the Java Adapter Library, which addresses issues where things didn’t work out of the box.
+* A number of dependencies have been updated to address security vulnerabilities.
+
 ## 1.1.0 (10-23-2023)
 * Add Java support
 * Improve logging when building a container image fails
