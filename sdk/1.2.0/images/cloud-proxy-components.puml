@@ -1,0 +1,34 @@
+@startuml
+!pragma layout smetana
+title "Cloud Proxy"
+skinparam componentStyle rectangle
+
+ component "Collector Process" {
+    [Adapter Handler] as ah
+    [Scheduler] as s
+    [Orchestrator] as o
+}
+component "Container 1" as c1 {
+    [commands.cfg] as c1c
+    [Python\nAdapter\nProcess] as c1a
+    [REST Server] as c1r
+}
+component "Container 2" as c2 {
+    [commands.cfg] as c2c
+    [PowerShell\nAdapter\nProcess] as c2a
+    [REST Server] as c2r
+}
+
+'ah -d- s
+'s -d- o
+
+ah <--> c1r : HTTPS
+c1r <-d- c1c
+c1r -> c1a : Named Pipes
+c1r <- c1a
+
+ah <--> c2r : HTTPS
+c2r <-d- c2c
+c2r -> c2a : Named Pipes
+c2r <- c2a
+@enduml

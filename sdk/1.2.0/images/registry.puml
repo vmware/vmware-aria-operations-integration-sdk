@@ -1,0 +1,44 @@
+@startuml
+!pragma layout smetana
+title "Building and installing a Pack File that uses an external container registry"
+
+participant "mp-build"
+entity "Pack File\n(Filesystem)" as pak
+database "Container Registry" as registry
+participant "VCF Operations Cluster" as cluster
+collections "VCF Operations Cloud Proxy" as proxy
+
+group Build Pack File
+    activate "mp-build"
+    rnote over "mp-build"
+        Create Adapter
+        Container Image
+    endrnote
+    "mp-build" <-> registry : Login to registry
+    "mp-build" -> registry : Push Adapter Container\nImage to registry
+    activate registry
+    "mp-build" <- registry : Get image digest
+    rnote over "mp-build"
+        Add image digest
+        to Pack File manifest
+    endrnote
+    "mp-build" -> pak : Write Pack File
+    activate pak
+    deactivate "mp-build"
+end
+
+group Install Pack File
+    pak -> cluster : User installs Pack File via UI
+    cluster -> proxy : Cluster pushes Pack File\ncontents to Cloud Proxy(s)
+    rnote over proxy
+        Read registry and
+        digest from Pack File
+    endrnote
+    proxy <- registry : Proxy pulls Adapter Container Image (anonymous)
+    rnote over proxy
+        Management Pack
+        is fully installed
+    endrnote
+    activate proxy
+end
+@enduml
