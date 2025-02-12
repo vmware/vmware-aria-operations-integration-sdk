@@ -23,7 +23,7 @@ to access these logs:
 > Example of a 'Collector is not compatible with adapter type' error message
 
 This message occurs if the `Collector/Group` field in the 'Add Account' page is set to a collector that is not a Cloud Proxy.
-Integration SDK management packs can only run on a Cloud Proxy. See [below](#how-can-i-install-a-cloud-proxy-in-my-vmware-aria-operations-environment)
+Integration SDK management packs can only run on a Cloud Proxy. See [below](#how-can-i-install-a-cloud-proxy-in-my-vcf-operations-environment)
 for instructions on installing a Cloud Proxy in VCF Operations.
 
 ---
@@ -33,7 +33,7 @@ for instructions on installing a Cloud Proxy in VCF Operations.
 > Example of an 'Unknown Adapter Type' error message for an adapter with type/key 'Testserver'.
 
 This message can occur for several reasons:
-- The Collector/Group the MP is running on is a Cloud Proxy. See [below](#how-can-i-install-a-cloud-proxy-in-my-vmware-aria-operations-environment)
+- The Collector/Group the MP is running on is a Cloud Proxy. See [below](#how-can-i-install-a-cloud-proxy-in-my-vcf-operations-environment)
   for instructions on installing a Cloud Proxy in VCF Operations.
 - Check that the Cloud Proxy version supports containerized adapters. Containerized adapter
   support was added in VCF Operations version 8.10.0.

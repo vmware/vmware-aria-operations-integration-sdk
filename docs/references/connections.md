@@ -38,7 +38,7 @@ and the username and password can be any user with permission to access the Suit
 default. If you select 'yes', then every connection in this project will use the 
 provided credentials, unless they explicitly override them. To learn more about how 
 Suite API connections are handled, see the 
-[project connections file](project_connections_config.md#suiteapihostname-string) documentation.
+[project connections file](project_connections_config.md#suite_api_hostname-string) documentation.
 
 ### How are Connections Stored?
 

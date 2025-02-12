@@ -18,7 +18,7 @@ This key value should contain the  `host` and `path` used to
 [tag](https://docs.docker.com/engine/reference/commandline/tag/) and push images to
 the specified repository.
 
-This overrides the [default_container_registry_path](global_config.md#defaultcontainerregistrypath-string-optional)
+This overrides the [default_container_registry_path](global_config.md#default_container_registry_path-string-optional)
 if it is present.
 
 ??? example

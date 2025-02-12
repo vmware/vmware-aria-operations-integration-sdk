@@ -25,7 +25,7 @@ A management pack consists of content, metadata, and an adapter.
 > 
 > A Cloud Proxy collector process managing adapter containers, which each correspond to
 > one adapter instance. Within each container is the REST server and the adapter 
-> process. The [Commands.cfg](#commandscfg) file tells the REST server how to run the
+> process. The [Commands.cfg](#calling-the-adaptercollection-code-from-the-rest-server) file tells the REST server how to run the
 > adapter process for each endpoint.
  
 ### Adapter/Collection Code

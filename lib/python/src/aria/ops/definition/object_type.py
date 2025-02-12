@@ -46,7 +46,7 @@ class ObjectType(GroupType):  # type: ignore
 
         Args:
             key (str): Used to identify the parameter.
-            label (Optinal[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
             required (bool): True if this parameter is required. Defaults to True.
             is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
             default (Optional[str]): The default value of the parameter.
@@ -82,7 +82,7 @@ class ObjectType(GroupType):  # type: ignore
             label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
             required (bool): True if this parameter is required. Defaults to True.
             is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
-            default ([Optional[int]): The default value of the parameter.
+            default (Optional[int]): The default value of the parameter.
 
         Returns:
              The created Int Identifier.
@@ -114,9 +114,8 @@ class ObjectType(GroupType):  # type: ignore
 
         Args:
             key (str): Used to identify the parameter.
-            values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified and not part of this array, it
-            will be added as an additional enum value (values are case-sensitive). Enum values are not localizable.
-            label [Optinal[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
+            values (list[Union[str, tuple[str, str]]]): An array containing all enum values. If 'default' is specified and not part of this array, it will be added as an additional enum value. Notes: Enum values are case-sensitive. Enum values are not localizable.
+            label (Optional[str]): Label that is displayed in the VMware Aria Operations UI. Defaults to the key.
             required (bool): True if this parameter is required. Defaults to True.
             is_part_of_uniqueness (bool): True if the parameter should be used for object identification. Defaults to True.
             default (Optional[str]): The default value of the parameter.
