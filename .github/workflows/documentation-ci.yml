@@ -39,8 +39,6 @@ jobs:
         git config --global user.name ci-bot
         git config --global user.email ci-bot@example.com
     - name: Build MKDocs Site
-      # If not on the main branch, build the docs to check for errors, but do not deploy
-      if: github.ref != 'refs/heads/main'
       run: mkdocs build
     - name: Deploy MKDocs Site
       # If on the main branch, deploy the site to the 'development' version

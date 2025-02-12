@@ -1,4 +1,4 @@
-VMware Aria Operations Integration SDK Adapter Library for Java
+VMware Cloud Foundation Operations Integration SDK Adapter Library for Java
 ---------------------------------------------------------------
 ## Unreleased
 

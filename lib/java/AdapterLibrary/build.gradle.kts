@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.serialization") version "1.9.0"
     id("org.jetbrains.dokka") version "1.9.0"
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0-rc-2"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
     `java-library`
     `signing`
     `maven-publish`
@@ -67,7 +67,7 @@ publishing {
             artifact(tasks.kotlinSourcesJar.get())
             artifact(javadocJar)
             pom {
-                name.set("VMware Aria Operations Integration SDK Adapter Libraray")
+                name.set("VMware Cloud Foundation Operations Integration SDK Adapter Library")
                 description.set("A library for facilitating the development of Adapters using the VMware Cloud Foundation Operations Integration SDK")
                 url.set("https://github.com/vmware/vmware-aria-operations-integration-sdk")
                 licenses {
