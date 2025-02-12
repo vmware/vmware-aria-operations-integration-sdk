@@ -134,7 +134,7 @@ The name of the connection. This is used as the connection identifier and can be
     ...
     name:"host-1"
     },
-    {
+    {[container_registries.md](../troubleshooting_and_faq/container_registries.md)
     ...
     name:"host-2"
     }
