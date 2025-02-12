@@ -112,7 +112,7 @@ Before pushing and image to Artifactory make sure the image has a unique tag and
 
 1. Log in to Artifactory through the Docker CLI 
 
-Note: the Broadcom registry has a dedicated URL that is only accesible via the 
+Note: the Broadcom registry has a dedicated URL that is only accessible via the 
 broadcom VPN. This is why the URLs for pushing do not match the URLs for pulling. 
 ```
 docker login vmware_aria_operations_integration_sdk-docker-prod-local.usw1.packages.broadcom.com

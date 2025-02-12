@@ -1,4 +1,4 @@
-VMware Aria Operations Integration SDK
+VMware Cloud Foundation Operations Integration SDK
 --------------------------------------
 ## 1.2.0 (02-12-2025)
 * Fix and updates to Adapter Libraries
