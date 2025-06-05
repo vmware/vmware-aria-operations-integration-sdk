@@ -2,182 +2,182 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/examples/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/get_started/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/introduction/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/guides/adding_content/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/guides/adding_to_an_adapter/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/guides/container_registry_setup/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/guides/creating_a_new_management_pack/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/guides/extending_an_existing_management_pack/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/architecture/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/connections/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/global_config/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/mp-build/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/mp-init/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/mp-test/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/project_config/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/project_connections_config/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/java_project/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/adapter_instance/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/adapter_logging/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/data/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/event/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/object/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/pipe_utils/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/result/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/suite_api_client/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/timer/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/adapter_definition/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/assertions/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/attribute/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/credential_type/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/exceptions/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/group/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/object_type/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/parameter/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/references/python_project/python_lib/definition/units/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/adapter_design/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/build/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/container_registries/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/docker/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/installation/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/logs/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
     <url>
          <loc>https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/develop/troubleshooting_and_faq/test/</loc>
-         <lastmod>2025-02-12</lastmod>
+         <lastmod>2025-06-05</lastmod>
     </url>
 </urlset>
