@@ -163,7 +163,9 @@ def build_image(client: docker.client, language: str, path: str) -> Image:
     # TODO use Low level API to show user build progress
     print(f"building {language} image...")
     image, _ = docker_wrapper.build_image(
-        client, path=build_path, tag={CONTAINER_BASE_NAME}
+        # The tag parameter is expected to be a single string 'CONTAINER_BASE_NAME', not a structure '{CONTAINER_BASE_NAME}'
+        # site-packages.docker.utils.match_tag(str) called from site-packages.docker.api.build
+        client, path=build_path, tag=CONTAINER_BASE_NAME
     )
     # TODO try pulling/building base image
 
