@@ -66,15 +66,13 @@ def get_images_to_build(base_image: dict, secondary_images: List[Dict]) -> List[
 
     # Create choices for all secondary images and add it to the current choices
     # Indicate that secondary images include the base image
-    choices.extend(
-        [
-            (i, f"{i['language']} (includes {base_image['language']} base)", False)
-            for i in secondary_images
-        ]
-    )
+    choices.extend([
+        (i, f"{i['language']} (includes {base_image['language']} base)", False) 
+        for i in secondary_images
+    ])
 
     print("\nUse SPACE to select/deselect images, ENTER to confirm, ↑/↓ to navigate")
-
+    
     images: List[Dict] = multiselect_prompt(  # type: ignore
         message="Select one or more images to build:", items=choices
     )
@@ -87,13 +85,11 @@ def get_images_to_build(base_image: dict, secondary_images: List[Dict]) -> List[
     # because secondary images depend on the base image
     has_secondary = any(img in secondary_images for img in images)
     has_base = base_image in images
-
+    
     if has_secondary and not has_base:
-        print(
-            f"\nNote: {base_image['language']} base image will be built first (required for selected images)"
-        )
+        print(f"\nNote: {base_image['language']} base image will be built first (required for selected images)")
         images.insert(0, base_image)
-
+    
     # Ensure base image is built first if it's in the list
     if has_base and images[0] != base_image:
         images.remove(base_image)
@@ -151,9 +147,7 @@ def main() -> None:
         language = image["language"].lower()
         version = image["version"]
 
-        print(
-            f"\n[{idx}/{len(images_to_build)}] Building {image['language']} image (version {version})..."
-        )
+        print(f"\n[{idx}/{len(images_to_build)}] Building {image['language']} image (version {version})...")
         print(f"    Path: {image['path']}")
         print(f"    Language: {language}")
         print(f"{'='*60}\n")
