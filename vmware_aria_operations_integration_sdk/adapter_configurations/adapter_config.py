@@ -354,7 +354,7 @@ class AdapterConfig(ABC):
         # Iterate through all files in the selected template
         for file in self._list_adapter_template_files():
             file_path, extension = os.path.splitext(
-                file.replace(self.response_values["adapter_template_path"] + "/", "")
+                file.replace(self.response_values["adapter_template_path"] + os.sep, "")
             )
             destination = self.get_file_destination(file_path)
             if extension == ".template":
