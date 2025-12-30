@@ -1,6 +1,6 @@
 # mp-build
 
-### Unable to access base-adapter images from remote registry
+### Unable to access base-adapter images from remote registry ("failed to resolve reference...")
 
 If you cannot access the remote container registry (`projects.packages.broadcom.com`), you can build and use base images locally.
 
@@ -57,14 +57,16 @@ docker tag base-adapter:python-1.0.0 projects.packages.broadcom.com/vmware_aria_
 docker tag base-adapter:powershell-0.9.0 projects.packages.broadcom.com/vmware_aria_operations_integration_sdk/base-adapter:powershell-0.9.0
 ```
 
-???+ note "Verifying Your Local Images"
-    To see what images you have available locally:
-    ```bash
-    docker images | grep base-adapter
-    ```
+> **Note: Verifying Your Local Images**
+> 
+> To see what images you have available locally:
+> ```bash
+> docker images | grep base-adapter
+> ```
 
-???+ warning "Version Matching"
-    Make sure the version you build and tag matches the version referenced in your adapter's Dockerfile. Check your Dockerfile's `FROM` line to see which version is required.
+> **Warning: Version Matching**
+> 
+> Make sure the version you build and tag matches the version referenced in your adapter's Dockerfile. Check your Dockerfile's `FROM` line to see which version is required.
 
 ### mp-build returns 'Unable to build container'
 
