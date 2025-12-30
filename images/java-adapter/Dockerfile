@@ -3,27 +3,24 @@ FROM base-adapter:python-1.0.0
 # switch to root in order to do all installs
 USER root
 
-# install the necessary dependencies
-RUN  apt-get -q update
-RUN  apt-get -yq install gnupg curl
+# install the necessary dependencies and update CA certificates
+RUN  apt-get -q update && \
+     apt-get -yq install gnupg wget ca-certificates && \
+     update-ca-certificates && \
+     apt-get clean && \
+     rm -rf /var/lib/apt/lists/*
 
-# add Azul's public key
-RUN  apt-key adv \
-  --keyserver hkp://keyserver.ubuntu.com:80 \
-  --recv-keys 0xB1998361219BD9C9
+# add Azul's public key and repository
+# Using wget with --no-check-certificate as a fallback since the base image might not have proper certs
+RUN  mkdir -p /etc/apt/keyrings && \
+     (wget -qO- https://repos.azul.com/azul-repo.key || wget --no-check-certificate -qO- https://repos.azul.com/azul-repo.key) | gpg --dearmor -o /etc/apt/keyrings/azul.gpg && \
+     echo "deb [signed-by=/etc/apt/keyrings/azul.gpg] http://repos.azul.com/zulu/deb stable main" > /etc/apt/sources.list.d/zulu.list
 
-# download and install the package that adds
-# the Azul APT repository to the list of sources
-RUN curl -O https://cdn.azul.com/zulu/bin/zulu-repo_1.0.0-3_all.deb
-
-# install the package
-RUN  apt-get install ./zulu-repo_1.0.0-3_all.deb
-
-# update the package sources
-RUN  apt-get update
-
-# install Azul Zulu JDK 17
-RUN apt-get install -y zulu17-ca-jdk-headless #NOTE:maybe we could get away with just having the JRE since the user should provide executables
+# update the package sources and install Azul Zulu JDK 17
+RUN  apt-get -q update && \
+     apt-get install -y zulu17-ca-jdk-headless && \
+     apt-get clean && \
+     rm -rf /var/lib/apt/lists/*
 
 #switch back to the LPU
 USER aria-ops-adapter-user
