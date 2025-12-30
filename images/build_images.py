@@ -60,10 +60,20 @@ def should_update_version(language: str, current_version: str) -> Any:
 
 def get_images_to_build(base_image: dict, secondary_images: List[Dict]) -> List[Dict]:
     # Create an array with the base image as the first option
-    choices = [(base_image, f"{base_image['language']}", True)]
+    # Note: The third element (False) means it's NOT pre-selected by default
+    # Users can toggle selections using SPACE bar and confirm with ENTER
+    choices = [(base_image, f"{base_image['language']} (base image)", False)]
 
     # Create choices for all secondary images and add it to the current choices
-    choices.extend([(i, f"{i['language']}", False) for i in secondary_images])
+    # Indicate that secondary images include the base image
+    choices.extend(
+        [
+            (i, f"{i['language']} (includes {base_image['language']} base)", False)
+            for i in secondary_images
+        ]
+    )
+
+    print("\nUse SPACE to select/deselect images, ENTER to confirm, ↑/↓ to navigate")
 
     images: List[Dict] = multiselect_prompt(  # type: ignore
         message="Select one or more images to build:", items=choices
@@ -72,6 +82,28 @@ def get_images_to_build(base_image: dict, secondary_images: List[Dict]) -> List[
     if len(images) == 0:
         print("No images were selected to build. Exiting.")
         exit(1)
+
+    # If any secondary image is selected, ensure the base image is also included
+    # because secondary images depend on the base image
+    has_secondary = any(img in secondary_images for img in images)
+    has_base = base_image in images
+
+    if has_secondary and not has_base:
+        print(
+            f"\nNote: {base_image['language']} base image will be built first (required for selected images)"
+        )
+        images.insert(0, base_image)
+
+    # Ensure base image is built first if it's in the list
+    if has_base and images[0] != base_image:
+        images.remove(base_image)
+        images.insert(0, base_image)
+
+    # Display what will be built
+    print(f"\nSelected {len(images)} image(s) to build:")
+    for img in images:
+        print(f"  - {img['language']}")
+    print()
 
     return images
 
@@ -111,9 +143,20 @@ def main() -> None:
     if push_to_registry:
         login(container_registry=registry_url)
 
-    for image in images_to_build:
+    print(f"\n{'='*60}")
+    print(f"Building {len(images_to_build)} image(s)...")
+    print(f"{'='*60}\n")
+
+    for idx, image in enumerate(images_to_build, 1):
         language = image["language"].lower()
         version = image["version"]
+
+        print(
+            f"\n[{idx}/{len(images_to_build)}] Building {image['language']} image (version {version})..."
+        )
+        print(f"    Path: {image['path']}")
+        print(f"    Language: {language}")
+        print(f"{'='*60}\n")
 
         tags = [
             f"{language}-{version}",
@@ -161,9 +204,8 @@ def build_image(client: docker.client, language: str, path: str) -> Image:
     build_path = os.path.join(os.path.realpath("."), path)
 
     # TODO use Low level API to show user build progress
-    print(f"building {language} image...")
     image, _ = docker_wrapper.build_image(
-        client, path=build_path, tag={CONTAINER_BASE_NAME}
+        client, path=build_path, tag=CONTAINER_BASE_NAME
     )
     # TODO try pulling/building base image
 
