@@ -34,6 +34,8 @@ as the endpoint).
 For an example walkthrough of creating a new Management Pack monitoring an endpoint, see
 [Creating a New Management Pack](https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/latest/guides/creating_a_new_management_pack/)
 
+For an example of Management Pack, see [vCommunity MP](https://github.com/vmbro/VCF-Operations-vCommunity/tree/main) by [Onur Yuzseven](https://www.linkedin.com/in/oyuzseven/). 
+
 The Integration SDK can also be used to extend objects created by another Management
 Pack with additional metrics, properties, events, or relationships. This can be useful
 to ensure access to custom data without having to re-implement already existing data.
@@ -52,7 +54,7 @@ For an example walkthrough of the steps required to extend another management pa
 * All documentation is available at [https://vmware.github.io/vmware-aria-operations-integration-sdk/sdk/latest/](https://vmware.github.io/vmware-aria-operations-integration-sdk/).
 ## Contributing
 
-The vmware-aria-operations-integration-sdk project team welcomes contributions from the community. Before you start
+The vmware-VCF-operations-integration-sdk project team welcomes contributions from the community. Before you start
 working with this project please read and sign our [Contributor License Agreement](https://cla.vmware.com/cla/1/preview).
 If you wish to contribute code, and you have not signed our Contributor Licence Agreement (CLA), our bot will prompt you
 to do so when you open a Pull Request. For any questions about the CLA process, please refer to our
