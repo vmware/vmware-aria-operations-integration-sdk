@@ -146,6 +146,14 @@ def push_image(client: DockerClient, repository: str, tag: str) -> str:
             except KeyError:
                 raise PushError("Image digest was not found in response from server")
 
+        elif "status" in line and "digest" in line["status"]:
+            try:
+                image_digest = re.search(r"sha256:[0-9a-f]{64}", line["status"]).group(
+                    0
+                )
+            except KeyError:
+                raise PushError("Image digest was not found in response from server")
+
         elif "errorDetail" in line:
             message = line["errorDetail"]["message"]
             # Clean the error message
